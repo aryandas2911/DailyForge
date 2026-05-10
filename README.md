@@ -319,9 +319,7 @@ We use labels to organize work. Here's what they mean:
 | `good first issue` | Small, well-scoped tasks — perfect for first-time contributors |
 | `bug` | Something is broken or behaving incorrectly |
 | `feature` | New functionality to be added |
-| `help wanted` | Issues where maintainer input or extra hands are needed |
 | `documentation` | Improvements to README, guides, or inline comments |
-| `testing` | Adding or improving test coverage |
 
 **Tips for new contributors:**
 - Start with `good first issue` — they're designed to be approachable
