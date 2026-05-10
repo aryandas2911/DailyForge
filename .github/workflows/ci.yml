@@ -1,0 +1,36 @@
+name: CI Checks
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 🔹 Backend Install
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      # 🔹 Frontend Install
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # 🔹 Build Frontend
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
