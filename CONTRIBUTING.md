@@ -313,8 +313,6 @@ If you receive feedback, act on it. If you disagree, discuss it professionally i
 
 <div align="center">
 
-**Questions?** Open a [GitHub Discussion](https://github.com/aryandas2911/DailyForge/discussions) or reach out via [aryandas2911@gmail.com](mailto:aryandas2911@gmail.com)
-
 *Built with ❤️ for GSSoC 2026 — DailyForge*
 
 </div>
