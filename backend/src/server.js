@@ -9,8 +9,6 @@ import { routineRouter } from "../routes/routineRoutes.js";
 // dotenv config
 dotenv.config();
 const PORT = process.env.PORT;
-const MONGO_URI = process.env.MONGO_URI;
-const JWT_SECRET = process.env.JWT_SECRET;
 
 // Initialize express app
 const app = express();
