@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -20,5 +21,10 @@
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.0",
     "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "globals": "^17.6.0"
   }
 }
