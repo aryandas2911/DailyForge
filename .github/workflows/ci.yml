@@ -2,35 +2,52 @@ name: CI Checks
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  push:
+    branches: ["main"]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
-      # 🔹 Backend Install
       - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install
+        working-directory: backend
+        run: npm ci
 
-      # 🔹 Frontend Install
+      - name: Lint Backend
+        working-directory: backend
+        run: npm run lint
+
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install
+        working-directory: frontend
+        run: npm ci
 
-      # 🔹 Build Frontend
+      - name: Lint Frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Backend Tests
+        working-directory: backend
+        run: npm test --if-present
+
+      - name: Frontend Tests
+        working-directory: frontend
+        run: npm test --if-present
+
       - name: Build Frontend
-        run: |
-          cd frontend
-          npm run build
+        working-directory: frontend
+        run: npm run build
