@@ -283,6 +283,8 @@ No ambiguity here. Your PR **will be closed** if:
 | `bug` | Confirmed broken behavior | Intermediate contributors |
 | `feature` | New functionality — may require architecture decisions | Experienced contributors |
 | `documentation` | README, guides, inline comments | Anyone |
+| `help wanted` | Maintainers need external input or hands | Experienced contributors |
+| `testing` | Adding or improving test coverage | Anyone comfortable with testing |
 
 **New contributors:** Do not skip `good first issue`. It exists for a reason — it's where you prove you understand the workflow before taking on harder tasks.
 

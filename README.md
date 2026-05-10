@@ -320,6 +320,8 @@ We use labels to organize work. Here's what they mean:
 | `bug` | Something is broken or behaving incorrectly |
 | `feature` | New functionality to be added |
 | `documentation` | Improvements to README, guides, or inline comments |
+| `help wanted` | Maintainers need external input or hands | Experienced contributors |
+| `testing` | Adding or improving test coverage | Anyone comfortable with testing |
 
 **Tips for new contributors:**
 - Start with `good first issue` — they're designed to be approachable
