@@ -282,7 +282,7 @@ We love contributions! DailyForge is actively participating in **GSSoC 2026** an
 
 **2. Fork & branch**
 ```bash
-git clone https://github.com/aryandas2911/DailyForge.git
+git clone https://github.com/<your-username>/DailyForge.git
 cd DailyForge
 git checkout -b <type>/<short-description>
 ```
