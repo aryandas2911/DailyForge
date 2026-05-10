@@ -16,13 +16,13 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    const res = await api.post("/tasks", taskData);
+    await api.post("/tasks", taskData);
     getTasks();
   };
 
   // update task
   const updateTask = async (id, updates) => {
-    const res = await api.put(`/tasks/${id}`, updates);
+    await api.put(`/tasks/${id}`, updates);
     getTasks();
   };
 
@@ -34,6 +34,7 @@ const useTasks = () => {
 
   // initial fetch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
 

@@ -12,11 +12,13 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
   useEffect(() => {
     if (task) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(task.tags || "");
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [task]);
 
