@@ -2,6 +2,8 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import { Eye, EyeOff } from "lucide-react";
+
 
 const Login = () => {
   // two states for inputs
@@ -85,7 +87,7 @@ const Login = () => {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 relative">
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
@@ -109,12 +111,14 @@ const Login = () => {
             input-focus
             hover-lift
           "
-        />
-        <button
+       />
+      <button
   type="button"
   onClick={() => setShowPassword(prev => !prev)}
+  aria-label={showPassword ? "Hide password" : "Show password"}
+  className="absolute right-3 top-1/2 -translate-y-1/2"
 >
-  {showPassword ? "Hide password" : "Show password"}
+  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 </button>
       </div>
 
