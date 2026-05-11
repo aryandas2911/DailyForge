@@ -8,6 +8,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -116,7 +117,7 @@ const Signup = () => {
           Password
         </label>
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           value={password}
           onChange={(e) => {
@@ -134,6 +135,12 @@ const Signup = () => {
             input-focus hover-lift
           "
         />
+        <button
+  type="button"
+  onClick={() => setShowPassword(prev => !prev)}
+>
+  {showPassword ? "Hide password" : "Show password"}
+</button>
       </div>
 
       <button
