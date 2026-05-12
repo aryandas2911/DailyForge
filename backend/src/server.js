@@ -5,6 +5,7 @@ import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import { healthRouter } from "../routes/healthRoutes.js";
 
 // dotenv config
 dotenv.config();
@@ -35,6 +36,9 @@ app.use("/api/tasks", taskRouter);
 
 // Router for accessing routine routes
 app.use("/api/routines", routineRouter);
+
+// Router for health check
+app.use("/api/health", healthRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");
