@@ -50,7 +50,7 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//i added
+//changed logic
   const nextTask = tasks
   .filter((task) => task.dueDate && task.status !== "Completed")
   .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
@@ -157,7 +157,7 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-                // i added
+               // updated deadlines
                 nextTask ? (
   <div className="space-y-1">
     <p className="text-sm font-medium text-main">
