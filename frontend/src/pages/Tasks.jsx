@@ -94,7 +94,7 @@ export default function Tasks() {
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {tasks.length ? (
               tasks
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((task) => (
                   <TaskItem
                     key={task._id}
