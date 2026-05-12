@@ -50,6 +50,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
+//i added
+  const nextTask = tasks
+  .filter((task) => task.dueDate && task.status !== "Completed")
+  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = tasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -153,7 +157,23 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted">No urgent deadlines 🎉</p>
+                // i added
+                nextTask ? (
+  <div className="space-y-1">
+    <p className="text-sm font-medium text-main">
+      {nextTask.title}
+    </p>
+
+    <p className="text-xs text-muted">
+      Due on{" "}
+      {new Date(nextTask.dueDate).toLocaleDateString()}
+    </p>
+  </div>
+) : (
+  <p className="text-xs text-muted">
+    No upcoming tasks 🎉
+  </p>
+)
               )}
             </div>
 
