@@ -1,6 +1,58 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 
+const formatLocalDateOnly = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const normalizeDateOnlyInput = (value) => {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return formatLocalDateOnly(value);
+  }
+
+  if (typeof value !== "string") return null;
+
+  // Accept both "YYYY-MM-DD" and ISO strings like "YYYY-MM-DDTHH:mm:ss.sssZ"
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const yearNum = Number(year);
+  const monthNum = Number(month);
+  const dayNum = Number(day);
+
+  const candidate = new Date(Date.UTC(yearNum, monthNum - 1, dayNum));
+  const isValidDate =
+    candidate.getUTCFullYear() === yearNum &&
+    candidate.getUTCMonth() + 1 === monthNum &&
+    candidate.getUTCDate() === dayNum;
+
+  if (!isValidDate) return null;
+
+  return `${year}-${month}-${day}`;
+};
+
+const validateDueDate = (dueDate) => {
+  if (!dueDate) {
+    return { valid: false, message: "Due date is required" };
+  }
+
+  const dueDateOnly = normalizeDateOnlyInput(dueDate);
+  if (!dueDateOnly) {
+    return { valid: false, message: "Invalid due date" };
+  }
+
+  const todayOnly = formatLocalDateOnly(new Date());
+  if (dueDateOnly < todayOnly) {
+    return { valid: false, message: "Due date cannot be in the past" };
+  }
+
+  return { valid: true };
+};
+
 // Create task function
 export const createTask = async (req, res) => {
   try {
@@ -16,9 +68,17 @@ export const createTask = async (req, res) => {
     // fetch details for task from request body
     const { title, description, tags, priority, status, dueDate } = req.body;
     if (!title || !priority || !status) {
-      res
+      return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
+    }
+
+    const dueDateValidation = validateDueDate(dueDate);
+    if (!dueDateValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: dueDateValidation.message,
+      });
     }
 
     // new task object
@@ -89,6 +149,16 @@ export const updateTask = async (req, res) => {
     // fetch update task details
     const updates = req.body;
     const taskId = req.params.id;
+
+    if (Object.prototype.hasOwnProperty.call(updates, "dueDate")) {
+      const dueDateValidation = validateDueDate(updates.dueDate);
+      if (!dueDateValidation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: dueDateValidation.message,
+        });
+      }
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(

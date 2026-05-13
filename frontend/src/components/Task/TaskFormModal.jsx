@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 const priorities = ["Low", "Medium", "High"];
+const formatDateInput = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [title, setTitle] = useState("");
@@ -9,6 +15,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [tags, setTags] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const today = formatDateInput(new Date());
 
   useEffect(() => {
     if (task) {
@@ -27,6 +34,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
+    if (dueDate < today) return alert("Due date cannot be in the past");
 
     onSubmit({
       title: title.trim(),
@@ -113,6 +121,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <input
               type="date"
               value={dueDate}
+              min={today}
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required

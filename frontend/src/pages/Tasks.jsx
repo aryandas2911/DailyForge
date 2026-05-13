@@ -30,7 +30,7 @@ export default function Tasks() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save task");
+      alert(err?.response?.data?.message || "Failed to save task");
     }
   };
 

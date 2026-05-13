@@ -25,7 +25,7 @@ export default function RoutineBuilder() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      alert(err?.response?.data?.message || "Failed to add task");
     }
   };
 
