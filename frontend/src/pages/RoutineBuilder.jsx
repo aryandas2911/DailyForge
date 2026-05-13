@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DndContext } from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
+import { arrayMove } from "@dnd-kit/sortable";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 
 export default function RoutineBuilder() {
-  const { addTask, tasks } = useTasks();
+  const { addTask, tasks, reorderTasks } = useTasks();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
@@ -90,24 +91,41 @@ export default function RoutineBuilder() {
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
-  const handleDragEnd = (event) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     if (!over) return;
 
+    // 1. Handle Reordering within Task Library
+    if (active.id !== over.id && !over.data.current?.day) {
+      const oldIndex = tasks.findIndex((t) => t._id === active.id);
+      const newIndex = tasks.findIndex((t) => t._id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newTasks = arrayMove(tasks, oldIndex, newIndex);
+        await reorderTasks(newTasks.map((t) => t._id));
+      }
+      return;
+    }
+
+    // 2. Handle Dropping into Weekly Grid
     const task = active.data.current?.task;
     if (!task) return;
-    const { day, startTime } = over.data.current;
 
-    setScheduledTasks((prev) => [
-      ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      {
-        taskId: task._id,
-        title: task.title,
-        day,
-        startTime,
-        duration: 60,
-      },
-    ]);
+    const overData = over.data.current;
+    if (overData?.day && overData?.startTime !== undefined) {
+      const { day, startTime } = overData;
+
+      setScheduledTasks((prev) => [
+        ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
+        {
+          taskId: task._id,
+          title: task.title,
+          day,
+          startTime,
+          duration: 60,
+        },
+      ]);
+    }
   };
 
   return (

@@ -1,22 +1,34 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import useTasks from "../../hooks/useTasks.js";
 
 /* ---------------- Draggable Task Item ---------------- */
 function DraggableTask({ task }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: task._id,
-      data: {
-        task,
-      },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task._id,
+    data: {
+      task,
+    },
+  });
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
+    transform: CSS.Translate.toString(transform),
+    transition,
     opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : "auto",
   };
 
   return (
@@ -27,7 +39,7 @@ function DraggableTask({ task }) {
       {...attributes}
       className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white hover:shadow-md transition hover-lift"
+                 hover:bg-white hover:shadow-md transition-all hover-lift"
     >
       {/* Color dot */}
       <span
@@ -79,9 +91,14 @@ export default function TaskLibrary({ onAddTask }) {
       {/* Task List */}
       <div className="flex-1 space-y-3 pr-1">
         {filteredTasks?.length ? (
-          filteredTasks.map((task) => (
-            <DraggableTask key={task._id} task={task} />
-          ))
+          <SortableContext
+            items={filteredTasks.map((t) => t._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {filteredTasks.map((task) => (
+              <DraggableTask key={task._id} task={task} />
+            ))}
+          </SortableContext>
         ) : (
           <div className="text-sm text-muted text-center py-8">
             No tasks found
@@ -90,7 +107,10 @@ export default function TaskLibrary({ onAddTask }) {
       </div>
 
       {/* Footer CTA */}
-      <button className="btn btn-primary w-full mt-4 cursor-pointer hover-lift" onClick={onAddTask}>
+      <button
+        className="btn btn-primary w-full mt-4 cursor-pointer hover-lift"
+        onClick={onAddTask}
+      >
         + Add Task
       </button>
     </div>

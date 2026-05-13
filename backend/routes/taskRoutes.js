@@ -4,11 +4,15 @@ import {
   deleteTask,
   getTasks,
   updateTask,
+  reorderTasks,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 // router object for task
 export const taskRouter = express.Router();
+
+// Route for reordering tasks
+taskRouter.put("/reorder", authMiddleware, reorderTasks);
 
 // Route for creating task
 taskRouter.post("/", authMiddleware, createTask);

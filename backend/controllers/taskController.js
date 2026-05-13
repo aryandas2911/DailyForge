@@ -21,6 +21,10 @@ export const createTask = async (req, res) => {
         .json({ success: false, message: "Please enter all the details" });
     }
 
+    // Get the max order to append the new task at the end
+    const lastTask = await Task.findOne({ userId }).sort({ order: -1 });
+    const order = lastTask ? lastTask.order + 1 : 0;
+
     // new task object
     const newTask = new Task({
       userId: userId,
@@ -30,6 +34,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      order,
     });
 
     // save task in database
@@ -60,7 +65,7 @@ export const getTasks = async (req, res) => {
     }
 
     // fetch tasks from database
-    const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ userId: userId }).sort({ order: 1, createdAt: -1 });
     if (tasks.length == 0) {
       res.status(400).json({ message: "User has no task", success: false });
     }
@@ -148,5 +153,32 @@ export const deleteTask = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Error deleting task" });
+  }
+};
+
+// Reorder tasks function
+export const reorderTasks = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { taskIds } = req.body;
+
+    if (!taskIds || !Array.isArray(taskIds)) {
+      return res.status(400).json({ success: false, message: "Invalid task IDs" });
+    }
+
+    // Bulk update orders
+    const ops = taskIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id, userId: userId },
+        update: { $set: { order: index } },
+      },
+    }));
+
+    await Task.bulkWrite(ops);
+
+    return res.status(200).json({ success: true, message: "Tasks reordered successfully" });
+  } catch (error) {
+    console.log("Error reordering tasks", error);
+    return res.status(500).json({ success: false, message: "Error reordering tasks" });
   }
 };

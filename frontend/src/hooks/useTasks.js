@@ -32,6 +32,19 @@ const useTasks = () => {
     getTasks();
   };
 
+  // reorder tasks
+  const reorderTasks = async (taskIds) => {
+    try {
+      await api.put("/tasks/reorder", { taskIds });
+      // Optimistically we might already have updated the state, 
+      // but let's refresh to be sure or just trust the local state move.
+      // For now, refreshing is safer.
+      getTasks();
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to reorder tasks");
+    }
+  };
+
   // initial fetch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -44,6 +57,7 @@ const useTasks = () => {
     addTask,
     updateTask,
     deleteTask,
+    reorderTasks,
   };
 };
 
