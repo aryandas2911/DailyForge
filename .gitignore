@@ -1,0 +1,6 @@
+# Root-level ignores
+package-lock.json
+node_modules/
+.env
+*.log
+npm-debug.log*

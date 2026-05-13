@@ -81,10 +81,7 @@ export const createRoutine = async (req, res) => {
     await newRoutine.save();
     return res
       .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
+      .json({ success: true, message: "Routine added successfully", routine: newRoutine });
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
@@ -112,6 +109,7 @@ export const getRoutines = async (req, res) => {
     });
     if (routines.length == 0) {
       res.status(400).json({ message: "User has no routine", success: false });
+      return;
     }
     return res.status(200).json({ success: true, routines });
   } catch (error) {
@@ -229,6 +227,7 @@ export const deleteRoutine = async (req, res) => {
       res.status(404).json({
         message: "Routine not found",
       });
+      return;
     }
     res.status(200).json({
       message: "Routine deleted successfully",
