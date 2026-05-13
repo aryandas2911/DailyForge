@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"No tests specified yet\"",
+    "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint ."
   },
