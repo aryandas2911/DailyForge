@@ -31,9 +31,16 @@ export const signup = async (req, res) => {
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
+    
     return res
       .status(201)
-      .json({ message: "User registered successfully", token });
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .json({ message: "User registered successfully" });
   } catch (error) {
     // error handling
     console.error("Signup error:", error);
@@ -70,7 +77,16 @@ export const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
-    return res.status(200).json({ message: "Login successful", token });
+
+    return res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .json({ message: "Login successful" });
   } catch (error) {
     // error handling
     console.log("Login error: ", error);
@@ -95,4 +111,14 @@ export const getUser = async (req, res) => {
       .status(500)
       .json({ message: "Error fetching user data", success: false });
   }
+};
+
+// logout function
+export const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  return res.status(200).json({ message: "Logout successful" });
 };

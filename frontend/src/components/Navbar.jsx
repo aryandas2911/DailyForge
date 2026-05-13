@@ -3,17 +3,17 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
 
   return (
     <nav className="surface-bg fixed top-0 z-20 w-full border-soft shadow-sm">
       <div className="mx-auto max-w-7xl flex items-center justify-between p-4">
-        <Link to={token ? "/dashboard" : "/login"}>
+        <Link to={user ? "/dashboard" : "/login"}>
           <span className="text-2xl font-semibold text-main">DailyForge</span>
         </Link>
 
         <div className="flex items-center gap-4">
-          {!token ? (
+          {!user ? (
             <>
               <Link
                 to="/login"
