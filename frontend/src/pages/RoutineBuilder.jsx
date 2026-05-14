@@ -76,7 +76,28 @@ export default function RoutineBuilder() {
       alert("Failed to save routine");
     }
   };
+const handleAutoSchedule = async (routineId) => {
+  try {
 
+    const res = await api.post("/routines/auto-schedule", {
+      routineId,
+    });
+
+    alert(res.data.message || "Tasks auto-scheduled successfully");
+
+    // refresh routines
+    await fetchRoutines();
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      err.response?.data?.message ||
+      "Failed to auto schedule tasks"
+    );
+  }
+};
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
@@ -182,6 +203,12 @@ export default function RoutineBuilder() {
                     <h3 className="font-medium text-main mb-2">
                       {routine.name}
                     </h3>
+                    <button
+  onClick={() => handleAutoSchedule(routine._id)}
+  className="mb-3 px-3 py-1 rounded-lg bg-blue-500 text-white text-sm hover:bg-blue-600 transition cursor-pointer"
+>
+  Auto Schedule
+</button>
 
                     {Object.keys(tasksByDay).map((day) => (
                       <div key={day} className="mb-2">

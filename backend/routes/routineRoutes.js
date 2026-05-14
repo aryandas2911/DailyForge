@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  autoScheduleTasks,
   createRoutine,
   deleteRoutine,
   getRoutines,
@@ -21,3 +22,9 @@ routineRouter.put("/:id", authMiddleware, updateRoutine);
 
 // Route for deleting routine
 routineRouter.delete("/:id", authMiddleware, deleteRoutine);
+// Route for auto scheduling tasks
+routineRouter.post(
+  "/auto-schedule",
+  authMiddleware,
+  autoScheduleTasks
+);

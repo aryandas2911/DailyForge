@@ -1,6 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
-
+import Task from "../src/models/Task.js";
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
@@ -239,5 +239,183 @@ export const deleteRoutine = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Error deleting routine" });
+  }
+};
+// Auto schedule tasks function
+export const autoScheduleTasks = async (req, res) => {
+  try {
+    // check if user logged in
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
+    }
+
+    // fetch all due tasks
+    const tasks = await Task.find({
+      userId,
+      status: "Due",
+    });
+
+    if (tasks.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No tasks available for scheduling",
+      });
+    }
+
+    // fetch routine id from request
+const { routineId } = req.body;
+
+// fetch selected routine
+const routine = await Routine.findOne({
+  _id: routineId,
+  userId,
+});
+
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+
+    // priority order
+    const priorityOrder = {
+      High: 1,
+      Medium: 2,
+      Low: 3,
+    };
+
+    // sort tasks
+    tasks.sort((a, b) => {
+      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      }
+
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    });
+
+    const DAYS = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+
+    const DAY_START = 360; // 6 AM
+    const DAY_END = 1320; // 10 PM
+
+    for (const task of tasks) {
+
+      // skip already scheduled tasks
+      const alreadyScheduled = routine.items.some(
+        (item) => item.taskId?.toString() === task._id.toString()
+      );
+
+      if (alreadyScheduled) {
+        continue;
+      }
+
+      const duration = 60;
+
+      let scheduled = false;
+
+      for (const day of DAYS) {
+
+        // get all routine items for current day
+        const dayItems = routine.items
+          .filter((item) => item.day === day)
+          .sort((a, b) => a.startTime - b.startTime);
+
+        let currentTime = DAY_START;
+
+        const freeSlots = [];
+
+        // detect free gaps
+        for (const item of dayItems) {
+
+          if (item.startTime > currentTime) {
+            freeSlots.push({
+              start: currentTime,
+              end: item.startTime,
+            });
+          }
+
+          currentTime = Math.max(
+            currentTime,
+            item.startTime + item.duration
+          );
+        }
+
+        // remaining free time
+        if (currentTime < DAY_END) {
+          freeSlots.push({
+            start: currentTime,
+            end: DAY_END,
+          });
+        }
+
+        // prioritize morning slots for high priority tasks
+        let sortedSlots = freeSlots;
+
+        if (task.priority === "High") {
+          const morningSlots = freeSlots.filter(
+            (slot) => slot.start < 720
+          );
+
+          if (morningSlots.length > 0) {
+            sortedSlots = morningSlots;
+          }
+        }
+
+        // place task in first valid slot
+        for (const slot of sortedSlots) {
+
+          const availableDuration = slot.end - slot.start;
+
+          if (availableDuration >= duration) {
+
+            routine.items.push({
+              taskId: task._id,
+              day,
+              startTime: slot.start,
+              duration,
+            });
+
+            scheduled = true;
+            break;
+          }
+        }
+
+        if (scheduled) break;
+      }
+    }
+
+    // save updated routine
+    await routine.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Tasks auto-scheduled successfully",
+      routine,
+    });
+
+  } catch (error) {
+
+    console.log("Error auto scheduling tasks", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error auto scheduling tasks",
+    });
   }
 };
