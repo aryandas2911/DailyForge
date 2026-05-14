@@ -1,5 +1,4 @@
 import axios from "axios";
-
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api/" : "https://dailyforge-backend.onrender.com/api/"),
@@ -20,9 +19,23 @@ api.interceptors.response.use(
       // Network error (no internet, server completely unreachable)
       console.error("Network error. Please check your connection.");
       error.userMessage = "Network error. Please check your internet connection.";
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/",
+  timeout: 15000,
+});
+// attach jwt automatically with each request
+api.interceptors.request.use((config) => {
+  try {
+    // Read token from localStorage
+    const token = localStorage.getItem("token");
+    // If token exists, attach the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return Promise.reject(error); // always reject so callers can handle it
   }
 );
 
 export default api;
+});
+export default api;
+
