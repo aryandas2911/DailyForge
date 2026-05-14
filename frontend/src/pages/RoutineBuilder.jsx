@@ -97,6 +97,23 @@ export default function RoutineBuilder() {
     const task = active.data.current?.task;
     if (!task) return;
     const { day, startTime } = over.data.current;
+    const duration = task.duration ?? 60;
+
+    // Check for overlap using interval comparison
+    const existingTask = scheduledTasks.find(
+      (t) =>
+        t.day === day &&
+        t.taskId !== task._id &&
+        startTime < t.startTime + t.duration &&
+        t.startTime < startTime + duration
+    );
+
+    if (existingTask) {
+      alert(
+        `Time conflict! "${existingTask.title}" already occupies this slot.`
+      );
+      return;
+    }
 
     setScheduledTasks((prev) => [
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
@@ -105,7 +122,7 @@ export default function RoutineBuilder() {
         title: task.title,
         day,
         startTime,
-        duration: 60,
+        duration,
       },
     ]);
   };
