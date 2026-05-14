@@ -18,6 +18,7 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (data) => {
     try {
@@ -50,6 +51,8 @@ export default function RoutineBuilder() {
   };
 
   const confirmSaveRoutine = async () => {
+    if (isSaving) return;
+
     const items = scheduledTasks
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
@@ -60,6 +63,7 @@ export default function RoutineBuilder() {
       }));
 
     try {
+      setIsSaving(true);
       await api.post("/routines", {
         name: routineName,
         items,
@@ -74,6 +78,8 @@ export default function RoutineBuilder() {
     } catch (err) {
       console.error(err);
       alert("Failed to save routine");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -246,9 +252,9 @@ export default function RoutineBuilder() {
               <button
                 className="btn btn-primary cursor-pointer"
                 onClick={confirmSaveRoutine}
-                disabled={!routineName.trim()}
+                disabled={!routineName.trim() || isSaving}
               >
-                Save Routine
+                {isSaving ? "Saving..." : "Save Routine"}
               </button>
             </div>
           </div>
