@@ -8,8 +8,21 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import { getGreeting } from "../utils/getGreeting.js";
 
 export default function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    // Update greeting every minute in case the hour changes
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -63,7 +76,7 @@ export default function Dashboard() {
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-main leading-tight">
-            Good afternoon, {user?.name}
+            {greeting}, {user?.name}
           </h1>
           <p className="text-sm text-muted mt-1">
             {new Date()
