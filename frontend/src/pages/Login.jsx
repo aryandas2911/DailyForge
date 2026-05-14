@@ -25,7 +25,6 @@ const LoadingSpinner = () => (
 );
 
 const Login = () => {
-  // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +32,6 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
 
-  // useNavigate object
   const navigate = useNavigate();
   const location = useLocation();
   const redirectPath = location.state?.from || "/dashboard";
@@ -76,9 +74,7 @@ const Login = () => {
     }
   };
 
-  // submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
     setIsSubmitLoading(true);
     setError("");
@@ -113,11 +109,7 @@ const Login = () => {
   return (
     <div className="flex flex-1 justify-center items-center min-h-[calc(100vh-64px)]">
     <form
-      className="
-        surface-bg px-10 py-15 rounded-2xl
-        w-full max-w-sm
-        flex flex-col gap-6 animate-in
-      "
+      className="surface-bg px-10 py-15 rounded-2xl w-full max-w-sm flex flex-col gap-6 animate-in"
       onSubmit={handleSubmit}
     >
       <div className="text-center space-y-1 mb-3">
@@ -151,28 +143,15 @@ const Login = () => {
 
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-main">
-          Email
-        </label>
+        <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
         <input
           type="email"
           id="email"
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="user@email.com"
           required
-          className="
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-sm
-            shadow-xs
-            input-focus
-            hover-lift
-          "
+          className="w-full px-3 py-2.5 text-sm surface-bg border-soft rounded-sm shadow-xs input-focus hover-lift"
         />
       </div>
 

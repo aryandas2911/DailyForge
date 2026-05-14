@@ -1,0 +1,25 @@
+{
+  "source": {
+    "include": [
+      "base32.js",
+      "package.json",
+      "README.md"
+    ]
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "applicationName": "base32.js",
+    "meta": {
+      "title": "base32.js",
+      "description": "base32.js - Base 32 for JavaScript",
+      "keyword": "base32 crockford rfc4648 encoding decoding crc"
+    },
+    "default": {
+      "outputSourceFiles": true
+    },
+    "linenums": true
+  },
+  "opts": {
+    "destination": "docs"
+  }
+}
