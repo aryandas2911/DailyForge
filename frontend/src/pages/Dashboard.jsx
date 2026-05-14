@@ -11,7 +11,11 @@ import useTasks from "../hooks/useTasks.js";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
+
+
+  if (!user) return null;
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);

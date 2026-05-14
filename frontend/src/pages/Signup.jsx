@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
+import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 const Signup = () => {
@@ -22,7 +22,7 @@ const Signup = () => {
 
     // send request to server
     try {
-      const res = await api.post("/auth/signup", {
+      const res = await axios.post("/auth/signup", {
         name,
         email,
         password,
@@ -34,7 +34,7 @@ const Signup = () => {
       setToken(res.data.token);
 
       // get user details
-      const me = await api.get("/auth/me");
+      const me = await axios.get("/auth/me");
       setUser(me.data);
 
       // redirect to dashboard

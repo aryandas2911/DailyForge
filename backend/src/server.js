@@ -8,7 +8,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 
 // dotenv config
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 // Initialize express app
 const app = express();
@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
 });
 
 // Start server on port (in .env file)
-app.listen(PORT, () => {
+app.listen(PORT, (err) => {
+  if (err) console.log(err.message);
   console.log(`Server running at port ${PORT}\nhttp://localhost:${PORT}/`);
 });
