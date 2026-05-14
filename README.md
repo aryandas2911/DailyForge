@@ -210,7 +210,11 @@ cd frontend
 npm install
 ```
 
-> ⚠️ **Local dev note:** The frontend base URL is hardcoded in `frontend/src/api/axios.js` to point at the deployed backend. To test against your local backend, temporarily change `baseURL` in that file to `http://localhost:5000/api/`.
+> ✅ **Local dev note:** Copy the example env file before starting:
+> ```bash
+> cp frontend/.env.example frontend/.env
+> ```
+> This sets `VITE_API_URL` to `http://localhost:5000/api/` automatically.
 
 **Start the frontend dev server:**
 
@@ -252,18 +256,15 @@ JWT_SECRET=your_super_secret_key_here
 3. Click **Connect** → **Connect your application** → Copy the connection string
 4. Replace `<password>` with your DB user's password
 
-### Frontend — No `.env` required
+### Frontend — `frontend/.env`
 
-The frontend has **no environment variables**. The API base URL is hardcoded in `frontend/src/api/axios.js`:
-
-```js
-// frontend/src/api/axios.js
-const api = axios.create({
-  baseURL: "https://dailyforge-backend.onrender.com/api/",
-});
+```bash
+cp frontend/.env.example frontend/.env
 ```
 
-**Running locally?** Change `baseURL` to `http://localhost:5000/api/` while developing, and revert before committing.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_API_URL` | ✅ | Backend API base URL. Use `http://localhost:5000/api/` for local dev |
 
 ---
 
