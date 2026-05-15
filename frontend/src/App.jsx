@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import About from "./pages/About.jsx";
 
 const App = () => {
   return (
@@ -41,6 +42,7 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+<Route path="/about" element={<About />} /
         </Routes>
       </main>
     </BrowserRouter>
