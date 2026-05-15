@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
@@ -12,7 +12,14 @@ const Login = () => {
   const navigate = useNavigate();
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser, setToken, token, loading } = useContext(AuthContext);
+
+  // while session is being verified, show nothing
+  if (loading) return null;
+
+  // if already logged in, redirect to dashboard
+  if (token) return <Navigate to="/dashboard" replace />;
+
 
   // submit handler
   const handleSubmit = async (e) => {

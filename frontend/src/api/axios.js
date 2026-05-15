@@ -3,7 +3,7 @@ import axios from "axios";
 // create axios instance
 const api = axios.create({
   baseURL: "https://dailyforge-backend.onrender.com/api/",
-  timeout: 2000,
+  timeout: 10000,
 });
 
 // attach jwt automatically with each request

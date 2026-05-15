@@ -9,6 +9,8 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  // loading is true while we verify a stored token on app load
+  const [loading, setLoading] = useState(() => !!localStorage.getItem("token"));
 
   // logout function
   const logout = () => {
@@ -17,24 +19,33 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
   };
 
-  // restore session on app load
+  // restore session once on app load
   useEffect(() => {
-    if (token) {
-      // fetch logged-in user
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      // fetch logged-in user to validate the stored token
       api
         .get("/auth/me")
         .then((res) => {
           setUser(res.data.user);
+          setToken(storedToken);
         })
         .catch(() => {
-          // token invalid or expired
+          // token invalid or expired — clear session
           logout();
+        })
+        .finally(() => {
+          // session check complete, allow routing to proceed
+          setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
-  }, [token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider value={{ user, token, setUser, setToken, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
