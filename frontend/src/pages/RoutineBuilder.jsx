@@ -18,6 +18,7 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [description, setDescription] = useState("");
 
   const handleSubmit = async (data) => {
     try {
@@ -62,11 +63,13 @@ export default function RoutineBuilder() {
     try {
       await api.post("/routines", {
         name: routineName,
+        description: description,
         items,
       });
 
       setIsSaveModalOpen(false);
       setRoutineName("");
+      setDescription("");
       setSelectedDay(null);
 
       alert("Routine saved successfully");
@@ -183,6 +186,12 @@ export default function RoutineBuilder() {
                       {routine.name}
                     </h3>
 
+                    {routine.description && (
+                      <p className="text-xs text-muted mb-3 italic">
+                        {routine.description}
+                      </p>
+                    )}
+
                     {Object.keys(tasksByDay).map((day) => (
                       <div key={day} className="mb-2">
                         <p className="text-sm font-semibold text-main">{day}</p>
@@ -234,6 +243,14 @@ export default function RoutineBuilder() {
               onChange={(e) => setRoutineName(e.target.value)}
               placeholder="Routine name"
               className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
+            />
+
+            <textarea
+              value={description}
+              onChange={(e)=> setDescription(e.target.value)}
+              placeholder="Add a description (optional)"
+              rows="3"
+              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-white resize-none"
             />
 
             <div className="flex justify-end gap-3">
