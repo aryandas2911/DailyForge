@@ -15,7 +15,7 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
@@ -79,12 +79,11 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    return res
-      .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
+    return res.status(200).json({
+      success: true,
+      message: "Routine added successfully",
+      routine: newRoutine,
+    });
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
@@ -110,10 +109,9 @@ export const getRoutines = async (req, res) => {
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      res.status(400).json({ message: "User has no routine", success: false });
-    }
-    return res.status(200).json({ success: true, routines });
+    
+    // return routines (even if empty) with 200 status
+    return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -226,11 +224,11 @@ export const deleteRoutine = async (req, res) => {
       userId: userId,
     });
     if (!deleteRoutine) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Routine not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Routine deleted successfully",
     });
   } catch (error) {
