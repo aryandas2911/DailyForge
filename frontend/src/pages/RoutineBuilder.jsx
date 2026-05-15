@@ -7,6 +7,7 @@ import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
+import { hasConflict } from "../utils/conflictUtils";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -90,25 +91,32 @@ export default function RoutineBuilder() {
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over) return;
+const handleDragEnd = (event) => {
+  const { active, over } = event;
+  if (!over) return;
 
-    const task = active.data.current?.task;
-    if (!task) return;
-    const { day, startTime } = over.data.current;
+  const task = active.data.current?.task;
+  if (!task) return;
+  const { day, startTime } = over.data.current;
 
-    setScheduledTasks((prev) => [
-      ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      {
-        taskId: task._id,
-        title: task.title,
-        day,
-        startTime,
-        duration: 60,
-      },
-    ]);
+  const newTask = {
+    taskId: task._id,
+    title: task.title,
+    day,
+    startTime,
+    duration: task.duration ?? 60,
   };
+
+
+  const filtered = scheduledTasks.filter((t) => t.taskId !== task._id);
+
+  if (hasConflict(newTask, filtered)) {
+    alert(`"${task.title}" overlaps with an existing task on ${day}!`);
+    return;
+  }
+
+  setScheduledTasks([...filtered, newTask]);
+};
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
