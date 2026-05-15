@@ -35,6 +35,24 @@ export default function Dashboard() {
 
   const totalToday = todayTasks.length;
 
+  // Weekly Stats Calculation
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const weeklyTasks = tasks.filter((task) => {
+    const created = new Date(task.createdAt);
+    return created >= startOfWeek && created <= today;
+  });
+
+  const completedWeekly = weeklyTasks.filter(
+    (task) => task.status === "Completed"
+  ).length;
+
+  const totalWeekly = weeklyTasks.length;
+  const weeklyPercentage =
+    totalWeekly > 0 ? Math.round((completedWeekly / totalWeekly) * 100) : 0;
+
   const upcomingTasks = tasks
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
@@ -90,7 +108,7 @@ export default function Dashboard() {
         <div className="flex-1 animate-in delay-200">
           <StatCard
             label="This Week"
-            value="72%"
+            value={`${weeklyPercentage}%`}
             subtitle="Completion"
             icon={<Calendar size={20} />}
           />
@@ -107,8 +125,8 @@ export default function Dashboard() {
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
-              tasks={upcomingTasks}
-              updateTask={updateTask}
+            tasks={upcomingTasks}
+            updateTask={updateTask}
           />
         </div>
 
