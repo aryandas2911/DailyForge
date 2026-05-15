@@ -2,7 +2,7 @@ import axios from "axios";
 
 // create axios instance
 const api = axios.create({
-  baseURL: "https://dailyforge-backend.onrender.com/api/",
+  baseURL: import.meta.env.VITE_API_URL || "https://dailyforge-backend.onrender.com/api/",
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000, // updated 15s as default
 });
 
