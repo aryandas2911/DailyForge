@@ -35,7 +35,7 @@ const Signup = () => {
 
       // get user details
       const me = await api.get("/auth/me");
-      setUser(me.data);
+      setUser(me.data.user);
 
       // redirect to dashboard
       navigate("/dashboard");

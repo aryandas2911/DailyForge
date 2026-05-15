@@ -11,6 +11,10 @@ const routineSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: false,
+    },
     items: [ // tasks
       {
         taskId: {

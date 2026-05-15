@@ -22,8 +22,8 @@ export const authMiddleware = (req, res, next) => {
     // verify token using jwt key
     const verify = jwt.verify(token, process.env.JWT_SECRET);
 
-    // attach payload userid to request body
-    req.userId = verify.userId;
+    // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
+    req.userId = verify.id || verify.userId;
     next();
 
   } catch (error) {
