@@ -83,11 +83,14 @@
     background-color: var(--primary-hover);
   }
 
-  /* Card container */
   .card {
     background-color: var(--surface);
     border-radius: var(--radius);
-    @apply p-6 shadow-sm;
+    border: 1px solid var(--border);
+    @apply p-6 shadow-sm transition-shadow duration-200;
+  }
+  .card:hover {
+    @apply shadow-md;
   }
 
   .card-muted {
