@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
@@ -18,6 +24,12 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+
+  // Configure sensors for drag-and-drop (mouse + keyboard)
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
 
   const handleSubmit = async (data) => {
     try {
@@ -111,7 +123,7 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
