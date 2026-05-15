@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import useTasks from "../../hooks/useTasks.js";
+import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
 function DraggableTask({ task }) {
@@ -89,10 +90,8 @@ export default function TaskLibrary({ onAddTask }) {
             <DraggableTask key={task._id} task={task} />
           ))
         ) : (
-          <div className="text-sm text-muted text-center py-8">
-            No tasks found
-          </div>
-        )}
+  <EmptyState type="tasks" onAction={onAddTask} />
+)}
       </div>
 
       {/* Footer CTA */}
