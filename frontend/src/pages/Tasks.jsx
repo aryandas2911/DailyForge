@@ -4,6 +4,7 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft } from "lucide-react";
+import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -109,13 +110,14 @@ export default function Tasks() {
                   />
                 ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-soft py-20 text-center">
-                <p className="text-lg font-medium text-main">No tasks yet</p>
-                <p className="text-sm text-muted mt-1">
-                  Start with one small win today.
-                </p>
-              </div>
-            )}
+  <EmptyState
+    type="tasks"
+    onAction={() => {
+      setEditingTask(null);
+      setIsModalOpen(true);
+    }}
+  />
+)}
           </div>
 
           {/* Insights */}
