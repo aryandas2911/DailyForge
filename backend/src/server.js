@@ -8,15 +8,31 @@ import { routineRouter } from "../routes/routineRoutes.js";
 
 // dotenv config
 dotenv.config();
+
 const PORT = process.env.PORT;
 
 // Initialize express app
 const app = express();
 
-// Intialize cors
+// Allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://dailyforge-frontend-lhjq.onrender.com",
+];
+
+// Initialize cors
 app.use(
   cors({
-    origin: "https://dailyforge-frontend-lhjq.onrender.com",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman/mobile apps)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -42,5 +58,6 @@ app.get("/", (req, res) => {
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
-  console.log(`Server running at port ${PORT}\nhttp://localhost:${PORT}/`);
+  console.log(`Server running at port ${PORT}`);
+  console.log(`http://localhost:${PORT}/`);
 });
