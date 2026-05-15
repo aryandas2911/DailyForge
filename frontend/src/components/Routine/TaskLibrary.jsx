@@ -53,6 +53,7 @@ function DraggableTask({ task }) {
 /* ---------------- Task Library ---------------- */
 export default function TaskLibrary({ onAddTask }) {
   const { tasks } = useTasks();
+  
   const [query, setQuery] = useState("");
 
   const filteredTasks = tasks?.filter((task) =>
@@ -63,7 +64,12 @@ export default function TaskLibrary({ onAddTask }) {
     <div className="card card-muted h-full flex flex-col animate-in">
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-main">Task Library</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-main">Task Library</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-main">
+            {filteredTasks?.length ?? 0}
+          </span>
+        </div>
         <p className="text-xs text-muted">Drag tasks into your week</p>
       </div>
 
