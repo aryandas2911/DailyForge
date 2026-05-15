@@ -1,6 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
-
+import { createEvents } from "ics";
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
@@ -122,6 +122,80 @@ export const getRoutines = async (req, res) => {
       .json({ success: false, message: "Error fetching routine" });
   }
 };
+
+
+// Export routines as ICS calendar file
+export const exportRoutineICS = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const routines = await Routine.find({ userId });
+
+    if (!routines.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No routines found",
+      });
+    }
+
+    const events = [];
+
+    for (const routine of routines) {
+      for (const item of routine.items) {
+        const startHour = Math.floor(item.startTime / 60);
+        const startMinute = item.startTime % 60;
+
+        const endMinutes = item.startTime + item.duration;
+        const endHour = Math.floor(endMinutes / 60);
+        const endMinute = endMinutes % 60;
+
+        events.push({
+          title: `${routine.name} - ${item.day}`,
+          start: [2026, 5, 15, startHour, startMinute],
+          end: [2026, 5, 15, endHour, endMinute],
+        });
+      }
+    }
+
+    createEvents(events, (error, value) => {
+      if (error) {
+        console.log(error);
+
+        return res.status(500).json({
+          success: false,
+          message: "Error generating calendar file",
+        });
+      }
+
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=routines.ics"
+      );
+
+      res.setHeader("Content-Type", "text/calendar");
+
+      return res.send(value);
+    });
+  } catch (error) {
+    console.log("Error exporting routines", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error exporting routines",
+    });
+  }
+};
+
+
 
 // Update routine function
 export const updateRoutine = async (req, res) => {
