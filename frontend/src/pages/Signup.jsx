@@ -4,49 +4,53 @@ import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 const Signup = () => {
-  // three states for inputs
+  // input states
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // useNavigate object
+  // navigation
   const navigate = useNavigate();
 
-  // useContext for auth
+  // auth context
   const { setUser, setToken } = useContext(AuthContext);
 
-  // submit handler
+  // form submit
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
 
-    // send request to server
     try {
+      // signup request
       const res = await api.post("/auth/signup", {
         name,
         email,
         password,
       });
-      console.log("Signup success: ", res.data);
 
-      // save token in localstorage for later api calls
+      // save token
       localStorage.setItem("token", res.data.token);
+
+      // save token in context
       setToken(res.data.token);
 
-      // get user details
+      // get logged in user details
       const me = await api.get("/auth/me");
-      setUser(me.data);
 
-      // redirect to dashboard
+      // save user in context
+      setUser(me.data.user);
+
+      // redirect
       navigate("/dashboard");
+
     } catch (error) {
-      // handle error
-      console.log("Signup failed");
-      console.log(error.response?.data || error.message);
+      console.log(error);
+
+      alert(
+        error.response?.data?.message || "Signup failed"
+      );
     }
   };
 
-  // signup component
   return (
     <form
       className="
@@ -58,20 +62,25 @@ const Signup = () => {
       onSubmit={handleSubmit}
     >
       <div className="text-center space-y-1 mb-3">
-        <h1 className="text-3xl font-bold text-main">Signup</h1>
+        <h1 className="text-3xl font-bold text-main">
+          Signup
+        </h1>
       </div>
 
+      {/* Name */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="name" className="text-sm font-medium text-main">
+        <label
+          htmlFor="name"
+          className="text-sm font-medium text-main"
+        >
           Name
         </label>
+
         <input
           type="text"
           id="name"
           value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Full Name"
           required
           className="
@@ -86,17 +95,20 @@ const Signup = () => {
         />
       </div>
 
+      {/* Email */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-main">
+        <label
+          htmlFor="email"
+          className="text-sm font-medium text-main"
+        >
           Email
         </label>
+
         <input
           type="email"
           id="email"
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="user@email.com"
           required
           className="
@@ -111,17 +123,20 @@ const Signup = () => {
         />
       </div>
 
+      {/* Password */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-main">
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-main"
+        >
           Password
         </label>
+
         <input
           type="password"
           id="password"
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
           className="
@@ -136,20 +151,31 @@ const Signup = () => {
         />
       </div>
 
+      {/* Submit */}
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        className="
+          btn btn-primary
+          cursor-pointer
+          w-full mt-2
+          hover-lift
+        "
       >
         Sign Up
       </button>
 
+      {/* Login Redirect */}
       <p className="text-center text-sm text-muted">
         Already have an account?{" "}
         <span
-          onClick={() => {
-            navigate("/login");
-          }}
-          className="text-main font-medium cursor-pointer hover:underline transition-colors"
+          onClick={() => navigate("/login")}
+          className="
+            text-main
+            font-medium
+            cursor-pointer
+            hover:underline
+            transition-colors
+          "
         >
           Login
         </span>
