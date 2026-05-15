@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import Footer from "./components/Footer.jsx";
 
 const App = () => {
   return (
@@ -43,7 +44,9 @@ const App = () => {
           />
         </Routes>
       </main>
+      <Footer />
     </BrowserRouter>
+    
   );
 };
 
