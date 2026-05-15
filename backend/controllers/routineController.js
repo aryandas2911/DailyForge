@@ -14,7 +14,8 @@ export const createRoutine = async (req, res) => {
     }
 
     // fetch routine details from request body
-    const { name, items } = req.body;
+    // Resolution: Keeping 'description' from main, but using the cleaner validation from fix branch
+    const { name, description, items } = req.body;
     if (!name || !items || items.length === 0) {
       return res
         .status(400)
@@ -74,6 +75,7 @@ export const createRoutine = async (req, res) => {
     const newRoutine = new Routine({
       userId,
       name,
+      description,
       items,
     });
 
@@ -110,6 +112,7 @@ export const getRoutines = async (req, res) => {
       createdAt: -1,
     });
 
+    // Resolution: Accept fix branch (200 OK with empty array is standard API practice)
     return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
@@ -207,6 +210,7 @@ export const updateRoutine = async (req, res) => {
       });
     }
     return res.status(200).json({
+      // Resolution: Accept fix branch (adding success flag)
       success: true,
       message: "Routine updated successfully",
       routine: updatedRoutine,
@@ -240,6 +244,8 @@ export const deleteRoutine = async (req, res) => {
       _id: routineId,
       userId: userId,
     });
+
+    // Resolution: Accept fix branch (corrects the typo !deleteRoutine -> !deletedRoutine)
     if (!deletedRoutine) {
       return res.status(404).json({
         success: false,
@@ -247,6 +253,7 @@ export const deleteRoutine = async (req, res) => {
       });
     }
     return res.status(200).json({
+      // Resolution: Accept fix branch (adding success flag)
       success: true,
       message: "Routine deleted successfully",
     });
