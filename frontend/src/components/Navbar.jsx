@@ -27,7 +27,11 @@ const Navbar = () => {
               </Link>
             </>
           ) : (
-            <button onClick={logout} className="btn btn-primary px-4 py-2 cursor-pointer">
+            <button 
+              onClick={logout} 
+              className="btn btn-primary px-4 py-2 cursor-pointer"
+              aria-label="Logout from your account"
+            >
               Logout
             </button>
           )}

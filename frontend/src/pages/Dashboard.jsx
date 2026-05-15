@@ -117,9 +117,10 @@ export default function Dashboard() {
             <button
               className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
               onClick={() => navigate("/routine-builder")}
+              aria-label="Build a new routine"
             >
               Build
-              <ArrowRight size={16} />
+              <ArrowRight size={16} aria-hidden="true" />
             </button>
           </div>
 
