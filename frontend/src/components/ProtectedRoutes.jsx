@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import TaskProvider from "../context/TaskContext.jsx";
 
-const ProtectedRoutes = ({ children }) => {
-
+const ProtectedRoutes = () => {
   // access token from AuthContext
   const { token } = useContext(AuthContext);
 
@@ -11,10 +11,12 @@ const ProtectedRoutes = ({ children }) => {
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  // else return the children component
-  else {
-    return children;
-  }
+
+  return (
+    <TaskProvider>
+      <Outlet />
+    </TaskProvider>
+  );
 };
 
 export default ProtectedRoutes;

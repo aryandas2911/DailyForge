@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import useTasks from "../../hooks/useTasks";
+import useTaskContext from "../../hooks/useTaskContext.js";
 
 export default function DashboardTasks() {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask } = useTaskContext();
   const navigate = useNavigate();
 
   const priorityOrder = {

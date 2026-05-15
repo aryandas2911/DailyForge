@@ -3,13 +3,13 @@ import { DndContext } from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import useTasks from "../hooks/useTasks.js";
+import useTaskContext from "../hooks/useTaskContext.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 
 export default function RoutineBuilder() {
-  const { addTask, tasks } = useTasks();
+  const { addTask, tasks } = useTaskContext();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);

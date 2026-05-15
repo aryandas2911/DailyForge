@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useTasks from "../hooks/useTasks";
+import useTaskContext from "../hooks/useTaskContext.js";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft } from "lucide-react";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, addTask, updateTask, deleteTask } = useTaskContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);

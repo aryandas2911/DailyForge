@@ -17,30 +17,11 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoutes>
-                <Dashboard />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/tasks"
-            element={
-              <ProtectedRoutes>
-                <Tasks />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/routine-builder"
-            element={
-              <ProtectedRoutes>
-                <RoutineBuilder />
-              </ProtectedRoutes>
-            }
-          />
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/routine-builder" element={<RoutineBuilder />} />
+          </Route>
         </Routes>
       </main>
     </BrowserRouter>

@@ -7,7 +7,7 @@ import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
-import useTasks from "../hooks/useTasks.js";
+import useTaskContext from "../hooks/useTaskContext.js";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
