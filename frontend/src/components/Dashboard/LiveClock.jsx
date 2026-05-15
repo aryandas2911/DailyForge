@@ -24,9 +24,9 @@ const LiveClock = () => {
   }, []);
 
   return (
-    <p className="text-sm text-teal-500 mt-2">
+    <span className="text-main font-mono tracking-wider">
       {currentTime}
-    </p>
+    </span>
   );
 };
 
