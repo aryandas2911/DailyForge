@@ -29,6 +29,30 @@
   --radius: 0.75rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a;
+    --surface: #2d2d2d;
+    --primary: #4eb7b3;
+    --primary-hover: #6dd5c7;
+    --accent: #3d3d3d;
+    --text-main: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --border: #404040;
+  }
+}
+
+.dark {
+  --bg: #1a1a1a;
+  --surface: #2d2d2d;
+  --primary: #4eb7b3;
+  --primary-hover: #6dd5c7;
+  --accent: #3d3d3d;
+  --text-main: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --border: #404040;
+}
+
 /* Utility Classes */
 @layer utilities {
   /* Layout backgrounds */
