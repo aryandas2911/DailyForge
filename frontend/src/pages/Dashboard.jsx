@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight,RotateCw } from "lucide-react";
 
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -113,7 +113,20 @@ export default function Dashboard() {
         <div className="flex-1 animate-in delay-300 flex flex-col bg-white/80 rounded-xl shadow-md p-4 h-74 overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
+            <button                                                              
+                onClick={fetchRoutines}                                            
+                disabled={loadingRoutines}                                        
+                aria-label="Refresh routines"                                     
+                className="p-1 rounded-full hover:bg-gray-100 transition cursor-pointer disabled:opacity-50" 
+              >                                                                   
+                <RotateCw                                                          
+                  size={15}                                                        
+                  className={`text-muted ${loadingRoutines ? "animate-spin" : ""}`} 
+                />                                                                
+              </button>                                                           
+            </div>                                                               
             <button
               className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
               onClick={() => navigate("/routine-builder")}
