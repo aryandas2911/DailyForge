@@ -6,6 +6,7 @@ import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import LoadingSpinner from "../components/Common/LoadingSpinner";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 
@@ -124,7 +125,7 @@ export default function Dashboard() {
           </div>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <LoadingSpinner size={32} className="mt-10" />
           ) : savedRoutines.length === 0 ? (
             <p className="text-sm text-muted text-center mt-10">
               No routines saved yet
