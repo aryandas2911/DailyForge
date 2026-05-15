@@ -5,6 +5,42 @@ export default function TaskPreview({ tasks }) {
   const navigate = useNavigate();
   const { updateTask } = useTasks();
 
+  
+const handleExport = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      "http://localhost:5000/api/routines/export",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const blob = await response.blob();
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "routines.ics";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+  } catch (error) {
+    console.log("Export failed", error);
+  }
+};
+
+
+
   const priorityBorder = {
     Low: "border-green-400",
     Medium: "border-yellow-400",
@@ -89,6 +125,33 @@ export default function TaskPreview({ tasks }) {
           View All Tasks →
         </button>
       </div>
+
+<div className="mt-4 flex flex-col sm:flex-row items-center gap-3 text-sm">
+  <button
+    onClick={() => navigate("/tasks")}
+    className="text-primary hover:underline cursor-pointer"
+  >
+    View All Tasks →
+  </button>
+
+  <button
+    onClick={handleExport}
+    className="
+      px-5 py-2 rounded-xl
+      bg-blue-500 text-white
+      hover:bg-blue-600
+      shadow-md hover:shadow-lg
+      transition-all duration-200
+      cursor-pointer
+      flex items-center gap-2
+    "
+  >
+    <span>Export Calendar</span>
+    <span>📅</span>
+  </button>
+</div>
+
+
     </div>
   );
 }
