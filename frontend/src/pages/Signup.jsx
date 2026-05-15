@@ -1,19 +1,22 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useContext, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext.jsx";
+import {AuthContext} from "../context/AuthContext.jsx";
+import {LuEyeOff} from "react-icons/lu";
+import {LuEye} from "react-icons/lu";
 
 const Signup = () => {
   // three states for inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [hide, setHide] = useState(true);
 
   // useNavigate object
   const navigate = useNavigate();
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const {setUser, setToken} = useContext(AuthContext);
 
   // submit handler
   const handleSubmit = async (e) => {
@@ -44,6 +47,11 @@ const Signup = () => {
       console.log("Signup failed");
       console.log(error.response?.data || error.message);
     }
+  };
+
+  const handleHide = (e) => {
+    e.preventDefault();
+    setHide(!hide);
   };
 
   // signup component
@@ -115,16 +123,17 @@ const Signup = () => {
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-          placeholder="••••••••"
-          required
-          className="
+        <div className="relative w-full">
+          <input
+            type={hide ? "password" : "text"}
+            id="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+            placeholder="••••••••"
+            required
+            className="
             w-full px-3 py-2.5
             text-sm
             surface-bg
@@ -132,8 +141,21 @@ const Signup = () => {
             rounded-base
             shadow-xs
             input-focus hover-lift
+            
           "
-        />
+          />
+          {hide ? (
+            <LuEyeOff
+              onClick={handleHide}
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+            />
+          ) : (
+            <LuEye
+              onClick={handleHide}
+              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+            />
+          )}
+        </div>
       </div>
 
       <button
