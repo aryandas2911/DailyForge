@@ -122,8 +122,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full btn btn-primary py-2 mt-2 hover-lift"
-            onSubmit={handleSubmit}
+            className="w-full btn btn-primary py-2 mt-2 hover-lift transition-transform duration-150 active:scale-95"
           >
             {task ? "Update Task" : "Add Task"}
           </button>

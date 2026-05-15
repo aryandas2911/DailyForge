@@ -90,7 +90,7 @@ export default function TaskLibrary({ onAddTask }) {
       </div>
 
       {/* Footer CTA */}
-      <button className="btn btn-primary w-full mt-4 cursor-pointer hover-lift" onClick={onAddTask}>
+      <button className="btn btn-primary w-full mt-4 cursor-pointer hover-lift transition-transform duration-150 active:scale-95" onClick={onAddTask}>
         + Add Task
       </button>
     </div>
