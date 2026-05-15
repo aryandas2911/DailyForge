@@ -15,7 +15,7 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
@@ -79,12 +79,11 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    return res
-      .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
+    return res.status(200).json({
+      success: true,
+      message: "Routine added successfully",
+      routine: newRoutine,
+    });
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
@@ -110,10 +109,8 @@ export const getRoutines = async (req, res) => {
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      res.status(400).json({ message: "User has no routine", success: false });
-    }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -140,6 +137,22 @@ export const updateRoutine = async (req, res) => {
     const routineId = req.params.id;
 
     if (updates.items) {
+      // validate each item
+      for (const item of updates.items) {
+        if (!item.day || item.startTime === undefined || !item.duration) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task must have a day, startTime, and duration",
+          });
+        }
+        if (item.duration < 10) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task duration must be at least 10 minutes",
+          });
+        }
+      }
+
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
@@ -189,10 +202,12 @@ export const updateRoutine = async (req, res) => {
     );
     if (!updatedRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
+      success: true,
       message: "Routine updated successfully",
       routine: updatedRoutine,
     });
@@ -221,16 +236,18 @@ export const deleteRoutine = async (req, res) => {
     const routineId = req.params.id;
 
     // fetch routine to be deleted from database
-    const deleteRoutine = await Routine.findOneAndDelete({
+    const deletedRoutine = await Routine.findOneAndDelete({
       _id: routineId,
       userId: userId,
     });
-    if (!deleteRoutine) {
-      res.status(404).json({
+    if (!deletedRoutine) {
+      return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
+      success: true,
       message: "Routine deleted successfully",
     });
   } catch (error) {
