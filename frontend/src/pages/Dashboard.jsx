@@ -8,7 +8,12 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
-
+import StreakCard from "../components/Dashboard/StreakCard";
+import AchievementBadge from "../components/Dashboard/AchievementBadge";
+import {
+  calculateDashboardStats,
+  getAchievements,
+} from "../utils/streakUtils";
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -28,17 +33,23 @@ export default function Dashboard() {
       today.getDate() === created.getDate()
     );
   });
-
-  const completedToday = todayTasks.filter(
-    (task) => task.status === "Completed"
-  ).length;
-
-  const totalToday = todayTasks.length;
-
   const upcomingTasks = tasks
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
+  const {
+    completedToday,
+    weeklyCompleted,
+    streak,
+  } = calculateDashboardStats(tasks);
 
+  const achievements = getAchievements(tasks, streak);
+
+  const totalToday = todayTasks.length;
+
+  const weeklyPercentage = Math.min(
+    Math.round((weeklyCompleted / 20) * 100),
+    100
+  );
   // Fetch routines
   const fetchRoutines = async () => {
     try {
@@ -90,18 +101,52 @@ export default function Dashboard() {
         <div className="flex-1 animate-in delay-200">
           <StatCard
             label="This Week"
-            value="72%"
-            subtitle="Completion"
+            value={`${weeklyPercentage}%`}
+            subtitle={`${weeklyCompleted} tasks completed`}
             icon={<Calendar size={20} />}
           />
         </div>
       </section>
+      <div className="animate-in delay-200">
+        <StreakCard streak={streak} />
+      </div>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
         <DashboardTasks />
       </div>
+      <section className="bg-white/80 rounded-xl shadow-md p-5 animate-in delay-300">
+  <div className="flex items-center justify-between mb-5">
+    <div>
+      <h2 className="text-xl font-semibold text-main">
+        Achievements
+      </h2>
 
+      <p className="text-sm text-muted mt-1">
+        Productivity milestones unlocked
+      </p>
+    </div>
+
+    <div className="text-3xl">
+      🏆
+    </div>
+  </div>
+
+  {achievements.length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {achievements.map((achievement, index) => (
+        <AchievementBadge
+          key={index}
+          achievement={achievement}
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-8 text-muted">
+      Complete tasks to unlock achievements
+    </div>
+  )}
+</section>
       {/* Bottom Row: TaskPreview + Routines */}
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
