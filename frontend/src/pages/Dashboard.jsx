@@ -60,7 +60,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
+      <header className="card animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-main leading-tight">
             Good afternoon, {user?.name}
@@ -113,7 +113,7 @@ export default function Dashboard() {
         </div>
 
         {/* Saved Routines */}
-        <div className="flex-1 animate-in delay-300 flex flex-col bg-white/80 rounded-xl shadow-md p-4 h-74 overflow-y-auto relative">
+        <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
@@ -135,7 +135,10 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {savedRoutines.map((routine) => (
-                <li key={routine._id} className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in">
+                <li
+                  key={routine._id}
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                >
                   <p className="font-medium text-main">{routine.name}</p>
                   {routine.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
