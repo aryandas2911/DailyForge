@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
 
-  const { tasks } = useTasks();
+  const { tasks, updateTask } = useTasks();
 
   const today = new Date();
 
@@ -106,7 +106,10 @@ export default function Dashboard() {
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
-          <TaskPreview tasks={upcomingTasks} />
+          <TaskPreview
+              tasks={upcomingTasks}
+              updateTask={updateTask}
+          />
         </div>
 
         {/* Saved Routines */}
