@@ -8,6 +8,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   // useNavigate object
   const navigate = useNavigate();
@@ -19,6 +20,13 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+
+    // validate password length before sending to server
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+    setPasswordError("");
 
     // send request to server
     try {
@@ -121,19 +129,28 @@ const Signup = () => {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
+            if (e.target.value.length > 0 && e.target.value.length < 6) {
+              setPasswordError("Password must be at least 6 characters");
+            } else {
+              setPasswordError("");
+            }
           }}
           placeholder="••••••••"
           required
-          className="
+          minLength={6}
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
+            ${passwordError ? "border border-red-400" : "border-soft"}
             rounded-base
             shadow-xs
             input-focus hover-lift
-          "
+          `}
         />
+        {passwordError && (
+          <p className="text-xs text-red-500 mt-1">{passwordError}</p>
+        )}
       </div>
 
       <button

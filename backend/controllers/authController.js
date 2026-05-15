@@ -8,6 +8,13 @@ export const signup = async (req, res) => {
     // fetch values from request
     const { name, email, password } = req.body;
 
+    // validate password length
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
+    }
+
     // check user exists or not
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
