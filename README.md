@@ -182,14 +182,32 @@ cd backend
 npm install
 ```
 
-**Create your `.env` file** (see the [Environment Variables](#-environment-variables) section below):
+**Create your `.env` file from the given template** (see the [Environment Variables](#-environment-variables) section below):
 
 ```bash
 # Inside the /backend directory
-cp .env.example .env   # or manually create .env
+
+cp .env.example .env   
 ```
 
 Then fill in your values (see the next section for what each variable means).
+> ⚠️ **Local dev note:** The backend CORS origin is currently configured for the deployed frontend in `backend/src/server.js`.  
+> When running the frontend locally on `http://localhost:5173`, update the CORS origin temporarily for local development.
+>
+> Change this:
+>
+> ```js
+> origin: "https://dailyforge-frontend-lhjq.onrender.com"
+> ```
+>
+> to:
+>
+> ```js
+> origin: "http://localhost:5173"
+> ```
+>
+> before starting the backend server.
+
 
 **Start the backend dev server:**
 
@@ -210,7 +228,7 @@ cd frontend
 npm install
 ```
 
-> ⚠️ **Local dev note:** The frontend base URL is hardcoded in `frontend/src/api/axios.js` to point at the deployed backend. To test against your local backend, temporarily change `baseURL` in that file to `http://localhost:5000/api/`.
+> ⚠️ > 💡 **Local dev note:** To point the frontend to your local backend, copy `frontend/.env.example` to `frontend/.env` and ensure `VITE_API_URL` is set to `http://localhost:5000/api`.
 
 **Start the frontend dev server:**
 
@@ -232,7 +250,7 @@ Open `http://localhost:5173`, sign up for an account, and start building your ro
 
 ### Backend — `backend/.env`
 
-Create this file manually. **Never commit it to git.**
+Copy the provided template to get started. **Never commit the .env to git.**
 
 ```env
 PORT=5000
@@ -252,18 +270,12 @@ JWT_SECRET=your_super_secret_key_here
 3. Click **Connect** → **Connect your application** → Copy the connection string
 4. Replace `<password>` with your DB user's password
 
-### Frontend — No `.env` required
+### Frontend — `frontend/.env`
 
-The frontend has **no environment variables**. The API base URL is hardcoded in `frontend/src/api/axios.js`:
+Copy the provided .env.example to a new file .env 
 
-```js
-// frontend/src/api/axios.js
-const api = axios.create({
-  baseURL: "https://dailyforge-backend.onrender.com/api/",
-});
-```
 
-**Running locally?** Change `baseURL` to `http://localhost:5000/api/` while developing, and revert before committing.
+**Running locally?** Update `VITE_API_URL` in your local `.env` file to `http://localhost:5000/api/`.
 
 ---
 
