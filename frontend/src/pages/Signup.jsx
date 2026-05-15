@@ -8,6 +8,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
   // useNavigate object
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+
+    if (!validate()) return;
 
     // send request to server
     try {
@@ -44,6 +47,20 @@ const Signup = () => {
       console.log("Signup failed");
       console.log(error.response?.data || error.message);
     }
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters long";
+    }
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // signup component
@@ -74,16 +91,17 @@ const Signup = () => {
           }}
           placeholder="Full Name"
           required
-          className="
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-sm
             shadow-xs
             input-focus hover-lift
-          "
+            ${errors.name ? "border-red-500" : "border-soft"}
+          `}
         />
+        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -124,16 +142,17 @@ const Signup = () => {
           }}
           placeholder="••••••••"
           required
-          className="
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-base
             shadow-xs
             input-focus hover-lift
-          "
+            ${errors.password ? "border-red-500" : "border-soft"}
+          `}
         />
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
       </div>
 
       <button
