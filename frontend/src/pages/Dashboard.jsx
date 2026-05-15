@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
 
-  const { tasks } = useTasks();
+  const { tasks, updateTask } = useTasks();
 
   const today = new Date();
 
@@ -106,7 +106,10 @@ export default function Dashboard() {
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
-          <TaskPreview tasks={upcomingTasks} />
+          <TaskPreview
+              tasks={upcomingTasks}
+              updateTask={updateTask}
+          />
         </div>
 
         {/* Saved Routines */}
@@ -132,12 +135,14 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in"
-                >
+                <li key={routine._id} className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in">
                   <p className="font-medium text-main">{routine.name}</p>
-                  <p className="text-xs text-muted">
+                  {routine.description && (
+                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                      {routine.description}
+                    </p>
+                  )}
+                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
                     {routine.items.length} tasks across{" "}
                     {new Set(routine.items.map((i) => i.day)).size} day(s)
                   </p>
