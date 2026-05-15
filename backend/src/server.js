@@ -8,7 +8,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 
 // dotenv config
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 // Initialize express app
 const app = express();
@@ -16,7 +16,12 @@ const app = express();
 // Intialize cors
 app.use(
   cors({
-    origin: "https://dailyforge-frontend-lhjq.onrender.com",
+    origin: [
+      "https://dailyforge-frontend-lhjq.onrender.com",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+    ],
     credentials: true,
   })
 );

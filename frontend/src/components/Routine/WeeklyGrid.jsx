@@ -79,7 +79,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
           <div key={`save-${day}`} className="flex justify-center pb-2">
             <button
               onClick={() => onSaveDay(day)}
-              className="btn btn-primary px-3 py-1 text-xs cursor-pointer hover-lift"
+              className="btn btn-primary px-3 py-1 text-xs cursor-pointer hover-lift transition-transform duration-150 active:scale-95"
             >
               Save
             </button>

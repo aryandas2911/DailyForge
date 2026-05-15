@@ -138,7 +138,7 @@ const Signup = () => {
 
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift transition-transform duration-150 active:scale-95"
       >
         Sign Up
       </button>
