@@ -2,7 +2,7 @@ import axios from "axios";
 
 // create axios instance
 const api = axios.create({
-  baseURL: "http://localhost:5000/api/",
+  baseURL: "https://dailyforge-backend.onrender.com/api/",
   timeout: 2000,
 });
 
