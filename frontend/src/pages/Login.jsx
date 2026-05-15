@@ -1,50 +1,26 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Spinner from "../components/Spinner";
 
 const Login = () => {
-  // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // useNavigate object
   const navigate = useNavigate();
+  const { login, loading } = useContext(AuthContext);
 
-  // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
-
-  // submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
-
-    // send request to server
     try {
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
-      console.log("Login success: ", res.data);
-
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
-
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data);
-
-      // redirect to dashboard
+      await login(email, password);
       navigate("/dashboard");
     } catch (error) {
-      // handle error
       console.log("Login failed");
       console.log(error.response?.data || error.message);
     }
   };
 
-  // login component
   return (
     <form
       className="
@@ -66,20 +42,13 @@ const Login = () => {
           type="email"
           id="email"
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="user@email.com"
           required
           className="
             w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-sm
-            shadow-xs
-            input-focus
-            hover-lift
+            text-sm surface-bg border-soft
+            rounded-sm shadow-xs input-focus hover-lift
           "
         />
       </div>
@@ -92,37 +61,29 @@ const Login = () => {
           type="password"
           id="password"
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
           className="
             w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-base
-            shadow-xs
-            input-focus
-            hover-lift
+            text-sm surface-bg border-soft
+            rounded-base shadow-xs input-focus hover-lift
           "
         />
       </div>
 
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        disabled={loading}
+        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-60"
       >
-        Login
+        {loading ? <Spinner /> : "Login"}
       </button>
 
       <p className="text-center text-sm text-muted">
         Don't have an account?{" "}
         <span
-          onClick={() => {
-            navigate("/signup");
-          }}
+          onClick={() => navigate("/signup")}
           className="text-main font-medium cursor-pointer hover:underline transition-colors"
         >
           Sign up

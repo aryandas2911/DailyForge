@@ -4,10 +4,11 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft } from "lucide-react";
+import Spinner from "../components/Spinner";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, loading, addTask, updateTask, deleteTask } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -92,7 +93,9 @@ export default function Tasks() {
         {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
-            {tasks.length ? (
+            {loading ? (
+              <Spinner />
+            ) : tasks.length ? (
               tasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
