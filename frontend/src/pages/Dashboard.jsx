@@ -6,6 +6,7 @@ import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import RoutineItem from "../components/Dashboard/RoutineItem";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 
@@ -132,16 +133,7 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in"
-                >
-                  <p className="font-medium text-main">{routine.name}</p>
-                  <p className="text-xs text-muted">
-                    {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
-                  </p>
-                </li>
+                <RoutineItem key={routine._id} routine={routine} />
               ))}
             </ul>
           )}
