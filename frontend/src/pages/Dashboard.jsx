@@ -132,10 +132,7 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in"
-                >
+                <li key={routine._id} className="border border-soft rounded-lg p-2 bg-white/80 shadow-sm hover-lift animate-in">
                   <p className="font-medium text-main">{routine.name}</p>
                   <p className="text-xs text-muted">
                     {routine.items.length} tasks across{" "}
