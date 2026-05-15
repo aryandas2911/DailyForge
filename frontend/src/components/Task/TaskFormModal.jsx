@@ -24,7 +24,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim()) return alert("Title is required");
+    if (title.trim().length < 3) return alert("Title must be at least 3 characters");
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
 
@@ -60,6 +60,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              minLength={3} 
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Task title"
               required

@@ -9,7 +9,9 @@ const taskSchema = mongoose.Schema(
     },
     title: {
       type: String,
-      required: true,
+      required: [true, "Title is required"],
+      minlength: [3, "Title must be at least 3 characters"],
+      trim: true,// Recommended to prevent whitespace-only titles
     },
     description: {
       type: String,
