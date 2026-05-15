@@ -110,10 +110,8 @@ export const getRoutines = async (req, res) => {
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      res.status(400).json({ message: "User has no routine", success: false });
-    }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -226,7 +224,7 @@ export const deleteRoutine = async (req, res) => {
       userId: userId,
     });
     if (!deleteRoutine) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Routine not found",
       });
     }
