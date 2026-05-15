@@ -25,6 +25,13 @@ const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link
+            to="/about"
+            className="text-muted hover:text-main transition-colors font-medium cursor-pointer"
+          >
+            About
+          </Link>
+          
           {!token ? (
             <>
               <Link
