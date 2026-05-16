@@ -1,8 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import api from "../api/axios";
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext(null);
+import { AuthContext } from "./AuthContext";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
