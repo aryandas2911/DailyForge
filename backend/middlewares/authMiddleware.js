@@ -27,8 +27,27 @@ export const authMiddleware = (req, res, next) => {
     next();
 
   } catch (error) {
-    // error handling
-    console.log("Token verification error", error);
-    return res.status(500).json({ success: false, message: "Token invalid" });
+  // error handling
+   console.log("Token verification error", error);
+
+   if (error.name === "TokenExpiredError") {
+    return res.status(401).json({
+      success: false,
+      message: "Token expired",
+    });
   }
+
+  if (error.name === "JsonWebTokenError") {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: "Authentication failed",
+  });
+}
+
 };
