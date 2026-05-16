@@ -3,22 +3,27 @@ import { DndContext } from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
+import useTaskStore from "../store/taskStore.js";
+import useRoutineStore from "../store/routineStore.js";
 
 export default function RoutineBuilder() {
-  const { addTask, tasks } = useTasks();
+  const tasks = useTaskStore((state)=> state.tasks);
+  const addTask = useTaskStore((state)=> state.addTask);
+  const routines = useRoutineStore((state) => state.routines);
+  const routinesLoading = useRoutineStore((state) => state.routinesLoading);
+  const fetchRoutines = useRoutineStore((state) => state.fetchRoutines);
+  const addRoutine = useRoutineStore((state) => state.addRoutine);
+
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
-  const [savedRoutines, setSavedRoutines] = useState([]);
-  const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
 
   const handleSubmit = async (data) => {
@@ -33,23 +38,7 @@ export default function RoutineBuilder() {
 
   useEffect(() => {
     fetchRoutines();
-  }, []);
-
-  const fetchRoutines = async () => {
-    try {
-      setLoadingRoutines(true);
-      const res = await api.get("/routines");
-      // res.data.routines is the array you need
-      setSavedRoutines(
-        Array.isArray(res.data.routines) ? res.data.routines : []
-      );
-    } catch (err) {
-      console.error(err);
-      setSavedRoutines([]);
-    } finally {
-      setLoadingRoutines(false);
-    }
-  };
+  }, [fetchRoutines]);
 
   const confirmSaveRoutine = async () => {
     const items = scheduledTasks
@@ -62,7 +51,7 @@ export default function RoutineBuilder() {
       }));
 
     try {
-      await api.post("/routines", {
+      await addRoutine({
         name: routineName,
         description: description,
         items,
@@ -74,7 +63,6 @@ export default function RoutineBuilder() {
       setSelectedDay(null);
 
       alert("Routine saved successfully");
-      await fetchRoutines();
     } catch (err) {
       console.error(err);
       alert("Failed to save routine");
@@ -154,13 +142,13 @@ export default function RoutineBuilder() {
             Saved Routines
           </h2>
 
-          {loadingRoutines ? (
+          {routinesLoading ? (
             <p className="text-sm text-muted">Loading routines…</p>
-          ) : savedRoutines.length === 0 ? (
+          ) : routines.length === 0 ? (
   <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedRoutines.map((routine) => {
+              {routines.map((routine) => {
                 // Group tasks by day
                 const tasksByDay = routine.items.reduce((acc, item) => {
                   if (!acc[item.day]) acc[item.day] = [];
