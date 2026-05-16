@@ -8,6 +8,8 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
@@ -15,12 +17,23 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // set loading state
+    setIsLoading(true);
+    setError("");
+
+    // send request to server
     try {
       await signup(name, email, password);
       navigate("/dashboard");
     } catch (error) {
       console.log("Signup failed");
-      console.log(error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
+      setError(errorMessage);
+      console.log(errorMessage);
+    } finally {
+      // reset loading state
+      setIsLoading(false);
     }
   };
 
@@ -104,12 +117,18 @@ const Signup = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={loading}
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-60"
+        disabled={isLoading}
+        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? <Spinner /> : "Sign Up"}
+        {isLoading ? "Signing up..." : "Sign Up"}
       </button>
 
       <p className="text-center text-sm text-muted">

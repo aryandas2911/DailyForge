@@ -43,7 +43,11 @@ const useTasks = () => {
   useEffect(() => {
     getTasks();
   }, []);
-
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
+    getTasks();
+  };
   // return reusable functions
   return {
     tasks,
@@ -51,6 +55,7 @@ const useTasks = () => {
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
