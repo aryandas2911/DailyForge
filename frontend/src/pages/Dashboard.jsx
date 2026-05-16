@@ -35,12 +35,9 @@ export default function Dashboard() {
   const today = new Date();
 
   const todayTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return (
-      today.getFullYear() === created.getFullYear() &&
-      today.getMonth() === created.getMonth() &&
-      today.getDate() === created.getDate()
-    );
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return today.toDateString() === due.toDateString();
   });
 
   const completedToday = todayTasks.filter(
@@ -58,8 +55,9 @@ export default function Dashboard() {
   endOfWeek.setHours(23, 59, 59, 999);
 
   const weekTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return created >= startOfWeek && created <= endOfWeek;
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return due >= startOfWeek && due <= endOfWeek;
   });
 
   const completedThisWeek = weekTasks.filter(
