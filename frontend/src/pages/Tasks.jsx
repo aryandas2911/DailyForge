@@ -4,6 +4,7 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft } from "lucide-react";
+import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -50,6 +51,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
+//changed logic
+  const nextTask = tasks
+  .filter((task) => task.dueDate && task.status !== "Completed")
+  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = tasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -109,13 +114,14 @@ export default function Tasks() {
                   />
                 ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-soft py-20 text-center">
-                <p className="text-lg font-medium text-main">No tasks yet</p>
-                <p className="text-sm text-muted mt-1">
-                  Start with one small win today.
-                </p>
-              </div>
-            )}
+  <EmptyState
+    type="tasks"
+    onAction={() => {
+      setEditingTask(null);
+      setIsModalOpen(true);
+    }}
+  />
+)}
           </div>
 
           {/* Insights */}
@@ -153,7 +159,23 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted">No urgent deadlines 🎉</p>
+               // updated deadlines
+                nextTask ? (
+  <div className="space-y-1">
+    <p className="text-sm font-medium text-main">
+      {nextTask.title}
+    </p>
+
+    <p className="text-xs text-muted">
+      Due on{" "}
+      {new Date(nextTask.dueDate).toLocaleDateString()}
+    </p>
+  </div>
+) : (
+  <p className="text-xs text-muted">
+    No upcoming tasks 🎉
+  </p>
+)
               )}
             </div>
 

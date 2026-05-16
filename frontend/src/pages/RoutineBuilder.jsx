@@ -7,6 +7,7 @@ import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
+import EmptyState from "../components/EmptyState";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -18,6 +19,7 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [description, setDescription] = useState("");
 
   const handleSubmit = async (data) => {
     try {
@@ -62,11 +64,13 @@ export default function RoutineBuilder() {
     try {
       await api.post("/routines", {
         name: routineName,
+        description: description,
         items,
       });
 
       setIsSaveModalOpen(false);
       setRoutineName("");
+      setDescription("");
       setSelectedDay(null);
 
       alert("Routine saved successfully");
@@ -152,10 +156,8 @@ export default function RoutineBuilder() {
 
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
-          ) : Array.isArray(savedRoutines) && savedRoutines.length === 0 ? (
-            <div className="card card-muted text-sm text-muted text-center py-8">
-              No routines saved yet
-            </div>
+          ) : savedRoutines.length === 0 ? (
+  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {
@@ -182,6 +184,12 @@ export default function RoutineBuilder() {
                     <h3 className="font-medium text-main mb-2">
                       {routine.name}
                     </h3>
+
+                    {routine.description && (
+                      <p className="text-xs text-muted mb-3 italic">
+                        {routine.description}
+                      </p>
+                    )}
 
                     {Object.keys(tasksByDay).map((day) => (
                       <div key={day} className="mb-2">
@@ -234,6 +242,14 @@ export default function RoutineBuilder() {
               onChange={(e) => setRoutineName(e.target.value)}
               placeholder="Routine name"
               className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
+            />
+
+            <textarea
+              value={description}
+              onChange={(e)=> setDescription(e.target.value)}
+              placeholder="Add a description (optional)"
+              rows="3"
+              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-white resize-none"
             />
 
             <div className="flex justify-end gap-3">
