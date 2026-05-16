@@ -1,35 +1,52 @@
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-
-  // ✅ Check header exists
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Authorization failed, token missing or invalid format",
-    });
-  }
-
   try {
-    // ✅ Extract token safely
+    const authHeader = req.header("Authorization");
+
+    // ✅ Check header exists & format
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization failed, token missing or invalid format",
+      });
+    }
+
+    // ✅ Extract token
     const token = authHeader.split(" ")[1];
 
     // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ Attach user object (STANDARD WAY 🔥)
+    // ✅ Attach user (clean + scalable)
     req.user = {
       id: decoded.id || decoded.userId,
     };
 
     next();
   } catch (error) {
+    // ✅ Better logging (production-friendly)
     console.error("JWT Error:", error.message);
 
-    return res.status(401).json({
+    // ✅ Specific error handling
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired, please log in again",
+      });
+    }
+
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token",
+      });
+    }
+
+    // ✅ Fallback (unexpected error)
+    return res.status(500).json({
       success: false,
-      message: "Invalid or expired token",
+      message: "Internal server error",
     });
   }
 };
