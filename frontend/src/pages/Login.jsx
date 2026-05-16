@@ -4,150 +4,123 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
-
 const Login = () => {
-  // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  // useNavigate object
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // useContext for auth
+  const navigate = useNavigate();
   const { setUser, setToken } = useContext(AuthContext);
 
-  // submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // send request to server
     try {
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
-      console.log("Login success: ", res.data);
-
-      // save token in localstorage for later api calls
+      const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
-
-      // get user details
       const me = await api.get("/auth/me");
       setUser(me.data.user);
-
-      // redirect to dashboard
       navigate("/dashboard");
-    } catch (error) {
-      // handle error
-      console.log("Login failed");
-      console.log(error.response?.data || error.message);
-      setError(error.response?.data?.message || "Invalid email or password.");
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Login failed. Please try again.";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // login component
   return (
-    <form
-      className="
-        surface-bg px-10 py-15 rounded-2xl
-        w-full max-w-sm
-        flex flex-col gap-6 animate-in
-      "
-      onSubmit={handleSubmit}
-    >
-      <div className="text-center space-y-1 mb-3">
-        <h1 className="text-3xl font-bold text-main">Login</h1>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-main">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
-          placeholder="user@email.com"
-          required
-          className="
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-sm
-            shadow-xs
-            input-focus
-            hover-lift
-          "
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-main">
-          Password
-        </label>
-        <div className="relative">
-          
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            placeholder="••••••••"
-            required
-            className="
-              w-full px-3 py-2.5 pr-10
-              text-sm
-              surface-bg
-              border-soft
-              rounded-base
-              shadow-xs
-              input-focus
-              hover-lift
-            "
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-      </div>
-      {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
-          {error}
-        </div>
-      )}
-      <button
-        type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+    <div className="ios-glass-theme app-bg min-h-screen w-full flex items-center justify-center px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="card glass-panel w-full max-w-xl flex flex-col gap-5 animate-in"
       >
-        Login
-      </button>
+        {/* Logo + Title */}
+        <div className="flex flex-col items-center gap-3 mb-1">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-2xl leading-none">D</span>
+          </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-main">Welcome back</h1>
+            <p className="text-sm text-muted mt-0.5">Sign in to DailyForge</p>
+          </div>
+        </div>
 
-      <p className="text-center text-sm text-muted">
-        Don't have an account?{" "}
-        <span
-          onClick={() => {
-            navigate("/signup");
-          }}
-          className="text-main font-medium cursor-pointer hover:underline transition-colors"
+        {/* Email */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="email" className="text-sm font-medium text-main">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="user@email.com"
+            required
+            className="w-full px-3 py-2.5 text-sm rounded-xl border border-white/60 bg-white/40 backdrop-blur-sm text-main placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]/40 focus:border-[#4eb7b3] transition-all"
+          />
+        </div>
+
+        {/* Password */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="password" className="text-sm font-medium text-main">
+            Password
+          </label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              className="w-full px-3 py-2.5 pr-10 text-sm rounded-xl border border-white/60 bg-white/40 backdrop-blur-sm text-main placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]/40 focus:border-[#4eb7b3] transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="glass-cell px-3 py-2.5 rounded-xl text-sm text-red-600 border border-red-200/60">
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="btn btn-primary w-full mt-1 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sign up
-        </span>
-      </p>
-    </form>
+          {isLoading ? "Signing in…" : "Login"}
+        </button>
+
+        {/* Footer link */}
+        <p className="text-center text-sm text-muted">
+          Don&apos;t have an account?{" "}
+          <span
+            onClick={() => navigate("/signup")}
+            className="text-main font-medium cursor-pointer hover:underline transition-colors"
+          >
+            Sign up
+          </span>
+        </p>
+      </form>
+    </div>
   );
 };
 

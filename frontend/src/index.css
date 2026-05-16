@@ -3,6 +3,10 @@
 :root {
   /* App background (outer layout) */
   --bg: #d0f6e3;
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-bg-strong: rgba(255, 255, 255, 0.26);
+  --glass-border: rgba(255, 255, 255, 0.64);
+  --glass-shadow: 0 24px 70px rgba(59, 142, 160, 0.2);
 
   /* Surfaces: cards, modals, panels */
   --surface: #ffffff;
@@ -84,21 +88,89 @@
   }
 
   .card {
-    background-color: var(--surface);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    @apply p-6 shadow-sm transition-shadow duration-200;
+    background: var(--glass-bg-strong);
+    border-radius: 2rem;
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(34px) saturate(190%) brightness(1.06);
+    -webkit-backdrop-filter: blur(34px) saturate(190%) brightness(1.06);
+    @apply p-6 transition-shadow duration-200;
   }
   .card:hover {
-    @apply shadow-md;
+    box-shadow:
+      0 34px 90px rgba(17, 32, 67, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .card-muted {
-    @apply bg-white/80;
+    background: var(--glass-bg);
   }
 
   .card-primary {
     @apply shadow-md;
+  }
+
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 28px 90px rgba(17, 32, 67, 0.26),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.26);
+    backdrop-filter: blur(38px) saturate(200%) brightness(1.06);
+    -webkit-backdrop-filter: blur(38px) saturate(200%) brightness(1.06);
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 18px 42px rgba(59, 142, 160, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(28px) saturate(190%) brightness(1.06);
+    -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(1.06);
+  }
+
+  .glass-cell {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.54);
+    box-shadow:
+      0 12px 30px rgba(59, 142, 160, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
+  .ios-glass-theme {
+    color: var(--text-main);
+  }
+
+  .ios-glass-theme .text-main {
+    color: var(--text-main);
+  }
+
+  .ios-glass-theme .text-muted {
+    color: var(--text-muted);
+  }
+
+  .ios-glass-theme .text-primary {
+    color: var(--primary);
+  }
+
+  .ios-glass-theme h1,
+  .ios-glass-theme h2,
+  .ios-glass-theme h3,
+  .ios-glass-theme p,
+  .ios-glass-theme button {
+    text-shadow: none;
+  }
+
+  .icon-btn {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200;
   }
 }
 

@@ -28,7 +28,7 @@ export default function TaskPreview({ tasks , updateTask}) {
   };
 
   return (
-    <div className="card w-full">
+    <div className="card glass-panel w-full">
       <h2 className="text-lg font-semibold text-main mb-4">Upcoming Tasks</h2>
 
       {tasks?.length ? (
@@ -56,7 +56,7 @@ export default function TaskPreview({ tasks , updateTask}) {
               key={task._id}
               className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white shadow-sm`}
+              glass-cell hover:bg-white/55`}
             >
               {/* Checkbox */}
               <input

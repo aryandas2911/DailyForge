@@ -4,9 +4,9 @@ import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
 
 const priorityStyles = {
-  Low: "border-green-500 bg-green-50",
-  Medium: "border-yellow-500 bg-yellow-50",
-  High: "border-red-500 bg-red-50",
+  Low: "border-green-500",
+  Medium: "border-yellow-500",
+  High: "border-red-500",
 };
 
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
@@ -26,7 +26,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           w-full rounded-xl border-l-4
           ${priorityStyles[task.priority]}
           ${isCompleted ? "opacity-70" : ""}
-          shadow-sm hover:shadow-md transition
+          glass-panel transition
         `}
       >
         <div className="flex items-center gap-6 px-6 py-6">
@@ -44,7 +44,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               w-8 h-8 rounded-md flex items-center justify-center
               border-soft shrink-0 cursor-pointer
               transition-transform duration-150
-              ${isCompleted ? "bg-(--primary) text-white" : "bg-white"}
+              ${isCompleted ? "bg-(--primary) text-white" : "bg-white/55"}
             `}
           >
             {isCompleted && <Check size={18} />}
@@ -98,7 +98,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             {/* Edit Button */}
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="p-2 rounded-lg hover:bg-white transition cursor-pointer"
+              className="p-2 rounded-lg hover:bg-white/60 transition cursor-pointer"
             >
               <Pencil size={18} className="text-main" />
             </button>

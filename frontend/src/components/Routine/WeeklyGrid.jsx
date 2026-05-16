@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { Trash2 } from "lucide-react";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -31,7 +32,7 @@ const timeToMinutes = (time) => {
 };
 
 /* ---------------- Droppable Cell ---------------- */
-function DroppableCell({ day, time, tasks }) {
+function DroppableCell({ day, time, tasks, onUpdateTask, onDeleteTask }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `${day}-${time}`,
     data: {
@@ -43,8 +44,8 @@ function DroppableCell({ day, time, tasks }) {
   return (
     <div
       ref={setNodeRef}
-      className={`border-soft h-12 relative transition ${
-        isOver ? "bg-blue-100" : "bg-white/70"
+      className={`glass-cell h-12 relative transition ${
+        isOver ? "bg-sky-100/70" : ""
       }`}
       role="region"
       aria-label={`${day} at ${time} - Drop zone for scheduling tasks`}
@@ -52,11 +53,38 @@ function DroppableCell({ day, time, tasks }) {
       {tasks.map((task) => (
         <div
           key={task.taskId}
-          className="absolute inset-1 rounded-lg bg-blue-500
+          className="absolute inset-1 rounded-xl bg-[#4eb7b3]/85 backdrop-blur-xl
                      text-white text-xs font-medium
-                     flex items-center justify-center shadow animate-in"
+                     flex flex-col justify-center gap-1 shadow-lg animate-in px-2"
         >
-          {task.title}
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate">{task.title}</span>
+            <button
+              type="button"
+              onClick={() => onDeleteTask(task.taskId, task.day)}
+              className="icon-btn h-6 w-6 hover:bg-white/20"
+              aria-label={`Remove ${task.title} from ${task.day}`}
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
+          <label className="flex items-center gap-1 text-[10px] text-white/90">
+            <span>Duration</span>
+            <input
+              type="number"
+              min="10"
+              step="5"
+              value={task.duration}
+              onChange={(event) =>
+                onUpdateTask(task.taskId, task.day, {
+                  duration: Number(event.target.value),
+                })
+              }
+              className="w-14 rounded-md bg-white/20 px-1 py-0.5 text-center text-white outline-none"
+              aria-label={`Duration for ${task.title}`}
+            />
+            <span>m</span>
+          </label>
         </div>
       ))}
     </div>
@@ -64,9 +92,14 @@ function DroppableCell({ day, time, tasks }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
+export default function WeeklyGrid({
+  scheduledTasks,
+  onSaveDay,
+  onUpdateTask,
+  onDeleteTask,
+}) {
   return (
-    <div className="card card-primary overflow-x-auto animate-in">
+    <div className="card card-primary glass-panel overflow-x-auto animate-in">
       <h2 className="text-lg font-semibold text-main mb-4">Weekly Schedule</h2>
 
       <div
@@ -111,6 +144,8 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
                 key={`${day}-${time}`}
                 day={day}
                 time={time}
+                onUpdateTask={onUpdateTask}
+                onDeleteTask={onDeleteTask}
                 tasks={scheduledTasks.filter(
                   (t) => t.day === day && t.startTime === timeToMinutes(time)
                 )}

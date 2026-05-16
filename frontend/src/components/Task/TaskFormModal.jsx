@@ -39,7 +39,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   const toggleCategory = (categoryName) => {
-    setTags(prev => 
+    setTags(prev =>
       prev.includes(categoryName)
         ? prev.filter(tag => tag !== categoryName)
         : [...prev, categoryName]
@@ -47,12 +47,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100">
+    <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm flex items-center justify-center z-50 animate-in">
+      <div className="glass-panel rounded-3xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full"
+          className="absolute top-4 right-4 p-1 hover:bg-white/60 rounded-full"
         >
           <X size={20} />
         </button>
@@ -69,7 +69,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-white/70 bg-white/55 rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Task title"
               required
             />
@@ -86,7 +86,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               onChange={(e) =>
                 setDescription(e.target.value)
               }
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-white/70 bg-white/55 rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Optional task description"
               rows={3}
               maxLength={300}
@@ -141,7 +141,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-white/70 bg-white/55 rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required
             >
               {priorities.map((p) => (
@@ -159,7 +159,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-white/70 bg-white/55 rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required
             />
           </div>

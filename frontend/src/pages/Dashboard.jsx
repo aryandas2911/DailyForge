@@ -92,9 +92,9 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div className="ios-glass-theme min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
+      <header className="glass-panel animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-7 rounded-3xl gap-4">
          {/* Display time */}
         <div className="w-full">
           <h1 className="text-2xl font-semibold text-main leading-tight">
@@ -151,7 +151,7 @@ export default function Dashboard() {
         </div>
 
         {/* Saved Routines */}
-        <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
+        <div className="card glass-panel flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
@@ -175,7 +175,7 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  className="glass-cell border-l-4 border-primary rounded-2xl p-4 hover:bg-white/55 transition-all duration-200 animate-in"
                 >
                   <p className="font-medium text-main">{routine.name}</p>
                   {routine.description && (

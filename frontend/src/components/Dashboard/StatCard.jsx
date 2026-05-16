@@ -1,6 +1,6 @@
 export default function StatCard({ label, value, subtitle, icon }) {
   return (
-    <div className="card flex items-start gap-4">
+    <div className="card glass-panel flex items-start gap-4">
       <div className="text-primary">{icon}</div>
 
       <div>

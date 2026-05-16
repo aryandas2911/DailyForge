@@ -56,8 +56,8 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled 
-          ? "bg-white/80 backdrop-blur-xl border-b border-soft shadow-sm" 
-          : "bg-transparent border-b border-transparent"
+          ? "bg-white/[0.14] backdrop-blur-3xl border-b border-white/30 shadow-sm"
+          : "bg-white/[0.08] backdrop-blur-2xl border-b border-white/15"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +72,7 @@ const Navbar = () => {
             >
               <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
             </motion.div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3]">
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3] drop-shadow">
               DailyForge
             </span>
           </Link>
@@ -88,8 +88,8 @@ const Navbar = () => {
                     cn(
                       "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "glass-pill text-[#3b8ea0] shadow-sm"
+                        : "text-[#4eb7b3] hover:bg-white/[0.18] hover:text-[#3b8ea0]"
                     )
                   }
                 >
@@ -106,7 +106,7 @@ const Navbar = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-white/[0.18]"
                 >
                   Login
                 </Link>
@@ -132,7 +132,7 @@ const Navbar = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
+                className="p-2 rounded-xl text-[#3b8ea0] hover:bg-white/[0.18] transition-colors focus:outline-none"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -171,8 +171,8 @@ const Navbar = () => {
                     cn(
                       "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "glass-pill text-[#3b8ea0]"
+                        : "text-[#4eb7b3] hover:bg-white/[0.18] hover:text-[#3b8ea0]"
                     )
                   }
                 >
@@ -187,7 +187,7 @@ const Navbar = () => {
                     <Link
                       to="/login"
                       onClick={() => setIsOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-[#d0f6e3] transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-white/[0.18] transition-colors"
                     >
                       <LogIn size={18} />
                       Login
