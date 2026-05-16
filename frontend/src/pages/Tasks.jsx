@@ -1,14 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Trash2 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
+import useTaskStore from "../store/taskStore";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
+  const tasks = useTaskStore((state) => state.tasks);
+  const addTask = useTaskStore((state) => state.addTask);
+
+  const updateTask = useTaskStore(
+    (state) => state.updateTask
+  );
+
+  const deleteTask = useTaskStore(
+    (state) => state.deleteTask
+  );
+
+  const bulkDelete = useTaskStore((state) => state.bulkDelete);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -63,10 +74,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+  //changed logic
   const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = tasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -135,14 +146,14 @@ export default function Tasks() {
                   />
                 ))
             ) : (
-  <EmptyState
-    type="tasks"
-    onAction={() => {
-      setEditingTask(null);
-      setIsModalOpen(true);
-    }}
-  />
-)}
+              <EmptyState
+                type="tasks"
+                onAction={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
           {/* Insights */}
@@ -180,32 +191,31 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-               // updated deadlines
+                // updated deadlines
                 nextTask ? (
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
-      {nextTask.title}
-    </p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-main">
+                      {nextTask.title}
+                    </p>
 
-    <p className="text-xs text-muted">
-      Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
-    </p>
-  </div>
-) : (
-  <p className="text-xs text-muted">
-    No upcoming tasks 🎉
-  </p>
-)
+                    <p className="text-xs text-muted">
+                      Due on{" "}
+                      {new Date(nextTask.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted">
+                    No upcoming tasks 🎉
+                  </p>
+                )
               )}
             </div>
 
             <div
-              className={`card p-4 ${
-                isOverloaded
+              className={`card p-4 ${isOverloaded
                   ? "bg-red-50 text-red-600"
                   : "bg-green-50 text-green-700"
-              }`}
+                }`}
             >
               <p className="text-sm font-medium">
                 {isOverloaded

@@ -1,11 +1,20 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useTaskStore from "../../store/taskStore";
 
 
-export default function TaskPreview({ tasks , updateTask}) {
+export default function TaskPreview() {
   const navigate = useNavigate();
+  
+  const tasks = useTaskStore((state) => state.tasks);
+  const updateTask = useTaskStore(
+    (state) => state.updateTask
+  );
 
   const [now, setNow] = useState(new Date());
+  const upcomingTasks = tasks
+    .filter((task) => task.status !== "Completed")
+    .slice(0, 2);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,83 +44,82 @@ export default function TaskPreview({ tasks , updateTask}) {
         <div className="space-y-3">
           {tasks.map((task) => {
 
-              {/*Calculate remaining time */}
-              const remainingTime = new Date(task.dueDate) - now;
+            {/*Calculate remaining time */ }
+            const remainingTime = new Date(task.dueDate) - now;
 
-              const hours = Math.floor(
-                remainingTime / (1000 * 60 * 60)
-              );
+            const hours = Math.floor(
+              remainingTime / (1000 * 60 * 60)
+            );
 
-              const minutes = Math.floor(
-                (remainingTime % (1000 * 60 * 60)) /
-                  (1000 * 60)
-              );
+            const minutes = Math.floor(
+              (remainingTime % (1000 * 60 * 60)) /
+              (1000 * 60)
+            );
 
-              const seconds = Math.floor(
-                (remainingTime % (1000 * 60)) / 1000
-              );
+            const seconds = Math.floor(
+              (remainingTime % (1000 * 60)) / 1000
+            );
 
             return (
-            <div
-              key={task._id}
-              className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
+              <div
+                key={task._id}
+                className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
               ${priorityBorder[task.priority]}
               bg-white/80 hover:bg-white shadow-sm`}
-            >
-              {/* Checkbox */}
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
-                checked={task.status === "Completed"}
-                onChange={() =>
-                  updateTask(task._id, {
-                    status: task.status === "Completed" ? "Due" : "Completed",
-                  })
-                }
-              />
+              >
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-(--primary) cursor-pointer"
+                  checked={task.status === "Completed"}
+                  onChange={() =>
+                    updateTask(task._id, {
+                      status: task.status === "Completed" ? "Due" : "Completed",
+                    })
+                  }
+                />
 
-              {/* Content */}
-              <div className="flex-1">
-                <p
-                  className={`text-sm font-medium ${
-                    task.status === "Completed"
-                      ? "line-through decoration-2 decoration-muted text-muted"
-                      : "text-main"
-                  }`}
-                >
-                  {task.title}
-                </p>
-
-                <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                      priorityBadge[task.priority]
-                    }`}
+                {/* Content */}
+                <div className="flex-1">
+                  <p
+                    className={`text-sm font-medium ${task.status === "Completed"
+                        ? "line-through decoration-2 decoration-muted text-muted"
+                        : "text-main"
+                      }`}
                   >
-                    {task.priority}
-                  </span>
+                    {task.title}
+                  </p>
 
-                  {task.dueDate && (
-                    <span className="text-[11px] text-muted">
-                      {new Date(task.dueDate).toLocaleDateString("en-US", {
-                        weekday: "short",
-                      })}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${priorityBadge[task.priority]
+                        }`}
+                    >
+                      {task.priority}
                     </span>
-                  )}
 
-                  {/*Disply Remaining Time */}
-                  {task.dueDate && (
-                    <span className="text-[11px] text-red-500 font-medium">
-                      {remainingTime > 0
-                        ? `${hours}h ${minutes}m ${seconds}s left`
-                        : "Overdue"}
-                    </span>
-                  )}
+                    {task.dueDate && (
+                      <span className="text-[11px] text-muted">
+                        {new Date(task.dueDate).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
+                      </span>
+                    )}
 
+                    {/*Disply Remaining Time */}
+                    {task.dueDate && (
+                      <span className="text-[11px] text-red-500 font-medium">
+                        {remainingTime > 0
+                          ? `${hours}h ${minutes}m ${seconds}s left`
+                          : "Overdue"}
+                      </span>
+                    )}
+
+                  </div>
                 </div>
               </div>
-            </div>
-         ) })}
+            )
+          })}
         </div>
       ) : (
         <p className="text-sm text-muted text-center py-6">

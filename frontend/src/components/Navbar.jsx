@@ -1,9 +1,11 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
-import { AuthContext } from "../context/AuthContext";
+import useAuthStore from "../store/authStore";
+import useTaskStore from "../store/taskStore";
+import useRoutineStore from "../store/routineStore";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -13,7 +15,8 @@ function cn(...inputs) {
 }
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const token = useAuthStore((state) => state.token);
+  const logout = useAuthStore((state) => state.logout);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -33,10 +36,15 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
+  const handleLogout = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to logout?"
+    );
+
     if (confirmed) {
       logout();
+      useTaskStore.getState().resetState();
+      useRoutineStore.getState().resetState();
       setIsOpen(false);
     }
   };
