@@ -1,6 +1,7 @@
 import { Check, Trash2, Pencil, Calendar } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
+import { getCategoryColor } from "../../utils/categoryUtils";
 
 const priorityStyles = {
   Low: "border-green-500 bg-green-50",
@@ -8,7 +9,7 @@ const priorityStyles = {
   High: "border-red-500 bg-red-50",
 };
 
-export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate }) {
+export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -29,6 +30,13 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate })
         `}
       >
         <div className="flex items-center gap-6 px-6 py-6">
+          {/* Selection Checkbox */}
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onSelect(task._id)}
+            className="w-4 h-4 cursor-pointer accent-blue-500"
+          />
           {/* Checkbox */}
           <button
             onClick={() => onToggleComplete(task)}
@@ -52,7 +60,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate })
               {task.title}
             </p>
 
-            <div className="flex items-center gap-4 mt-2 text-xs text-muted">
+            <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
               <span className="uppercase tracking-wide">{task.priority} priority</span>
 
               {task.dueDate && (
@@ -60,6 +68,27 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate })
                   <Calendar size={12} />
                   {new Date(task.dueDate).toLocaleDateString()}
                 </span>
+              )}
+
+              {/* Category Badges */}
+              {task.tags && task.tags.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap">
+                  {task.tags.map((tag) => {
+                    const categoryColor = getCategoryColor(tag);
+                    return (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: categoryColor.bgColor,
+                          color: categoryColor.color,
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
@@ -74,9 +103,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate })
               <Pencil size={18} className="text-main" />
             </button>
 
-            {/* Delete Button */}
+            {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
             <button
-              onClick={() => onDelete(task._id)}
+              onClick={()=> onDelete(task._id)}
               className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
             >
               <Trash2 size={18} className="text-red-500" />
