@@ -106,6 +106,19 @@ export default function RoutineBuilder() {
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
+
+  // Removing Schedule task after drag
+  const removeScheduledTask = (taskId , day) => {
+
+    //filtering out 
+    setScheduledTasks((prevTasks) => 
+      prevTasks.filter((task) => {
+        return !(task.taskId === taskId && task.day === day);
+      })
+    );
+  };
+
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over) return;
@@ -156,6 +169,7 @@ export default function RoutineBuilder() {
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
+              onDeleteTask={removeScheduledTask} //Passing Removing function to weeklygrid
             />
           </section>
         </div>
