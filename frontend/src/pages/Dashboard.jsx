@@ -9,7 +9,7 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
-import { getGreeting } from "../utils/greetingUtils";
+import { getGreeting } from "../utils/getGreeting";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
