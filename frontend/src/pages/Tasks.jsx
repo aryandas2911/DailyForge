@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
@@ -12,6 +13,7 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
   const handleSelect = (id) => {
@@ -47,9 +49,24 @@ export default function Tasks() {
     }
   };
 
+  const toggleCategoryFilter = (categoryName) => {
+    setSelectedCategories(prev =>
+      prev.includes(categoryName)
+        ? prev.filter(cat => cat !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
+  /** --- Filtered Tasks --- */
+  const filteredTasks = selectedCategories.length === 0
+    ? tasks
+    : tasks.filter(task =>
+        task.tags && task.tags.some(tag => selectedCategories.includes(tag))
+      );
+
   /** --- Insights --- */
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "Completed").length;
+  const totalTasks = filteredTasks.length;
+  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
   const completionPercent = totalTasks
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
@@ -58,7 +75,7 @@ export default function Tasks() {
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(now.getDate() + 3);
 
-  const upcomingDeadlines = tasks.filter((task) => {
+  const upcomingDeadlines = filteredTasks.filter((task) => {
     if (!task.dueDate || task.status === "Completed") return false;
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
@@ -68,7 +85,7 @@ export default function Tasks() {
   .filter((task) => task.dueDate && task.status !== "Completed")
   .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
-  const highPriorityCount = tasks.filter(
+  const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
   ).length;
   const isOverloaded = highPriorityCount >= 3;
@@ -113,11 +130,52 @@ export default function Tasks() {
           </button>
         </div>
 
+        {/* Category Filter */}
+        <div className="animate-in delay-150">
+          <div className="card p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter size={16} className="text-main" />
+              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
+              {selectedCategories.length > 0 && (
+                <button
+                  onClick={() => setSelectedCategories([])}
+                  className="ml-auto text-xs text-primary hover:underline cursor-pointer"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => {
+                const isSelected = selectedCategories.includes(category.name);
+                return (
+                  <button
+                    key={category.name}
+                    onClick={() => toggleCategoryFilter(category.name)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? 'ring-2 ring-offset-1'
+                        : 'opacity-60 hover:opacity-100'
+                    }`}
+                    style={{
+                      backgroundColor: category.bgColor,
+                      color: category.color,
+                      ringColor: category.color,
+                    }}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
-            {tasks.length ? (
-              tasks
+            {filteredTasks.length ? (
+              filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem

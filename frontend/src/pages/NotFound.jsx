@@ -1,22 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext.jsx";
 
-export default function NotFound() {
+const NotFound = () => {
+  const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
+
+  // navigate back to Dashboard/ Login if unauthenticated
+  const handleGoHome = () => {
+    navigate(token ? "/dashboard" : "/login");
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] w-full text-center px-4 animate-in">
-      <h1 className="text-6xl font-bold text-main mb-4">404</h1>
-      <h2 className="text-2xl font-semibold text-main mb-6">Page Not Found</h2>
-      <p className="text-muted mb-8 max-w-md">
-        The page you are looking for doesn't exist or has been moved.
-      </p>
-      <Link
-        to="/dashboard"
-        className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+    <div className="surface-bg px-10 py-15 rounded-2xl w-full max-w-md flex flex-col items-center gap-6 text-center animate-in">
+
+      <h1 className="text-5xl font-bold text-main">404</h1>
+
+      <div className="space-y-2">
+        <h2 className="text-2xl font-semibold text-main">Page Not Found</h2>
+
+        <p className="text-muted text-sm">
+          The page you are looking for does not exist.
+        </p>
+      </div>
+
+      <button
+        onClick={handleGoHome}
+        className="btn btn-primary hover-lift cursor-pointer"
       >
-        <ArrowLeft size={20} />
-        Back to Dashboard
-      </Link>
+        Go Home
+      </button>
     </div>
   );
-}
+};
+
+export default NotFound;

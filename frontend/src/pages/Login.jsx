@@ -4,12 +4,13 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
+
 const Login = () => {
   // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [error, setError] = useState("");
   // useNavigate object
   const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ const Login = () => {
       // handle error
       console.log("Login failed");
       console.log(error.response?.data || error.message);
+      setError(error.response?.data?.message || "Invalid email or password.");
     }
   };
 
@@ -91,6 +93,7 @@ const Login = () => {
           Password
         </label>
         <div className="relative">
+          
           <input
             type={showPassword ? "text" : "password"}
             id="password"
@@ -121,7 +124,11 @@ const Login = () => {
           </button>
         </div>
       </div>
-
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+        </div>
+      )}
       <button
         type="submit"
         className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
