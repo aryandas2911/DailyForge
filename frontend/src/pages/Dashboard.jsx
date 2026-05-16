@@ -4,13 +4,27 @@ import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
+
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import { getGreeting } from "../utils/getGreeting.js";
 
 export default function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    // Update greeting every minute in case the hour changes
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -22,12 +36,9 @@ export default function Dashboard() {
   const today = new Date();
 
   const todayTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return (
-      today.getFullYear() === created.getFullYear() &&
-      today.getMonth() === created.getMonth() &&
-      today.getDate() === created.getDate()
-    );
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return today.toDateString() === due.toDateString();
   });
 
   const completedToday = todayTasks.filter(
@@ -45,8 +56,9 @@ export default function Dashboard() {
   endOfWeek.setHours(23, 59, 59, 999);
 
   const weekTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return created >= startOfWeek && created <= endOfWeek;
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return due >= startOfWeek && due <= endOfWeek;
   });
 
   const completedThisWeek = weekTasks.filter(
@@ -86,13 +98,7 @@ export default function Dashboard() {
          {/* Display time */}
         <div className="w-full">
           <h1 className="text-2xl font-semibold text-main leading-tight">
-            {
-              new Date().getHours() < 12
-                ? "Good morning"
-                : new Date().getHours() < 18
-                ? "Good afternoon"
-                : "Good evening"
-            }, {user?.name}
+            {greeting}, {user?.name}
           </h1>
           <div className="flex justify-between items-center mt-1 w-full">
           <p className="text-sm text-muted">
