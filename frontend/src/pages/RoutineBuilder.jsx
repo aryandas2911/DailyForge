@@ -13,6 +13,7 @@ import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
+import { useToast } from "../context/ToastContext.jsx";
 import EmptyState from "../components/EmptyState";
 
 export default function RoutineBuilder() {
@@ -25,6 +26,7 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const showToast = useToast();
   const [description, setDescription] = useState("");
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
@@ -39,7 +41,8 @@ export default function RoutineBuilder() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      showToast("Failed to add task", "error");
+
     }
   };
 
@@ -85,18 +88,19 @@ export default function RoutineBuilder() {
       setDescription("");
       setSelectedDay(null);
 
-      alert("Routine saved successfully");
+      showToast("Routine saved successfully", "success");
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      showToast("Failed to save routine", "error");
+
     }
   };
 
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
+      showToast(`No tasks scheduled for ${day}`, "error");
       return;
     }
 

@@ -4,6 +4,7 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { useToast } from "../context/ToastContext.jsx";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
@@ -13,6 +14,7 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const showToast = useToast();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -45,7 +47,8 @@ export default function Tasks() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save task");
+      showToast("Failed to save task", "error");
+
     }
   };
 
@@ -260,11 +263,10 @@ export default function Tasks() {
             </div>
 
             <div
-              className={`card p-4 ${
-                isOverloaded
+              className={`card p-4 ${isOverloaded
                   ? "bg-red-50 text-red-600"
                   : "bg-green-50 text-green-700"
-              }`}
+                }`}
             >
               <p className="text-sm font-medium">
                 {isOverloaded

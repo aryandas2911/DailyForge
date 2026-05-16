@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { useToast } from "../../context/ToastContext.jsx";
 import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
@@ -10,6 +11,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const showToast = useToast();
 
   const today = new Date();
   const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -32,18 +34,24 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim()) return alert("Title is required");
-    if (!priority) return alert("Priority is required");
-    if (!dueDate) return alert("Due date is required");
+    if (!title.trim()) { showToast("Title is required", "error"); return; }
+    if (!priority) { showToast("Priority is required", "error"); return; }
+    if (!dueDate) { showToast("Due date is required", "error"); return; }
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+    const maxDateStr = maxDate.toISOString().split("T")[0];
 
     if (dueDate < todayStr) {
-      return alert("Due date cannot be in the past");
+      showToast("Due date cannot be in the past", "error");
+      return;
     }
     
     if (dueDate > maxDateStr) {
-      return alert("Due date cannot be more than 1 year in the future");
+      showToast("Due date cannot be more than 1 year in the future", "error");
+      return;
     }
-
     onSubmit({
       title: title.trim(),
       description: description.trim(),

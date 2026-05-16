@@ -1,46 +1,44 @@
+import "dotenv/config"; // 1. Load environment variables before anything else
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 
-// dotenv config
-dotenv.config();
-const PORT = process.env.PORT;
-
 // Initialize express app
 const app = express();
 
-// Intialize cors
+// 2. Allow both 5173 and 5174 for local development
 app.use(
   cors({
-    origin: ["https://dailyforge-frontend-lhjq.onrender.com", "http://localhost:5173", process.env.CLIENT_ORIGIN],
+    origin: [
+      "https://dailyforge-frontend-lhjq.onrender.com",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      process.env.CLIENT_ORIGIN
+    ].filter(Boolean),
     credentials: true,
   })
 );
 
-// Connect to MongoDB using mongoose
+// 3. Connect to Database
 connectDB();
 
-// Middleware for parsing request body
+// 4. Middleware for parsing JSON body
 app.use(express.json());
 
-// Router for accessing auth routes
+// 5. Routes
 app.use("/api/auth", authRouter);
-
-// Router for accessing task routes
 app.use("/api/tasks", taskRouter);
-
-// Router for accessing routine routes
 app.use("/api/routines", routineRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");
 });
 
-// Start server on port (in .env file)
+// 6. Start server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}\nhttp://localhost:${PORT}/`);
 });
