@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
@@ -7,6 +13,7 @@ import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
+import EmptyState from "../components/EmptyState";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -19,6 +26,12 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+
+  // Configure sensors for drag-and-drop (mouse + keyboard)
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
 
   const handleSubmit = async (data) => {
     try {
@@ -114,7 +127,7 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
@@ -155,10 +168,8 @@ export default function RoutineBuilder() {
 
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
-          ) : Array.isArray(savedRoutines) && savedRoutines.length === 0 ? (
-            <div className="card card-muted text-sm text-muted text-center py-8">
-              No routines saved yet
-            </div>
+          ) : savedRoutines.length === 0 ? (
+  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {
