@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
@@ -28,6 +29,7 @@ const Navbar = () => {
 
   // Close mobile menu automatically on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [location.pathname]);
 
