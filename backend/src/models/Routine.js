@@ -12,6 +12,10 @@ const routineSchema = mongoose.Schema(
       required: true,
       trim: true
     },
+    description: {
+      type: String,
+      required: false,
+    },
     items: [ // tasks
       {
         taskId: {
@@ -43,10 +47,6 @@ const routineSchema = mongoose.Schema(
         },
       },
     ],
-    updatedAt: {
-      type: Date,
-      default: Date.now(),
-    },
   },
   { timestamps: true }
 );

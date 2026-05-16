@@ -18,9 +18,17 @@ const taskSchema = mongoose.Schema(
       trim: true
     },
     tags: {
-      type: String,
+      type: [String],
       required: false,
       trim: true
+      default: [],
+      validate: {
+        validator: function(tags) {
+          const validCategories = ['Work', 'Personal', 'Health', 'Learning', 'Finance', 'Shopping', 'Other'];
+          return tags.every(tag => validCategories.includes(tag));
+        },
+        message: 'Invalid category. Must be one of: Work, Personal, Health, Learning, Finance, Shopping, Other'
+      }
     },
     priority: {
       type: String,
