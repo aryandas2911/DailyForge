@@ -9,6 +9,7 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import useTaskStore from "../store/taskStore.js";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -17,49 +18,8 @@ export default function Dashboard() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
 
-  const { tasks, updateTask } = useTasks();
-
-  const today = new Date();
-
-  const todayTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return (
-      today.getFullYear() === created.getFullYear() &&
-      today.getMonth() === created.getMonth() &&
-      today.getDate() === created.getDate()
-    );
-  });
-
-  const completedToday = todayTasks.filter(
-    (task) => task.status === "Completed"
-  ).length;
-
-  const totalToday = todayTasks.length;
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
-
-  const weekTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return created >= startOfWeek && created <= endOfWeek;
-  });
-
-  const completedThisWeek = weekTasks.filter(
-    (task) => task.status === "Completed"
-  ).length;
-
-  const weeklyCompletionPercent = weekTasks.length
-    ? Math.round((completedThisWeek / weekTasks.length) * 100)
-    : 0;
-
-  const upcomingTasks = tasks
-    .filter((task) => task.status !== "Completed")
-    .slice(0, 2);
+  const tasksLoading = useTaskStore((state) => state.tasksLoading);
+  const fetchTasks = useTaskStore((state) => state.fetchTasks);
 
   // Fetch routines
   const fetchRoutines = async () => {
@@ -76,6 +36,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    fetchTasks();
     fetchRoutines();
   }, []);
 
@@ -113,17 +74,15 @@ export default function Dashboard() {
       <section className="flex flex-col lg:flex-row gap-6 w-full">
         <div className="flex-1 animate-in delay-100">
           <StatCard
+            type="today"
             label="Today"
-            value={`${completedToday} / ${totalToday}`}
-            subtitle="Tasks done"
             icon={<CheckCircle2 size={20} />}
           />
         </div>
         <div className="flex-1 animate-in delay-200">
           <StatCard
+            type="week"
             label="This Week"
-            value={`${weeklyCompletionPercent}%`}
-            subtitle="Completion"
             icon={<Calendar size={20} />}
           />
         </div>
@@ -131,17 +90,26 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks />
+        {tasksLoading ? (
+          <div className="h-40 bg-surface/50 animate-pulse rounded-xl flex items-center justify-center">
+            <p className="text-muted">Loading your tasks...</p>
+          </div>
+        ) : (
+          <DashboardTasks />
+        )}
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
-          <TaskPreview
-              tasks={upcomingTasks}
-              updateTask={updateTask}
-          />
+          {tasksLoading ? (
+            <div className="h-[340px] bg-surface/50 animate-pulse rounded-xl flex items-center justify-center">
+              <p className="text-muted">Loading preview...</p>
+            </div>
+          ) : (
+            <TaskPreview />
+          )}
         </div>
 
         {/* Saved Routines */}
