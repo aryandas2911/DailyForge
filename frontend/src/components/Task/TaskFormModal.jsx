@@ -38,8 +38,8 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl w-full max-w-lg relative overflow-hidden ">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-modalPop">
         
 
         <div className=" bg-teal-900 px-8 pt-5 pb-3">
