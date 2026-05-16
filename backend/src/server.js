@@ -16,7 +16,7 @@ const app = express();
 // Intialize cors
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://dailyforge-frontend-lhjq.onrender.com",
     credentials: true,
   })
 );
