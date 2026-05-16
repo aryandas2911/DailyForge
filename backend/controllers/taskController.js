@@ -1,5 +1,6 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
+import { validationResult } from "express-validator";
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -11,6 +12,16 @@ export const createTask = async (req, res) => {
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized, user not logged in" });
+    }
+
+    // check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
     }
 
     // fetch details for task from request body
@@ -86,6 +97,16 @@ export const updateTask = async (req, res) => {
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized, token invalid" });
+    }
+
+    // check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
     }
 
     // fetch update task details
