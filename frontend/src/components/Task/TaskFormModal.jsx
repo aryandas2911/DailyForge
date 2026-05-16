@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -8,7 +9,7 @@ const DESCRIPTION_WARNING_LENGTH = 450;
 export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
 
@@ -17,7 +18,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
-      setTags(task.tags || "");
+      setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
@@ -33,10 +34,18 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     onSubmit({
       title: title.trim(),
       description: description.trim(),
-      tags: tags.trim(),
+      tags: tags,
       priority,
       dueDate,
     });
+  };
+
+  const toggleCategory = (categoryName) => {
+    setTags(prev => 
+      prev.includes(categoryName)
+        ? prev.filter(tag => tag !== categoryName)
+        : [...prev, categoryName]
+    );
   };
 
   return (
@@ -98,16 +107,34 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             </p>
           </div>
 
-          {/* Tags */}
+          {/* Categories */}
           <div>
-            <label className="text-sm font-medium text-main">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
-              placeholder="Upskilling, College, Personal, Other"
-            />
+            <label className="text-sm font-medium text-main">Categories</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => {
+                const isSelected = tags.includes(category.name);
+                return (
+                  <button
+                    key={category.name}
+                    type="button"
+                    onClick={() => toggleCategory(category.name)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      isSelected
+                        ? 'ring-2 ring-offset-1'
+                        : 'opacity-60 hover:opacity-100'
+                    }`}
+                    style={{
+                      backgroundColor: category.bgColor,
+                      color: category.color,
+                      ringColor: category.color,
+                    }}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted mt-1">Select one or more categories</p>
           </div>
 
           {/* Priority */}
