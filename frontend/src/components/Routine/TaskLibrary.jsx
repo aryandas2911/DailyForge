@@ -7,6 +7,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import useTasks from "../../hooks/useTasks.js";
+import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
 function DraggableTask({ task }) {
@@ -39,7 +40,10 @@ function DraggableTask({ task }) {
       {...attributes}
       className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white hover:shadow-md transition-all hover-lift"
+                 hover:bg-white hover:shadow-md transition hover-lift"
+      role="button"
+      tabIndex={0}
+      aria-label={`${task.title} - Drag to schedule or use arrow keys`}
     >
       {/* Color dot */}
       <span
@@ -65,6 +69,7 @@ function DraggableTask({ task }) {
 /* ---------------- Task Library ---------------- */
 export default function TaskLibrary({ onAddTask }) {
   const { tasks } = useTasks();
+  
   const [query, setQuery] = useState("");
 
   const filteredTasks = tasks?.filter((task) =>
@@ -75,7 +80,12 @@ export default function TaskLibrary({ onAddTask }) {
     <div className="card card-muted h-full flex flex-col animate-in">
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-main">Task Library</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-main">Task Library</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-main">
+            {filteredTasks?.length ?? 0}
+          </span>
+        </div>
         <p className="text-xs text-muted">Drag tasks into your week</p>
       </div>
 
@@ -100,10 +110,8 @@ export default function TaskLibrary({ onAddTask }) {
             ))}
           </SortableContext>
         ) : (
-          <div className="text-sm text-muted text-center py-8">
-            No tasks found
-          </div>
-        )}
+  <EmptyState type="tasks" onAction={onAddTask} />
+)}
       </div>
 
       {/* Footer CTA */}

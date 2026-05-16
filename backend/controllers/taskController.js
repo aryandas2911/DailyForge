@@ -1,5 +1,6 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
+import { validationResult } from "express-validator";
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -13,10 +14,20 @@ export const createTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, user not logged in" });
     }
 
+    // check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
+    }
+
     // fetch details for task from request body
     const { title, description, tags, priority, status, dueDate } = req.body;
     if (!title || !priority || !status) {
-      res
+      return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
@@ -67,7 +78,9 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ order: 1, createdAt: -1 });
     if (tasks.length == 0) {
-      res.status(400).json({ message: "User has no task", success: false });
+      return res
+        .status(400)
+        .json({ message: "User has no task", success: false });
     }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
@@ -91,6 +104,16 @@ export const updateTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
+    // check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
+    }
+
     // fetch update task details
     const updates = req.body;
     const taskId = req.params.id;
@@ -102,11 +125,11 @@ export const updateTask = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedTask) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
     });
@@ -126,7 +149,7 @@ export const deleteTask = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      res
+      return res
         .status(401)
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
@@ -140,11 +163,11 @@ export const deleteTask = async (req, res) => {
       userId: userId,
     });
     if (!deleteTask) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Task deleted successfully",
     });
   } catch (error) {
@@ -156,29 +179,37 @@ export const deleteTask = async (req, res) => {
   }
 };
 
-// Reorder tasks function
-export const reorderTasks = async (req, res) => {
+// bulk delete tasks function
+export const bulkDeleteTasks = async (req, res) => {
   try {
+    // check if user is logged in or not
     const userId = req.userId;
-    const { taskIds } = req.body;
-
-    if (!taskIds || !Array.isArray(taskIds)) {
-      return res.status(400).json({ success: false, message: "Invalid task IDs" });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "User not logged in" });
     }
 
-    // Bulk update orders
-    const ops = taskIds.map((id, index) => ({
-      updateOne: {
-        filter: { _id: id, userId: userId },
-        update: { $set: { order: index } },
-      },
-    }));
+    // fetch array of task IDs 
+    const { ids } = req.body;
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No task IDs provided" });
+    }
 
-    await Task.bulkWrite(ops);
+    // delete all matching tasks belonging to this user
+    await Task.deleteMany({ _id: { $in: ids }, userId: userId });
 
-    return res.status(200).json({ success: true, message: "Tasks reordered successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Tasks deleted successfully" });
   } catch (error) {
-    console.log("Error reordering tasks", error);
-    return res.status(500).json({ success: false, message: "Error reordering tasks" });
+    //error handling
+    console.log("Error bulk deleting tasks", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error deleting tasks" });
   }
 };
