@@ -9,6 +9,7 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import { getGreeting } from "../utils/greetingUtils";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -20,17 +21,7 @@ export default function Dashboard() {
   const { tasks, updateTask } = useTasks();
 
   const today = new Date();
-  const currentHour = today.getHours();
-
-  const getGreeting = () => {
-    if (currentHour < 12) {
-      return "Good Morning ☀️";
-    } else if (currentHour < 18) {
-      return "Good Afternoon 🌤️";
-    } else {
-      return "Good Evening 🌙";
-    }
-  };
+ 
 
   const motivationalQuotes = [
     "Win the morning, win the day.",
