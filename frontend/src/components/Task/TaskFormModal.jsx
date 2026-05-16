@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Tag , ClipboardList , AlignLeft , Flag, ClipboardPlus } from "lucide-react";
+import { X, Tag , ClipboardList , AlignLeft , Flag, ClipboardPlus , Plus} from "lucide-react";
 
 const priorities = ["Low", "Medium", "High"];
 
@@ -39,16 +39,16 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl w-full max-w-lg relative overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-lg relative overflow-hidden ">
         
 
-        <div className="bg-teal-900 px-10 pt-6 pb-4">
-          <div className="flex items-start justify-between gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-4xl bg-white/10 backdrop-blur-sm">
-          <ClipboardPlus size={35} className="text-teal-100"/>
+        <div className=" bg-teal-900 px-8 pt-5 pb-3">
+          <div className="flex items-center justify-between gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-4xl bg-white/10 backdrop-blur-sm">
+          <ClipboardPlus size={30} className="text-teal-100"/>
           </div>
           {/* text  */}
-          <div className=" -space-y-0.5">
+          <div className=" -space-y-1">
             <span className="text-xs font-bold tracking-[0.2em] text-teal-400 uppercase">
               {task ? "Edit Task" : "New Task"}
             </span>
@@ -64,25 +64,25 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
         </div>
 
 
-        <form onSubmit={handleSubmit} className="px-6  pt-2 border-t border-gray-100 space-y-4">
+        <form onSubmit={handleSubmit} className="px-6  pt-5 border-t border-gray-100 spave-y-3">
           {/* Title */}
  <div>
   <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
-    Task name
+    Task name <span className="text-red-500">*</span>
   </label>
 
-  <div className="relative mt-2">
+  <div className="relative mt-2 ">
     
     {/* Icon */}
     <ClipboardList
       size={18}
-      className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-800"
+      className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-800 transition-transform duration-300 hover:scale-105"
     />
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
               placeholder="Enter task title"
               required
             />
@@ -102,9 +102,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
               placeholder="Add task details or notes (optional)"
-              rows={3}
+              rows={2}
             />
           </div>
           </div>
@@ -124,7 +124,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
               placeholder="Upskilling , Work , Personal"
             />
           </div>
@@ -147,7 +147,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       <select
         value={priority}
         onChange={(e) => setPriority(e.target.value)}
-        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         required
       >
         {priorities.map((p) => (
@@ -166,16 +166,15 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
-        className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-500 focus:bg-white"
+        className="w-full mt-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-500 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-teal-500/20"
         required
       />
           </div>
 
           </div>
-          <div className="px-6 pb-6 pt-4 border-t border-gray-100">
 
-          
 
+          <div className="mx-6 py-4 border-t border-gray-100">
           {/* Submit Button */}
           <div className="grid grid-cols-2 gap-3">
            <button
@@ -187,9 +186,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   </button>
           <button
             type="submit"
-            className="w-full  bg-teal-900 hover:bg-teal-800 text-teal-50 font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-150"
+            className="w-full  bg-teal-900 hover:bg-teal-800 text-teal-50 font-medium py-2.5.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-150"
             onSubmit={handleSubmit}
           >
+            <Plus size={18} />
             {task ? "Update Task" : "Add Task"}
           </button>
   </div>
