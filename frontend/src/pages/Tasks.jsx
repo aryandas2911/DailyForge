@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
@@ -91,7 +91,7 @@ export default function Tasks() {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
-    <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
+    <div className="min-h-screen bg-transparent px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">

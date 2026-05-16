@@ -5,7 +5,7 @@
   --bg: #d0f6e3;
 
   /* Surfaces: cards, modals, panels */
-  --surface: #ffffff;
+  --surface: rgba(255, 255, 255, 0.1);
 
   /* Primary action color (CTAs) */
   --primary: #4eb7b3;
@@ -17,7 +17,7 @@
   --accent: #98e1d7;
 
   /* Main readable text */
-  --text-main: #3b8ea0;
+  --text-main: #ccc9c9;
 
   /* Secondary / low-priority text */
   --text-muted: #4eb7b3;
@@ -94,7 +94,7 @@
   }
 
   .card-muted {
-    @apply bg-white/80;
+    @apply bg-black/40;
   }
 
   .card-primary {
