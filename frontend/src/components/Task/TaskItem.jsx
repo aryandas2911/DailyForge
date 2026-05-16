@@ -83,7 +83,11 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
 
             {/* Delete Button */}
             <button
-              onClick={() => onDelete(task._id)}
+              onClick={() => {
+                if (window.confirm("Are you sure you want to delete this task?")) {
+                  onDelete(task._id);
+                }
+              }}
               className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
             >
               <Trash2 size={18} className="text-red-500" />
