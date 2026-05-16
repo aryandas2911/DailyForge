@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -7,10 +7,11 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Navbar />
       <main className="app-bg min-h-screen pt-15 flex justify-center items-center">
         <Routes>
@@ -41,9 +42,10 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

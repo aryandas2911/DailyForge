@@ -9,6 +9,7 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // logout function
   const logout = () => {
@@ -29,12 +30,17 @@ const AuthProvider = ({ children }) => {
         .catch(() => {
           // token invalid or expired
           logout();
+        })
+        .finally(() => {
+          setIsInitialized(true);
         });
+    } else {
+      setIsInitialized(true);
     }
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider value={{ user, token, isInitialized, setUser, setToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
