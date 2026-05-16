@@ -11,6 +11,13 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
 
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  
+  const maxDateObj = new Date();
+  maxDateObj.setFullYear(today.getFullYear() + 1);
+  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
+
   useEffect(() => {
     if (task) {
       /* eslint-disable react-hooks/set-state-in-effect */
@@ -28,6 +35,14 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
+
+    if (dueDate < todayStr) {
+      return alert("Due date cannot be in the past");
+    }
+    
+    if (dueDate > maxDateStr) {
+      return alert("Due date cannot be more than 1 year in the future");
+    }
 
     onSubmit({
       title: title.trim(),
@@ -158,6 +173,8 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <input
               type="date"
               value={dueDate}
+              min={todayStr}
+              max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required
