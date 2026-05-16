@@ -106,6 +106,18 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               placeholder="Add task details or notes (optional)"
               rows={2}
             />
+
+            <p
+              className={`text-sm mt-1 text-right ${
+                description.length >= 300
+                  ? "text-red-500"
+                  : description.length >= 250
+                    ? "text-yellow-500"
+                    : "text-gray-500"
+              }`}
+            >
+              {description.length}/300
+            </p>
           </div>
           </div>
 
