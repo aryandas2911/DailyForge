@@ -20,6 +20,9 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+  const [startTime, setStartTime] = useState("06:00");
+  const [endTime, setEndTime] = useState("22:00");
+  const [interval, setInterval] = useState(60);
 
   const handleSubmit = async (data) => {
     try {
@@ -58,7 +61,7 @@ export default function RoutineBuilder() {
         taskId: task.taskId,
         day: selectedDay,
         startTime: task.startTime,
-        duration: task.duration,
+        duration: task.endTime ? task.endTime - task.startTime : task.duration,
       }));
 
     try {
@@ -93,6 +96,17 @@ export default function RoutineBuilder() {
     setIsSaveModalOpen(true);
   };
 
+  /* Update task endTime */
+  const updateTaskEndTime = (taskId, day, newEndTime) => {
+    setScheduledTasks((prev) =>
+      prev.map((t) =>
+        t.taskId === taskId && t.day === day
+          ? { ...t, endTime: newEndTime }
+          : t
+      )
+    );
+  };
+
   /* ---------------- DRAG END HANDLER ---------------- */
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -102,6 +116,9 @@ export default function RoutineBuilder() {
     if (!task) return;
     const { day, startTime } = over.data.current;
 
+    // Calculate endTime as startTime + 60 minutes (1 hour default)
+    const endTime = startTime + 60;
+
     setScheduledTasks((prev) => [
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
       {
@@ -109,6 +126,7 @@ export default function RoutineBuilder() {
         title: task.title,
         day,
         startTime,
+        endTime,
         duration: 60,
       },
     ]);
@@ -141,9 +159,61 @@ export default function RoutineBuilder() {
           </aside>
 
           <section className="col-span-12 md:col-span-9">
+            {/* Time Controls */}
+            <div className="card card-primary mb-6 p-4">
+              <h3 className="text-sm font-semibold text-main mb-4">Schedule Settings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Start Time */}
+                <div>
+                  <label className="block text-xs font-medium text-main mb-2">
+                    Start Time
+                  </label>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-full rounded-lg border border-soft px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* End Time */}
+                <div>
+                  <label className="block text-xs font-medium text-main mb-2">
+                    End Time
+                  </label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="w-full rounded-lg border border-soft px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Interval */}
+                <div>
+                  <label className="block text-xs font-medium text-main mb-2">
+                    Interval
+                  </label>
+                  <select
+                    value={interval}
+                    onChange={(e) => setInterval(Number(e.target.value))}
+                    className="w-full rounded-lg border border-soft px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={5}>5 mins</option>
+                    <option value={15}>15 mins</option>
+                    <option value={30}>30 mins</option>
+                    <option value={60}>60 mins</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
+              startTime={startTime}
+              endTime={endTime}
+              interval={interval}
             />
           </section>
         </div>
@@ -231,10 +301,50 @@ export default function RoutineBuilder() {
 
       {isSaveModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-          <div className="card card-primary w-full max-w-md animate-in delay-100">
-            <h3 className="text-lg font-semibold text-main mb-2">
+          <div className="card card-primary w-full max-w-md max-h-[90vh] overflow-y-auto animate-in delay-100">
+            <h3 className="text-lg font-semibold text-main mb-4">
               Save {selectedDay} Routine
             </h3>
+
+            {/* Task Duration Editor */}
+            <div className="mb-4 pb-4 border-b border-soft">
+              <h4 className="text-xs font-semibold text-main mb-3 uppercase tracking-wide">
+                Adjust Task Durations
+              </h4>
+              {scheduledTasks
+                .filter((t) => t.day === selectedDay)
+                .sort((a, b) => a.startTime - b.startTime)
+                .map((task) => {
+                  const startHours = String(Math.floor(task.startTime / 60)).padStart(2, "0");
+                  const startMins = String(task.startTime % 60).padStart(2, "0");
+                  const endHours = String(Math.floor(task.endTime / 60)).padStart(2, "0");
+                  const endMins = String(task.endTime % 60).padStart(2, "0");
+                  const duration = task.endTime - task.startTime;
+
+                  return (
+                    <div key={task.taskId} className="mb-3 p-3 rounded-lg bg-white/50">
+                      <p className="text-sm font-medium text-main mb-2">{task.title}</p>
+                      <div className="flex gap-2 items-center">
+                        <span className="text-xs text-muted min-w-fit">
+                          {startHours}:{startMins} →
+                        </span>
+                        <input
+                          type="time"
+                          value={`${endHours}:${endMins}`}
+                          onChange={(e) => {
+                            const [h, m] = e.target.value.split(":").map(Number);
+                            updateTaskEndTime(task.taskId, selectedDay, h * 60 + m);
+                          }}
+                          className="flex-1 rounded-lg border border-soft px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span className="text-xs text-muted min-w-fit">
+                          ({duration}m)
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
 
             <input
               type="text"

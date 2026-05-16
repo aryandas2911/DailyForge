@@ -1,4 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
+import { generateTimeSlots } from "../../utils/generateTimeSlots.js";
+import { calculateSlotSpan } from "../../utils/slotCalculator.js";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -11,34 +13,32 @@ const DAYS = [
   "Sunday",
 ];
 
-/* Generate hourly slots: 06:00 → 22:00 */
-const generateTimeSlots = () => {
-  const slots = [];
-  let hour = 6;
-  while (hour <= 22) {
-    slots.push(`${String(hour).padStart(2, "0")}:00`);
-    hour++;
-  }
-  return slots;
-};
-
-const TIME_SLOTS = generateTimeSlots();
-
 /* Convert HH:mm → minutes */
-const timeToMinutes = (time) => {
+const timeToMinutesLocal = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
 
 /* ---------------- Droppable Cell ---------------- */
-function DroppableCell({ day, time, tasks }) {
+function DroppableCell({ day, time, tasks, interval }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `${day}-${time}`,
     data: {
       day,
-      startTime: timeToMinutes(time),
+      startTime: timeToMinutesLocal(time),
     },
   });
+
+  // Calculate row span for the first task (if any)
+  const task = tasks[0];
+  const rowSpan = task && task.endTime
+    ? calculateSlotSpan(task.startTime, task.endTime, interval)
+    : 1;
+
+  // Apply grid-row-span only if task spans multiple rows
+  const cellStyle = rowSpan > 1
+    ? { gridRow: `span ${rowSpan}` }
+    : {};
 
   return (
     <div
@@ -46,23 +46,42 @@ function DroppableCell({ day, time, tasks }) {
       className={`border-soft h-12 relative transition ${
         isOver ? "bg-blue-100" : "bg-white/70"
       }`}
+      style={cellStyle}
     >
-      {tasks.map((task) => (
+      {task ? (
         <div
-          key={task.taskId}
           className="absolute inset-1 rounded-lg bg-blue-500
                      text-white text-xs font-medium
                      flex items-center justify-center shadow animate-in"
         >
           {task.title}
         </div>
-      ))}
+      ) : (
+        tasks.map((t) => (
+          <div
+            key={t.taskId}
+            className="absolute inset-1 rounded-lg bg-blue-500
+                       text-white text-xs font-medium
+                       flex items-center justify-center shadow animate-in"
+          >
+            {t.title}
+          </div>
+        ))
+      )}
     </div>
   );
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
+export default function WeeklyGrid({ 
+  scheduledTasks, 
+  onSaveDay, 
+  startTime = "06:00", 
+  endTime = "22:00", 
+  interval = 60 
+}) {
+  const TIME_SLOTS = generateTimeSlots(startTime, endTime, interval);
+
   return (
     <div className="card card-primary overflow-x-auto animate-in">
       <h2 className="text-lg font-semibold text-main mb-4">Weekly Schedule</h2>
@@ -109,8 +128,9 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
                 key={`${day}-${time}`}
                 day={day}
                 time={time}
+                interval={interval}
                 tasks={scheduledTasks.filter(
-                  (t) => t.day === day && t.startTime === timeToMinutes(time)
+                  (t) => t.day === day && t.startTime === timeToMinutesLocal(time)
                 )}
               />
             ))}
