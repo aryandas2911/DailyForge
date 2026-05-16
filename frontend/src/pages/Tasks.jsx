@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Trash2 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
 import useTaskStore from "../store/taskStore";
 
@@ -19,8 +19,22 @@ export default function Tasks() {
     (state) => state.deleteTask
   );
 
+  const bulkDelete = useTaskStore((state) => state.bulkDelete);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const handleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    await bulkDelete(selectedIds);
+    setSelectedIds([]);
+  };
 
   /** --- Handlers --- */
   const handleToggle = (task) => {
@@ -91,7 +105,14 @@ export default function Tasks() {
               </p>
             </div>
           </div>
-
+          {selectedIds.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            >
+              <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+            </button>
+          )}
           <button
             onClick={() => {
               setEditingTask(null);
@@ -120,6 +141,8 @@ export default function Tasks() {
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
+                    isSelected={selectedIds.includes(task._id)}   
+                    onSelect={handleSelect}   
                   />
                 ))
             ) : (

@@ -1,5 +1,5 @@
 import {create} from "zustand";
-import { getTasks, updateTask,addTask, deleteTask } from "../api/tasksApi";
+import { getTasks, updateTask,addTask, deleteTask, bulkDeleteTasks } from "../api/tasksApi";
 import { persist } from "zustand/middleware";
 
 const useTaskStore = create(persist((set, get) => ({
@@ -44,6 +44,14 @@ const useTaskStore = create(persist((set, get) => ({
     
     await deleteTask(id);
 
+  },
+
+  bulkDelete: async (ids) => {
+    set((state) => ({
+      tasks: state.tasks.filter((task) => !ids.includes(task._id)),
+    }));
+
+    await bulkDeleteTasks(ids);
   },
 
   addTask: async (taskData) => {

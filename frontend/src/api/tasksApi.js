@@ -47,3 +47,13 @@ export async function deleteTask(id) {
         return false;
     }
 }
+
+export async function bulkDeleteTasks(ids) {
+    try {
+        await api.delete("/tasks/bulk", { data: { ids } });
+        return true;
+    } catch (error) {
+        console.log(error?.response?.data?.message || "Failed to bulk delete tasks");
+        return false;
+    }
+}

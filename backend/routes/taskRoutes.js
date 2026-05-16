@@ -5,6 +5,7 @@ import {
   deleteTask,
   getTasks,
   updateTask,
+  bulkDeleteTasks,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -40,6 +41,9 @@ taskRouter.get("/", authMiddleware, getTasks);
 
 // Route for updating task
 taskRouter.put("/:id", authMiddleware, taskValidationRules, updateTask);
+
+// Route for bulk deleting tasks
+taskRouter.post("/bulk-delete", authMiddleware, bulkDeleteTasks);
 
 // Route for deleting task
 taskRouter.delete("/:id", authMiddleware, deleteTask);
