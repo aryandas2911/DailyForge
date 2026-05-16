@@ -7,6 +7,7 @@ export const authMiddleware = (req, res, next) => {
     return res.status(401).json({
       success: false,
       message: "Authorization error, token not present",
+      data: null,
     });
   }
 
@@ -15,7 +16,7 @@ export const authMiddleware = (req, res, next) => {
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, message: "Token format invalid" });
+      .json({ success: false, message: "Token format invalid", data: null });
   }
 
   try {
@@ -29,6 +30,10 @@ export const authMiddleware = (req, res, next) => {
   } catch (error) {
     // error handling
     console.log("Token verification error", error);
-    return res.status(500).json({ success: false, message: "Token invalid" });
+    return res.status(401).json({
+      success: false,
+      message: "Token invalid",
+      data: null,
+    });
   }
 };
