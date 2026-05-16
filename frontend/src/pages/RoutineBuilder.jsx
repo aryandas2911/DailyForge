@@ -7,6 +7,7 @@ import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
+import EmptyState from "../components/EmptyState";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -155,10 +156,8 @@ export default function RoutineBuilder() {
 
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
-          ) : Array.isArray(savedRoutines) && savedRoutines.length === 0 ? (
-            <div className="card card-muted text-sm text-muted text-center py-8">
-              No routines saved yet
-            </div>
+          ) : savedRoutines.length === 0 ? (
+  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {

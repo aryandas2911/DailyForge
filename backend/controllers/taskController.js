@@ -16,7 +16,7 @@ export const createTask = async (req, res) => {
     // fetch details for task from request body
     const { title, description, tags, priority, status, dueDate } = req.body;
     if (!title || !priority || !status) {
-      res
+      return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
@@ -62,7 +62,9 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
-      res.status(400).json({ message: "User has no task", success: false });
+      return res
+        .status(400)
+        .json({ message: "User has no task", success: false });
     }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
@@ -97,11 +99,11 @@ export const updateTask = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedTask) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
     });
@@ -121,7 +123,7 @@ export const deleteTask = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      res
+      return res
         .status(401)
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
@@ -135,11 +137,11 @@ export const deleteTask = async (req, res) => {
       userId: userId,
     });
     if (!deleteTask) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       message: "Task deleted successfully",
     });
   } catch (error) {
