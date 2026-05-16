@@ -1,34 +1,35 @@
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
-  // access the authorization header from the request
   const authHeader = req.header("Authorization");
-  if (!authHeader) {
+
+  // ✅ Check header exists
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({
       success: false,
-      message: "Authorization error, token not present",
+      message: "Authorization failed, token missing or invalid format",
     });
   }
 
-  // access token from authorization header
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Token format invalid" });
-  }
-
   try {
-    // verify token using jwt key
-    const verify = jwt.verify(token, process.env.JWT_SECRET);
+    // ✅ Extract token safely
+    const token = authHeader.split(" ")[1];
 
-    // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
-    req.userId = verify.id || verify.userId;
+    // ✅ Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // ✅ Attach user object (STANDARD WAY 🔥)
+    req.user = {
+      id: decoded.id || decoded.userId,
+    };
+
     next();
-
   } catch (error) {
-    // error handling
-    console.log("Token verification error", error);
-    return res.status(500).json({ success: false, message: "Token invalid" });
+    console.error("JWT Error:", error.message);
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
   }
 };

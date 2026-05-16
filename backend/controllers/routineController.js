@@ -1,237 +1,113 @@
-import Routine from "../src/models/Routine.js";
-import User from "../src/models/User.js";
-import { checkOverlap } from "../utils/routineUtils.js";
+import Routine from "../models/routineModel.js";
 
-// Create routine function
+/**
+ * @desc   Create Routine
+ * @route  POST /api/routines
+ */
 export const createRoutine = async (req, res) => {
-  try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
+  const { title, description } = req.body;
 
-    // fetch routine details from request body
-    const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please enter required details" });
-    }
-
-    // calculate endtime for each task
-    const formatted = [];
-    for (const item of items) {
-
-      // check duration greater than 10 mins
-      if (!item.duration || item.duration < 10) {
-        return res.status(400).json({
-          success: false,
-          message: "Each task duration must be at least 10 minutes",
-        });
-      }
-
-      const endTime = item.startTime + item.duration;
-      formatted.push({
-        day: item.day,
-        startTime: item.startTime,
-        endTime: endTime,
-      });
-    }
-
-    // group tasks by day
-    const dayGroups = {};
-    for (const task of formatted) {
-      if (!dayGroups[task.day]) {
-        dayGroups[task.day] = [];
-      }
-      dayGroups[task.day].push(task);
-    }
-
-    // loop through each day
-    for (const day in dayGroups) {
-      const tasks = dayGroups[day];
-
-      // sort tasks by start time
-      tasks.sort((a, b) => a.startTime - b.startTime);
-
-      // compare each task with next task
-      if (checkOverlap(tasks)) {
-        return res.status(400).json({
-          success: false,
-          message: `Tasks overlap on ${day}`,
-        });
-      }
-    }
-
-    // create new routine document
-    const newRoutine = new Routine({
-      userId,
-      name,
-      description,
-      items,
+  // ✅ Basic validation
+  if (!title) {
+    return res.status(400).json({
+      success: false,
+      message: "Title is required",
     });
-
-    // save routine in collection
-    await newRoutine.save();
-    return res
-      .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
-  } catch (error) {
-    // error handling
-    console.log("Error creating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating routine" });
   }
+
+  const routine = await Routine.create({
+    user: req.user.id, // from authMiddleware
+    title,
+    description,
+  });
+
+  res.status(201).json({
+    success: true,
+    data: routine,
+  });
 };
 
-// Fetch routine function
+/**
+ * @desc   Get All Routines
+ * @route  GET /api/routines
+ */
 export const getRoutines = async (req, res) => {
-  try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
+  const routines = await Routine.find({ user: req.user.id }).sort({
+    createdAt: -1,
+  });
 
-    // fetch routines from database
-    const routines = await Routine.find({ userId: userId }).sort({
-      createdAt: -1,
-    });
-    if (routines.length == 0) {
-      return res.status(400).json({ message: "User has no routine", success: false });
-    }
-    return res.status(200).json({ success: true, routines });
-  } catch (error) {
-    // error handling
-    console.log("Error fetching routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching routine" });
-  }
+  res.status(200).json({
+    success: true,
+    count: routines.length,
+    data: routines,
+  });
 };
 
-// Update routine function
+/**
+ * @desc   Update Routine
+ * @route  PUT /api/routines/:id
+ */
 export const updateRoutine = async (req, res) => {
-  try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
+  const routine = await Routine.findById(req.params.id);
 
-    // fetch updated routine details
-    const updates = req.body;
-    const routineId = req.params.id;
-
-    if (updates.items) {
-      // calculate endtime for each task
-      const formatted = [];
-      for (const item of updates.items) {
-        const endTime = item.startTime + item.duration;
-        formatted.push({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: endTime,
-        });
-      }
-
-      // group tasks by day
-      const dayGroups = {};
-      for (const task of formatted) {
-        if (!dayGroups[task.day]) {
-          dayGroups[task.day] = [];
-        }
-        dayGroups[task.day].push(task);
-      }
-
-      // loop through each day
-      for (const day in dayGroups) {
-        const tasks = dayGroups[day];
-
-        // sort tasks by start time
-        tasks.sort((a, b) => a.startTime - b.startTime);
-
-        // compare each task with next task
-        if (checkOverlap(tasks)) {
-          return res.status(400).json({
-            success: false,
-            message: `Tasks overlap on ${day}`,
-          });
-        }
-      }
-    }
-
-    // fetch routine from database and update
-    const updatedRoutine = await Routine.findOneAndUpdate(
-      { _id: routineId, userId: userId },
-      { $set: updates },
-      { new: true, runValidators: true }
-    );
-    if (!updatedRoutine) {
-      return res.status(404).json({
-        message: "Routine not found",
-      });
-    }
-    return res.status(200).json({
-      message: "Routine updated successfully",
-      routine: updatedRoutine,
+  // ✅ Check existence
+  if (!routine) {
+    return res.status(404).json({
+      success: false,
+      message: "Routine not found",
     });
-  } catch (error) {
-    // error handling
-    console.log("Error updating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating routine" });
   }
+
+  // ✅ Authorization check
+  if (routine.user.toString() !== req.user.id) {
+    return res.status(403).json({
+      success: false,
+      message: "Not authorized",
+    });
+  }
+
+  const updatedRoutine = await Routine.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: updatedRoutine,
+  });
 };
 
-// Delete routine function
+/**
+ * @desc   Delete Routine
+ * @route  DELETE /api/routines/:id
+ */
 export const deleteRoutine = async (req, res) => {
-  try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
+  const routine = await Routine.findById(req.params.id);
 
-    // fetch routine id
-    const routineId = req.params.id;
-
-    // fetch routine to be deleted from database
-    const deleteRoutine = await Routine.findOneAndDelete({
-      _id: routineId,
-      userId: userId,
+  // ✅ Check existence
+  if (!routine) {
+    return res.status(404).json({
+      success: false,
+      message: "Routine not found",
     });
-    if (!deleteRoutine) {
-      return res.status(404).json({
-        message: "Routine not found",
-      });
-    }
-    return res.status(200).json({
-      message: "Routine deleted successfully",
-    });
-  } catch (error) {
-    // error handling
-    console.log("Error deleting routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting routine" });
   }
+
+  // ✅ Authorization check
+  if (routine.user.toString() !== req.user.id) {
+    return res.status(403).json({
+      success: false,
+      message: "Not authorized",
+    });
+  }
+
+  await routine.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Routine deleted successfully",
+  });
 };
