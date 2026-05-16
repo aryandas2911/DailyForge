@@ -29,6 +29,9 @@ function DraggableTask({ task }) {
       className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 p-3
                  cursor-grab active:cursor-grabbing
                  hover:bg-white hover:shadow-md transition hover-lift"
+      role="button"
+      tabIndex={0}
+      aria-label={`${task.title} - Drag to schedule or use arrow keys`}
     >
       {/* Color dot */}
       <span

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Calendar } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
@@ -8,9 +8,20 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import DashboardRoutines from "../components/Dashboard/DashboardRoutines";
 import useTaskStore from "../store/taskStore.js";
 import useAuthStore from "../store/authStore.js";
+import { getGreeting } from "../utils/getGreeting.js";
 
 export default function Dashboard() {
   const user = useAuthStore((state) => state.user);
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    // Update greeting every minute in case the hour changes
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const tasksLoading = useTaskStore((state) => state.tasksLoading);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);
@@ -26,13 +37,7 @@ export default function Dashboard() {
          {/* Display time */}
         <div className="w-full">
           <h1 className="text-2xl font-semibold text-main leading-tight">
-            {
-              new Date().getHours() < 12
-                ? "Good morning"
-                : new Date().getHours() < 18
-                ? "Good afternoon"
-                : "Good evening"
-            }, {user?.name}
+            {greeting}, {user?.name}
           </h1>
           <div className="flex justify-between items-center mt-1 w-full">
           <p className="text-sm text-muted">

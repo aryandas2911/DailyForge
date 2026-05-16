@@ -8,8 +8,9 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    setIsLoading(true);
     setError("");
 
     // send request via store
@@ -32,6 +34,7 @@ const Signup = () => {
       setError(result.message);
       console.log("Signup failed:", result.message);
     }
+    setIsLoading(false);
   };
 
   // signup component
@@ -140,11 +143,18 @@ const Signup = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        disabled={isLoading}
+        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Sign Up
+        {isLoading ? "Signing up..." : "Sign Up"}
       </button>
 
       <p className="text-center text-sm text-muted">
