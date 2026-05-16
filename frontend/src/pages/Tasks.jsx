@@ -182,7 +182,8 @@ export default function Tasks() {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    onDelete={deleteTask}
+                    // fix : Ensure onDelete is explicitely reciving the id
+                    onDelete={(id) => deleteTask(id)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
