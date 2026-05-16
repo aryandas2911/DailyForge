@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 export default function AppLayout() {
   return (
@@ -23,6 +24,7 @@ export default function AppLayout() {
       <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:url('https://www.transparenttextures.com/patterns/asfalt-light.png')]" />
 
       {/* Main Content */}
+        <Navbar/>
       <main className="relative z-10 min-h-screen pt-15 flex justify-center items-center">
         <Outlet />
       </main>

@@ -1,6 +1,4 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -10,10 +8,10 @@ import RoutineBuilder from "./pages/RoutineBuilder.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import AppLayout from "./pages/AppLayout.jsx";
+import { Route, Routes } from "react-router-dom";
 
 const App = () => {
   return (
-    <BrowserRouter>
       <Routes>
 
         {/* Layout Wrapper */}
@@ -52,9 +50,6 @@ const App = () => {
 
         </Route>
       </Routes>
-    </BrowserRouter >
-
-    
   );
 };
 
