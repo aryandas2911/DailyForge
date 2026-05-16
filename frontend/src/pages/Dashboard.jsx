@@ -23,6 +23,7 @@ export default function Dashboard() {
   const today = new Date();
  
 
+  //quotes array and random selection
   const motivationalQuotes = [
     "Win the morning, win the day.",
     "Small progress is still progress.",
