@@ -114,6 +114,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              onClick={(e) => e.target.showPicker?.()}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required
             />
