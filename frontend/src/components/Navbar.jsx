@@ -9,11 +9,23 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
+  const handleLogout = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to logout?"
+    );
+
+    if (confirmed) {
+      logout();
+    }
+  };
+
   return (
     <nav className="surface-bg fixed top-0 z-50 w-full border-soft shadow-sm">
       <div className="mx-auto max-w-7xl flex items-center justify-between p-4">
         <Link to={token ? "/dashboard" : "/login"}>
-          <span className="text-2xl font-semibold text-main">DailyForge</span>
+          <span className="text-2xl font-semibold text-main">
+            DailyForge
+          </span>
         </Link>
 
         {/* Desktop Menu */}
@@ -27,12 +39,18 @@ const Navbar = () => {
                 Login
               </Link>
 
-              <Link to="/signup" className="btn btn-primary cursor-pointer">
+              <Link
+                to="/signup"
+                className="btn btn-primary cursor-pointer"
+              >
                 Signup
               </Link>
             </>
           ) : (
-            <button onClick={logout} className="btn btn-primary px-4 py-2 cursor-pointer">
+            <button
+              onClick={handleLogout}
+              className="btn btn-primary px-4 py-2 cursor-pointer"
+            >
               Logout
             </button>
           )}
