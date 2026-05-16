@@ -38,7 +38,7 @@ export default function DashboardTasks() {
     .slice(0, 5);
 
   return (
-    <div className="bg-(--surface)/90 backdrop-blur rounded-2xl shadow-lg p-6 w-full border border-white/10">
+    <div className="card w-full">
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
         <div>
