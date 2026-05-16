@@ -22,7 +22,7 @@ const taskValidationRules = [
     .trim()
     .escape()
     .isLength({ max: 500 })
-    .withMessage("Description must be under 500 characters"),
+    .withMessage("Description must be 500 characters or fewer"),
 
   body("tags")
     .optional()

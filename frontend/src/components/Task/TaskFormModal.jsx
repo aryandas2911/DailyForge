@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
 export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [title, setTitle] = useState("");
@@ -80,19 +82,19 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Optional task description"
               rows={3}
-              maxLength={300}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
 
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300
+                description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
-                  : description.length >= 250
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-gray-500"
               }`}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 
