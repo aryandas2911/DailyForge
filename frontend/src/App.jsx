@@ -9,17 +9,21 @@ import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
+import AppLayout from "./pages/AppLayout.jsx";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex justify-center items-center">
-        <Routes>
+      <Routes>
+
+        {/* Layout Wrapper */}
+        <Route element={<AppLayout />}>
+
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/about" element={<About />} />
+
           <Route
             path="/dashboard"
             element={
@@ -45,9 +49,12 @@ const App = () => {
             }
           />
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-    </BrowserRouter>
+
+        </Route>
+      </Routes>
+    </BrowserRouter >
+
+    
   );
 };
 

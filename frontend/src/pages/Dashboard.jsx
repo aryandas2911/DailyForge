@@ -92,7 +92,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto bg-transparent px-6 py-8 space-y-8 animate-in">
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
          {/* Display time */}
