@@ -1,9 +1,19 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useTasks from "../../hooks/useTasks";
 
-export default function TaskPreview({ tasks }) {
+
+export default function TaskPreview({ tasks , updateTask}) {
   const navigate = useNavigate();
-  const { updateTask } = useTasks();
+
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const priorityBorder = {
     Low: "border-green-400",
@@ -18,12 +28,30 @@ export default function TaskPreview({ tasks }) {
   };
 
   return (
-    <div className="bg-(--surface) rounded-2xl shadow-lg p-6 border border-white/10">
+    <div className="card w-full">
       <h2 className="text-lg font-semibold text-main mb-4">Upcoming Tasks</h2>
 
       {tasks?.length ? (
         <div className="space-y-3">
-          {tasks.map((task) => (
+          {tasks.map((task) => {
+
+              {/*Calculate remaining time */}
+              const remainingTime = new Date(task.dueDate) - now;
+
+              const hours = Math.floor(
+                remainingTime / (1000 * 60 * 60)
+              );
+
+              const minutes = Math.floor(
+                (remainingTime % (1000 * 60 * 60)) /
+                  (1000 * 60)
+              );
+
+              const seconds = Math.floor(
+                (remainingTime % (1000 * 60)) / 1000
+              );
+
+            return (
             <div
               key={task._id}
               className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
@@ -70,10 +98,20 @@ export default function TaskPreview({ tasks }) {
                       })}
                     </span>
                   )}
+
+                  {/*Disply Remaining Time */}
+                  {task.dueDate && (
+                    <span className="text-[11px] text-red-500 font-medium">
+                      {remainingTime > 0
+                        ? `${hours}h ${minutes}m ${seconds}s left`
+                        : "Overdue"}
+                    </span>
+                  )}
+
                 </div>
               </div>
             </div>
-          ))}
+         ) })}
         </div>
       ) : (
         <p className="text-sm text-muted text-center py-6">
