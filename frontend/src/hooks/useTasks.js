@@ -37,13 +37,18 @@ const useTasks = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
-
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
+    getTasks();
+  };
   // return reusable functions
   return {
     tasks,
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
