@@ -6,6 +6,7 @@ import {
   getTasks,
   updateTask,
   bulkDeleteTasks,
+  searchTasks,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -38,6 +39,9 @@ taskRouter.post("/", authMiddleware, taskValidationRules, createTask);
 
 // Route for fetching task
 taskRouter.get("/", authMiddleware, getTasks);
+
+// Route for searching and filtering tasks
+taskRouter.get("/search", authMiddleware, searchTasks);
 
 // Route for updating task
 taskRouter.put("/:id", authMiddleware, taskValidationRules, updateTask);

@@ -5,7 +5,7 @@ import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
-
+import { analyticsRouter } from "../routes/analyticsRoutes.js";
 // dotenv config
 dotenv.config();
 const PORT = process.env.PORT;
@@ -36,9 +36,14 @@ app.use("/api/tasks", taskRouter);
 // Router for accessing routine routes
 app.use("/api/routines", routineRouter);
 
+// Router for accessing analytics routes
+app.use("/api/analytics", analyticsRouter);
+
 app.get("/", (req, res) => {
   res.send("Server running");
 });
+
+
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
