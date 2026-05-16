@@ -68,14 +68,32 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-main">Description</label>
+            <label className="text-sm font-medium text-main">
+              Description
+            </label>
+
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Optional task description"
               rows={3}
+              maxLength={300}
             />
+
+            <p
+              className={`text-sm mt-1 text-right ${
+                description.length >= 300
+                  ? "text-red-500"
+                  : description.length >= 250
+                    ? "text-yellow-500"
+                    : "text-gray-500"
+              }`}
+            >
+              {description.length}/300
+            </p>
           </div>
 
           {/* Tags */}
