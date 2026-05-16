@@ -31,6 +31,14 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  const handleLogout = () => {
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      logout();
+      setIsOpen(false);
+    }
+  };
+
   // Navigation Links configuration
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -109,7 +117,7 @@ const Navbar = () => {
               </>
             ) : (
               <button 
-                onClick={logout} 
+                onClick={handleLogout} 
                 className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
                 <LogOut size={16} />
@@ -156,6 +164,7 @@ const Navbar = () => {
                 <NavLink
                   key={link.name}
                   to={link.path}
+                  onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
                     cn(
                       "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
@@ -175,6 +184,7 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/login"
+                      onClick={() => setIsOpen(false)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-[#d0f6e3] transition-colors"
                     >
                       <LogIn size={18} />
@@ -182,6 +192,7 @@ const Navbar = () => {
                     </Link>
                     <Link
                       to="/signup"
+                      onClick={() => setIsOpen(false)}
                       className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                     >
                       <UserPlus size={18} />
@@ -190,7 +201,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                   >
                     <LogOut size={18} />
