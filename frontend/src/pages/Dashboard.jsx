@@ -20,7 +20,31 @@ export default function Dashboard() {
   const { tasks, updateTask } = useTasks();
 
   const today = new Date();
+  const currentHour = today.getHours();
 
+  const getGreeting = () => {
+    if (currentHour < 12) {
+      return "Good Morning ☀️";
+    } else if (currentHour < 18) {
+      return "Good Afternoon 🌤️";
+    } else {
+      return "Good Evening 🌙";
+    }
+  };
+
+  const motivationalQuotes = [
+    "Win the morning, win the day.",
+    "Small progress is still progress.",
+    "Discipline beats motivation.",
+    "Push yourself, because no one else will.",
+    "Stay consistent and trust the process.",
+  ];
+
+  const [quote] = useState(() => {
+    return motivationalQuotes[
+      Math.floor(Math.random() * motivationalQuotes.length)
+    ];
+  });
   const todayTasks = tasks.filter((task) => {
     const created = new Date(task.createdAt);
     return (
@@ -83,30 +107,30 @@ export default function Dashboard() {
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-         {/* Display time */}
-        <div className="w-full">
-          <h1 className="text-2xl font-semibold text-main leading-tight">
-            {
-              new Date().getHours() < 12
-                ? "Good morning"
-                : new Date().getHours() < 18
-                ? "Good afternoon"
-                : "Good evening"
-            }, {user?.name}
-          </h1>
-          <div className="flex justify-between items-center mt-1 w-full">
-          <p className="text-sm text-muted">
-            {new Date()
-              .toLocaleDateString("en-US", {
-                weekday: "long",
-                day: "2-digit",
-                month: "short",
-              })
-              .replace(",", " ·")}
-          </p>
-          <LiveClock />
-        </div>
-        </div>
+        {/* Display time */}
+       <div className="w-full">
+  <h1 className="text-2xl font-semibold text-main leading-tight">
+    {getGreeting()}, {user?.name}
+  </h1>
+
+  <p className="text-sm italic text-primary mt-2">
+    "{quote}"
+  </p>
+
+  <div className="flex justify-between items-center mt-1 w-full">
+    <p className="text-sm text-muted">
+      {new Date()
+        .toLocaleDateString("en-US", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+        })
+        .replace(",", " ·")}
+    </p>
+
+    <LiveClock />
+  </div>
+</div>
       </header>
 
       {/* Stats Row */}
@@ -139,8 +163,8 @@ export default function Dashboard() {
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
-              tasks={upcomingTasks}
-              updateTask={updateTask}
+            tasks={upcomingTasks}
+            updateTask={updateTask}
           />
         </div>
 
