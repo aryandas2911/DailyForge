@@ -46,6 +46,8 @@ function DroppableCell({ day, time, tasks }) {
       className={`border-soft h-12 relative transition ${
         isOver ? "bg-blue-100" : "bg-white/70"
       }`}
+      role="region"
+      aria-label={`${day} at ${time} - Drop zone for scheduling tasks`}
     >
       {tasks.map((task) => (
         <div
