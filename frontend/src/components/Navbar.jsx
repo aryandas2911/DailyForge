@@ -28,87 +28,84 @@ const Navbar = () => {
           </span>
         </Link>
 
-<<<<<<< HEAD
-        <div className="flex items-center gap-4">
-          {!user ? (
-=======
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-4">
-          {!token ? (
->>>>>>> upstream/main
-            <>
-              <Link
-                to="/login"
-                className="text-muted hover:text-main transition-colors font-medium cursor-pointer"
-              >
-                Login
-              </Link>
+          {!user ? (
+      <>
+        <Link
+          to="/login"
+          className="text-muted hover:text-main transition-colors font-medium cursor-pointer"
+        >
+          Login
+        </Link>
 
-              <Link
-                to="/signup"
-                className="btn btn-primary cursor-pointer"
-              >
-                Signup
-              </Link>
-            </>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="btn btn-primary px-4 py-2 cursor-pointer"
+        <Link
+          to="/signup"
+          className="btn btn-primary cursor-pointer"
+        >
+          Signup
+        </Link>
+      </>
+    ) : (
+      <button
+        onClick={handleLogout}
+        className="btn btn-primary px-4 py-2 cursor-pointer"
+      >
+        Logout
+      </button>
+    )}
+  </div>
+
+  {/* Mobile Hamburger Icon */ }
+  <div className="md:hidden">
+    <button
+      onClick={toggleMenu}
+      className="text-main focus:outline-none cursor-pointer"
+      aria-label="Toggle menu"
+    >
+      {isOpen ? <X size={28} /> : <Menu size={28} />}
+    </button>
+  </div>
+      </div >
+
+  {/* Mobile Sidebar */ }
+{
+  isOpen && (
+    <div className="md:hidden surface-bg border-t border-soft animate-in shadow-lg">
+      <div className="flex flex-col p-4 gap-4">
+        {!user ? (
+          <>
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="text-muted hover:text-main transition-colors font-medium py-2 border-b border-soft/30"
             >
-              Logout
-            </button>
-          )}
-        </div>
-
-        {/* Mobile Hamburger Icon */}
-        <div className="md:hidden">
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              onClick={() => setIsOpen(false)}
+              className="btn btn-primary w-full"
+            >
+              Signup
+            </Link>
+          </>
+        ) : (
           <button
-            onClick={toggleMenu}
-            className="text-main focus:outline-none cursor-pointer"
-            aria-label="Toggle menu"
+            onClick={() => {
+              logout();
+              setIsOpen(false);
+            }}
+            className="btn btn-primary w-full"
           >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
+            Logout
           </button>
-        </div>
+        )}
       </div>
-
-      {/* Mobile Sidebar */}
-      {isOpen && (
-        <div className="md:hidden surface-bg border-t border-soft animate-in shadow-lg">
-          <div className="flex flex-col p-4 gap-4">
-            {!token ? (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="text-muted hover:text-main transition-colors font-medium py-2 border-b border-soft/30"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  onClick={() => setIsOpen(false)}
-                  className="btn btn-primary w-full"
-                >
-                  Signup
-                </Link>
-              </>
-            ) : (
-              <button
-                onClick={() => {
-                  logout();
-                  setIsOpen(false);
-                }}
-                className="btn btn-primary w-full"
-              >
-                Logout
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
+    </div>
+  )
+}
+    </nav >
   );
 };
 
