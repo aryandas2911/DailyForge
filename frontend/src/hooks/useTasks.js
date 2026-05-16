@@ -28,9 +28,18 @@ const useTasks = () => {
 
   // delete task
   const deleteTask = async (id) => {
+  // remove instantly from UI
+  setTasks((prev) => prev.filter((task) => task._id !== id));
+
+  try {
     await api.delete(`/tasks/${id}`);
+  } catch (error) {
+    console.log(error?.response?.data?.message || "Failed to delete task");
+
+    // reload tasks if delete failed
     getTasks();
-  };
+  }
+};
 
   // initial fetch
   useEffect(() => {
