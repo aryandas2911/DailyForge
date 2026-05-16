@@ -35,6 +35,7 @@ const useRoutineStore = create(
       deleteRoutine: async (id) => {
         // TODO: Implement deleteRoutine logic
       },
+      resetState: () => set({ routines: [], routinesLoading: true }),
     }),
     {
       name: "routine-storage",

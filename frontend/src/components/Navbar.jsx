@@ -1,17 +1,24 @@
-import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import useAuthStore from "../store/authStore";
+import useTaskStore from "../store/taskStore";
+import useRoutineStore from "../store/routineStore";
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const token = useAuthStore((state) => state.token);
+  const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to logout?"
     );
 
     if (confirmed) {
       logout();
+      useTaskStore.getState().resetState();
+      useRoutineStore.getState().resetState();
+      await useAuthStore.persist.clearStorage();
+      await useTaskStore.persist.clearStorage();
+      await useRoutineStore.persist.clearStorage();
     }
   };
 

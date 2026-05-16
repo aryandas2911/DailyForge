@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import useTasks from "../../hooks/useTasks";
 import useTaskStore from "../../store/taskStore";
 
 export default function DashboardTasks() {

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft } from "lucide-react";
@@ -9,7 +8,6 @@ import useTaskStore from "../store/taskStore";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  // const { tasks, addTask, updateTask, deleteTask } = useTasks();
   const tasks = useTaskStore((state) => state.tasks);
   const addTask = useTaskStore((state) => state.addTask);
 

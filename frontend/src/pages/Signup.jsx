@@ -1,8 +1,7 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import api from "../api/axios";
-import { AuthContext } from "../context/AuthContext.jsx";
+import useAuthStore from "../store/authStore";
 
 const Signup = () => {
   // three states for inputs
@@ -10,41 +9,28 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   // useNavigate object
   const navigate = useNavigate();
 
-  // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  // useAuthStore for auth
+  const register = useAuthStore((state) => state.register);
 
   // submit handler
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    setError("");
 
-    // send request to server
-    try {
-      const res = await api.post("/auth/signup", {
-        name,
-        email,
-        password,
-      });
-      console.log("Signup success: ", res.data);
-
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
-
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
-
-      // redirect to dashboard
+    // send request via store
+    const result = await register({ name, email, password });
+    
+    if (result.success) {
       navigate("/dashboard");
-    } catch (error) {
-      // handle error
-      console.log("Signup failed");
-      console.log(error.response?.data || error.message);
+    } else {
+      setError(result.message);
+      console.log("Signup failed:", result.message);
     }
   };
 
@@ -62,6 +48,12 @@ const Signup = () => {
       <div className="text-center space-y-1 mb-3">
         <h1 className="text-3xl font-bold text-main">Signup</h1>
       </div>
+
+      {error && (
+        <p className="text-red-500 text-sm text-center bg-red-50 py-2 rounded-lg border border-red-100">
+          {error}
+        </p>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-main">

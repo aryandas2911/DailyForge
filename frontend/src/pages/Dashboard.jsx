@@ -1,7 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import { useEffect } from "react";
+import { CheckCircle2, Calendar } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 import StatCard from "../components/Dashboard/StatCard";
@@ -9,9 +7,10 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import DashboardRoutines from "../components/Dashboard/DashboardRoutines";
 import useTaskStore from "../store/taskStore.js";
+import useAuthStore from "../store/authStore.js";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
 
   const tasksLoading = useTaskStore((state) => state.tasksLoading);
   const fetchTasks = useTaskStore((state) => state.fetchTasks);

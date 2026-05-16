@@ -12,10 +12,13 @@ const useTaskStore = create(persist((set, get) => ({
       if(fetchedTasks){
         set((state)=>(
           {
-            tasks: fetchedTasks, 
+            tasks: fetchedTasks,
             tasksLoading: false
           }
         ));
+      }
+      else{
+        set((state)=>({tasksLoading: false}));
       }
       // console.log("zustand state",get().tasks);
   },
@@ -53,6 +56,7 @@ const useTaskStore = create(persist((set, get) => ({
     console.log("add tasks",newTask, get().tasks);
   },
 
+  resetState: () => set({ tasks: [], tasksLoading: true }),
 })
 ,{
   name: "task-storage",
