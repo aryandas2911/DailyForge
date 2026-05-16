@@ -1,13 +1,12 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import optimizationRouter from "../routes/optimizationRoutes.js";
 
-// dotenv config
-dotenv.config();
 const PORT = process.env.PORT;
 
 // Initialize express app
@@ -16,7 +15,7 @@ const app = express();
 // Intialize cors
 app.use(
   cors({
-    origin: ["https://dailyforge-frontend-lhjq.onrender.com", "http://localhost:5173"],
+    origin: "https://dailyforge-frontend-lhjq.onrender.com",
     credentials: true,
   })
 );
@@ -35,6 +34,9 @@ app.use("/api/tasks", taskRouter);
 
 // Router for accessing routine routes
 app.use("/api/routines", routineRouter);
+
+// Router for accessing optimization routes
+app.use("/api/optimization", optimizationRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");

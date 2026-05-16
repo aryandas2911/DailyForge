@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import OptimizationSuggestions from "./pages/OptimizationSuggestions.jsx";
 
 const App = () => {
   return (
@@ -38,6 +39,14 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <RoutineBuilder />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/optimization/:routineId"
+            element={
+              <ProtectedRoutes>
+                <OptimizationSuggestions />
               </ProtectedRoutes>
             }
           />

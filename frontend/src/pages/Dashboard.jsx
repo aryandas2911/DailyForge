@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, Zap } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 import StatCard from "../components/Dashboard/StatCard";
@@ -9,21 +9,8 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
-import { getGreeting } from "../utils/getGreeting.js";
 
 export default function Dashboard() {
-  const [greeting, setGreeting] = useState(getGreeting());
-
-  useEffect(() => {
-    // Update greeting every minute in case the hour changes
-    const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -96,23 +83,29 @@ export default function Dashboard() {
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-         {/* Display time */}
+        {/* Display time */}
         <div className="w-full">
           <h1 className="text-2xl font-semibold text-main leading-tight">
-            {greeting}, {user?.name}
+            {
+              new Date().getHours() < 12
+                ? "Good morning"
+                : new Date().getHours() < 18
+                  ? "Good afternoon"
+                  : "Good evening"
+            }, {user?.name}
           </h1>
           <div className="flex justify-between items-center mt-1 w-full">
-          <p className="text-sm text-muted">
-            {new Date()
-              .toLocaleDateString("en-US", {
-                weekday: "long",
-                day: "2-digit",
-                month: "short",
-              })
-              .replace(",", " ·")}
-          </p>
-          <LiveClock />
-        </div>
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
+            <LiveClock />
+          </div>
         </div>
       </header>
 
@@ -146,8 +139,8 @@ export default function Dashboard() {
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
-              tasks={upcomingTasks}
-              updateTask={updateTask}
+            tasks={upcomingTasks}
+            updateTask={updateTask}
           />
         </div>
 
@@ -178,16 +171,27 @@ export default function Dashboard() {
                   key={routine._id}
                   className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
-                  <p className="font-medium text-main">{routine.name}</p>
-                  {routine.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
-                      {routine.description}
-                    </p>
-                  )}
-                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
-                    {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
-                  </p>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1">
+                      <p className="font-medium text-main">{routine.name}</p>
+                      {routine.description && (
+                        <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                          {routine.description}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
+                        {routine.items.length} tasks across{" "}
+                        {new Set(routine.items.map((i) => i.day)).size} day(s)
+                      </p>
+                    </div>
+                    <button
+                      className="flex-shrink-0 p-2 hover:bg-primary/10 rounded-lg transition-colors duration-200"
+                      onClick={() => navigate(`/optimization/${routine._id}`)}
+                      title="Analyze routine"
+                    >
+                      <Zap size={16} className="text-primary" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
