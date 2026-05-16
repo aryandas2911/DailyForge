@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
+
 const Login = () => {
   // two states for inputs
   const [email, setEmail] = useState("");
