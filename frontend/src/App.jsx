@@ -7,7 +7,7 @@ import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
-import AppLayout from "./pages/AppLayout.jsx";
+import AppLayout from "./layouts/AppLayout.jsx";
 import { Route, Routes } from "react-router-dom";
 
 const App = () => {
