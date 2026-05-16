@@ -11,6 +11,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  // state to control visibility of the signup prompt modal
+  const [showSignupModal, setShowSignupModal] = useState(false); 
   // useNavigate object
   const navigate = useNavigate();
 
@@ -44,12 +46,57 @@ const Login = () => {
       // handle error
       console.log("Login failed");
       console.log(error.response?.data || error.message);
-      setError(error.response?.data?.message || "Invalid email or password.");
+      const message = error.response?.data?.message || "Invalid email or password.";
+
+      // if user does not exist, show signup prompt modal instead of inline error
+      // all other errors (wrong password, missing fields, server error) show inline as before
+      if (message === "User does not exist") {
+        setShowSignupModal(true);
+      } else {
+        setError(message);
+      }
     }
   };
 
   // login component
   return (
+    <>
+    {/* Signup prompt modal ; triggered when backend returns "User does not exist"
+          clicking backdrop or Cancel dismisses it, Go to Sign Up navigates to /signup */}
+      {showSignupModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setShowSignupModal(false)}
+        >
+          <div
+            className="surface-bg rounded-2xl px-8 py-8 w-full max-w-sm flex flex-col gap-4 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center space-y-1">
+              <h2 className="text-xl font-bold text-main">Account Not Found</h2>
+              <p className="text-sm text-muted">
+                No account exists for{" "}
+                <span className="font-medium text-main">{email}</span>.
+              </p>
+            </div>
+            <p className="text-sm text-center text-muted">
+              Would you like to create one?
+            </p>
+            <button
+              onClick={() => navigate("/signup")}
+              className="btn btn-primary cursor-pointer w-full hover-lift"
+            >
+              Go to Sign Up
+            </button>
+            <button
+              onClick={() => setShowSignupModal(false)}
+              className="text-sm text-center text-muted hover:text-main transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     <form
       className="
         surface-bg px-10 py-15 rounded-2xl
@@ -148,6 +195,7 @@ const Login = () => {
         </span>
       </p>
     </form>
+    </>
   );
 };
 
