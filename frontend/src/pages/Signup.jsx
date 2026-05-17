@@ -5,7 +5,7 @@ import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 const Signup = () => {
-  // three states for inputs
+  // states for inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +20,47 @@ const Signup = () => {
   // useContext for auth
   const { setUser, setToken } = useContext(AuthContext);
 
+  // validate form
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    }
+    
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email is invalid";
+    }
+    
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // submit handler
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    
+    // validate form
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
 
     if (!validate()) return;
     // set loading state
@@ -90,6 +127,14 @@ const Signup = () => {
         <h1 className="text-3xl font-bold text-main">Signup</h1>
       </div>
 
+      {/* Submit Error */}
+      {errors.submit && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-md text-sm">
+          {errors.submit}
+        </div>
+      )}
+
+      {/* Name Field */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-main">
           Name
@@ -99,7 +144,7 @@ const Signup = () => {
           id="name"
           value={name}
           onChange={(e) => {
-            setName(e.target.value);
+            handleFieldChange("name", e.target.value, setName);
           }}
           placeholder="Full Name"
           required
@@ -116,6 +161,7 @@ const Signup = () => {
         {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
 
+      {/* Email Field */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-main">
           Email
@@ -125,11 +171,11 @@ const Signup = () => {
           id="email"
           value={email}
           onChange={(e) => {
-            setEmail(e.target.value);
+            handleFieldChange("email", e.target.value, setEmail);
           }}
           placeholder="user@email.com"
           required
-          className="
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
@@ -137,10 +183,15 @@ const Signup = () => {
             rounded-sm
             shadow-xs
             input-focus hover-lift
-          "
+            ${errors.email ? "border-red-500 focus:border-red-500" : ""}
+          `}
         />
+        {errors.email && (
+          <p className="text-xs text-red-500 mt-0.5">{errors.email}</p>
+        )}
       </div>
 
+      {/* Password Field */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
@@ -150,7 +201,11 @@ const Signup = () => {
           id="password"
           value={password}
           onChange={(e) => {
-            setPassword(e.target.value);
+            handleFieldChange("password", e.target.value, setPassword);
+            // Clear confirm password error when password changes
+            if (errors.confirmPassword) {
+              setErrors(prev => ({ ...prev, confirmPassword: "" }));
+            }
           }}
           placeholder="••••••••"
           required
