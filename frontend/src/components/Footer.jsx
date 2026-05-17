@@ -1,5 +1,6 @@
-import React from 'react';
-import { Github, Twitter, MessageSquare, BookOpen, Heart } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Github, MessageSquare, BookOpen, Heart } from "lucide-react";
 
 export default function Footer() {
   const githubBase = "https://github.com/aryandas2911/DailyForge";
@@ -45,9 +46,21 @@ export default function Footer() {
               Navigation
             </h3>
             <ul className="space-y-4 text-sm">
-              <li><a href="/dashboard" className="text-gray-300 hover:text-white transition-colors">Dashboard</a></li>
-              <li><a href="/tasks" className="text-gray-300 hover:text-white transition-colors">Tasks</a></li>
-              <li><a href="/routine-builder" className="text-gray-300 hover:text-white transition-colors">Routine Builder</a></li>
+              <li>
+                <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/tasks" className="text-gray-300 hover:text-white transition-colors">
+                  Tasks
+                </Link>
+              </li>
+              <li>
+                <Link to="/routine-builder" className="text-gray-300 hover:text-white transition-colors">
+                  Routine Builder
+                </Link>
+              </li>
             </ul>
           </div>
 
