@@ -13,6 +13,15 @@ import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 
 export default function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -24,20 +33,6 @@ export default function Dashboard() {
   const today = new Date();
  
 
-  //quotes array and random selection
-  const motivationalQuotes = [
-    "Win the morning, win the day.",
-    "Small progress is still progress.",
-    "Discipline beats motivation.",
-    "Push yourself, because no one else will.",
-    "Stay consistent and trust the process.",
-  ];
-
-  const [quote] = useState(() => {
-    return motivationalQuotes[
-      Math.floor(Math.random() * motivationalQuotes.length)
-    ];
-  });
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
