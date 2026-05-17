@@ -45,6 +45,21 @@ const routineSchema = mongoose.Schema(
         },
       },
     ],
+
+    // shared users with permission access
+    sharedWith: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        permission: {
+          type: String,
+          enum: ["viewer", "editor"],
+          default: "viewer",
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

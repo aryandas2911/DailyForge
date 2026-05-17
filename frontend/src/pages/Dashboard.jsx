@@ -178,12 +178,31 @@ export default function Dashboard() {
                   key={routine._id}
                   className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
-                  <p className="font-medium text-main">{routine.name}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-main">
+                      {routine.name}
+                    </p>
+
+                    {/* routine access label */}
+                    <span
+                      className={`text-[10px] px-2 py-1 rounded-full font-medium uppercase tracking-wide ${
+                        routine.access === "owner"
+                          ? "bg-green-100 text-green-700"
+                          : routine.access === "editor"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {routine.access}
+                    </span>
+                  </div>
+
                   {routine.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
                       {routine.description}
                     </p>
                   )}
+
                   <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
                     {routine.items.length} tasks across{" "}
                     {new Set(routine.items.map((i) => i.day)).size} day(s)

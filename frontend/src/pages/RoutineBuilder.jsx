@@ -9,6 +9,7 @@ import {
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
+import ShareRoutineModal from "../components/Routine/SharedRoutineModal";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -18,6 +19,7 @@ import EmptyState from "../components/EmptyState";
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -26,6 +28,9 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+
+  const [selectedRoutine, setSelectedRoutine] = useState(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -50,11 +55,16 @@ export default function RoutineBuilder() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
+
       const res = await api.get("/routines");
+
       // res.data.routines is the array you need
       setSavedRoutines(
-        Array.isArray(res.data.routines) ? res.data.routines : []
+        Array.isArray(res.data.routines)
+          ? res.data.routines
+          : []
       );
+
     } catch (err) {
       console.error(err);
       setSavedRoutines([]);
@@ -86,7 +96,9 @@ export default function RoutineBuilder() {
       setSelectedDay(null);
 
       alert("Routine saved successfully");
+
       await fetchRoutines();
+
     } catch (err) {
       console.error(err);
       alert("Failed to save routine");
@@ -94,7 +106,10 @@ export default function RoutineBuilder() {
   };
 
   const openSaveRoutineModal = (day) => {
-    const hasTasks = scheduledTasks.some((t) => t.day === day);
+    const hasTasks = scheduledTasks.some(
+      (t) => t.day === day
+    );
+
     if (!hasTasks) {
       alert(`No tasks scheduled for ${day}`);
       return;
@@ -108,14 +123,20 @@ export default function RoutineBuilder() {
   /* ---------------- DRAG END HANDLER ---------------- */
   const handleDragEnd = (event) => {
     const { active, over } = event;
+
     if (!over) return;
 
     const task = active.data.current?.task;
+
     if (!task) return;
+
     const { day, startTime } = over.data.current;
 
     setScheduledTasks((prev) => [
-      ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
+      ...prev.filter(
+        (t) =>
+          !(t.taskId === task._id && t.day === day)
+      ),
       {
         taskId: task._id,
         title: task.title,
@@ -142,14 +163,19 @@ export default function RoutineBuilder() {
             <h1 className="text-3xl font-semibold text-main">
               Routine Builder
             </h1>
-            <p className="mt-1 text-muted">Design your week</p>
+
+            <p className="mt-1 text-muted">
+              Design your week
+            </p>
           </div>
         </header>
 
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
-            <TaskLibrary onAddTask={() => setIsModalOpen(true)} />
+            <TaskLibrary
+              onAddTask={() => setIsModalOpen(true)}
+            />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
@@ -167,35 +193,80 @@ export default function RoutineBuilder() {
           </h2>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <p className="text-sm text-muted">
+              Loading routines…
+            </p>
           ) : savedRoutines.length === 0 ? (
-  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
+            <EmptyState
+              type="routines"
+              onAction={() => setIsModalOpen(true)}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {
+
                 // Group tasks by day
-                const tasksByDay = routine.items.reduce((acc, item) => {
-                  if (!acc[item.day]) acc[item.day] = [];
+                const tasksByDay = routine.items.reduce(
+                  (acc, item) => {
+                    if (!acc[item.day]) {
+                      acc[item.day] = [];
+                    }
 
-                  // Find the full task info by taskId
-                  const taskInfo = tasks.find((t) => t._id === item.taskId);
+                    // Find the full task info by taskId
+                    const taskInfo = tasks.find(
+                      (t) => t._id === item.taskId
+                    );
 
-                  acc[item.day].push({
-                    ...item,
-                    title: taskInfo?.title || "Unknown Task",
-                  });
+                    acc[item.day].push({
+                      ...item,
+                      title:
+                        taskInfo?.title || "Unknown Task",
+                    });
 
-                  return acc;
-                }, {});
+                    return acc;
+
+                  },
+                  {}
+                );
 
                 return (
                   <div
                     key={routine._id}
                     className="card card-primary hover:shadow-md transition p-4"
                   >
-                    <h3 className="font-medium text-main mb-2">
-                      {routine.name}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-medium text-main">
+                          {routine.name}
+                        </h3>
+
+                        {/* routine access label */}
+                        <span
+                          className={`text-[10px] px-2 py-1 rounded-full font-medium uppercase tracking-wide ${
+                            routine.access === "owner"
+                              ? "bg-green-100 text-green-700"
+                              : routine.access === "editor"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {routine.access}
+                        </span>
+                      </div>
+
+                      {/* share routine button */}
+                      {routine.access === "owner" && (
+                        <button
+                          onClick={() => {
+                            setSelectedRoutine(routine);
+                            setIsShareModalOpen(true);
+                          }}
+                          className="text-[11px] text-primary hover:underline cursor-pointer"
+                        >
+                          Share
+                        </button>
+                      )}
+                    </div>
 
                     {routine.description && (
                       <p className="text-xs text-muted mb-3 italic">
@@ -205,20 +276,31 @@ export default function RoutineBuilder() {
 
                     {Object.keys(tasksByDay).map((day) => (
                       <div key={day} className="mb-2">
-                        <p className="text-sm font-semibold text-main">{day}</p>
+                        <p className="text-sm font-semibold text-main">
+                          {day}
+                        </p>
+
                         <ul className="text-xs text-muted ml-3">
                           {tasksByDay[day]
-                            .sort((a, b) => a.startTime - b.startTime)
+                            .sort(
+                              (a, b) =>
+                                a.startTime - b.startTime
+                            )
                             .map((task) => {
                               const hours = String(
-                                Math.floor(task.startTime / 60)
+                                Math.floor(
+                                  task.startTime / 60
+                                )
                               ).padStart(2, "0");
+
                               const minutes = String(
                                 task.startTime % 60
                               ).padStart(2, "0");
+
                               return (
                                 <li key={task._id}>
-                                  {hours}:{minutes} – {task.title}
+                                  {hours}:{minutes} –{" "}
+                                  {task.title}
                                 </li>
                               );
                             })}
@@ -231,6 +313,18 @@ export default function RoutineBuilder() {
             </div>
           )}
         </section>
+
+        {/* share routine modal */}
+        {isShareModalOpen && selectedRoutine && (
+          <ShareRoutineModal
+            routine={selectedRoutine}
+            onClose={() => {
+              setIsShareModalOpen(false);
+              setSelectedRoutine(null);
+            }}
+            onShared={fetchRoutines}
+          />
+        )}
 
         {isModalOpen && (
           <TaskFormModal
@@ -251,14 +345,18 @@ export default function RoutineBuilder() {
             <input
               type="text"
               value={routineName}
-              onChange={(e) => setRoutineName(e.target.value)}
+              onChange={(e) =>
+                setRoutineName(e.target.value)
+              }
               placeholder="Routine name"
               className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
             />
 
             <textarea
               value={description}
-              onChange={(e)=> setDescription(e.target.value)}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
               placeholder="Add a description (optional)"
               rows="3"
               className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-white resize-none"
@@ -267,10 +365,13 @@ export default function RoutineBuilder() {
             <div className="flex justify-end gap-3">
               <button
                 className="btn btn-muted"
-                onClick={() => setIsSaveModalOpen(false)}
+                onClick={() =>
+                  setIsSaveModalOpen(false)
+                }
               >
                 Cancel
               </button>
+
               <button
                 className="btn btn-primary cursor-pointer"
                 onClick={confirmSaveRoutine}

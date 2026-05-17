@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import Routine from "../src/models/Routine.js";
 
 export const authMiddleware = (req, res, next) => {
   // access the authorization header from the request
@@ -42,5 +43,95 @@ export const authMiddleware = (req, res, next) => {
       success: false,
       message: "Token invalid",
     })
+  }
+};
+
+// middleware for checking routine view access
+export const canViewRoutine = async (req, res, next) => {
+  try {
+    // fetch routine from database
+    const routine = await Routine.findById(req.params.id);
+
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+
+    // check if user owns the routine
+    const isOwner = routine.userId.toString() === req.userId;
+
+    // check if routine is shared with user
+    const isSharedUser = routine.sharedWith.some(
+      (share) => share.userId.toString() === req.userId
+    );
+
+    if (!isOwner && !isSharedUser) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    // attach routine to request
+    req.routine = routine;
+
+    next();
+
+  } catch (error) {
+    // error handling
+    console.log("Routine access error", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error validating routine access",
+    });
+  }
+};
+
+// middleware for checking routine edit access
+export const canEditRoutine = async (req, res, next) => {
+  try {
+    // fetch routine from database
+    const routine = await Routine.findById(req.params.id);
+
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+
+    // check if user owns the routine
+    const isOwner = routine.userId.toString() === req.userId;
+
+    // check if user has editor access
+    const hasEditorAccess = routine.sharedWith.some(
+      (share) =>
+        share.userId.toString() === req.userId &&
+        share.permission === "editor"
+    );
+
+    if (!isOwner && !hasEditorAccess) {
+      return res.status(403).json({
+        success: false,
+        message: "Edit access denied",
+      });
+    }
+
+    // attach routine to request
+    req.routine = routine;
+
+    next();
+
+  } catch (error) {
+    // error handling
+    console.log("Routine edit access error", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error validating routine edit access",
+    });
   }
 };

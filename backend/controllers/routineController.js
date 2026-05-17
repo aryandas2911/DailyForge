@@ -104,14 +104,42 @@ export const getRoutines = async (req, res) => {
         .json({ success: false, message: "Unauthorized, user not logged in" });
     }
 
-    // fetch routines from database
-    const routines = await Routine.find({ userId: userId }).sort({
+    // fetch routines from database including shared routines
+    const routines = await Routine.find({
+      $or: [
+        { userId: userId },
+        { "sharedWith.userId": userId },
+      ],
+    }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
+
+    // attach access permission for frontend handling
+    const formattedRoutines = routines.map((routine) => {
+      const routineObj = routine.toObject();
+
+      if (routine.userId.toString() === userId) {
+        routineObj.access = "owner";
+      } else {
+        const sharedUser = routine.sharedWith.find(
+          (share) => share.userId.toString() === userId
+        );
+
+        routineObj.access = sharedUser?.permission || "viewer";
+      }
+
+      return routineObj;
+    });
+
+    if (formattedRoutines.length == 0) {
       return res.status(400).json({ message: "User has no routine", success: false });
     }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({
+      success: true,
+      routines: formattedRoutines,
+    });
+
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -176,20 +204,23 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch routine from database and update
-    const updatedRoutine = await Routine.findOneAndUpdate(
-      { _id: routineId, userId: userId },
+    const updatedRoutine = await Routine.findByIdAndUpdate(
+      routineId,
       { $set: updates },
       { new: true, runValidators: true }
     );
+
     if (!updatedRoutine) {
       return res.status(404).json({
         message: "Routine not found",
       });
     }
+
     return res.status(200).json({
       message: "Routine updated successfully",
       routine: updatedRoutine,
     });
+
   } catch (error) {
     // error handling
     console.log("Error updating routine", error);
@@ -219,19 +250,106 @@ export const deleteRoutine = async (req, res) => {
       _id: routineId,
       userId: userId,
     });
+
     if (!deleteRoutine) {
       return res.status(404).json({
         message: "Routine not found",
       });
     }
+
     return res.status(200).json({
       message: "Routine deleted successfully",
     });
+
   } catch (error) {
     // error handling
     console.log("Error deleting routine", error);
     return res
       .status(500)
       .json({ success: false, message: "Error deleting routine" });
+  }
+};
+
+// Share routine function
+export const shareRoutine = async (req, res) => {
+  try {
+    // check if user is logged in or not
+    const userId = req.userId;
+
+    // fetch share details
+    const { email, permission } = req.body;
+    const routineId = req.params.id;
+
+    // validate permission
+    if (!["viewer", "editor"].includes(permission)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid permission type",
+      });
+    }
+
+    // fetch routine from database
+    const routine = await Routine.findOne({
+      _id: routineId,
+      userId: userId,
+    });
+
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+
+    // fetch user to share routine with
+    const sharedUser = await User.findOne({ email });
+
+    if (!sharedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // prevent sharing with self
+    if (sharedUser._id.toString() === userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot share routine with yourself",
+      });
+    }
+
+    // check if user already has shared access
+    const existingShare = routine.sharedWith.find(
+      (share) => share.userId.toString() === sharedUser._id.toString()
+    );
+
+    // update existing permission
+    if (existingShare) {
+      existingShare.permission = permission;
+    } else {
+      // add new shared user
+      routine.sharedWith.push({
+        userId: sharedUser._id,
+        permission,
+      });
+    }
+
+    // save updated routine
+    await routine.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Routine shared successfully",
+    });
+
+  } catch (error) {
+    // error handling
+    console.log("Error sharing routine", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error sharing routine",
+    });
   }
 };
