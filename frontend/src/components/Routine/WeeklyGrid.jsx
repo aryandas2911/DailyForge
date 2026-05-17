@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { Check } from "lucide-react";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -62,7 +63,7 @@ function DroppableCell({ day, time, tasks }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
+export default function WeeklyGrid({ scheduledTasks, onSaveDay, savedDays = new Set() }) {
   return (
     <div className="card card-primary overflow-x-auto animate-in">
       <h2 className="text-lg font-semibold text-main mb-4">Weekly Schedule</h2>
@@ -75,16 +76,32 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
       >
         {/* ===== Save Buttons Row ===== */}
         <div /> {/* empty time column */}
-        {DAYS.map((day) => (
-          <div key={`save-${day}`} className="flex justify-center pb-2">
-            <button
-              onClick={() => onSaveDay(day)}
-              className="btn btn-primary px-3 py-1 text-xs cursor-pointer hover-lift"
-            >
-              Save
-            </button>
-          </div>
-        ))}
+        {DAYS.map((day) => {
+          const isSaved = savedDays.has(day);
+          const hasTasks = scheduledTasks.some(t => t.day === day);
+          
+          return (
+            <div key={`save-${day}`} className="flex justify-center pb-2">
+              <button
+                onClick={() => onSaveDay(day)}
+                className={`px-3 py-1 text-xs cursor-pointer hover-lift transition-all ${
+                  isSaved 
+                    ? 'bg-green-100 text-green-700 border border-green-300 rounded-lg' 
+                    : 'btn btn-primary'
+                }`}
+                disabled={!hasTasks}
+              >
+                {isSaved ? (
+                  <span className="flex items-center gap-1">
+                    <Check size={14} /> Saved
+                  </span>
+                ) : (
+                  'Save'
+                )}
+              </button>
+            </div>
+          );
+        })}
         {/* ===== Day Headers ===== */}
         <div />
         {DAYS.map((day) => (

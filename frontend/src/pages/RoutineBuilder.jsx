@@ -5,7 +5,7 @@ import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, Trash2 } from "lucide-react";
 import api from "../api/axios.js";
 
 export default function RoutineBuilder() {
@@ -19,6 +19,8 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+  const [savedDays, setSavedDays] = useState(new Set());
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = async (data) => {
     try {
@@ -55,6 +57,7 @@ export default function RoutineBuilder() {
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
         taskId: task.taskId,
+        title: task.title, // Include title for backend conflict check
         day: selectedDay,
         startTime: task.startTime,
         duration: task.duration,
@@ -67,12 +70,16 @@ export default function RoutineBuilder() {
         items,
       });
 
+      // Mark day as saved
+      setSavedDays(prev => new Set([...prev, selectedDay]));
+
       setIsSaveModalOpen(false);
       setRoutineName("");
       setDescription("");
-      setSelectedDay(null);
-
-      alert("Routine saved successfully");
+      
+      // Show success modal instead of alert
+      setShowSuccessModal(true);
+      
       await fetchRoutines();
     } catch (err) {
       console.error(err);
@@ -87,9 +94,42 @@ export default function RoutineBuilder() {
       return;
     }
 
+    // Check if day is already saved
+    if (savedDays.has(day)) {
+      const confirmOverwrite = window.confirm(
+        `${day} routine is already saved. Do you want to update it?`
+      );
+      if (!confirmOverwrite) return;
+    }
+
     setSelectedDay(day);
     setRoutineName(`${day} Routine`);
     setIsSaveModalOpen(true);
+  };
+
+  const handleClearGrid = () => {
+    // Clear tasks for the saved day
+    setScheduledTasks(prev => 
+      prev.filter(task => task.day !== selectedDay)
+    );
+    setShowSuccessModal(false);
+    setSelectedDay(null);
+  };
+
+  const handleKeepEditing = () => {
+    // Just close modal, keep tasks visible
+    setShowSuccessModal(false);
+    setSelectedDay(null);
+  };
+
+  const handleClearAll = () => {
+    const confirm = window.confirm(
+      "Are you sure you want to clear all scheduled tasks?"
+    );
+    if (confirm) {
+      setScheduledTasks([]);
+      setSavedDays(new Set());
+    }
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
@@ -117,20 +157,32 @@ export default function RoutineBuilder() {
     <DndContext onDragEnd={handleDragEnd}>
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
-        <header className="mb-8 flex items-start gap-4 animate-in delay-100">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="mt-1 rounded-lg p-2 border border-soft text-muted hover:bg-white transition cursor-pointer"
-          >
-            <ArrowLeft size={16} />
-          </button>
+        <header className="mb-8 flex items-start justify-between animate-in delay-100">
+          <div className="flex items-start gap-4">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="mt-1 rounded-lg p-2 border border-soft text-muted hover:bg-white transition cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+            </button>
 
-          <div>
-            <h1 className="text-3xl font-semibold text-main">
-              Routine Builder
-            </h1>
-            <p className="mt-1 text-muted">Design your week</p>
+            <div>
+              <h1 className="text-3xl font-semibold text-main">
+                Routine Builder
+              </h1>
+              <p className="mt-1 text-muted">Design your week</p>
+            </div>
           </div>
+
+          {/* Clear All Button */}
+          {scheduledTasks.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="btn btn-muted flex items-center gap-2 cursor-pointer"
+            >
+              <Trash2 size={16} /> Clear All
+            </button>
+          )}
         </header>
 
         {/* Main Layout */}
@@ -143,6 +195,7 @@ export default function RoutineBuilder() {
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
+              savedDays={savedDays}
             />
           </section>
         </div>
@@ -266,6 +319,44 @@ export default function RoutineBuilder() {
                 disabled={!routineName.trim()}
               >
                 Save Routine
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
+          <div className="card card-primary w-full max-w-md animate-in delay-100">
+            {/* Success Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                <Check size={32} className="text-green-600" />
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-main text-center mb-2">
+              Routine Saved Successfully!
+            </h3>
+            
+            <p className="text-sm text-muted text-center mb-6">
+              {selectedDay} routine has been saved. What would you like to do next?
+            </p>
+
+            <div className="flex flex-col gap-3">
+              <button
+                className="btn btn-primary cursor-pointer"
+                onClick={handleClearGrid}
+              >
+                Clear Grid & Start Fresh
+              </button>
+              
+              <button
+                className="btn btn-muted cursor-pointer"
+                onClick={handleKeepEditing}
+              >
+                Keep Editing This Routine
               </button>
             </div>
           </div>

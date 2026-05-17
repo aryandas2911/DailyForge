@@ -38,6 +38,7 @@ export const createRoutine = async (req, res) => {
         day: item.day,
         startTime: item.startTime,
         endTime: endTime,
+        taskId: item.taskId,
       });
     }
 
@@ -61,6 +62,17 @@ export const createRoutine = async (req, res) => {
       for (let i = 0; i < tasks.length - 1; i++) {
         const curr = tasks[i];
         const next = tasks[i + 1];
+        
+        // Get task titles to check if they are the same task
+        const currTask = items.find(item => item.taskId === curr.taskId);
+        const nextTask = items.find(item => item.taskId === next.taskId);
+        
+        // Skip overlap check if both tasks have the same title (allow same task multiple times)
+        if (currTask?.title && nextTask?.title && 
+            currTask.title.toLowerCase() === nextTask.title.toLowerCase()) {
+          continue; // Allow same task to be scheduled multiple times
+        }
+        
         if (curr.endTime > next.startTime) {
           return res.status(400).json({
             success: false,
@@ -149,6 +161,7 @@ export const updateRoutine = async (req, res) => {
           day: item.day,
           startTime: item.startTime,
           endTime: endTime,
+          taskId: item.taskId,
         });
       }
 
@@ -172,6 +185,17 @@ export const updateRoutine = async (req, res) => {
         for (let i = 0; i < tasks.length - 1; i++) {
           const curr = tasks[i];
           const next = tasks[i + 1];
+          
+          // Get task titles to check if they are the same task
+          const currTask = updates.items.find(item => item.taskId === curr.taskId);
+          const nextTask = updates.items.find(item => item.taskId === next.taskId);
+          
+          // Skip overlap check if both tasks have the same title (allow same task multiple times)
+          if (currTask?.title && nextTask?.title && 
+              currTask.title.toLowerCase() === nextTask.title.toLowerCase()) {
+            continue; // Allow same task to be scheduled multiple times
+          }
+          
           if (curr.endTime > next.startTime) {
             return res.status(400).json({
               success: false,
