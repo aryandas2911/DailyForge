@@ -9,6 +9,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,23 +33,18 @@ const Signup = () => {
 
     // send request to server
     try {
-      const res = await api.post("/auth/signup", {
+      const res = await api.post("/api/auth/signup", {
         name,
         email,
         password,
       });
-      console.log("Signup success: ", res.data);
+      console.log(res);
+
+      alert(res.data.message)
+      localStorage.setItem('verificationToken', res.data.verificationToken)
 
       // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
-
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
-
-      // redirect to dashboard
-      navigate("/dashboard");
+      navigate('/verifyotp')
     } catch (error) {
       // handle error
       console.log("Signup failed");
@@ -165,13 +161,16 @@ const Signup = () => {
           `}
         />
         {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
+        <label htmlFor="password" className="text-sm font-medium text-main">
+          Confirm Password
+        </label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             id="password"
-            value={password}
+            value={confirmPassword}
             onChange={(e) => {
-              setPassword(e.target.value);
+              setConfirmPassword(e.target.value);
             }}
             placeholder="••••••••"
             required
@@ -194,6 +193,7 @@ const Signup = () => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+        {password !== confirmPassword && <span className="text-red-500 text-xs">both password must be same</span>}
       </div>
 
       {error && (

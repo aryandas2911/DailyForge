@@ -11,6 +11,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import VerifyOtp from "./pages/VerifyOtp.jsx";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path='/verifyOtp' element={<VerifyOtp/>}/>
           <Route path="/about" element={<About />} />
           <Route
             path="/dashboard"
