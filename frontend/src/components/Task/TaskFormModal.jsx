@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 const priorities = ["Low", "Medium", "High"];
 
 export default function TaskFormModal({ task, onClose, onSubmit }) {
+  const titleInputRef = useRef(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState("");
@@ -21,6 +22,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [task]);
+
+  useEffect(() => {
+    titleInputRef.current?.focus();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -57,6 +62,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           <div>
             <label className="text-sm font-medium text-main">Title</label>
             <input
+              ref={titleInputRef}
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -84,13 +90,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             />
 
             <p
-              className={`text-sm mt-1 text-right ${
-                description.length >= 300
-                  ? "text-red-500"
-                  : description.length >= 250
-                    ? "text-yellow-500"
-                    : "text-gray-500"
-              }`}
+              className={`text-sm mt-1 text-right ${description.length >= 300
+                ? "text-red-500"
+                : description.length >= 250
+                  ? "text-yellow-500"
+                  : "text-gray-500"
+                }`}
             >
               {description.length}/300
             </p>
