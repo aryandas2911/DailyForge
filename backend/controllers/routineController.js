@@ -23,9 +23,11 @@ export const createRoutine = async (req, res) => {
     // fetch routine details from request body
     const { name, description, items } = req.body;
     if (!name || items.length === 0 || !items) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please enter required details" });
+      return errorResponse(
+        res,
+        "Please enter required details",
+        400
+      );  
     }
 
     // calculate endtime for each task
