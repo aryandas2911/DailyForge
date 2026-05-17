@@ -13,6 +13,7 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [draftTitle, setDraftTitle] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -285,7 +286,11 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
-          onClose={() => setIsModalOpen(false)}
+          initialTitle={draftTitle}
+          onClose={() => {
+            setIsModalOpen(false);
+            setDraftTitle("");
+          }}
           onSubmit={handleSubmit}
         />
       )}
