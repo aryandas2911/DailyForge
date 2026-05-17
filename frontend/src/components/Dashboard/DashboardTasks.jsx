@@ -18,9 +18,9 @@ export default function DashboardTasks() {
   };
 
   const priorityBadge = {
-    Low: "bg-green-100 text-green-700",
-    Medium: "bg-yellow-100 text-yellow-700",
-    High: "bg-red-100 text-red-700",
+    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   };
 
   const todayTasks = tasks
@@ -61,7 +61,7 @@ export default function DashboardTasks() {
               key={task._id}
               className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white shadow-sm hover:shadow-md`}
+              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
             >
               {/* Checkbox */}
               <input

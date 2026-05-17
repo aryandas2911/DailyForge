@@ -44,7 +44,7 @@ function DroppableCell({ day, time, tasks , onDeleteTask}) {
     <div
       ref={setNodeRef}
       className={`border-soft h-12 relative transition ${
-        isOver ? "bg-blue-100" : "bg-white/70"
+        isOver ? "bg-blue-100 dark:bg-blue-900/30" : "bg-white/70 dark:bg-slate-800/30"
       }`}
       role="region"
       aria-label={`${day} at ${time} - Drop zone for scheduling tasks`}
