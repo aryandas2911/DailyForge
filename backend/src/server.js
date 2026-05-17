@@ -14,13 +14,16 @@ const PORT = process.env.PORT;
 const app = express();
 
 // Intialize cors
+const allowedOrigins = [
+  "https://dailyforge-frontend-lhjq.onrender.com",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  ...(process.env.CLIENT_ORIGIN ? process.env.CLIENT_ORIGIN.split(",") : []),
+];
+
 app.use(
   cors({
-    origin: [
-      "https://dailyforge-frontend-lhjq.onrender.com",
-      "http://localhost:5173",
-      process.env.CLIENT_ORIGIN,
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 );

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -123,6 +123,14 @@ const Login = () => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+      </div>
+      <div className="text-right">
+        <Link
+          to="/forgot-password"
+          className="text-sm text-main hover:underline transition-colors"
+        >
+          Forgot password?
+        </Link>
       </div>
       {error && (
         <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
