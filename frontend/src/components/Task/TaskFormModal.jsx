@@ -9,6 +9,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
+  const [duration, setDuration] = useState(30);
   const [dueDate, setDueDate] = useState("");
 
   const today = new Date();
@@ -25,6 +26,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
+      setDuration(task.duration || 30);
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
     }
@@ -34,6 +36,8 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     e.preventDefault();
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
+    if (!duration || duration < 10)
+      return alert("Duration must be at least 10 minutes");
     if (!dueDate) return alert("Due date is required");
 
     if (dueDate < todayStr) {
@@ -43,12 +47,13 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
-
+    
     onSubmit({
       title: title.trim(),
       description: description.trim(),
       tags: tags,
       priority,
+      duration: Number(duration),
       dueDate,
     });
   };
@@ -165,6 +170,24 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Duration */}
+          <div>
+            <label className="text-sm font-medium text-main">Duration (minutes)</label>
+            <input
+              type="number"
+              value={duration}
+              min={10}
+              max={720}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              placeholder="30"
+              required
+            />
+            <p className="text-xs text-muted mt-1">
+              Recommended duration is at least 10 minutes.
+            </p>
           </div>
 
           {/* Due Date */}

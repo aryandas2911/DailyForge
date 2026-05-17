@@ -8,9 +8,10 @@ const useTasks = () => {
   const getTasks = async () => {
     try {
       const tasks = await api.get("/tasks");
-      setTasks(tasks.data.tasks);
+      setTasks(tasks.data.tasks || []);
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to load tasks");
+      console.error("Failed to load tasks", error?.response?.data || error.message);
+      setTasks([]);
     }
   };
 

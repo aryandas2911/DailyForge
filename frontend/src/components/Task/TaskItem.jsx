@@ -63,6 +63,14 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
               <span className="uppercase tracking-wide">{task.priority} priority</span>
 
+              {task.duration && (
+                <span className="flex items-center gap-1">
+                  {task.duration >= 60
+                    ? `${Math.floor(task.duration / 60)}h${task.duration % 60 ? ` ${task.duration % 60}m` : ""}`
+                    : `${task.duration} min`}
+                </span>
+              )}
+
               {task.dueDate && (
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />

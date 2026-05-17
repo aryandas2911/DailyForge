@@ -8,6 +8,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import TimeUsageChart from "../components/Dashboard/TimeUsageChart";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting.js";
@@ -25,7 +26,7 @@ export default function Dashboard() {
   }, []);
 
   
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [savedRoutines, setSavedRoutines] = useState([]);
@@ -75,12 +76,22 @@ export default function Dashboard() {
 
   // Fetch routines
   const fetchRoutines = async () => {
+    if (!token) {
+      setSavedRoutines([]);
+      return;
+    }
+
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
-      setSavedRoutines(res.data.routines || []);
+      if (import.meta.env.DEV) {
+        console.debug("Dashboard fetchRoutines response", res.data);
+      }
+      setSavedRoutines(res.data.routines ?? []);
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.DEV) {
+        console.error("Dashboard fetchRoutines error", err?.response?.data || err.message || err);
+      }
       setSavedRoutines([]);
     } finally {
       setLoadingRoutines(false);
@@ -89,7 +100,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchRoutines();
-  }, []);
+  }, [token]);
 
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
@@ -138,6 +149,11 @@ export default function Dashboard() {
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
         <DashboardTasks />
+      </div>
+
+      {/* Time Usage Breakdown */}
+      <div className="w-full animate-in delay-200">
+        <TimeUsageChart tasks={tasks} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
