@@ -2,12 +2,20 @@ import { createContext, useEffect, useState } from "react";
 import api from "../api/axios";
 
 // create context component
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+
+  // logout function
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+  };
 
   // restore session on app load
   useEffect(() => {
@@ -24,13 +32,6 @@ const AuthProvider = ({ children }) => {
         });
     }
   }, [token]);
-
-  // logout function
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-  };
 
   return (
     <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
