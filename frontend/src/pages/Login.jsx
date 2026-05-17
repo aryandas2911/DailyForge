@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
@@ -14,8 +14,14 @@ const Login = () => {
   // useNavigate object
   const navigate = useNavigate();
 
-  // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser, setToken, token, user, isAuthLoading } =
+    useContext(AuthContext);
+
+  useEffect(() => {
+    if (!isAuthLoading && token && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthLoading, token, user, navigate]);
 
   // submit handler
   const handleSubmit = async (e) => {
