@@ -2,6 +2,11 @@ import User from "../src/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+import {
+  successResponse,
+  errorResponse,
+} from "../utils/apiResponse.js";
+
 // sign up function
 export const signup = async (req, res) => {
   try {
@@ -20,7 +25,7 @@ export const signup = async (req, res) => {
     // check user exists or not
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
-      return res.status(409).json({ message: "User already exists" });
+      return errorResponse(res, "User already exists", 409);
     }
 
     // hashing the password
@@ -40,13 +45,20 @@ export const signup = async (req, res) => {
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
-    return res
-      .status(201)
-      .json({ message: "User registered successfully", token });
+    return successResponse(
+      res,
+      "User registered successfully",
+      { token },
+      201
+    );
   } catch (error) {
     // error handling
     console.error("Signup error:", error);
-    return res.status(500).json({ message: "Server error during signup" });
+    return errorResponse(
+      res,
+      "Server error during signup",
+      500
+    );
   }
 };
 
@@ -58,21 +70,31 @@ export const login = async (req, res) => {
 
     // check if email and password exist in request
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+      return errorResponse(
+        res,
+        "Email and password are required",
+        400
+      );
     }
 
     // check if user exists or not
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(409).json({ message: "User does not exist" });
+      return errorResponse(
+        res,
+        "User does not exist",
+        409
+      );
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
-      return res.status(401).json({ message: "Password does not match" });
+      return errorResponse(
+        res,
+        "Password does not match",
+        401
+      );
     }
 
     // generate jwt token
@@ -80,12 +102,21 @@ export const login = async (req, res) => {
   { id: user._id },
   process.env.JWT_SECRET,
   { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-);
-    return res.status(200).json({ message: "Login successful", token });
+  );
+    return successResponse(
+      res,
+      "Login successful",
+      { token },
+      200
+    );
   } catch (error) {
     // error handling
     console.log("Login error: ", error);
-    return res.status(500).json({ message: "Server error during login" });
+    return errorResponse(
+      res,
+      "Server error during login",
+      500
+    );
   }
 };
 
@@ -95,15 +126,24 @@ export const getUser = async (req, res) => {
     // fetch user data from request
     const user = await User.findById(req.userId).select("-password");
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return errorResponse(
+        res,
+        "User not found",
+        404
+      );
     }
-    return res.status(200).json({ success: true, user: user });
+    return successResponse(
+      res,
+      "User fetched successfully",
+      { user },
+      200
+    );
   } catch (_error) {
     // error handling
-    return res
-      .status(500)
-      .json({ message: "Error fetching user data", success: false });
+    return errorResponse(
+      res,
+      "Error fetching user data",
+      500
+    );
   }
 };

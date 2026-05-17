@@ -1,6 +1,10 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import { checkOverlap } from "../utils/routineUtils.js";
+import {
+  successResponse,
+  errorResponse,
+} from "../utils/apiResponse.js";
 
 // Create routine function
 export const createRoutine = async (req, res) => {
@@ -9,17 +13,21 @@ export const createRoutine = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return errorResponse(
+        res,
+        "Unauthorized, user not logged in",
+        401
+      );
     }
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please enter required details" });
+    if (!name || items.length === 0 || !items) {
+      return errorResponse(
+        res,
+        "Please enter required details",
+        400
+      );  
     }
 
     // calculate endtime for each task
@@ -28,10 +36,11 @@ export const createRoutine = async (req, res) => {
 
       // check duration greater than 10 mins
       if (!item.duration || item.duration < 10) {
-        return res.status(400).json({
-          success: false,
-          message: "Each task duration must be at least 10 minutes",
-        });
+        return errorResponse(
+          res,
+          "Each task duration must be at least 10 minutes",
+          400
+        );
       }
 
       const endTime = item.startTime + item.duration;
@@ -60,10 +69,11 @@ export const createRoutine = async (req, res) => {
 
       // compare each task with next task
       if (checkOverlap(tasks)) {
-        return res.status(400).json({
-          success: false,
-          message: `Tasks overlap on ${day}`,
-        });
+       return errorResponse(
+        res,
+        `Tasks overlap on ${day}`,
+        400
+      );
       }
     }
 
@@ -77,18 +87,20 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    return res
-      .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
+    return successResponse(
+      res,
+      "Routine added successfully",
+      { newRoutine },
+      201
+    );
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating routine" });
+    return errorResponse(
+      res,
+      "Error creating routine",
+      500
+    );
   }
 };
 
@@ -99,25 +111,38 @@ export const getRoutines = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return errorResponse(
+        res,
+        "Unauthorized, user not logged in",
+        401
+      );
     }
 
     // fetch routines from database
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      return res.status(400).json({ message: "User has no routine", success: false });
+    if (routines.length === 0) {
+      return errorResponse(
+        res,
+        "User has no routine",
+        400
+      );
     }
-    return res.status(200).json({ success: true, routines });
+    return successResponse(
+      res,
+      "Routines fetched successfully",
+      { routines },
+      200
+    );
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching routine" });
+    return errorResponse(
+      res,
+      "Error fetching routine",
+      500
+    );
   }
 };
 
@@ -128,9 +153,11 @@ export const updateRoutine = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return errorResponse(
+        res,
+        "Unauthorized, user not logged in",
+        401
+      );
     }
 
     // fetch updated routine details
@@ -167,10 +194,11 @@ export const updateRoutine = async (req, res) => {
 
         // compare each task with next task
         if (checkOverlap(tasks)) {
-          return res.status(400).json({
-            success: false,
-            message: `Tasks overlap on ${day}`,
-          });
+          return errorResponse(
+            res,
+            `Tasks overlap on ${day}`,
+            400
+          );
         }
       }
     }
@@ -182,20 +210,26 @@ export const updateRoutine = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedRoutine) {
-      return res.status(404).json({
-        message: "Routine not found",
-      });
+      return errorResponse(
+        res,
+        "Routine not found",
+        404
+      );
     }
-    return res.status(200).json({
-      message: "Routine updated successfully",
-      routine: updatedRoutine,
-    });
+    return successResponse(
+      res,
+      "Routine updated successfully",
+      { routine: updatedRoutine },
+      200
+    );
   } catch (error) {
     // error handling
     console.log("Error updating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating routine" });
+    return errorResponse(
+      res,
+      "Error updating routine",
+      500
+    );
   }
 };
 
@@ -206,32 +240,41 @@ export const deleteRoutine = async (req, res) => {
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return errorResponse(
+        res,
+        "Unauthorized, user not logged in",
+        401
+      );
     }
 
     // fetch routine id
     const routineId = req.params.id;
 
     // fetch routine to be deleted from database
-    const deleteRoutine = await Routine.findOneAndDelete({
+    const deletedRoutine = await Routine.findOneAndDelete({
       _id: routineId,
       userId: userId,
     });
-    if (!deleteRoutine) {
-      return res.status(404).json({
-        message: "Routine not found",
-      });
+    if (!deletedRoutine) {
+      return errorResponse(
+        res,
+        "Routine not found",
+        404
+      );
     }
-    return res.status(200).json({
-      message: "Routine deleted successfully",
-    });
+    return successResponse(
+      res,
+      "Routine deleted successfully",
+      {},
+      200
+    );
   } catch (error) {
     // error handling
     console.log("Error deleting routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting routine" });
+    return errorResponse(
+      res,
+      "Error deleting routine",
+      500
+    );
   }
 };
