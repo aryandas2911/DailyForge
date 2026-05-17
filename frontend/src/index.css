@@ -174,4 +174,14 @@ html.dark, html.dark body {
       transform: translateY(0);
     }
   }
+
+  /* Hide native password reveal controls (overlap custom Eye toggle) */
+  input[type="password"]::-ms-reveal {
+    display: none;
+  }
+
+  input[type="password"]::-webkit-credentials-auto-fill-button {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
