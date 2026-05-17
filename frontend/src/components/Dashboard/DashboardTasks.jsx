@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+import EmptyState from "../EmptyState";
+
 export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
@@ -56,7 +58,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
               key={task._id}
               className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
+              surface-bg hover:shadow-md border border-soft shadow-sm`}
             >
               {/* Checkbox */}
               <input
@@ -105,15 +107,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
-          No tasks for today.
-          <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
-            onClick={() => navigate("/tasks")}
-          >
-            Add your first task →
-          </span>
-        </div>
+        <EmptyState type="today" onAction={() => navigate("/tasks")} />
       )}
     </div>
   );

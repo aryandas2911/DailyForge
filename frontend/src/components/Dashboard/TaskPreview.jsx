@@ -56,7 +56,7 @@ export default function TaskPreview({ tasks , updateTask}) {
               key={task._id}
               className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm`}
+              surface-bg border border-soft shadow-sm hover:shadow-md`}
             >
               {/* Checkbox */}
               <input
