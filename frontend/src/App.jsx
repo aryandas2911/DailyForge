@@ -7,8 +7,10 @@ import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 const App = () => {
   return (
@@ -47,7 +49,10 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <Footer />
+      <ScrollToTop />
     </BrowserRouter>
+    
   );
 };
 
