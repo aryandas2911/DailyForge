@@ -10,17 +10,21 @@ import { routineRouter } from "../routes/routineRoutes.js";
 dotenv.config();
 const PORT = process.env.PORT;
 
-// Initialize express app
+// Initialize express     
 const app = express();
 
 // Intialize cors
 app.use(
   cors({
-    origin: ["https://dailyforge-frontend-lhjq.onrender.com", "http://localhost:5173"],
+    origin: [
+      "https://dailyforge-frontend-lhjq.onrender.com",
+      "http://localhost:5173",
+      process.env.CLIENT_ORIGIN,
+    ],
     credentials: true,
   })
 );
-
+//https://dailyforge-frontend-lhjq.onrender.com
 // Connect to MongoDB using mongoose
 connectDB();
 
