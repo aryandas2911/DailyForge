@@ -81,9 +81,9 @@ export default function Tasks() {
     return due >= now && due <= threeDaysFromNow;
   });
 //changed logic
-  const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+  const nextTask = filteredTasks
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
