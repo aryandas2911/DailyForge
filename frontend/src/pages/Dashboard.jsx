@@ -137,7 +137,7 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks />
+        <DashboardTasks tasks={tasks} updateTask={updateTask} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
