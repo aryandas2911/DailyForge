@@ -142,7 +142,16 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={(event) => {
+        setActiveTask(event.active.data.current?.task);
+      }}
+      onDragEnd={(event) => {
+        setActiveTask(null);
+        handleDragEnd(event);
+      }}
+    >
       <div className="app-bg min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
