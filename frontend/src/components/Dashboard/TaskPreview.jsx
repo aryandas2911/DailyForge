@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DashboardActionLink from "./DashboardActionLink";
 
 
 export default function TaskPreview({ tasks , updateTask}) {
@@ -119,13 +120,10 @@ export default function TaskPreview({ tasks , updateTask}) {
         </p>
       )}
 
-      <div className="mt-4 text-sm text-primary">
-        <button
-          onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
-        >
-          View All Tasks →
-        </button>
+      <div className="mt-4">
+        <DashboardActionLink onClick={() => navigate("/tasks")}>
+          View All Tasks
+        </DashboardActionLink>
       </div>
     </div>
   );

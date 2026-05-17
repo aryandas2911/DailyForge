@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import DashboardActionLink from "../components/Dashboard/DashboardActionLink";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
@@ -164,13 +165,9 @@ export default function Dashboard() {
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
-            <button
-              className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
-              onClick={() => navigate("/routine-builder")}
-            >
+            <DashboardActionLink onClick={() => navigate("/routine-builder")}>
               Build
-              <ArrowRight size={16} />
-            </button>
+            </DashboardActionLink>
           </div>
 
           {loadingRoutines ? (

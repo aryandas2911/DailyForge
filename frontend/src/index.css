@@ -126,7 +126,7 @@ html.dark, html.dark body {
   }
 
   .card-muted {
-    @apply bg-white/80;
+    @apply bg-white/80 dark:bg-slate-800/80;
   }
 
   .card-primary {

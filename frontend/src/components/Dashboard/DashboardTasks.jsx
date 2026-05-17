@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import DashboardActionLink from "./DashboardActionLink";
 
 export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
@@ -41,12 +42,9 @@ export default function DashboardTasks({ tasks, updateTask }) {
           <p className="text-xs text-muted">Top priorities for today</p>
         </div>
 
-        <button
-          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
-          onClick={() => navigate("/tasks")}
-        >
-          Manage →
-        </button>
+        <DashboardActionLink onClick={() => navigate("/tasks")}>
+          Manage
+        </DashboardActionLink>
       </div>
 
       {todayTasks?.length ? (
