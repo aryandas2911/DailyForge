@@ -22,6 +22,7 @@ function DraggableTask({ task }) {
     opacity: isDragging ? 0 : 1,
     position: "relative",
     zIndex: isDragging ? 99999 : 1,
+    backgroundColor: "color-mix(in srgb, var(--surface) 80%, transparent)",
   };
 
   return (
@@ -30,9 +31,9 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 dark:bg-slate-800/80 p-3
+      className="group flex items-center gap-3 rounded-xl border-soft p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
+                 hover:shadow-md transition hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}

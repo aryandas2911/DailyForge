@@ -126,7 +126,7 @@ html.dark, html.dark body {
   }
 
   .card-muted {
-    @apply bg-white/80;
+    background-color: color-mix(in srgb, var(--surface) 80%, transparent);
   }
 
   .card-primary {
