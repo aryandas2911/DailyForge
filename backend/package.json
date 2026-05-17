@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"No tests specified yet\"",
+    "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint ."
   },
@@ -17,8 +18,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
-    "mongodb": "^7.0.0",
+    "mongodb": "^7.2.0",
     "mongoose": "^9.0.0",
     "nodemon": "^3.1.11"
   },

@@ -59,13 +59,29 @@ const useTasks = ({
 
   // update task
   const updateTask = async (id, updates) => {
-    await api.put(`/tasks/${id}`, updates);
-    await getTasks(page);
+    setTasks((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+    );
+
+    try {
+      await api.put(`/tasks/${id}`, updates);
+      await getTasks(page);
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to update task");
+      await getTasks(page);
+    }
   };
 
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
+    setTasks((prev) => prev.filter((t) => t._id !== id));
+    await getTasks(page);
+  };
+
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
     await getTasks(page);
   };
 
@@ -84,6 +100,7 @@ const useTasks = ({
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
