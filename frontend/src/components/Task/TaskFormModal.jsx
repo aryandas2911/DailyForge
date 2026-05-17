@@ -133,8 +133,8 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                     onClick={() => toggleCategory(category.name)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                        ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: category.bgColor,

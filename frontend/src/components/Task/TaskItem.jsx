@@ -12,6 +12,10 @@ const priorityStyles = {
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const primaryTag = task.tags?.[0];
+  const primaryCategoryColor = primaryTag
+    ? getCategoryColor(primaryTag)
+    : null;
 
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
@@ -37,6 +41,15 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             onChange={() => onSelect(task._id)}
             className="w-4 h-4 cursor-pointer accent-blue-500"
           />
+          {primaryCategoryColor && (
+            <span
+              className="h-3 w-3 shrink-0 rounded-full border border-black/10"
+              style={{ backgroundColor: primaryCategoryColor.color }}
+              title={`${primaryTag} category`}
+              aria-hidden="true"
+            />
+          )}
+
           {/* Checkbox */}
           <button
             onClick={() => onToggleComplete(task)}
@@ -78,10 +91,11 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
                     return (
                       <span
                         key={tag}
-                        className="px-2 py-0.5 rounded-full text-xs font-medium"
+                        className="px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-black/5"
                         style={{
                           backgroundColor: categoryColor.bgColor,
                           color: categoryColor.color,
+                          borderColor: categoryColor.color,
                         }}
                       >
                         {tag}
