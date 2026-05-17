@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { resolveHasTime } from "../../utils/dueDateUtils";
 
 const priorities = ["Low", "Medium", "High"];
 
@@ -9,6 +10,82 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [tags, setTags] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const [dueTime, setDueTime] = useState("");
+
+  const getNextQuarterTime = () => {
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const roundedMinutes = Math.ceil(minutes / 15) * 15;
+    const rounded = new Date(now);
+    rounded.setSeconds(0, 0);
+
+    if (roundedMinutes >= 60) {
+      rounded.setHours(rounded.getHours() + 1, 0, 0, 0);
+    } else {
+      rounded.setMinutes(roundedMinutes, 0, 0);
+    }
+
+    const hours = String(rounded.getHours()).padStart(2, "0");
+    const mins = String(rounded.getMinutes()).padStart(2, "0");
+    return `${hours}:${mins}`;
+  };
+
+  const setDateAndTime = (targetDate, targetTime) => {
+    setDueDate(targetDate);
+    setDueTime(targetTime);
+  };
+
+  const applyQuickTime = (type) => {
+    const now = new Date();
+    if (type === "plus-1h") {
+      const next = new Date(now.getTime() + 60 * 60 * 1000);
+      const dateStr = next.toLocaleDateString("en-CA");
+      const timeStr = next.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      setDateAndTime(dateStr, timeStr);
+      return;
+    }
+
+    if (type === "today-6pm") {
+      const dateStr = now.toLocaleDateString("en-CA");
+      setDateAndTime(dateStr, "18:00");
+      return;
+    }
+
+    if (type === "tomorrow-9am") {
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+      const dateStr = tomorrow.toLocaleDateString("en-CA");
+      setDateAndTime(dateStr, "09:00");
+    }
+  };
+
+  const parseDueDate = (value) => {
+    if (!value) {
+      return { date: "", time: "" };
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return { date: value, time: "" };
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return { date: "", time: "" };
+    }
+
+    return {
+      date: parsed.toLocaleDateString("en-CA"),
+      time: parsed.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    };
+  };
 
   useEffect(() => {
     if (task) {
@@ -17,7 +94,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       setDescription(task.description || "");
       setTags(task.tags || "");
       setPriority(task.priority || "Low");
-      setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+      const parsedDue = parseDueDate(task.dueDate);
+      const hasTime = resolveHasTime(task.dueDate, task.hasTime);
+      setDueDate(parsedDue.date);
+      setDueTime(hasTime ? parsedDue.time : "");
       /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [task]);
@@ -28,12 +108,14 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
 
+    const dueDateValue = dueTime ? `${dueDate}T${dueTime}` : dueDate;
+
     onSubmit({
       title: title.trim(),
       description: description.trim(),
       tags: tags.trim(),
       priority,
-      dueDate,
+      dueDate: dueDateValue,
     });
   };
 
@@ -131,10 +213,51 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <input
               type="date"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={(e) => {
+                const selectedDate = e.target.value;
+                setDueDate(selectedDate);
+                if (!dueTime) {
+                  setDueTime(getNextQuarterTime());
+                }
+              }}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               required
             />
+          </div>
+
+          {/* Due Time */}
+          <div>
+            <label className="text-sm font-medium text-main">Due Time (optional)</label>
+            <input
+              type="time"
+              value={dueTime}
+              onChange={(e) => setDueTime(e.target.value)}
+              onClick={(e) => e.target.showPicker?.()}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => applyQuickTime("plus-1h")}
+                className="px-3 py-1.5 rounded-full text-xs font-medium border border-soft text-main bg-white hover:bg-(--accent)/30 transition"
+              >
+                In 1h
+              </button>
+              <button
+                type="button"
+                onClick={() => applyQuickTime("today-6pm")}
+                className="px-3 py-1.5 rounded-full text-xs font-medium border border-soft text-main bg-white hover:bg-(--accent)/30 transition"
+              >
+                Today 6:00 PM
+              </button>
+              <button
+                type="button"
+                onClick={() => applyQuickTime("tomorrow-9am")}
+                className="px-3 py-1.5 rounded-full text-xs font-medium border border-soft text-main bg-white hover:bg-(--accent)/30 transition"
+              >
+                Tomorrow 9:00 AM
+              </button>
+            </div>
           </div>
 
           {/* Submit Button */}

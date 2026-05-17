@@ -28,6 +28,16 @@ const taskValidationRules = [
     .optional()
     .trim()
     .escape(),
+
+  body("dueDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Due date must be a valid ISO 8601 date"),
+
+  body("dueTime")
+    .optional()
+    .matches(/^\d{2}:\d{2}$/)
+    .withMessage("Due time must be in HH:mm format"),
 ];
 
 // router object for task

@@ -1,6 +1,7 @@
 import { Check, Trash2, Pencil, Calendar } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
+import { formatDueLabel, formatRelativeDue } from "../../utils/dueDateUtils";
 
 const priorityStyles = {
   Low: "border-green-500 bg-green-50",
@@ -11,6 +12,8 @@ const priorityStyles = {
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const dueLabel = formatDueLabel(task.dueDate, { hasTime: task.hasTime });
+  const relativeLabel = formatRelativeDue(task.dueDate, { hasTime: task.hasTime });
 
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
@@ -65,7 +68,13 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               {task.dueDate && (
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {dueLabel}
+                </span>
+              )}
+
+              {relativeLabel && (
+                <span className="text-[11px] text-red-500 font-medium">
+                  {relativeLabel}
                 </span>
               )}
             </div>

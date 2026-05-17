@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatDueLabel, formatRelativeDue } from "../../utils/dueDateUtils";
 
 
 export default function TaskPreview({ tasks , updateTask}) {
@@ -34,9 +35,16 @@ export default function TaskPreview({ tasks , updateTask}) {
       {tasks?.length ? (
         <div className="space-y-3">
           {tasks.map((task) => {
-
-              {/*Calculate remaining time */}
-              const remainingTime = new Date(task.dueDate) - now;
+              // Calculate remaining time
+              const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+              const remainingTime = dueDate ? dueDate - now : 0;
+              const dueLabel = formatDueLabel(task.dueDate, {
+                withWeekday: true,
+                hasTime: task.hasTime,
+              });
+              const relativeLabel = formatRelativeDue(task.dueDate, {
+                hasTime: task.hasTime,
+              });
 
               const hours = Math.floor(
                 remainingTime / (1000 * 60 * 60)
@@ -93,18 +101,18 @@ export default function TaskPreview({ tasks , updateTask}) {
 
                   {task.dueDate && (
                     <span className="text-[11px] text-muted">
-                      {new Date(task.dueDate).toLocaleDateString("en-US", {
-                        weekday: "short",
-                      })}
+                      {dueLabel}
                     </span>
                   )}
 
                   {/*Disply Remaining Time */}
                   {task.dueDate && (
                     <span className="text-[11px] text-red-500 font-medium">
-                      {remainingTime > 0
-                        ? `${hours}h ${minutes}m ${seconds}s left`
-                        : "Overdue"}
+                      {task.hasTime
+                        ? remainingTime > 0
+                          ? `${hours}h ${minutes}m ${seconds}s left`
+                          : "Overdue"
+                        : relativeLabel}
                     </span>
                   )}
 

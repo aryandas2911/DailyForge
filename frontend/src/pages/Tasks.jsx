@@ -3,8 +3,13 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Trash2 } from "lucide-react";
 import EmptyState from "../components/EmptyState";
+import {
+  formatDueLabel,
+  getTimeZonePreference,
+  setTimeZonePreference,
+} from "../utils/dueDateUtils";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -13,6 +18,9 @@ export default function Tasks() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [timeZonePreference, setTimeZonePreferenceState] = useState(
+    getTimeZonePreference()
+  );
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -67,6 +75,10 @@ export default function Tasks() {
   const nextTask = tasks
   .filter((task) => task.dueDate && task.status !== "Completed")
   .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+
+  const nextTaskDueLabel = nextTask
+    ? formatDueLabel(nextTask.dueDate, { hasTime: nextTask.hasTime })
+    : "";
 
   const highPriorityCount = tasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -189,7 +201,7 @@ export default function Tasks() {
 
     <p className="text-xs text-muted">
       Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
+      {nextTaskDueLabel}
     </p>
   </div>
 ) : (
@@ -217,6 +229,25 @@ export default function Tasks() {
                   ? "Consider rescheduling or delegating."
                   : "You’re pacing this well."}
               </p>
+            </div>
+
+            <div className="card p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-main">Time Zone</h3>
+              <p className="text-xs text-muted mt-1">
+                Applied to due times across the app.
+              </p>
+              <select
+                value={timeZonePreference}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTimeZonePreferenceState(value);
+                  setTimeZonePreference(value);
+                }}
+                className="w-full mt-3 p-2 border border-soft rounded-lg text-sm focus:ring-(--primary) focus:border-(--primary)"
+              >
+                <option value="local">Local time</option>
+                <option value="UTC">UTC</option>
+              </select>
             </div>
           </div>
         </div>

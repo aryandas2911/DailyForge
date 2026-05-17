@@ -10,6 +10,10 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting.js";
+import {
+  getTimeZonePreference,
+  setTimeZonePreference,
+} from "../utils/dueDateUtils";
 
 export default function Dashboard() {
   const [greeting, setGreeting] = useState(getGreeting());
@@ -29,6 +33,9 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [timeZonePreference, setTimeZonePreferenceState] = useState(
+    getTimeZonePreference()
+  );
 
   const { tasks, updateTask } = useTasks();
 
@@ -101,18 +108,35 @@ export default function Dashboard() {
           <h1 className="text-2xl font-semibold text-main leading-tight">
             {greeting}, {user?.name}
           </h1>
-          <div className="flex justify-between items-center mt-1 w-full">
-          <p className="text-sm text-muted">
-            {new Date()
-              .toLocaleDateString("en-US", {
-                weekday: "long",
-                day: "2-digit",
-                month: "short",
-              })
-              .replace(",", " ·")}
-          </p>
-          <LiveClock />
-        </div>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mt-1 w-full gap-3">
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">Time zone</span>
+                <select
+                  value={timeZonePreference}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setTimeZonePreferenceState(value);
+                    setTimeZonePreference(value);
+                  }}
+                  className="p-2 border border-soft rounded-lg text-xs focus:ring-(--primary) focus:border-(--primary)"
+                >
+                  <option value="local">Local</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </div>
+              <LiveClock />
+            </div>
+          </div>
         </div>
       </header>
 

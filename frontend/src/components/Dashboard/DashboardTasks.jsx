@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { Calendar } from "lucide-react";
 import useTasks from "../../hooks/useTasks";
+import { formatDueLabel } from "../../utils/dueDateUtils";
 
 export default function DashboardTasks() {
   const { tasks, updateTask } = useTasks();
@@ -95,6 +97,13 @@ export default function DashboardTasks() {
                   >
                     {task.priority}
                   </span>
+
+                  {task.dueDate && (
+                    <span className="flex items-center gap-1 text-[11px] text-muted">
+                      <Calendar size={12} />
+                      {formatDueLabel(task.dueDate, { hasTime: task.hasTime })}
+                    </span>
+                  )}
 
                   {task.status === "Completed" && (
                     <span className="text-[11px] text-muted">Completed</span>

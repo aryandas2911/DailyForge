@@ -33,6 +33,10 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    hasTime: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

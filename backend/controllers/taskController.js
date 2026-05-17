@@ -2,6 +2,57 @@ import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 
+const normalizeDueDate = (dueDate, dueTime) => {
+  if (!dueDate) {
+    return null;
+  }
+
+  if (dueTime && !dueDate.includes("T")) {
+    return `${dueDate}T${dueTime}`;
+  }
+
+  return dueDate;
+};
+
+const deriveHasTime = (dueDateValue, dueTime) => {
+  if (dueTime) {
+    return true;
+  }
+
+  if (!dueDateValue || typeof dueDateValue !== "string") {
+    return false;
+  }
+
+  if (!dueDateValue.includes("T")) {
+    return false;
+  }
+
+  return !/T00:00/.test(dueDateValue);
+};
+
+const isPastDue = (dueDateValue, dueTime) => {
+  const now = new Date();
+
+  if (dueTime || dueDateValue.includes("T")) {
+    const dueDateTime = new Date(dueDateValue);
+    return Number.isNaN(dueDateTime.getTime()) || dueDateTime < now;
+  }
+
+  const dueDateOnly = new Date(dueDateValue);
+  if (Number.isNaN(dueDateOnly.getTime())) {
+    return true;
+  }
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dueDay = new Date(
+    dueDateOnly.getFullYear(),
+    dueDateOnly.getMonth(),
+    dueDateOnly.getDate()
+  );
+
+  return dueDay < today;
+};
+
 // Create task function
 export const createTask = async (req, res) => {
   try {
@@ -25,12 +76,27 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
+    const { title, description, tags, priority, status, dueDate, dueTime } = req.body;
     if (!title || !priority || !status) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
+
+    const normalizedDueDate = normalizeDueDate(dueDate, dueTime);
+    if (!normalizedDueDate || Number.isNaN(Date.parse(normalizedDueDate))) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or missing due date" });
+    }
+
+    if (isPastDue(normalizedDueDate, dueTime)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Due date/time cannot be in the past" });
+    }
+
+    const hasTime = deriveHasTime(normalizedDueDate, dueTime);
 
     // new task object
     const newTask = new Task({
@@ -40,7 +106,8 @@ export const createTask = async (req, res) => {
       tags,
       priority,
       status,
-      dueDate,
+      dueDate: normalizedDueDate,
+      hasTime,
     });
 
     // save task in database
@@ -110,8 +177,31 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details
-    const updates = req.body;
+    const updates = { ...req.body };
     const taskId = req.params.id;
+
+    if (updates.dueDate || updates.dueTime) {
+      const normalizedDueDate = normalizeDueDate(
+        updates.dueDate,
+        updates.dueTime
+      );
+      if (!normalizedDueDate || Number.isNaN(Date.parse(normalizedDueDate))) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid due date" });
+      }
+      if (isPastDue(normalizedDueDate, updates.dueTime)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Due date/time cannot be in the past" });
+      }
+      updates.dueDate = normalizedDueDate;
+      updates.hasTime = deriveHasTime(normalizedDueDate, updates.dueTime);
+    }
+
+    if (updates.dueTime) {
+      delete updates.dueTime;
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
