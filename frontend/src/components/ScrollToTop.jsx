@@ -45,7 +45,7 @@ const ScrollToTop = () => {
       {shouldShow && (
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[var(--text-main)] text-white shadow-lg hover:bg-[var(--primary)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+          className="p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:ring-offset-slate-900 transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
           aria-label="Scroll to top"
         >
           <ArrowUp size={24} />

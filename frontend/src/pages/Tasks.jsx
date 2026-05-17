@@ -13,6 +13,7 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [draftTitle, setDraftTitle] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -175,7 +176,7 @@ export default function Tasks() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
-              filteredTasks
+              [...filteredTasks]
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem
@@ -198,6 +199,12 @@ export default function Tasks() {
     type="tasks"
     onAction={() => {
       setEditingTask(null);
+      setDraftTitle("");
+      setIsModalOpen(true);
+    }}
+    onSuggestion={(label) => {
+      setEditingTask(null);
+      setDraftTitle(label);
       setIsModalOpen(true);
     }}
   />
@@ -285,7 +292,11 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
-          onClose={() => setIsModalOpen(false)}
+          initialTitle={draftTitle}
+          onClose={() => {
+            setIsModalOpen(false);
+            setDraftTitle("");
+          }}
           onSubmit={handleSubmit}
         />
       )}

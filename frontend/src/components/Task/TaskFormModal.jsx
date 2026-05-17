@@ -27,8 +27,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
+    } else if (initialTitle) {
+      setTitle(initialTitle);
     }
-  }, [task]);
+  }, [task, initialTitle]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -156,11 +158,15 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
               required
             >
               {priorities.map((p) => (
-                <option key={p} value={p} className="dark:bg-slate-800">
+                <option
+                  key={p}
+                  value={p}
+                  className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+                >
                   {p}
                 </option>
               ))}
