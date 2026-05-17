@@ -22,14 +22,23 @@ const useTasks = () => {
 
   // update task
   const updateTask = async (id, updates) => {
-    await api.put(`/tasks/${id}`, updates);
-    getTasks();
+    setTasks((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+    );
+    try {
+      await api.put(`/tasks/${id}`, updates);
+      await getTasks();
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to update task");
+      await getTasks();
+    }
   };
 
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
-    getTasks();
+    // fix : This line refreshes the UI!
+    setTasks(prev => prev.filter(t => t._id !== id)); 
   };
 
   // initial fetch
