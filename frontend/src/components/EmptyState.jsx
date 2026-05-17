@@ -47,7 +47,9 @@ export default function EmptyState({ type = "tasks", onAction }) {
         {cfg.icon}
       </div>
       <h2 className="m-0 text-xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight">{cfg.heading}</h2>
-      <p className="m-0 text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[300px]">{cfg.subtext}</p>
+      <p className="m-0 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-[300px]">
+        {cfg.subtext}
+      </p>
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
