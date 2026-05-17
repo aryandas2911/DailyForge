@@ -1,0 +1,6 @@
+# SPA fallback for client-side routes (Render static site).
+# See: https://render.com/docs/deploy-create-react-app#redirecting-back-to-indexhtml
+routes:
+  - type: rewrite
+    source: /*
+    destination: /index.html
