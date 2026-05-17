@@ -152,7 +152,7 @@ export default function RoutineBuilder() {
           </button>
 
           <div>
-            <h1 className="text-3xl font-semibold text-main">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-main">
               Routine Builder
             </h1>
             <p className="mt-1 text-muted">Design your week</p>
