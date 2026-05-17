@@ -130,7 +130,7 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks />
+        <DashboardTasks tasks={tasks} updateTask={updateTask} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
@@ -168,7 +168,7 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1">
