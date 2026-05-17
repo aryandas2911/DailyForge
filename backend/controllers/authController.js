@@ -1,6 +1,7 @@
 import User from "../src/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { normalizeUsername, validateUsername } from "../utils/username.js";
 
 // sign up function
 export const signup = async (req, res) => {
@@ -17,10 +18,14 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character" });
     }
 
-    // check user exists or not
-    const checkExisting = await User.findOne({ email });
+    const checkExisting = await User.findOne({
+      $or: [{ email }, { username: normalizedUsername }],
+    });
     if (checkExisting) {
-      return res.status(409).json({ message: "User already exists" });
+      if (checkExisting.email === email) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+      return res.status(409).json({ message: "Username is already taken" });
     }
 
     // hashing the password
@@ -28,7 +33,8 @@ export const signup = async (req, res) => {
 
     // create new user document
     const newUser = new User({
-      name,
+      name: name.trim(),
+      username: normalizedUsername,
       email,
       password: hashedPassword,
     });

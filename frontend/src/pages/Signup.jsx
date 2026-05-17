@@ -7,6 +7,7 @@ import { AuthContext } from "../context/AuthContext.jsx";
 const Signup = () => {
   // three states for inputs
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -34,6 +35,7 @@ const Signup = () => {
     try {
       const res = await api.post("/auth/signup", {
         name,
+        username: username.trim().toLowerCase(),
         email,
         password,
       });
@@ -65,6 +67,16 @@ const Signup = () => {
     const newErrors = {};
     if (name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters long";
+    }
+    const normalizedUsername = username.trim().toLowerCase();
+    const usernameRegex = /^[a-z][a-z0-9_-]{1,29}$/;
+    if (!normalizedUsername) {
+      newErrors.username = "Username is required";
+    } else if (/^\d+$/.test(normalizedUsername)) {
+      newErrors.username = "Username cannot be numbers only";
+    } else if (!usernameRegex.test(normalizedUsername)) {
+      newErrors.username =
+        "2–30 chars, start with a letter; letters, numbers, _ or - only";
     }
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
@@ -114,6 +126,36 @@ const Signup = () => {
           `}
         />
         {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="username" className="text-sm font-medium text-main">
+          Username
+        </label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          autoComplete="username"
+          value={username}
+          onChange={(e) => {
+            setUsername(e.target.value);
+          }}
+          placeholder="jane_doe"
+          required
+          className={`
+            w-full px-3 py-2.5
+            text-sm
+            surface-bg
+            rounded-sm
+            shadow-xs
+            input-focus hover-lift
+            ${errors.username ? "border-red-500" : "border-soft"}
+          `}
+        />
+        {errors.username && (
+          <span className="text-red-500 text-xs">{errors.username}</span>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
