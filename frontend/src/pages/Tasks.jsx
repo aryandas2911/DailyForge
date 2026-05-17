@@ -231,10 +231,10 @@ export default function Tasks() {
                   {upcomingDeadlines.slice(0, 3).map((task) => (
                     <li
                       key={task._id}
-                      className="flex items-center gap-2 text-main"
+                      className="flex items-start gap-2 text-main"
                     >
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      {task.title}
+                      <span className="w-2 h-2 shrink-0 mt-1.5 rounded-full bg-red-500" />
+                      <span className="break-words min-w-0 flex-1">{task.title}</span>
                     </li>
                   ))}
                 </ul>
@@ -242,7 +242,7 @@ export default function Tasks() {
                // updated deadlines
                 nextTask ? (
   <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
+    <p className="text-sm font-medium text-main break-words">
       {nextTask.title}
     </p>
 

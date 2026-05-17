@@ -71,9 +71,9 @@ export default function TaskPreview({ tasks , updateTask}) {
               />
 
               {/* Content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm font-medium ${
+                  className={`text-sm font-medium break-words ${
                     task.status === "Completed"
                       ? "line-through decoration-2 decoration-muted text-muted"
                       : "text-main"

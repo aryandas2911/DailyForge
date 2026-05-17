@@ -51,9 +51,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           </button>
 
           {/* Content */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <p
-              className={`text-lg font-semibold ${
+              className={`text-lg font-semibold break-words ${
                 isCompleted ? "line-through text-muted" : "text-main"
               }`}
             >

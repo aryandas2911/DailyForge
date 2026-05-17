@@ -71,9 +71,9 @@ export default function DashboardTasks({ tasks, updateTask }) {
               />
 
               {/* Task content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm font-medium transition-colors ${
+                  className={`text-sm font-medium transition-colors break-words ${
                     task.status === "Completed"
                       ? "line-through text-muted"
                       : "text-main"
