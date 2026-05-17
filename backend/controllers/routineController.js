@@ -85,7 +85,7 @@ export const createRoutine = async (req, res) => {
       );
   } catch (error) {
     // error handling
-    console.log("Error creating routine", error);
+    console.error("Error creating routine", error);
     return res
       .status(500)
       .json({ success: false, message: "Error creating routine" });
@@ -114,7 +114,7 @@ export const getRoutines = async (req, res) => {
     return res.status(200).json({ success: true, routines });
   } catch (error) {
     // error handling
-    console.log("Error fetching routine", error);
+    console.error("Error fetching routine", error);
     return res
       .status(500)
       .json({ success: false, message: "Error fetching routine" });
@@ -192,7 +192,7 @@ export const updateRoutine = async (req, res) => {
     });
   } catch (error) {
     // error handling
-    console.log("Error updating routine", error);
+    console.error("Error updating routine", error);
     return res
       .status(500)
       .json({ success: false, message: "Error updating routine" });
@@ -229,7 +229,7 @@ export const deleteRoutine = async (req, res) => {
     });
   } catch (error) {
     // error handling
-    console.log("Error deleting routine", error);
+    console.error("Error deleting routine", error);
     return res
       .status(500)
       .json({ success: false, message: "Error deleting routine" });

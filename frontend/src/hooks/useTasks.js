@@ -10,7 +10,7 @@ const useTasks = () => {
       const tasks = await api.get("/tasks");
       setTasks(tasks.data.tasks);
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to load tasks");
+      console.error(error?.response?.data?.message || "Failed to load tasks");
     }
   };
 
@@ -29,7 +29,7 @@ const useTasks = () => {
       await api.put(`/tasks/${id}`, updates);
       await getTasks();
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
+      console.error(error?.response?.data?.message || "Failed to update task");
       await getTasks();
     }
   };

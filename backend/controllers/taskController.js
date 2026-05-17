@@ -51,7 +51,7 @@ export const createTask = async (req, res) => {
       .json({ message: "Task added successfully", newTask });
   } catch (error) {
     // error handling
-    console.log("Error creating task", error);
+    console.error("Error creating task", error);
     return res
       .status(500)
       .json({ success: false, message: "Error creating task" });
@@ -80,7 +80,7 @@ export const getTasks = async (req, res) => {
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
     // error handling
-    console.log("Error fetching tasks", error);
+    console.error("Error fetching tasks", error);
     return res
       .status(500)
       .json({ success: false, message: "Error fetching tasks" });
@@ -130,7 +130,7 @@ export const updateTask = async (req, res) => {
     });
   } catch (error) {
     // error handling
-    console.log("Error updating task", error);
+    console.error("Error updating task", error);
     return res
       .status(500)
       .json({ success: false, message: "Error updating task" });
@@ -167,7 +167,7 @@ export const deleteTask = async (req, res) => {
     });
   } catch (error) {
     // error handling
-    console.log("Error deleting task", error);
+    console.error("Error deleting task", error);
     return res
       .status(500)
       .json({ success: false, message: "Error deleting task" });
@@ -202,7 +202,7 @@ export const bulkDeleteTasks = async (req, res) => {
       .json({ success: true, message: "Tasks deleted successfully" });
   } catch (error) {
     //error handling
-    console.log("Error bulk deleting tasks", error);
+    console.error("Error bulk deleting tasks", error);
     return res
       .status(500)
       .json({ success: false, message: "Error deleting tasks" });
