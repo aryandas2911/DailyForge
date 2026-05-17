@@ -50,9 +50,10 @@ const Login = () => {
 
   // login component
   return (
+    <div className="w-full flex justify-center px-4 py-8 sm:py-12">
     <form
       className="
-        surface-bg px-10 py-15 rounded-2xl
+        surface-bg px-6 sm:px-10 py-10 sm:py-15 rounded-2xl
         w-full max-w-sm
         flex flex-col gap-6 animate-in
       "
@@ -146,6 +147,7 @@ const Login = () => {
         </Link>
       </p>
     </form>
+    </div>
   );
 };
 

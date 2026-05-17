@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+html,
+body,
+#root {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 :root {
   /* App background (outer layout) */
   --bg: #d0f6e3;

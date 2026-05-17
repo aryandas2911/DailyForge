@@ -62,8 +62,8 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
+    <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 animate-in p-4">
+      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md max-h-[min(90dvh,100%)] overflow-y-auto p-6 relative animate-in delay-100 border border-soft">
         {/* Close Button */}
         <button
           onClick={onClose}
