@@ -3,14 +3,29 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { CATEGORIES } from "../utils/categoryUtils";
+import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const handleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    await bulkDelete(selectedIds);
+    setSelectedIds([]);
+  };
 
   /** --- Handlers --- */
   const handleToggle = (task) => {
@@ -34,9 +49,24 @@ export default function Tasks() {
     }
   };
 
+  const toggleCategoryFilter = (categoryName) => {
+    setSelectedCategories(prev =>
+      prev.includes(categoryName)
+        ? prev.filter(cat => cat !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
+  /** --- Filtered Tasks --- */
+  const filteredTasks = selectedCategories.length === 0
+    ? tasks
+    : tasks.filter(task =>
+        task.tags && task.tags.some(tag => selectedCategories.includes(tag))
+      );
+
   /** --- Insights --- */
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "Completed").length;
+  const totalTasks = filteredTasks.length;
+  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
   const completionPercent = totalTasks
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
@@ -45,13 +75,17 @@ export default function Tasks() {
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(now.getDate() + 3);
 
-  const upcomingDeadlines = tasks.filter((task) => {
+  const upcomingDeadlines = filteredTasks.filter((task) => {
     if (!task.dueDate || task.status === "Completed") return false;
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
+//changed logic
+  const nextTask = tasks
+  .filter((task) => task.dueDate && task.status !== "Completed")
+  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
-  const highPriorityCount = tasks.filter(
+  const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
   ).length;
   const isOverloaded = highPriorityCount >= 3;
@@ -64,7 +98,7 @@ export default function Tasks() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-white cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted hover:bg-white dark:hover:bg-slate-800 cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
@@ -77,7 +111,14 @@ export default function Tasks() {
               </p>
             </div>
           </div>
-
+          {selectedIds.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            >
+              <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+            </button>
+          )}
           <button
             onClick={() => {
               setEditingTask(null);
@@ -89,33 +130,78 @@ export default function Tasks() {
           </button>
         </div>
 
+        {/* Category Filter */}
+        <div className="animate-in delay-150">
+          <div className="card p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Filter size={16} className="text-main" />
+              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
+              {selectedCategories.length > 0 && (
+                <button
+                  onClick={() => setSelectedCategories([])}
+                  className="ml-auto text-xs text-primary hover:underline cursor-pointer"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => {
+                const isSelected = selectedCategories.includes(category.name);
+                return (
+                  <button
+                    key={category.name}
+                    onClick={() => toggleCategoryFilter(category.name)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? 'ring-2 ring-offset-1'
+                        : 'opacity-60 hover:opacity-100'
+                    }`}
+                    style={{
+                      backgroundColor: category.bgColor,
+                      color: category.color,
+                      ringColor: category.color,
+                    }}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
-            {tasks.length ? (
-              tasks
+            {filteredTasks.length ? (
+              filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    onDelete={deleteTask}
+                    // fix : Ensure onDelete is explicitely reciving the id
+                    onDelete={(id) => deleteTask(id)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
+                    isSelected={selectedIds.includes(task._id)}   
+                    onSelect={handleSelect}   
                   />
                 ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-soft py-20 text-center">
-                <p className="text-lg font-medium text-main">No tasks yet</p>
-                <p className="text-sm text-muted mt-1">
-                  Start with one small win today.
-                </p>
-              </div>
-            )}
+  <EmptyState
+    type="tasks"
+    onAction={() => {
+      setEditingTask(null);
+      setIsModalOpen(true);
+    }}
+  />
+)}
           </div>
 
           {/* Insights */}
@@ -124,7 +210,7 @@ export default function Tasks() {
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
                   style={{ width: `${completionPercent}%` }}
@@ -153,15 +239,31 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted">No urgent deadlines 🎉</p>
+               // updated deadlines
+                nextTask ? (
+  <div className="space-y-1">
+    <p className="text-sm font-medium text-main">
+      {nextTask.title}
+    </p>
+
+    <p className="text-xs text-muted">
+      Due on{" "}
+      {new Date(nextTask.dueDate).toLocaleDateString()}
+    </p>
+  </div>
+) : (
+  <p className="text-xs text-muted">
+    No upcoming tasks 🎉
+  </p>
+)
               )}
             </div>
 
             <div
               className={`card p-4 ${
                 isOverloaded
-                  ? "bg-red-50 text-red-600"
-                  : "bg-green-50 text-green-700"
+                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
+                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
               }`}
             >
               <p className="text-sm font-medium">
