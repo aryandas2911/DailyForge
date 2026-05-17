@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -212,14 +212,12 @@ const Signup = () => {
 
       <p className="text-center text-sm text-muted">
         Already have an account?{" "}
-        <span
-          onClick={() => {
-            navigate("/login");
-          }}
+        <Link
+          to="/login"
           className="text-main font-medium cursor-pointer hover:underline transition-colors"
         >
           Login
-        </span>
+        </Link>
       </p>
     </form>
   );
