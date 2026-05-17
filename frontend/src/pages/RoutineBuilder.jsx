@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   DndContext,
+  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -26,6 +27,7 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+  const [activeTask, setActiveTask] = useState(null);
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -140,7 +142,16 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={(event) => {
+        setActiveTask(event.active.data.current?.task);
+      }}
+      onDragEnd={(event) => {
+        setActiveTask(null);
+        handleDragEnd(event);
+      }}
+    >
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
@@ -183,7 +194,7 @@ export default function RoutineBuilder() {
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
           ) : savedRoutines.length === 0 ? (
-  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
+            <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {
@@ -272,7 +283,7 @@ export default function RoutineBuilder() {
 
             <textarea
               value={description}
-              onChange={(e)=> setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description (optional)"
               rows="3"
               className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-transparent text-main resize-none"
@@ -296,6 +307,13 @@ export default function RoutineBuilder() {
           </div>
         </div>
       )}
+      <DragOverlay dropAnimation={null}>
+        {activeTask ? (
+          <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            {activeTask.title}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
