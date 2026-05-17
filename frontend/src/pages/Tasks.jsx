@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+
+const TASKS_PER_PAGE = 10;
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, pagination, page, setPage, addTask, updateTask, deleteTask } =
+    useTasks({ initialLimit: TASKS_PER_PAGE });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -35,11 +38,15 @@ export default function Tasks() {
   };
 
   /** --- Insights --- */
-  const totalTasks = tasks.length;
+  const pageTasks = tasks.length;
+  const totalTasks = pagination.totalTasks;
   const completedTasks = tasks.filter((t) => t.status === "Completed").length;
-  const completionPercent = totalTasks
-    ? Math.round((completedTasks / totalTasks) * 100)
+  const completionPercent = pageTasks
+    ? Math.round((completedTasks / pageTasks) * 100)
     : 0;
+  const totalPages = pagination.totalPages;
+  const hasPreviousPage = page > 1;
+  const hasNextPage = totalPages > 0 && page < totalPages;
 
   const now = new Date();
   const threeDaysFromNow = new Date();
@@ -73,7 +80,8 @@ export default function Tasks() {
                 Tasks
               </h1>
               <p className="text-sm text-muted mt-1">
-                {completedTasks}/{totalTasks} completed · Stay consistent
+                {completedTasks}/{pageTasks} completed on this page &middot;{" "}
+                {totalTasks} total tasks
               </p>
             </div>
           </div>
@@ -93,27 +101,51 @@ export default function Tasks() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {tasks.length ? (
-              tasks
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                .map((task) => (
-                  <TaskItem
-                    key={task._id}
-                    task={task}
-                    onToggleComplete={handleToggle}
-                    onDelete={deleteTask}
-                    onEdit={(task) => {
-                      setEditingTask(task);
-                      setIsModalOpen(true);
-                    }}
-                    onUpdate={updateTask}
-                  />
-                ))
+              tasks.map((task) => (
+                <TaskItem
+                  key={task._id}
+                  task={task}
+                  onToggleComplete={handleToggle}
+                  onDelete={deleteTask}
+                  onEdit={(task) => {
+                    setEditingTask(task);
+                    setIsModalOpen(true);
+                  }}
+                  onUpdate={updateTask}
+                />
+              ))
             ) : (
               <div className="rounded-2xl border border-dashed border-soft py-20 text-center">
                 <p className="text-lg font-medium text-main">No tasks yet</p>
                 <p className="text-sm text-muted mt-1">
                   Start with one small win today.
                 </p>
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <button
+                  onClick={() => setPage((currentPage) => currentPage - 1)}
+                  disabled={!hasPreviousPage}
+                  className="btn btn-muted flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
+
+                <p className="text-sm text-muted">
+                  Page {page} of {totalPages}
+                </p>
+
+                <button
+                  onClick={() => setPage((currentPage) => currentPage + 1)}
+                  disabled={!hasNextPage}
+                  className="btn btn-primary flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                  <ChevronRight size={16} />
+                </button>
               </div>
             )}
           </div>
@@ -131,8 +163,8 @@ export default function Tasks() {
                 />
               </div>
               <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}
-                %)
+                {completedTasks} of {pageTasks} visible tasks done (
+                {completionPercent}%)
               </p>
             </div>
 
@@ -153,7 +185,7 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted">No urgent deadlines 🎉</p>
+                <p className="text-xs text-muted">No urgent deadlines</p>
               )}
             </div>
 
@@ -172,7 +204,7 @@ export default function Tasks() {
               <p className="text-xs mt-1 opacity-80">
                 {isOverloaded
                   ? "Consider rescheduling or delegating."
-                  : "You’re pacing this well."}
+                  : "You're pacing this well."}
               </p>
             </div>
           </div>

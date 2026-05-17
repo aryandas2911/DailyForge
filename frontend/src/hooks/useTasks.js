@@ -1,46 +1,86 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api/axios";
 
-const useTasks = () => {
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 100;
+
+const useTasks = ({
+  initialPage = DEFAULT_PAGE,
+  initialLimit = DEFAULT_LIMIT,
+} = {}) => {
   const [tasks, setTasks] = useState([]);
+  const [page, setPage] = useState(initialPage);
+  const [pagination, setPagination] = useState({
+    totalTasks: 0,
+    totalPages: 0,
+    currentPage: initialPage,
+    limit: initialLimit,
+  });
 
   // fetch tasks from database
-  const getTasks = async () => {
+  const getTasks = useCallback(async (pageToFetch = page) => {
     try {
-      const tasks = await api.get("/tasks");
-      setTasks(tasks.data.tasks);
+      const response = await api.get("/tasks", {
+        params: {
+          page: pageToFetch,
+          limit: initialLimit,
+        },
+      });
+      const data = response.data;
+      const totalPages = data.totalPages || 0;
+
+      if (totalPages > 0 && pageToFetch > totalPages) {
+        setPage(totalPages);
+        return;
+      }
+
+      setTasks(data.tasks || []);
+      setPagination({
+        totalTasks: data.totalTasks || 0,
+        totalPages,
+        currentPage: data.currentPage || pageToFetch,
+        limit: data.limit || initialLimit,
+      });
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to load tasks");
+      setTasks([]);
     }
-  };
+  }, [initialLimit, page]);
 
   // create new task
   const addTask = async (taskData) => {
     await api.post("/tasks", taskData);
-    getTasks();
+    if (page === DEFAULT_PAGE) {
+      await getTasks(DEFAULT_PAGE);
+    } else {
+      setPage(DEFAULT_PAGE);
+    }
   };
 
   // update task
   const updateTask = async (id, updates) => {
     await api.put(`/tasks/${id}`, updates);
-    getTasks();
+    await getTasks(page);
   };
 
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
-    getTasks();
+    await getTasks(page);
   };
 
   // initial fetch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
-  }, []);
+  }, [getTasks]);
 
   // return reusable functions
   return {
     tasks,
+    pagination,
+    page,
+    setPage,
     addTask,
     updateTask,
     deleteTask,
