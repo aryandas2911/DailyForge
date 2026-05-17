@@ -10,7 +10,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 dotenv.config();
 const PORT = process.env.PORT;
 
-// Initialize express app
+// Initialize express     
 const app = express();
 
 // Intialize cors
