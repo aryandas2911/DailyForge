@@ -16,6 +16,22 @@ const CONFIG = {
     subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
     cta: "+ Create your first task",
   },
+  today: {
+    icon: (
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>
+        <rect x="14" y="16" width="52" height="48" rx="8" stroke="#6366f1" strokeWidth="2.5" opacity="0.35" />
+        <path d="M14 28h52" stroke="#6366f1" strokeWidth="2.5" opacity="0.25" />
+        <circle cx="28" cy="22" r="2.5" fill="#6366f1" opacity="0.5" />
+        <circle cx="40" cy="22" r="2.5" fill="#6366f1" opacity="0.35" />
+        <circle cx="52" cy="22" r="2.5" fill="#6366f1" opacity="0.25" />
+        <rect x="22" y="38" width="36" height="6" rx="3" fill="#6366f1" opacity="0.2" />
+        <rect x="22" y="50" width="24" height="6" rx="3" fill="#6366f1" opacity="0.12" />
+      </svg>
+    ),
+    heading: "No tasks for today",
+    subtext: "You're all caught up for now. Add a task due today or browse your full list.",
+    cta: "+ Add a task for today",
+  },
   routines: {
     icon: (
       <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>

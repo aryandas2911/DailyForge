@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+import EmptyState from "../EmptyState";
+
 export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
@@ -105,15 +107,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
-          No tasks for today.
-          <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
-            onClick={() => navigate("/tasks")}
-          >
-            Add your first task →
-          </span>
-        </div>
+        <EmptyState type="today" onAction={() => navigate("/tasks")} />
       )}
     </div>
   );
