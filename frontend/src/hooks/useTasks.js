@@ -47,10 +47,13 @@ const useTasks = () => {
     getTasks();
   }, []);
   // bulk delete tasks
-  const bulkDelete = async (ids) => {
-    await api.post("/tasks/bulk-delete", { ids });
-    getTasks();
-  };
+ const bulkDelete = async (ids) => {
+  await api.post("/tasks/bulk-delete", { ids });
+
+  setTasks((prevTasks) =>
+    prevTasks.filter((task) => !ids.includes(task._id))
+  );
+};
   // return reusable functions
   return {
     tasks,
