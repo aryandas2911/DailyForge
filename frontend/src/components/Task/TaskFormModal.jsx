@@ -11,6 +11,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
 
+  const isEditing = Boolean(task);
+  const originalDueDate = task?.dueDate ? task.dueDate.split("T")[0] : "";
+
   const today = new Date();
   const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
   
@@ -36,7 +39,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
 
-    if (dueDate < todayStr) {
+    const dueDateMovedToPast =
+      dueDate < todayStr && (!isEditing || dueDate !== originalDueDate);
+    if (dueDateMovedToPast) {
       return alert("Due date cannot be in the past");
     }
     
@@ -173,7 +178,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <input
               type="date"
               value={dueDate}
-              min={todayStr}
+              min={isEditing ? undefined : todayStr}
               max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
               onClick={(e) => e.target.showPicker?.()}
