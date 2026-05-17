@@ -15,6 +15,12 @@ const CONFIG = {
     heading: "No tasks yet",
     subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
     cta: "+ Create your first task",
+    suggestions: [
+      "Morning Workout",
+      "Study DSA",
+      "Drink Water",
+      "Read 10 Pages",
+    ],
   },
   routines: {
     icon: (
@@ -48,6 +54,20 @@ export default function EmptyState({ type = "tasks", onAction }) {
       </div>
       <h2 className="m-0 text-xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight">{cfg.heading}</h2>
       <p className="m-0 text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[300px]">{cfg.subtext}</p>
+      {cfg.suggestions?.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-2 max-w-[320px]">
+          {cfg.suggestions.map((label) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => onSuggestion?.(label)}
+              className="px-3 py-1.5 text-xs font-medium rounded-full border border-indigo-200 dark:border-slate-600 text-indigo-700 dark:text-indigo-300 bg-white/80 dark:bg-slate-800/80 hover:border-indigo-400 dark:hover:border-indigo-400 transition-colors"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
