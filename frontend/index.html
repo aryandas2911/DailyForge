@@ -2,6 +2,19 @@
 <html lang="en">
 
 <head>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem("theme");
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (theme === "dark" || (theme !== "light" && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {
+        /* ignore storage errors */
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
