@@ -1,4 +1,5 @@
-import { MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { useState } from "react";
+import { MoreVertical, Trash2, X } from "lucide-react";
 
 export default function RoutineOverviewModal({
   routine,
@@ -7,11 +8,10 @@ export default function RoutineOverviewModal({
   isRoutineStarted,
   handleStartRoutine,
   handleStopRoutine,
-  showMenu,
-  setShowMenu,
-  handleEditRoutine,
   handleDeleteRoutine,
 }) {
+
+const [showMenu, setShowMenu] = useState(false);
 
   const tasksByDay = routine.items.reduce((acc, item) => {
 
@@ -29,8 +29,7 @@ export default function RoutineOverviewModal({
   }, {});
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-in">
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/50 backdrop-blur-sm px-4 animate-in">
       <div className="card card-primary w-full max-w-2xl rounded-3xl p-6 animate-in delay-100 shadow-2xl border border-soft max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
@@ -66,25 +65,23 @@ export default function RoutineOverviewModal({
 
             {/* 3-dot menu */}
             <button
-              onClick={() => setShowMenu((prev) => !prev)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMenu((prev) => !prev);
+              }}
               className="rounded-xl border border-soft p-2 hover:bg-white/10 transition"
             >
               <MoreVertical size={18} />
             </button>
 
             {showMenu && (
-              <div className="absolute top-12 right-10 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+              <div className="absolute top-12 right-0 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
 
                 <button
-                  onClick={handleEditRoutine}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-black/5 dark:hover:bg-white/5 transition"
-                >
-                  <Pencil size={16} />
-                  Edit Routine
-                </button>
-
-                <button
-                  onClick={handleDeleteRoutine}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteRoutine();
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition"
                 >
                   <Trash2 size={16} />

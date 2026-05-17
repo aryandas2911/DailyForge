@@ -220,11 +220,12 @@ export default function RoutineBuilder() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => (
                 <RoutineCard
-                    key={routine._id}
-                    routine={routine}
-                    tasks={tasks}
-                    activeRoutine={activeRoutine}
-                    setActiveRoutine={setActiveRoutine}
+                  key={routine._id}
+                  routine={routine}
+                  tasks={tasks}
+                  activeRoutine={activeRoutine}
+                  setActiveRoutine={setActiveRoutine}
+                  fetchRoutines={fetchRoutines}
                 />
             ))}
             </div>

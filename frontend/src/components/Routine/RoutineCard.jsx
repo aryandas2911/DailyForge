@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
+import api from "../../api/axios.js";
 
 export default function RoutineCard({
   routine,
   tasks,
   activeRoutine,
   setActiveRoutine,
+  fetchRoutines,
 }) {
 
   const [isOpen, setIsOpen] = useState(false);
@@ -203,15 +205,30 @@ export default function RoutineCard({
     );
   };
 
-  const handleEditRoutine = () => {
-    alert("Edit routine functionality coming next phase");
-    setShowMenu(false);
-  };
+  const handleDeleteRoutine = async () => {
 
-  const handleDeleteRoutine = () => {
-    alert("Delete routine functionality coming next phase");
+  try {
+    console.log("DELETE CLICKED");
+    await api.delete(
+      `/routines/${routine._id}`
+    );
+
+    if (isRoutineStarted) {
+
+      handleStopRoutine();
+    }
+
+    await fetchRoutines();
+
     setShowMenu(false);
-  };
+    setIsOpen(false);
+
+  } catch (err) {
+
+    console.error(err);
+    alert("Failed to delete routine");
+  }
+ };
 
   return (
     <>
@@ -287,17 +304,6 @@ export default function RoutineCard({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleEditRoutine();
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-black/5 dark:hover:bg-white/5 transition"
-              >
-                <Pencil size={16} />
-                Edit Routine
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
                   handleDeleteRoutine();
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition"
@@ -367,7 +373,6 @@ export default function RoutineCard({
           handleStopRoutine={handleStopRoutine}
           showMenu={showMenu}
           setShowMenu={setShowMenu}
-          handleEditRoutine={handleEditRoutine}
           handleDeleteRoutine={handleDeleteRoutine}
         />
       )}
