@@ -4,7 +4,7 @@ import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
 
-export default function TaskFormModal({ task, onClose, onSubmit }) {
+export default function TaskFormModal({ task, onClose, onSubmit, initialTitle = "" }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
