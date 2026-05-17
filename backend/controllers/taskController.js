@@ -1,5 +1,6 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
+import routineModel from "../src/models/Routine.js";
 import { validationResult } from "express-validator";
 
 // Create task function
@@ -196,6 +197,12 @@ export const bulkDeleteTasks = async (req, res) => {
 
     // delete all matching tasks belonging to this user
     await Task.deleteMany({ _id: { $in: ids }, userId: userId });
+
+    // remove orphaned task references from the user's routines
+    await routineModel.updateMany(
+      { userId },
+      { $pull: { items: { taskId: { $in: ids } } } }
+    );
 
     return res
       .status(200)
