@@ -9,6 +9,7 @@ import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <ScrollToTop />
     </BrowserRouter>
   );
 };
