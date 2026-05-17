@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 
+const UNDO_DELAY_MS = 5000;
+
 const useTasks = () => {
   const [tasks, setTasks] = useState([]);
 
-  // fetch tasks from database
   const getTasks = async () => {
     try {
       const tasks = await api.get("/tasks");
@@ -14,16 +15,14 @@ const useTasks = () => {
     }
   };
 
-  // create new task
   const addTask = async (taskData) => {
     await api.post("/tasks", taskData);
     getTasks();
   };
 
-  // update task
   const updateTask = async (id, updates) => {
     setTasks((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t)),
     );
     try {
       await api.put(`/tasks/${id}`, updates);
@@ -34,24 +33,55 @@ const useTasks = () => {
     }
   };
 
-  // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
-    // fix : This line refreshes the UI!
-    setTasks(prev => prev.filter(t => t._id !== id)); 
+    const removed = tasks.find((t) => t._id === id);
+    if (!removed) {
+      return null;
+    }
+
+    setTasks((prev) => prev.filter((t) => t._id !== id));
+
+    let committed = false;
+    const timerId = window.setTimeout(async () => {
+      committed = true;
+      try {
+        await api.delete(`/tasks/${id}`);
+      } catch (error) {
+        console.log(error?.response?.data?.message || "Failed to delete task");
+        setTasks((prev) => {
+          if (prev.some((t) => t._id === id)) {
+            return prev;
+          }
+          return [...prev, removed];
+        });
+      }
+    }, UNDO_DELAY_MS);
+
+    return () => {
+      if (committed) {
+        return false;
+      }
+      window.clearTimeout(timerId);
+      setTasks((prev) => {
+        if (prev.some((t) => t._id === id)) {
+          return prev;
+        }
+        return [...prev, removed];
+      });
+      return true;
+    };
   };
 
-  // initial fetch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
-  // bulk delete tasks
+
   const bulkDelete = async (ids) => {
     await api.post("/tasks/bulk-delete", { ids });
     getTasks();
   };
-  // return reusable functions
+
   return {
     tasks,
     addTask,

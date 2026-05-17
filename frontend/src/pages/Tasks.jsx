@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
@@ -15,6 +15,15 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [undoBanner, setUndoBanner] = useState(null);
+
+  useEffect(() => {
+    if (!undoBanner) {
+      return undefined;
+    }
+    const timerId = window.setTimeout(() => setUndoBanner(null), 5000);
+    return () => window.clearTimeout(timerId);
+  }, [undoBanner]);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -22,7 +31,28 @@ export default function Tasks() {
     );
   };
 
+  const handleDeleteTask = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this task?")) {
+      return;
+    }
+    const task = tasks.find((t) => t._id === id);
+    const undo = await deleteTask(id);
+    if (undo) {
+      setUndoBanner({
+        label: task?.title || "Task",
+        undo,
+      });
+    }
+  };
+
   const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Delete ${selectedIds.length} selected task${selectedIds.length === 1 ? "" : "s"}?`,
+      )
+    ) {
+      return;
+    }
     await bulkDelete(selectedIds);
     setSelectedIds([]);
   };
@@ -183,7 +213,7 @@ export default function Tasks() {
                     task={task}
                     onToggleComplete={handleToggle}
                     // fix : Ensure onDelete is explicitely reciving the id
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={handleDeleteTask}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
@@ -280,6 +310,24 @@ export default function Tasks() {
           </div>
         </div>
       </div>
+
+      {undoBanner && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-4 rounded-xl border border-soft bg-white px-4 py-3 shadow-lg dark:bg-slate-800">
+          <p className="text-sm text-main">
+            Deleted &quot;{undoBanner.label}&quot;
+          </p>
+          <button
+            type="button"
+            className="text-sm font-semibold text-primary hover:underline cursor-pointer"
+            onClick={() => {
+              undoBanner.undo();
+              setUndoBanner(null);
+            }}
+          >
+            Undo
+          </button>
+        </div>
+      )}
 
       {/* Task Modal */}
       {isModalOpen && (
