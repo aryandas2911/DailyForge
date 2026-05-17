@@ -4,9 +4,9 @@ import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
 
 const priorityStyles = {
-  Low: "border-green-500 bg-green-50",
-  Medium: "border-yellow-500 bg-yellow-50",
-  High: "border-red-500 bg-red-50",
+  Low: "border-green-500 bg-green-50 dark:bg-green-950/20",
+  Medium: "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20",
+  High: "border-red-500 bg-red-50 dark:bg-red-950/20",
 };
 
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {

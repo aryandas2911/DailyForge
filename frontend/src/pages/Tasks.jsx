@@ -212,7 +212,7 @@ export default function Tasks() {
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
                   style={{ width: `${completionPercent}%` }}
@@ -264,8 +264,8 @@ export default function Tasks() {
             <div
               className={`card p-4 ${
                 isOverloaded
-                  ? "bg-red-50 text-red-600"
-                  : "bg-green-50 text-green-700"
+                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
+                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
               }`}
             >
               <p className="text-sm font-medium">
