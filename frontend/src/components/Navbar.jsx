@@ -35,6 +35,20 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  // Prevent background scroll while the mobile drawer is open
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (confirmed) {
@@ -171,13 +185,24 @@ const Navbar = () => {
       {/* Mobile Navigation Dropdown */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
-          >
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/40 md:hidden"
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="relative z-50 md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+            >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {token && navLinks.map((link) => (
                 <NavLink
@@ -252,7 +277,8 @@ const Navbar = () => {
                 )}
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.nav>
