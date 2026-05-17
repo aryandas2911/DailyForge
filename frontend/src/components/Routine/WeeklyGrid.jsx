@@ -31,12 +31,12 @@ const timeToMinutes = (time) => {
 };
 
 /* ---------------- Droppable Cell ---------------- */
-function DroppableCell({ day, time, tasks }) {
+function DroppableCell({ day, time, tasks , onDeleteTask}) {
   const { setNodeRef, isOver } = useDroppable({
     id: `${day}-${time}`,
     data: {
       day,
-      startTime: timeToMinutes(time),
+      startTime: timeToMinutes(time), 
     },
   });
 
@@ -56,7 +56,18 @@ function DroppableCell({ day, time, tasks }) {
                      text-white text-xs font-medium
                      flex items-center justify-center shadow animate-in"
         >
-          {task.title}
+          <span>{task.title}</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); //prevents drag from trigerring 
+              onDeleteTask(task.taskId, day);
+            }}
+            className="absolute -top-1 -right-1 w-5 h-5 rounded-full 
+             bg-red-500 text-white text-xs font-bold
+             flex items-center justify-center
+             shadow-md hover:bg-red-600 transition-colors
+             border border-white"
+          >X</button>
         </div>
       ))}
     </div>
@@ -64,7 +75,7 @@ function DroppableCell({ day, time, tasks }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
+export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask }) {
   return (
     <div className="card card-primary overflow-x-auto animate-in">
       <h2 className="text-lg font-semibold text-main mb-4">Weekly Schedule</h2>
@@ -114,6 +125,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay }) {
                 tasks={scheduledTasks.filter(
                   (t) => t.day === day && t.startTime === timeToMinutes(time)
                 )}
+                onDeleteTask={onDeleteTask}
               />
             ))}
           </div>
