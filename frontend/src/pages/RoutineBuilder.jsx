@@ -157,7 +157,7 @@ export default function RoutineBuilder() {
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
           <button
             onClick={() => navigate("/dashboard")}
-            className="mt-1 rounded-lg p-2 border border-soft text-muted hover:bg-white transition cursor-pointer"
+            className="mt-1 rounded-lg p-2 border border-soft text-muted dark:text-gray-200 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition cursor-pointer"
           >
             <ArrowLeft size={16} />
           </button>
@@ -286,7 +286,7 @@ export default function RoutineBuilder() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description (optional)"
               rows="3"
-              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-transparent text-main resize-none"
+              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary dark:focus:ring-primary bg-white dark:bg-transparent dark:text-white resize-none"
             />
 
             <div className="flex justify-end gap-3">

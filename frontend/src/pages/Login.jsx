@@ -84,6 +84,10 @@ const Login = () => {
             shadow-xs
             input-focus
             hover-lift
+            dark:bg-gray-700
+            dark:text-white
+            dark:border-gray-600
+            dark:placeholder:text-gray-400
           "
         />
       </div>
@@ -108,16 +112,20 @@ const Login = () => {
               text-sm
               surface-bg
               border-soft
-              rounded-base
+              rounded-sm
               shadow-xs
               input-focus
               hover-lift
+              dark:bg-gray-700
+              dark:text-white
+              dark:border-gray-600
+              dark:placeholder:text-gray-400
             "
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main dark:text-gray-300 dark:hover:text-white transition-colors cursor-pointer flex items-center justify-center"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

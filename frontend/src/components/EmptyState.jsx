@@ -39,6 +39,7 @@ const CONFIG = {
 export default function EmptyState({ type = "tasks", onAction }) {
   const [hovered, setHovered] = useState(false);
   const cfg = CONFIG[type] ?? CONFIG.tasks;
+  const isDark = document.documentElement.classList.contains("dark");
 
   return (
     <div className="relative flex flex-col items-center justify-center gap-4 px-8 py-14 rounded-[20px] bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-slate-800/30 dark:to-slate-800/50 border border-dashed border-purple-200 dark:border-slate-700 max-w-[420px] mx-auto text-center overflow-hidden font-sans shadow-xs">

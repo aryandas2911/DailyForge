@@ -84,7 +84,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              className="w-full mt-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Task title"
               required
             />
@@ -101,7 +101,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               onChange={(e) =>
                 setDescription(e.target.value)
               }
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              className="w-full mt-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Optional task description"
               rows={3}
               maxLength={300}
@@ -156,7 +156,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
+              className="w-full mt-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 focus:ring-(--primary) focus:border-(--primary)"
               required
             >
               {priorities.map((p) => (
@@ -177,7 +177,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
               onClick={(e) => e.target.showPicker?.()}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              className="w-full mt-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 focus:ring-(--primary) focus:border-(--primary)"
               required
             />
           </div>

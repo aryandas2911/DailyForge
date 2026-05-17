@@ -2,11 +2,12 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import ThemeToggle from "./ThemeToggle";
 
 // Utility for merging tailwind classes safely
 function cn(...inputs) {
@@ -91,7 +92,7 @@ const Navbar = () => {
                       "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
                       isActive
                         ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0] dark:text-gray-300 dark:hover:bg-gray-800"
                     )
                   }
                 >
@@ -104,26 +105,12 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Premium Dark Mode Toggle */}
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 15 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
-              aria-label="Toggle dark mode"
-            >
-              {theme === "dark" ? (
-                <Sun size={18} className="text-yellow-400 fill-yellow-400" />
-              ) : (
-                <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
-              )}
-            </motion.button>
-
+            <ThemeToggle />
             {!token ? (
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
                 >
                   Login
                 </Link>
@@ -147,9 +134,10 @@ const Navbar = () => {
 
           {/* Mobile Menu Toggle Button */}
           <div className="md:hidden flex items-center">
+            <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
+              className="p-2 rounded-xl text-[#3b8ea0] dark:text-white hover:bg-[#d0f6e3] dark:hover:bg-gray-800 transition-colors focus:outline-none"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -176,7 +164,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-soft dark:border-gray-700/60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {token && navLinks.map((link) => (
@@ -189,7 +177,7 @@ const Navbar = () => {
                       "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
                       isActive
                         ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        : "text-[#4eb7b3] dark:text-gray-300 hover:bg-[#d0f6e3]/50 dark:hover:bg-gray-800 hover:text-[#3b8ea0]"
                     )
                   }
                 >
@@ -227,7 +215,7 @@ const Navbar = () => {
                     <Link
                       to="/login"
                       onClick={() => setIsOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-[#d0f6e3] transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3]  dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
                     >
                       <LogIn size={18} />
                       Login

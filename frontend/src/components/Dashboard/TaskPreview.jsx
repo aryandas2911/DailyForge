@@ -54,7 +54,7 @@ export default function TaskPreview({ tasks , updateTask}) {
             return (
             <div
               key={task._id}
-              className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
+              className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200 shadow-sm hover:shadow-md
               ${priorityBorder[task.priority]}
               bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm`}
             >
@@ -75,8 +75,8 @@ export default function TaskPreview({ tasks , updateTask}) {
                 <p
                   className={`text-sm font-medium ${
                     task.status === "Completed"
-                      ? "line-through decoration-2 decoration-muted text-muted"
-                      : "text-main"
+                      ? "line-through decoration-2 decoration-muted text-muted dark:text-gray-300"
+                      : "text-main dark:text-white"
                   }`}
                 >
                   {task.title}
@@ -92,7 +92,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   </span>
 
                   {task.dueDate && (
-                    <span className="text-[11px] text-muted">
+                    <span className="text-[11px] text-muted dark:text-gray-300">
                       {new Date(task.dueDate).toLocaleDateString("en-US", {
                         weekday: "short",
                       })}
@@ -114,7 +114,7 @@ export default function TaskPreview({ tasks , updateTask}) {
          ) })}
         </div>
       ) : (
-        <p className="text-sm text-muted text-center py-6">
+        <p className="text-sm text-muted dark:text-gray-300 text-center py-6">
           No upcoming tasks.
         </p>
       )}
@@ -122,7 +122,7 @@ export default function TaskPreview({ tasks , updateTask}) {
       <div className="mt-4 text-sm text-primary">
         <button
           onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
+          className="hover:opacity-80 cursor-pointer transition-colors duration-200"
         >
           View All Tasks →
         </button>

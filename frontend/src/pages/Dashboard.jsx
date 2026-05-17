@@ -134,7 +134,7 @@ export default function Dashboard() {
             icon={<CheckCircle2 size={20} />}
           />
         </div>
-        <div className="flex-1 animate-in delay-200">
+        <div className="flex-1 animate-in delay-200 transition-none">
           <StatCard
             label="This Week"
             value={`${weeklyCompletionPercent}%`}
@@ -165,7 +165,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
             <button
-              className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
+              className="text-sm text-primary hover:opacity-80 underline-offset-4 cursor-pointer transition-colors duration-200 flex items-center gap-1"
               onClick={() => navigate("/routine-builder")}
             >
               Build
@@ -184,7 +184,7 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
                   <p className="font-medium text-main">{routine.name}</p>
                   {routine.description && (
