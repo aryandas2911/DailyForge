@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
     return config;
   } catch (error) {
     // Handle error
-    console.log(error);
+    console.error(error);
     return Promise.reject(error);
   }
 });

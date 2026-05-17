@@ -37,8 +37,6 @@ const Signup = () => {
         email,
         password,
       });
-      console.log("Signup success: ", res.data);
-
       // save token in localstorage for later api calls
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
@@ -50,11 +48,8 @@ const Signup = () => {
       // redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
-      console.log("Signup failed");
       const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
       setError(errorMessage);
-      console.log(errorMessage);
     } finally {
       // reset loading state
       setIsLoading(false);

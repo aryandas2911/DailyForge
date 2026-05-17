@@ -28,8 +28,6 @@ const Login = () => {
         email,
         password,
       });
-      console.log("Login success: ", res.data);
-
       // save token in localstorage for later api calls
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
@@ -41,9 +39,6 @@ const Login = () => {
       // redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
-      console.log("Login failed");
-      console.log(error.response?.data || error.message);
       setError(error.response?.data?.message || "Invalid email or password.");
     }
   };
