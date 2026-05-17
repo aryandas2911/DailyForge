@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { DndContext } from "@dnd-kit/core";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
@@ -20,6 +26,12 @@ export default function RoutineBuilder() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
+
+  // Configure sensors for drag-and-drop (mouse + keyboard)
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
 
   const handleSubmit = async (data) => {
     try {
@@ -94,6 +106,19 @@ export default function RoutineBuilder() {
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
+
+  // Removing Schedule task after drag
+  const removeScheduledTask = (taskId , day) => {
+
+    //filtering out 
+    setScheduledTasks((prevTasks) => 
+      prevTasks.filter((task) => {
+        return !(task.taskId === taskId && task.day === day);
+      })
+    );
+  };
+
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over) return;
@@ -115,7 +140,7 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
@@ -144,6 +169,7 @@ export default function RoutineBuilder() {
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
+              onDeleteTask={removeScheduledTask} //Passing Removing function to weeklygrid
             />
           </section>
         </div>
@@ -241,7 +267,7 @@ export default function RoutineBuilder() {
               value={routineName}
               onChange={(e) => setRoutineName(e.target.value)}
               placeholder="Routine name"
-              className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
+              className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
             />
 
             <textarea
@@ -249,7 +275,7 @@ export default function RoutineBuilder() {
               onChange={(e)=> setDescription(e.target.value)}
               placeholder="Add a description (optional)"
               rows="3"
-              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-white resize-none"
+              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-transparent text-main resize-none"
             />
 
             <div className="flex justify-end gap-3">
