@@ -30,6 +30,9 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+import { getGreeting } from "../utils/getGreeting";
+
+export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -41,6 +44,22 @@ export default function Dashboard() {
   const today = new Date();
 
   // Today's tasks
+ 
+
+  //quotes array and random selection
+  const motivationalQuotes = [
+    "Win the morning, win the day.",
+    "Small progress is still progress.",
+    "Discipline beats motivation.",
+    "Push yourself, because no one else will.",
+    "Stay consistent and trust the process.",
+  ];
+
+  const [quote] = useState(() => {
+    return motivationalQuotes[
+      Math.floor(Math.random() * motivationalQuotes.length)
+    ];
+  });
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
 
@@ -113,6 +132,30 @@ export default function Dashboard() {
             <LiveClock />
           </div>
         </div>
+        {/* Display time */}
+       <div className="w-full">
+  <h1 className="text-2xl font-semibold text-main leading-tight">
+    {getGreeting()}, {user?.name}
+  </h1>
+
+  <p className="text-sm italic text-primary mt-2">
+    "{quote}"
+  </p>
+
+  <div className="flex justify-between items-center mt-1 w-full">
+    <p className="text-sm text-muted">
+      {new Date()
+        .toLocaleDateString("en-US", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+        })
+        .replace(",", " ·")}
+    </p>
+
+    <LiveClock />
+  </div>
+</div>
       </header>
 
       {/* Stats Row */}
@@ -143,7 +186,7 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks />
+        <DashboardTasks tasks={tasks} updateTask={updateTask} />
       </div>
 
       {/* Achievements */}
@@ -217,7 +260,7 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
                   <p className="font-medium text-main">
                     {routine.name}
