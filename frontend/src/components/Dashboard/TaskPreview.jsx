@@ -99,7 +99,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                     </span>
                   )}
 
-                  {/*Disply Remaining Time */}
+                  {/* Display remaining time */}
                   {task.dueDate && (
                     <span className="text-[11px] text-red-500 font-medium">
                       {remainingTime > 0
@@ -119,10 +119,11 @@ export default function TaskPreview({ tasks , updateTask}) {
         </p>
       )}
 
-      <div className="mt-4 text-sm text-primary">
+      <div className="mt-4 text-sm">
         <button
+          type="button"
           onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
+          className="text-primary hover:underline underline-offset-4 cursor-pointer"
         >
           View All Tasks →
         </button>
