@@ -8,6 +8,15 @@ export const signup = async (req, res) => {
     // fetch values from request
     const { name, email, password } = req.body;
 
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ message: "Name must be at least 2 characters long" });
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!password || !passwordRegex.test(password)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character" });
+    }
+
     // check user exists or not
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
