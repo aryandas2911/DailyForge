@@ -125,9 +125,13 @@ html.dark, html.dark body {
     @apply shadow-md;
   }
 
-  .card-muted {
-    @apply bg-white/80;
-  }
+   .card-muted {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .card-muted {
+  background-color: #1e293b;
+}
 
   .card-primary {
     @apply shadow-md;

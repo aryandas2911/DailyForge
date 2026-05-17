@@ -41,13 +41,18 @@ export default function EmptyState({ type = "tasks", onAction }) {
   const cfg = CONFIG[type] ?? CONFIG.tasks;
 
   return (
-    <div className="relative flex flex-col items-center justify-center gap-4 px-8 py-14 rounded-[20px] bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-slate-800/30 dark:to-slate-800/50 border border-dashed border-purple-200 dark:border-slate-700 max-w-[420px] mx-auto text-center overflow-hidden font-sans shadow-xs">
-      <div className="absolute -top-10 -right-10 w-[180px] h-[180px] rounded-full bg-radial from-purple-500/10 to-transparent pointer-events-none" />
-      <div className="flex items-center justify-center w-[100px] h-[100px] rounded-full bg-purple-100/50 dark:bg-slate-800/80 shadow-[0_0_0_12px_rgba(245,243,255,0.5),0_0_0_20px_rgba(237,233,254,0.3)] dark:shadow-[0_0_0_12px_rgba(30,41,59,0.3),0_0_0_20px_rgba(15,23,42,0.2)] mb-1">
+    
+    <div className="relative flex flex-col items-center justify-center gap-4 px-8 py-14 rounded-[20px] bg-gradient-to-br from-slate-100 to-purple-50 dark:from-slate-700 dark:to-slate-800 border border-dashed border-purple-200 dark:border-slate-700 max-w-[420px] mx-auto text-center overflow-hidden font-sans shadow-lg">
+      
+      <div className="absolute -top-10 -right-10 w-[180px] h-[180px] rounded-full bg-radial from-purple-500/20 dark:from-cyan-400/10 to-transparent pointer-events-none" />
+      
+      <div className="flex items-center justify-center w-[100px] h-[100px] rounded-full bg-purple-100/50 dark:bg-slate-700 shadow-[0_0_0_12px_rgba(245,243,255,0.5),0_0_0_20px_rgba(237,233,254,0.3)] dark:shadow-[0_0_0_12px_rgba(30,41,59,0.3),0_0_0_20px_rgba(15,23,42,0.2)] mb-1">
         {cfg.icon}
       </div>
-      <h2 className="m-0 text-xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight">{cfg.heading}</h2>
-      <p className="m-0 text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[300px]">{cfg.subtext}</p>
+      
+      <h2 className="m-0 text-xl font-bold text-indigo-900 dark:text-white tracking-tight">{cfg.heading}</h2>
+      
+      <p className="m-0 text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-[300px]">{cfg.subtext}</p>
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
