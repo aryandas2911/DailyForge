@@ -38,17 +38,17 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg animate-fadeIn">
       <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-modalPop">
         
 
-        <div className=" bg-teal-900 px-8 pt-5 pb-3">
-          <div className="flex items-center justify-between gap-2">
-              <div className="flex h-14 w-14 items-center justify-center rounded-4xl bg-white/10 backdrop-blur-sm">
-          <ClipboardPlus size={30} className="text-teal-100"/>
+        <div className=" bg-teal-900 px-8 pt-5 pb-4 ">
+          <div className="flex items-center justify-between">
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-sm">
+          <ClipboardPlus size={28} className="text-teal-100"/>
           </div>
           {/* text  */}
-          <div className=" -space-y-1">
+          <div className="space-y-1">
             <span className="text-xs font-bold tracking-[0.2em] text-teal-400 uppercase">
               {task ? "Edit Task" : "New Task"}
             </span>

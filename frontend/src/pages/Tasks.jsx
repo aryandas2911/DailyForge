@@ -74,6 +74,7 @@ export default function Tasks() {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
+    <>
     <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
         {/* Header */}
@@ -221,6 +222,7 @@ export default function Tasks() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Task Modal */}
       {isModalOpen && (
@@ -230,6 +232,6 @@ export default function Tasks() {
           onSubmit={handleSubmit}
         />
       )}
-    </div>
+      </>
   );
 }
