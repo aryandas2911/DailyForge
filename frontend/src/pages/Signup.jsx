@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
@@ -8,11 +9,10 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
-  // error state
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -62,6 +62,11 @@ const Signup = () => {
     
     setIsLoading(true);
 
+    if (!validate()) return;
+    // set loading state
+    setIsLoading(true);
+    setError("");
+
     // send request to server
     try {
       const res = await api.post("/auth/signup", {
@@ -84,21 +89,27 @@ const Signup = () => {
     } catch (error) {
       // handle error
       console.log("Signup failed");
-      console.log(error.response?.data || error.message);
-      setErrors({ 
-        submit: error.response?.data?.message || "Signup failed. Please try again." 
-      });
+      const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
+      setError(errorMessage);
+      console.log(errorMessage);
     } finally {
+      // reset loading state
       setIsLoading(false);
     }
   };
 
-  // clear field error when user types
-  const handleFieldChange = (field, value, setter) => {
-    setter(value);
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+  const validate = () => {
+    const newErrors = {};
+    if (name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters long";
     }
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // signup component
@@ -141,16 +152,13 @@ const Signup = () => {
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-sm
             shadow-xs
             input-focus hover-lift
-            ${errors.name ? "border-red-500 focus:border-red-500" : ""}
+            ${errors.name ? "border-red-500" : "border-soft"}
           `}
         />
-        {errors.name && (
-          <p className="text-xs text-red-500 mt-0.5">{errors.name}</p>
-        )}
+        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
 
       {/* Email Field */}
@@ -205,64 +213,56 @@ const Signup = () => {
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-base
             shadow-xs
             input-focus hover-lift
-            ${errors.password ? "border-red-500 focus:border-red-500" : ""}
+            ${errors.password ? "border-red-500" : "border-soft"}
           `}
         />
-        {errors.password && (
-          <p className="text-xs text-red-500 mt-0.5">{errors.password}</p>
-        )}
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+            placeholder="••••••••"
+            required
+            className="
+              w-full px-3 py-2.5 pr-10
+              text-sm
+              surface-bg
+              border-soft
+              rounded-base
+              shadow-xs
+              input-focus hover-lift
+            "
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
       </div>
 
-      {/* Confirm Password Field */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-main">
-          Confirm Password
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => {
-            handleFieldChange("confirmPassword", e.target.value, setConfirmPassword);
-          }}
-          placeholder="Confirm your password"
-          required
-          className={`
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-base
-            shadow-xs
-            input-focus hover-lift
-            ${errors.confirmPassword ? "border-red-500 focus:border-red-500" : ""}
-          `}
-        />
-        {errors.confirmPassword && (
-          <p className="text-xs text-red-500 mt-0.5">{errors.confirmPassword}</p>
-        )}
-      </div>
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+        </div>
+      )}
 
       <button
         type="submit"
         disabled={isLoading}
         className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Creating account...
-          </span>
-        ) : (
-          "Sign Up"
-        )}
+        {isLoading ? "Signing up..." : "Sign Up"}
       </button>
 
       <p className="text-center text-sm text-muted">
