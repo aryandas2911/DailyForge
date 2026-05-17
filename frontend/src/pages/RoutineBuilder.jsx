@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
+import { findOverlappingTask } from "../utils/routineSchedule.js";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -91,7 +92,10 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const message =
+        err.response?.data?.message ||
+        "Failed to save routine. Check for overlapping time slots.";
+      alert(message);
     }
   };
 
@@ -128,6 +132,21 @@ export default function RoutineBuilder() {
     const task = active.data.current?.task;
     if (!task) return;
     const { day, startTime } = over.data.current;
+    const duration = 60;
+
+    const conflict = findOverlappingTask(
+      scheduledTasks,
+      day,
+      startTime,
+      duration,
+      task._id,
+    );
+    if (conflict) {
+      alert(
+        `Time slot conflicts with "${conflict.title}" on ${day}. Remove or reschedule the other task first.`,
+      );
+      return;
+    }
 
     setScheduledTasks((prev) => [
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
@@ -136,7 +155,7 @@ export default function RoutineBuilder() {
         title: task.title,
         day,
         startTime,
-        duration: 60,
+        duration,
       },
     ]);
   };
