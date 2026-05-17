@@ -8,7 +8,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 
 // dotenv config
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 // Initialize express app
 const app = express();

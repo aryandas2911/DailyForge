@@ -25,11 +25,20 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
-    if (!title || !priority || !status) {
+    const { title, description, tags, priority, status, dueDate, duration } = req.body;
+    const taskDuration = Number(duration);
+
+    if (!title || !priority || !status || !dueDate || !taskDuration) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
+    }
+
+    if (Number.isNaN(taskDuration) || taskDuration < 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Duration must be at least 10 minutes",
+      });
     }
 
     // new task object
@@ -40,6 +49,7 @@ export const createTask = async (req, res) => {
       tags,
       priority,
       status,
+      duration: taskDuration,
       dueDate,
     });
 
@@ -72,11 +82,6 @@ export const getTasks = async (req, res) => {
 
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
-    if (tasks.length == 0) {
-      return res
-        .status(400)
-        .json({ message: "User has no task", success: false });
-    }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
     // error handling
@@ -111,6 +116,9 @@ export const updateTask = async (req, res) => {
 
     // fetch update task details
     const updates = req.body;
+    if (updates.duration !== undefined) {
+      updates.duration = Number(updates.duration);
+    }
     const taskId = req.params.id;
 
     // fetch task from database and update
