@@ -3,18 +3,17 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoutes = ({ children }) => {
+  const { token, initializing } = useContext(AuthContext);
 
-  // access token from AuthContext
-  const { token } = useContext(AuthContext);
+  if (initializing) {
+    return null;
+  }
 
-  // if token doesn't exist, return to login page
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  // else return the children component
-  else {
-    return children;
-  }
+
+  return children;
 };
 
 export default ProtectedRoutes;

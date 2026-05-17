@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   // useNavigate object
   const navigate = useNavigate();
 
@@ -21,8 +22,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // send request to server
     try {
       const res = await api.post("/auth/login", {
         email,
@@ -41,10 +43,9 @@ const Login = () => {
       // redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
-      console.log("Login failed");
-      console.log(error.response?.data || error.message);
       setError(error.response?.data?.message || "Invalid email or password.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -131,9 +132,10 @@ const Login = () => {
       )}
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        disabled={isLoading}
+        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Login
+        {isLoading ? "Logging in..." : "Login"}
       </button>
 
       <p className="text-center text-sm text-muted">
