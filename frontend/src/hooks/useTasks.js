@@ -29,7 +29,8 @@ const useTasks = () => {
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
-    getTasks();
+    // fix : This line refreshes the UI!
+    setTasks(prev => prev.filter(t => t._id !== id)); 
   };
 
   // initial fetch
@@ -37,13 +38,18 @@ const useTasks = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
-
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
+    getTasks();
+  };
   // return reusable functions
   return {
     tasks,
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
