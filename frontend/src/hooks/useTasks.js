@@ -22,6 +22,8 @@ const useTasks = () => {
 
   // update task
   const updateTask = async (id, updates) => {
+    if (!id) return;
+
     setTasks((prev) =>
       prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
     );

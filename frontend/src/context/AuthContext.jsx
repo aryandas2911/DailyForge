@@ -9,6 +9,7 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [authReady, setAuthReady] = useState(() => !localStorage.getItem("token"));
 
   // logout function
   const logout = () => {
@@ -19,22 +20,29 @@ const AuthProvider = ({ children }) => {
 
   // restore session on app load
   useEffect(() => {
-    if (token) {
-      // fetch logged-in user
-      api
-        .get("/auth/me")
-        .then((res) => {
-          setUser(res.data.user);
-        })
-        .catch(() => {
-          // token invalid or expired
-          logout();
-        });
+    if (!token) {
+      setAuthReady(true);
+      return;
     }
+
+    setAuthReady(false);
+    api
+      .get("/auth/me")
+      .then((res) => {
+        setUser(res.data.user);
+      })
+      .catch(() => {
+        logout();
+      })
+      .finally(() => {
+        setAuthReady(true);
+      });
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, authReady, setUser, setToken, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

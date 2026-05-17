@@ -61,13 +61,16 @@ export default function TaskPreview({ tasks , updateTask}) {
               {/* Checkbox */}
               <input
                 type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
+                className="h-4 w-4 accent-[var(--primary)] cursor-pointer"
                 checked={task.status === "Completed"}
-                onChange={() =>
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  if (!task?._id) return;
                   updateTask(task._id, {
                     status: task.status === "Completed" ? "Due" : "Completed",
-                  })
-                }
+                  });
+                }}
               />
 
               {/* Content */}
