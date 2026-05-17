@@ -82,7 +82,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   {task.title}
                 </p>
 
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <span
                     className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
                       priorityBadge[task.priority]

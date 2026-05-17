@@ -29,7 +29,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           shadow-sm hover:shadow-md transition
         `}
       >
-        <div className="flex items-center gap-6 px-6 py-6">
+        <div className="flex items-center gap-3 sm:gap-6 px-4 sm:px-6 py-4 sm:py-6">
           {/* Selection Checkbox */}
           <input
             type="checkbox"

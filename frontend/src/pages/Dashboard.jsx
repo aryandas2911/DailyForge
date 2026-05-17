@@ -92,12 +92,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in">
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
+      <header className="animate-in flex flex-col md:flex-row justify-between items-start md:items-center p-4 sm:p-6 shadow-md rounded-xl bg-(--surface) gap-4">
          {/* Display time */}
         <div className="w-full">
-          <h1 className="text-2xl font-semibold text-main leading-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-main leading-tight">
             {greeting}, {user?.name}
           </h1>
           <div className="flex justify-between items-center mt-1 w-full">

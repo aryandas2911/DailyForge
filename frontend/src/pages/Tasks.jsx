@@ -91,10 +91,10 @@ export default function Tasks() {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
-    <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
+    <div className="min-h-screen app-bg px-4 sm:px-6 lg:px-12 py-6 sm:py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
+        <div className="flex items-center justify-between gap-4 sm:gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
@@ -103,7 +103,7 @@ export default function Tasks() {
               <ArrowLeft size={16} />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-main tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-main tracking-tight">
                 Tasks
               </h1>
               <p className="text-sm text-muted mt-1">

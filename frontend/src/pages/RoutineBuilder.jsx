@@ -141,7 +141,7 @@ export default function RoutineBuilder() {
 
   return (
     <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-      <div className="app-bg min-h-screen px-6 py-8 animate-in">
+      <div className="app-bg min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
           <button
@@ -256,8 +256,8 @@ export default function RoutineBuilder() {
       </div>
 
       {isSaveModalOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-          <div className="card card-primary w-full max-w-md animate-in delay-100">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in p-4">
+          <div className="card card-primary w-full max-w-md max-h-[90vh] overflow-y-auto animate-in delay-100">
             <h3 className="text-lg font-semibold text-main mb-2">
               Save {selectedDay} Routine
             </h3>
