@@ -59,6 +59,7 @@ export default function RoutineBuilder() {
         day: selectedDay,
         startTime: task.startTime,
         duration: task.duration,
+        priority: task.priority
       }));
 
     try {
@@ -110,6 +111,7 @@ export default function RoutineBuilder() {
         day,
         startTime,
         duration: 60,
+        priority: task.priority
       },
     ]);
   };

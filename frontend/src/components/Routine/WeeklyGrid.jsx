@@ -22,6 +22,13 @@ const generateTimeSlots = () => {
   return slots;
 };
 
+const priorityColor = {
+  High: "bg-red-500",
+  Medium: "bg-yellow-500",
+  Low: "bg-green-500",
+};
+
+
 const TIME_SLOTS = generateTimeSlots();
 
 /* Convert HH:mm → minutes */
@@ -50,9 +57,9 @@ function DroppableCell({ day, time, tasks }) {
       {tasks.map((task) => (
         <div
           key={task.taskId}
-          className="absolute inset-1 rounded-lg bg-blue-500
+          className={`absolute inset-1 rounded-lg ${priorityColor[task.priority] || "bg-blue-500"}
                      text-white text-xs font-medium
-                     flex items-center justify-center shadow animate-in"
+                     flex items-center justify-center shadow animate-in`}
         >
           {task.title}
         </div>
