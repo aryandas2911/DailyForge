@@ -18,6 +18,7 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [routineTasks, setRoutineTasks] = useState([]);
 
   const { tasks, updateTask } = useTasks();
 
@@ -89,11 +90,32 @@ export default function Dashboard() {
       setLoadingRoutines(false);
     }
   };
-
   useEffect(() => {
     fetchRoutines();
   }, []);
+  useEffect(() => {
 
+  const loadRoutineTasks = () => {
+
+    const storedRoutineTasks = localStorage.getItem(
+      "activeRoutineTasks"
+    );
+
+    if (storedRoutineTasks) {
+      setRoutineTasks(JSON.parse(storedRoutineTasks));
+    } else {
+      setRoutineTasks([]);
+    }
+  };
+
+  loadRoutineTasks();
+
+  window.addEventListener("storage", loadRoutineTasks);
+
+  return () => {
+    window.removeEventListener("storage", loadRoutineTasks);
+  };
+  }, []);
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
@@ -146,7 +168,10 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks tasks={tasks} updateTask={updateTask} />
+        <DashboardTasks
+            tasks={[...tasks, ...routineTasks]}
+            updateTask={updateTask}
+        />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
@@ -184,7 +209,8 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  onClick={() => navigate("/routine-builder")}
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
                 >
                   <p className="font-medium text-main">{routine.name}</p>
                   {routine.description && (
