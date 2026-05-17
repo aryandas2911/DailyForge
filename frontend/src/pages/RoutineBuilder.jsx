@@ -173,7 +173,7 @@ export default function RoutineBuilder() {
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
-            <TaskLibrary onAddTask={() => setIsModalOpen(true)} />
+            <TaskLibrary tasks={tasks} onAddTask={() => setIsModalOpen(true)} />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
