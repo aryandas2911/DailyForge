@@ -30,9 +30,9 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 p-3
+      className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 dark:bg-slate-800/80 p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white hover:shadow-md transition hover-lift"
+                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
@@ -74,7 +74,7 @@ export default function TaskLibrary({ onAddTask }) {
       <div className="mb-4">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-main">Task Library</h2>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-main">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-main">
             {filteredTasks?.length ?? 0}
           </span>
         </div>
@@ -87,7 +87,7 @@ export default function TaskLibrary({ onAddTask }) {
         placeholder="Search tasks…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
+        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
       />
 
       {/* Task List */}
