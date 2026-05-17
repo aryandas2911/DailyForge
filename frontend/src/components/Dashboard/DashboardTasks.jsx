@@ -1,8 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import useTasks from "../../hooks/useTasks";
 
-export default function DashboardTasks() {
-  const { tasks, updateTask } = useTasks();
+export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
   const priorityOrder = {
@@ -23,16 +21,13 @@ export default function DashboardTasks() {
     High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   };
 
+  const today = new Date();
+
   const todayTasks = tasks
     ?.filter((task) => {
-      const today = new Date();
-      const created = new Date(task.createdAt);
-
-      return (
-        today.getFullYear() === created.getFullYear() &&
-        today.getMonth() === created.getMonth() &&
-        today.getDate() === created.getDate()
-      );
+      if (!task.dueDate) return false;
+      const due = new Date(task.dueDate);
+      return today.toDateString() === due.toDateString();
     })
     .sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
     .slice(0, 5);
