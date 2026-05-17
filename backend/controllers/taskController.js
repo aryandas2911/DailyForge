@@ -1,10 +1,10 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Create task function
-export const createTask = async (req, res) => {
-  try {
+export const createTask = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -49,18 +49,10 @@ export const createTask = async (req, res) => {
     return res
       .status(201)
       .json({ message: "Task added successfully", newTask });
-  } catch (error) {
-    // error handling
-    console.log("Error creating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating task" });
-  }
-};
+});
 
 // get task function
-export const getTasks = async (req, res) => {
-  try {
+export const getTasks = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -78,18 +70,10 @@ export const getTasks = async (req, res) => {
         .json({ success: true, tasks: [] });
   }
     return res.status(200).json({ success: true, tasks });
-  } catch (error) {
-    // error handling
-    console.log("Error fetching tasks", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching tasks" });
-  }
-};
+});
 
 // update task function
-export const updateTask = async (req, res) => {
-  try {
+export const updateTask = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -128,18 +112,10 @@ export const updateTask = async (req, res) => {
       message: "Task updated successfully",
       task: updatedTask,
     });
-  } catch (error) {
-    // error handling
-    console.log("Error updating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating task" });
-  }
-};
+});
 
 // delete task function
-export const deleteTask = async (req, res) => {
-  try {
+export const deleteTask = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -164,19 +140,11 @@ export const deleteTask = async (req, res) => {
     }
     return res.status(200).json({
       message: "Task deleted successfully",
-    });
-  } catch (error) {
-    // error handling
-    console.log("Error deleting task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting task" });
-  }
-};
+    }); 
+});
 
 // bulk delete tasks function
-export const bulkDeleteTasks = async (req, res) => {
-  try {
+export const bulkDeleteTasks = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -200,11 +168,4 @@ export const bulkDeleteTasks = async (req, res) => {
     return res
       .status(200)
       .json({ success: true, message: "Tasks deleted successfully" });
-  } catch (error) {
-    //error handling
-    console.log("Error bulk deleting tasks", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting tasks" });
-  }
-};
+});

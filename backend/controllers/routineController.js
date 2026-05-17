@@ -1,10 +1,10 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { checkOverlap } from "../utils/routineUtils.js";
 
 // Create routine function
-export const createRoutine = async (req, res) => {
-  try {
+export const createRoutine = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -83,18 +83,10 @@ export const createRoutine = async (req, res) => {
         { success: true, message: "Routine added successfully" },
         newRoutine
       );
-  } catch (error) {
-    // error handling
-    console.log("Error creating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating routine" });
-  }
-};
+});
 
 // Fetch routine function
-export const getRoutines = async (req, res) => {
-  try {
+export const getRoutines = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -112,19 +104,11 @@ export const getRoutines = async (req, res) => {
       return res.status(400).json({ message: "User has no routine", success: false });
     }
     return res.status(200).json({ success: true, routines });
-  } catch (error) {
-    // error handling
-    console.log("Error fetching routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching routine" });
-  }
-};
+});
 
 // Update routine function
-export const updateRoutine = async (req, res) => {
-  try {
-    // check if user is logged in or not
+export const updateRoutine = asyncHandler(async (req, res) => {
+  // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -190,18 +174,10 @@ export const updateRoutine = async (req, res) => {
       message: "Routine updated successfully",
       routine: updatedRoutine,
     });
-  } catch (error) {
-    // error handling
-    console.log("Error updating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating routine" });
-  }
-};
+});
 
 // Delete routine function
-export const deleteRoutine = async (req, res) => {
-  try {
+export const deleteRoutine = asyncHandler(async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
@@ -227,11 +203,4 @@ export const deleteRoutine = async (req, res) => {
     return res.status(200).json({
       message: "Routine deleted successfully",
     });
-  } catch (error) {
-    // error handling
-    console.log("Error deleting routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting routine" });
-  }
-};
+});
