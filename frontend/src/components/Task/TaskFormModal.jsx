@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const priorities = ["Low", "Medium", "High"];
 
 export default function TaskFormModal({ task, onClose, onSubmit }) {
@@ -12,9 +13,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [dueDate, setDueDate] = useState("");
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-  
-  const maxDateObj = new Date();
+
+  const maxDateObj = new Date(today);
   maxDateObj.setFullYear(today.getFullYear() + 1);
   const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
 
@@ -39,7 +41,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (dueDate < todayStr) {
       return alert("Due date cannot be in the past");
     }
-    
+
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
@@ -54,7 +56,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   };
 
   const toggleCategory = (categoryName) => {
-    setTags(prev => 
+    setTags(prev =>
       prev.includes(categoryName)
         ? prev.filter(tag => tag !== categoryName)
         : [...prev, categoryName]
@@ -108,13 +110,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             />
 
             <p
-              className={`text-sm mt-1 text-right ${
-                description.length >= 300
-                  ? "text-red-500"
-                  : description.length >= 250
-                    ? "text-yellow-500"
-                    : "text-muted"
-              }`}
+              className={`text-sm mt-1 text-right ${description.length >= 300
+                ? "text-red-500"
+                : description.length >= 250
+                  ? "text-yellow-500"
+                  : "text-muted"
+                }`}
             >
               {description.length}/300
             </p>
@@ -131,11 +132,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                     key={category.name}
                     type="button"
                     onClick={() => toggleCategory(category.name)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${isSelected
+                      ? 'ring-2 ring-offset-1'
+                      : 'opacity-60 hover:opacity-100'
+                      }`}
                     style={{
                       backgroundColor: category.bgColor,
                       color: category.color,
@@ -170,15 +170,28 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           {/* Due Date */}
           <div>
             <label className="text-sm font-medium text-main">Due Date</label>
-            <input
-              type="date"
-              value={dueDate}
-              min={todayStr}
-              max={maxDateStr}
-              onChange={(e) => setDueDate(e.target.value)}
-              onClick={(e) => e.target.showPicker?.()}
+
+            <DatePicker
+              selected={dueDate ? new Date(dueDate) : null}
+              onChange={(date) => {
+                if (!date) return;
+
+                const year = date.getFullYear();
+
+                if (year.toString().length !== 4) return;
+
+                setDueDate(date.toISOString().split("T")[0]);
+              }}
+              minDate={today}
+              maxDate={maxDateObj}
+              dateFormat="yyyy-MM-dd"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              yearDropdownItemNumber={10}
+              scrollableYearDropdown
+              placeholderText="Select due date"
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
-              required
             />
           </div>
 
