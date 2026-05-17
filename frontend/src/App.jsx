@@ -52,7 +52,6 @@ const App = () => {
       <Footer />
       <ScrollToTop />
     </BrowserRouter>
-    
   );
 };
 

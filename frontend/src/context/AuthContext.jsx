@@ -8,7 +8,16 @@ export const AuthContext = createContext(null);
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  
+  // Safely grab the token and prevent the "String Trap"
+  const [token, setToken] = useState(() => {
+    const savedToken = localStorage.getItem("token");
+    if (savedToken === "null" || savedToken === "undefined") {
+      localStorage.removeItem("token");
+      return null;
+    }
+    return savedToken;
+  });
 
   // logout function
   const logout = () => {
