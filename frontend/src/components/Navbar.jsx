@@ -2,8 +2,9 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -14,6 +15,7 @@ function cn(...inputs) {
 
 const Navbar = () => {
   const { token, logout } = useContext(AuthContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -56,7 +58,7 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled 
-          ? "bg-white/80 backdrop-blur-xl border-b border-soft shadow-sm" 
+          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm" 
           : "bg-transparent border-b border-transparent"
       )}
     >
@@ -102,6 +104,21 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
+            {/* Premium Dark Mode Toggle */}
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 15 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
+              aria-label="Toggle dark mode"
+            >
+              {theme === "dark" ? (
+                <Sun size={18} className="text-yellow-400 fill-yellow-400" />
+              ) : (
+                <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
+              )}
+            </motion.button>
+
             {!token ? (
               <>
                 <Link
@@ -159,7 +176,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden border-b border-soft bg-white/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {token && navLinks.map((link) => (
@@ -180,6 +197,29 @@ const Navbar = () => {
                   {link.name}
                 </NavLink>
               ))}
+
+              {/* Premium Mobile Dark Mode Toggle */}
+              <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
+                <span className="text-sm font-medium text-main">Theme Mode</span>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={toggleTheme}
+                  className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
+                  aria-label="Toggle dark mode"
+                >
+                  {theme === "dark" ? (
+                    <>
+                      <Sun size={16} className="text-yellow-400 fill-yellow-400" />
+                      <span className="text-xs text-yellow-400 font-semibold uppercase tracking-wider">Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={16} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
+                      <span className="text-xs text-[#3b8ea0] font-semibold uppercase tracking-wider">Dark</span>
+                    </>
+                  )}
+                </motion.button>
+              </div>
 
               <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
                 {!token ? (
