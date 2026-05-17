@@ -8,6 +8,7 @@ import {
   bulkDeleteTasks,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 // Validation rules for task fields (create — title required)
 const taskValidationRules = [
@@ -61,16 +62,26 @@ const taskUpdateValidationRules = [
 export const taskRouter = express.Router();
 
 // Route for creating task
-taskRouter.post("/", authMiddleware, taskValidationRules, createTask);
+taskRouter.post(
+  "/",
+  authMiddleware,
+  taskValidationRules,
+  asyncHandler(createTask)
+);
 
 // Route for fetching task
-taskRouter.get("/", authMiddleware, getTasks);
+taskRouter.get("/", authMiddleware, asyncHandler(getTasks));
 
 // Route for updating task
-taskRouter.put("/:id", authMiddleware, taskUpdateValidationRules, updateTask);
+taskRouter.put(
+  "/:id",
+  authMiddleware,
+  taskUpdateValidationRules,
+  asyncHandler(updateTask)
+);
 
 // Route for bulk deleting tasks
-taskRouter.post("/bulk-delete", authMiddleware, bulkDeleteTasks);
+taskRouter.post("/bulk-delete", authMiddleware, asyncHandler(bulkDeleteTasks));
 
 // Route for deleting task
-taskRouter.delete("/:id", authMiddleware, deleteTask);
+taskRouter.delete("/:id", authMiddleware, asyncHandler(deleteTask));

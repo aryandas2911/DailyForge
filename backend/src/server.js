@@ -5,6 +5,7 @@ import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import { errorHandler } from "../middlewares/errorMiddleware.js";
 
 // dotenv config
 dotenv.config();
@@ -43,6 +44,9 @@ app.use("/api/routines", routineRouter);
 app.get("/", (req, res) => {
   res.send("Server running");
 });
+
+// Global error handling (must be registered after routes)
+app.use(errorHandler);
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
