@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
+
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
@@ -16,18 +17,6 @@ import {
 } from "../utils/dueDateUtils";
 
 export default function Dashboard() {
-  const [greeting, setGreeting] = useState(getGreeting());
-
-  useEffect(() => {
-    // Update greeting every minute in case the hour changes
-    const interval = setInterval(() => {
-      setGreeting(getGreeting());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -40,14 +29,26 @@ export default function Dashboard() {
   const { tasks, updateTask } = useTasks();
 
   const today = new Date();
+ 
 
+  //quotes array and random selection
+  const motivationalQuotes = [
+    "Win the morning, win the day.",
+    "Small progress is still progress.",
+    "Discipline beats motivation.",
+    "Push yourself, because no one else will.",
+    "Stay consistent and trust the process.",
+  ];
+
+  const [quote] = useState(() => {
+    return motivationalQuotes[
+      Math.floor(Math.random() * motivationalQuotes.length)
+    ];
+  });
   const todayTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return (
-      today.getFullYear() === created.getFullYear() &&
-      today.getMonth() === created.getMonth() &&
-      today.getDate() === created.getDate()
-    );
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return today.toDateString() === due.toDateString();
   });
 
   const completedToday = todayTasks.filter(
@@ -65,8 +66,9 @@ export default function Dashboard() {
   endOfWeek.setHours(23, 59, 59, 999);
 
   const weekTasks = tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return created >= startOfWeek && created <= endOfWeek;
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    return due >= startOfWeek && due <= endOfWeek;
   });
 
   const completedThisWeek = weekTasks.filter(
@@ -162,7 +164,7 @@ export default function Dashboard() {
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks />
+        <DashboardTasks tasks={tasks} updateTask={updateTask} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
@@ -170,8 +172,8 @@ export default function Dashboard() {
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
-              tasks={upcomingTasks}
-              updateTask={updateTask}
+            tasks={upcomingTasks}
+            updateTask={updateTask}
           />
         </div>
 
@@ -200,7 +202,7 @@ export default function Dashboard() {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
                   <p className="font-medium text-main">{routine.name}</p>
                   {routine.description && (
