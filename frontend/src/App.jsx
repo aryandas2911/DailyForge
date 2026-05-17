@@ -11,22 +11,23 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import Landing from "./pages/Landing.jsx";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex justify-center items-center">
+      <main className="app-bg min-h-screen flex justify-center items-center">
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<><Navbar /><div className="pt-15 w-full flex justify-center items-center min-h-screen"><Login /></div></>} />
+          <Route path="/signup" element={<><Navbar /><div className="pt-15 w-full flex justify-center items-center min-h-screen"><Signup /></div></>} />
+          <Route path="/about" element={<><Navbar /><div className="pt-15 w-full"><About /></div></>} />
           <Route
             path="/dashboard"
             element={
               <ProtectedRoutes>
-                <Dashboard />
+                <Navbar />
+                <div className="pt-15 w-full"><Dashboard /></div>
               </ProtectedRoutes>
             }
           />
@@ -34,7 +35,8 @@ const App = () => {
             path="/tasks"
             element={
               <ProtectedRoutes>
-                <Tasks />
+                <Navbar />
+                <div className="pt-15 w-full"><Tasks /></div>
               </ProtectedRoutes>
             }
           />
@@ -42,11 +44,12 @@ const App = () => {
             path="/routine-builder"
             element={
               <ProtectedRoutes>
-                <RoutineBuilder />
+                <Navbar />
+                <div className="pt-15 w-full"><RoutineBuilder /></div>
               </ProtectedRoutes>
             }
           />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<><Navbar /><div className="pt-15 w-full"><NotFound /></div></>} />
         </Routes>
       </main>
       <Footer />

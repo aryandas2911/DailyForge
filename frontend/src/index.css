@@ -175,3 +175,35 @@ html.dark, html.dark body {
     }
   }
 }
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 20px rgba(78, 183, 179, 0.5), 0 0 40px rgba(78, 183, 179, 0.3);
+  }
+  
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)];
+  }
+
+  .mesh-bg {
+    background-color: #050816;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+  }
+
+  .neon-border {
+    box-shadow: 0 0 10px rgba(78, 183, 179, 0.3), inset 0 0 10px rgba(78, 183, 179, 0.1);
+    border: 1px solid rgba(78, 183, 179, 0.5);
+  }
+  
+  .neon-border-hover:hover {
+    box-shadow: 0 0 20px rgba(78, 183, 179, 0.6), inset 0 0 15px rgba(78, 183, 179, 0.3);
+    border: 1px solid rgba(78, 183, 179, 0.8);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
