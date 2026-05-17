@@ -32,6 +32,20 @@ export const createTask = async (req, res) => {
         .json({ success: false, message: "Please enter all the details" });
     }
 
+    if (dueDate === undefined || dueDate === null || dueDate === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Due date is required" });
+    }
+
+    const parsedDueDate = new Date(dueDate);
+    if (Number.isNaN(parsedDueDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Due date must be a valid date",
+      });
+    }
+
     // new task object
     const newTask = new Task({
       userId: userId,
@@ -50,7 +64,12 @@ export const createTask = async (req, res) => {
       .status(201)
       .json({ message: "Task added successfully", newTask });
   } catch (error) {
-    // error handling
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message || "Task validation failed",
+      });
+    }
     console.log("Error creating task", error);
     return res
       .status(500)
