@@ -77,12 +77,11 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    return res
-      .status(200)
-      .json(
-        { success: true, message: "Routine added successfully" },
-        newRoutine
-      );
+    return res.status(200).json({
+      success: true,
+      message: "Routine added successfully",
+      data: newRoutine,
+    });
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
