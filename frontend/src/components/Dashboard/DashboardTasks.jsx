@@ -54,14 +54,14 @@ export default function DashboardTasks({ tasks, updateTask }) {
           {todayTasks.map((task) => (
             <div
               key={task._id}
-              className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
+              className={`group relative flex items-start sm:items-center gap-3 sm:gap-4 border-l-4 rounded-xl p-3 sm:p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
               bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
             >
               {/* Checkbox */}
               <input
                 type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
+                className="h-4 w-4 accent-(--primary) cursor-pointer mt-0.5 sm:mt-0 shrink-0"
                 checked={task.status === "Completed"}
                 onChange={() =>
                   updateTask(task._id, {
@@ -71,18 +71,18 @@ export default function DashboardTasks({ tasks, updateTask }) {
               />
 
               {/* Task content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p
                   className={`text-sm font-medium transition-colors ${
                     task.status === "Completed"
                       ? "line-through text-muted"
                       : "text-main"
-                  }`}
+                  } truncate`}
                 >
                   {task.title}
                 </p>
 
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <span
                     className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
                       priorityBadge[task.priority]

@@ -54,14 +54,14 @@ export default function TaskPreview({ tasks , updateTask}) {
             return (
             <div
               key={task._id}
-              className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
+              className={`group relative flex items-start sm:items-center gap-3 sm:gap-4 border-l-4 rounded-xl p-3 sm:p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
               bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm`}
             >
               {/* Checkbox */}
               <input
                 type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
+                className="h-4 w-4 accent-(--primary) cursor-pointer mt-0.5 sm:mt-0 shrink-0"
                 checked={task.status === "Completed"}
                 onChange={() =>
                   updateTask(task._id, {
@@ -71,9 +71,9 @@ export default function TaskPreview({ tasks , updateTask}) {
               />
 
               {/* Content */}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm font-medium ${
+                  className={`text-sm font-medium truncate ${
                     task.status === "Completed"
                       ? "line-through decoration-2 decoration-muted text-muted"
                       : "text-main"
@@ -82,7 +82,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   {task.title}
                 </p>
 
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <span
                     className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
                       priorityBadge[task.priority]

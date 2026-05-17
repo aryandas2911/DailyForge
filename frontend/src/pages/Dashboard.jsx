@@ -13,6 +13,15 @@ import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 
 export default function Dashboard() {
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -22,7 +31,6 @@ export default function Dashboard() {
   const { tasks, updateTask } = useTasks();
 
   const today = new Date();
- 
 
   //quotes array and random selection
   const motivationalQuotes = [
@@ -38,6 +46,7 @@ export default function Dashboard() {
       Math.floor(Math.random() * motivationalQuotes.length)
     ];
   });
+
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
@@ -95,33 +104,30 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in">
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
+      <header className="animate-in flex flex-col md:flex-row justify-between items-start md:items-center p-4 sm:p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         {/* Display time */}
-       <div className="w-full">
-  <h1 className="text-2xl font-semibold text-main leading-tight">
-    {getGreeting()}, {user?.name}
-  </h1>
-
-  <p className="text-sm italic text-primary mt-2">
-    "{quote}"
-  </p>
-
-  <div className="flex justify-between items-center mt-1 w-full">
-    <p className="text-sm text-muted">
-      {new Date()
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          day: "2-digit",
-          month: "short",
-        })
-        .replace(",", " ·")}
-    </p>
-
-    <LiveClock />
-  </div>
-</div>
+        <div className="w-full">
+          <h1 className="text-xl sm:text-2xl font-semibold text-main leading-tight">
+            {greeting}, {user?.name}
+          </h1>
+          <p className="text-sm italic text-primary mt-2">
+            "{quote}"
+          </p>
+          <div className="flex justify-between items-center mt-1 w-full">
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
+            <LiveClock />
+          </div>
+        </div>
       </header>
 
       {/* Stats Row */}
