@@ -81,6 +81,10 @@ html.dark, html.dark body {
     color: var(--text-muted);
   }
 
+  .text-primary {
+    color: var(--primary);
+  }
+
   /* Structural borders */
   .border-soft {
     border: 1px solid var(--border);
