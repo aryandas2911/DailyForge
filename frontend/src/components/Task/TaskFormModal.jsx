@@ -3,6 +3,8 @@ import { X, Tag , ClipboardList , AlignLeft , Flag, ClipboardPlus , Plus} from "
 import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
@@ -135,22 +137,22 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full mt-1 rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-[var(--primary)] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
               placeholder="Add task details or notes (optional)"
-              rows={2}
-               maxLength={300}
+              rows={3}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
 
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300
+                description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
-                  : description.length >= 250
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-muted"
               }`}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
           </div>
