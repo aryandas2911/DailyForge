@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 // Initialize express     
 const app = express();
 
-// Intialize cors
+
 app.use(
   cors({
     origin: [
