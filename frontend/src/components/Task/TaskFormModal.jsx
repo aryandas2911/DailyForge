@@ -11,6 +11,13 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
 
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  
+  const maxDateObj = new Date();
+  maxDateObj.setFullYear(today.getFullYear() + 1);
+  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
+
   useEffect(() => {
     if (task) {
       /* eslint-disable react-hooks/set-state-in-effect */
@@ -28,6 +35,14 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
+
+    if (dueDate < todayStr) {
+      return alert("Due date cannot be in the past");
+    }
+    
+    if (dueDate > maxDateStr) {
+      return alert("Due date cannot be more than 1 year in the future");
+    }
 
     onSubmit({
       title: title.trim(),
@@ -48,11 +63,11 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100">
+      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full"
+          className="absolute top-4 right-4 p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-main"
         >
           <X size={20} />
         </button>
@@ -69,7 +84,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               placeholder="Task title"
               required
             />
@@ -86,7 +101,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               onChange={(e) =>
                 setDescription(e.target.value)
               }
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               placeholder="Optional task description"
               rows={3}
               maxLength={300}
@@ -98,7 +113,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                   ? "text-red-500"
                   : description.length >= 250
                     ? "text-yellow-500"
-                    : "text-gray-500"
+                    : "text-muted"
               }`}
             >
               {description.length}/300
@@ -141,11 +156,11 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
               required
             >
               {priorities.map((p) => (
-                <option key={p} value={p}>
+                <option key={p} value={p} className="dark:bg-slate-800">
                   {p}
                 </option>
               ))}
@@ -158,8 +173,11 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <input
               type="date"
               value={dueDate}
+              min={todayStr}
+              max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              onClick={(e) => e.target.showPicker?.()}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               required
             />
           </div>
