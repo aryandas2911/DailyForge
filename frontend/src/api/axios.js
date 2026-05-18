@@ -5,7 +5,6 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://dailyforge-backend.onrender.com/api/",
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000,
 });
-
 // attach jwt automatically with each request
 api.interceptors.request.use((config) => {
   try {
