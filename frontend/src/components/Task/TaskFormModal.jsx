@@ -44,13 +44,14 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      tags: tags,
-      priority,
-      dueDate,
-    });
+   onSubmit({
+  title: title.trim(),
+  description: description.trim(),
+  tags,
+  priority,
+  status: "Due",
+  dueDate,
+});
   };
 
   const toggleCategory = (categoryName) => {
@@ -184,10 +185,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
           {/* Submit Button */}
           <button
-            type="submit"
-            className="w-full btn btn-primary py-2 mt-2 hover-lift"
-            onSubmit={handleSubmit}
-          >
+  type="submit"
+  className="w-full btn btn-primary py-2 mt-2 hover-lift"
+>
             {task ? "Update Task" : "Add Task"}
           </button>
         </form>

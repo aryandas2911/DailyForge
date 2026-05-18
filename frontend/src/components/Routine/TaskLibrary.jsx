@@ -55,8 +55,7 @@ function DraggableTask({ task }) {
 }
 
 /* ---------------- Task Library ---------------- */
-export default function TaskLibrary({ onAddTask }) {
-  const { tasks } = useTasks();
+export default function TaskLibrary({ tasks, onAddTask }) {
   
   const [query, setQuery] = useState("");
 
