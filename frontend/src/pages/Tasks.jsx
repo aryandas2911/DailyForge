@@ -28,11 +28,15 @@ export default function Tasks() {
   };
 
   /** --- Handlers --- */
-  const handleToggle = (task) => {
-    updateTask(task._id, {
+ const handleToggle = async (task) => {
+  try {
+    await updateTask(task._id, {
       status: task.status === "Completed" ? "Due" : "Completed",
     });
-  };
+  } catch (error) {
+    console.error("Failed to update task:", error);
+  }
+};
 
   const handleSubmit = async (data) => {
     try {
