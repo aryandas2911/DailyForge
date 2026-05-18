@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
@@ -57,18 +57,18 @@ const Navbar = () => {
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled 
-          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm" 
+        scrolled
+          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm"
           : "bg-transparent border-b border-transparent"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          
+
           {/* Logo Section with Hover Animation */}
           <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
-            <motion.div 
-              whileHover={{ rotate: 180 }} 
+            <motion.div
+              whileHover={{ rotate: 180 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
               className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
             >
@@ -119,6 +119,18 @@ const Navbar = () => {
               )}
             </motion.button>
 
+            {/*pomodoro focus mode*/}
+            <>
+              <Link
+                to="/focus-mode"
+                className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
+              >
+                <Timer size={16} />
+                Focus Mode
+              </Link>
+            </>
+
+
             {!token ? (
               <>
                 <Link
@@ -127,16 +139,16 @@ const Navbar = () => {
                 >
                   Login
                 </Link>
-                <Link 
-                  to="/signup" 
+                <Link
+                  to="/signup"
                   className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
                 >
                   Signup
                 </Link>
               </>
             ) : (
-              <button 
-                onClick={handleLogout} 
+              <button
+                onClick={handleLogout}
                 className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
                 <LogOut size={16} />
@@ -221,7 +233,15 @@ const Navbar = () => {
                 </motion.button>
               </div>
 
+
+
               <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
+                {/* Mobile focus mode*/}
+                <Link to="/focus-mode" className="btn btn-primary flex gap-2">
+                  <Timer size={16} />
+                  Focus Mode
+                </Link>
+
                 {!token ? (
                   <>
                     <Link

@@ -11,6 +11,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import Pomodoro from "./pages/Pomodoro.jsx";
 
 const App = () => {
   return (
@@ -43,6 +44,14 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <RoutineBuilder />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/focus-mode"
+            element={
+              <ProtectedRoutes>
+                <Pomodoro />
               </ProtectedRoutes>
             }
           />
