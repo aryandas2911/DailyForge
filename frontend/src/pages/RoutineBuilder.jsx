@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -21,6 +21,27 @@ export default function RoutineBuilder() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
+
+  // Create a lookup map for task titles by taskId to enable O(1) rendering lookups
+  const taskMap = useMemo(() => {
+    const map = {};
+    if (Array.isArray(tasks)) {
+      tasks.forEach((t) => {
+        if (t && t._id) {
+          map[t._id] = t.title;
+        }
+      });
+    }
+    return map;
+  }, [tasks]);
+
+  // Map local scheduled tasks to dynamically resolve task titles, avoiding race conditions
+  const gridTasks = useMemo(() => {
+    return scheduledTasks.map((task) => ({
+      ...task,
+      title: taskMap[task.taskId] || (tasks.length === 0 ? "Loading Task..." : "Unknown Task"),
+    }));
+  }, [scheduledTasks, taskMap, tasks]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
@@ -53,10 +74,22 @@ export default function RoutineBuilder() {
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
-      // res.data.routines is the array you need
-      setSavedRoutines(
-        Array.isArray(res.data.routines) ? res.data.routines : []
-      );
+      const routines = Array.isArray(res.data.routines) ? res.data.routines : [];
+      setSavedRoutines(routines);
+
+      // Hydrate the staging scheduler with the latest saved routine items
+      if (routines.length > 0) {
+        const latestRoutine = routines[0];
+        if (Array.isArray(latestRoutine.items)) {
+          const hydrated = latestRoutine.items.map((item) => ({
+            taskId: item.taskId,
+            day: item.day,
+            startTime: item.startTime,
+            duration: item.duration || 60,
+          }));
+          setScheduledTasks(hydrated);
+        }
+      }
     } catch (err) {
       console.error(err);
       setSavedRoutines([]);
@@ -178,7 +211,7 @@ export default function RoutineBuilder() {
 
           <section className="col-span-12 md:col-span-9">
             <WeeklyGrid
-              scheduledTasks={scheduledTasks}
+              scheduledTasks={gridTasks}
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask} //Passing Removing function to weeklygrid
             />
