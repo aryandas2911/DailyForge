@@ -77,7 +77,7 @@ function DroppableCell({ day, time, tasks , onDeleteTask}) {
 /* ---------------- Weekly Grid ---------------- */
 export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask }) {
   return (
-    <div className="card card-primary !pl-2 !pr-2.5 !py-3 animate-in">
+    <div className="card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in">
       <h2 className="text-lg font-semibold text-main mb-4 px-6.5 pt-3">Weekly Schedule</h2>
 
       <div
@@ -119,7 +119,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask })
         {TIME_SLOTS.map((time) => (
           <div key={time} className="contents">
             {/* Time label */}
-            <div className="text-[9px] sm:text-xs text-muted pr-[2px] pt-2 text-right">
+            <div className="flex items-start justify-end pt-2 pr-2 text-[9px] sm:text-xs text-muted">
               {time}
             </div>
 
