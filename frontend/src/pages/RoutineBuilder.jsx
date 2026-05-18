@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
+import { checkTaskOverlap } from "../utils/validationUtils.js";
+import { minutesToTime } from "../utils/timeUtils.js";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -91,7 +93,8 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const serverMessage = err.response?.data?.message;
+      alert(serverMessage ? `Failed to save routine: ${serverMessage}` : "Failed to save routine. Please try again.");
     }
   };
 
@@ -129,15 +132,27 @@ export default function RoutineBuilder() {
     if (!task) return;
     const { day, startTime } = over.data.current;
 
+    const newTask = {
+      taskId: task._id,
+      title: task.title,
+      day,
+      startTime,
+      duration: 60,
+    };
+
+    const conflict = checkTaskOverlap(newTask, scheduledTasks);
+    if (conflict) {
+      const conflictStart = minutesToTime(conflict.startTime);
+      const conflictEnd = minutesToTime(conflict.startTime + (conflict.duration || 60));
+      alert(
+        `Scheduling Conflict:\n\nCannot schedule "${task.title}" at ${minutesToTime(startTime)}.\nIt overlaps with "${conflict.title}" (${conflictStart} - ${conflictEnd}).`
+      );
+      return;
+    }
+
     setScheduledTasks((prev) => [
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      {
-        taskId: task._id,
-        title: task.title,
-        day,
-        startTime,
-        duration: 60,
-      },
+      newTask,
     ]);
   };
 

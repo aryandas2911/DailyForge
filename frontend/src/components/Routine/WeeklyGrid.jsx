@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { generateTimeSlots, timeToMinutes } from "../../utils/timeUtils.js";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -11,24 +12,8 @@ const DAYS = [
   "Sunday",
 ];
 
-/* Generate hourly slots: 06:00 → 22:00 */
-const generateTimeSlots = () => {
-  const slots = [];
-  let hour = 6;
-  while (hour <= 22) {
-    slots.push(`${String(hour).padStart(2, "0")}:00`);
-    hour++;
-  }
-  return slots;
-};
-
 const TIME_SLOTS = generateTimeSlots();
 
-/* Convert HH:mm → minutes */
-const timeToMinutes = (time) => {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-};
 
 /* ---------------- Droppable Cell ---------------- */
 function DroppableCell({ day, time, tasks , onDeleteTask}) {
