@@ -6,6 +6,7 @@ import {
   getTasks,
   updateTask,
   bulkDeleteTasks,
+  bulkCompleteTasks,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -65,6 +66,9 @@ taskRouter.post("/", authMiddleware, taskValidationRules, createTask);
 
 // Route for fetching task
 taskRouter.get("/", authMiddleware, getTasks);
+
+// Route for bulk completing tasks
+taskRouter.put("/bulk-complete", authMiddleware, bulkCompleteTasks);
 
 // Route for updating task
 taskRouter.put("/:id", authMiddleware, taskUpdateValidationRules, updateTask);

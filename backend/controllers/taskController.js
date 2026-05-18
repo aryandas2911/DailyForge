@@ -233,3 +233,41 @@ export const bulkDeleteTasks = async (req, res) => {
       .json({ success: false, message: "Error deleting tasks" });
   }
 };
+
+// bulk complete tasks function
+export const bulkCompleteTasks = async (req, res) => {
+  try {
+    // check if user is logged in or not
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "User not logged in" });
+    }
+
+    // fetch array of task IDs 
+    const { ids } = req.body;
+    if (!ids || ids.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No task IDs provided" });
+    }
+
+    // update status to Completed for all matching tasks belonging to this user
+    await Task.updateMany(
+      { _id: { $in: ids }, userId: userId, status: "Due" },
+      { $set: { status: "Completed" } }
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Tasks marked as completed successfully" });
+  } catch (error) {
+    //error handling
+    console.log("Error bulk completing tasks", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error completing tasks" });
+  }
+};

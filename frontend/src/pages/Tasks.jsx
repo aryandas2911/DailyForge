@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2, Check } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
+  const { tasks, addTask, updateTask, deleteTask , bulkDelete, bulkComplete } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -26,6 +26,16 @@ export default function Tasks() {
   const handleBulkDelete = async () => {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
+  };
+
+  const handleBulkComplete = async () => {
+    const pendingIds = filteredTasks
+      .filter((task) => task.status !== "Completed")
+      .map((task) => task._id);
+
+    if (pendingIds.length > 0) {
+      await bulkComplete(pendingIds);
+    }
   };
 
   /** --- Handlers --- */
@@ -112,6 +122,18 @@ export default function Tasks() {
                 {completedTasks}/{totalTasks} completed · Stay consistent
               </p>
             </div>
+            {filteredTasks.some(t => t.status !== "Completed") && (
+              <button
+                onClick={handleBulkComplete}
+                className="ml-2 lg:ml-6 flex items-center gap-3 px-5 py-2 bg-[#4BBFB9] hover:bg-[#3F9BA6] btn shadow-sm transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col text-left leading-none">
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wider">Mark All</span>
+                  <span className="text-xs font-semibold text-white">Complete</span>
+                </div>
+                <Check size={24} className="text-white group-hover:scale-110 transition-transform" strokeWidth={3} />
+              </button>
+            )}
           </div>
           {selectedIds.length > 0 && (
             <button
