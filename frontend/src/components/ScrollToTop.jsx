@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 
@@ -6,46 +6,37 @@ const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  // Hide the button on login and root pages
   const isLoginPage = location.pathname === "/login" || location.pathname === "/";
+  const isTasksPage = location.pathname === "/tasks";
 
-  // Toggle visibility based on scroll position
   const toggleVisibility = () => {
-    if (window.scrollY > 100) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
+    setIsVisible(window.scrollY > 100);
   };
 
-  // Scroll to top function
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
     window.addEventListener("scroll", toggleVisibility);
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
+    return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
-
-  // Don't render the button if we are on the login page
-  // Force the button to always show on the Tasks page so it's never hidden
-  const isTasksPage = location.pathname === "/tasks";
-  const shouldShow = isVisible || isTasksPage;
 
   if (isLoginPage) return null;
 
+  const shouldShow = isVisible || isTasksPage;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-[9999]">
       {shouldShow && (
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[var(--text-main)] text-white shadow-lg hover:bg-[var(--primary)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+          className="p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2"
+          style={{
+            backgroundColor: "var(--primary)",
+            color: "white",
+            focusRingColor: "var(--color-primary)",
+          }}
           aria-label="Scroll to top"
         >
           <ArrowUp size={24} />
