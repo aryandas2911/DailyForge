@@ -96,13 +96,14 @@ export default function Tasks() {
 
   return (
     <div className="min-h-screen app-bg px-4 sm:px-8 xl:px-16 py-8 animate-in">
-      <div className="space-y-6">
+      <div className="space-y-8">
 
+        {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-colors"
+              className="rounded-lg p-2 border border-soft text-muted hover:bg-white cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
@@ -118,7 +119,6 @@ export default function Tasks() {
 
           <div className="flex items-center gap-3">
             {selectedIds.length > 0 && (
-
               <button
                 onClick={handleBulkDelete}
                 className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
@@ -138,13 +138,12 @@ export default function Tasks() {
           </div>
         </div>
 
+        {/* Category Filter */}
         <div className="animate-in delay-150">
           <div className="card p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">
-                Filter by Category
-              </h3>
+              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
               {selectedCategories.length > 0 && (
                 <button
                   onClick={() => setSelectedCategories([])}
@@ -181,12 +180,11 @@ export default function Tasks() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
           <div className="md:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
               filteredTasks
-                .sort(
-                  (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-                )
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem
                     key={task._id}
@@ -213,6 +211,7 @@ export default function Tasks() {
             )}
           </div>
 
+          {/* Insights sidebar */}
           <div className="hidden md:flex flex-col gap-6 animate-in delay-300">
 
             {/* Completion */}
@@ -220,11 +219,13 @@ export default function Tasks() {
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
-              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all duration-500"
-                  style={{ width: `${completionPercent}%` }}
-                />
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                {completionPercent > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                )}
               </div>
               <p className="text-xs text-muted mt-1">
                 {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
@@ -243,31 +244,34 @@ export default function Tasks() {
                       key={task._id}
                       className="flex items-center gap-2 text-main"
                     >
-                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
                       {task.title}
                     </li>
                   ))}
                 </ul>
-              ) : nextTask ? (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-main">
-                    {nextTask.title}
-                  </p>
-                  <p className="text-xs text-muted">
-                    Due on {new Date(nextTask.dueDate).toLocaleDateString()}
-                  </p>
-                </div>
               ) : (
-                <p className="text-xs text-muted">No upcoming tasks 🎉</p>
+                // updated deadlines logic
+                nextTask ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-main">
+                      {nextTask.title}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted">No upcoming tasks 🎉</p>
+                )
               )}
             </div>
 
-            {/* Priority Load */}
+            {/* Priority load */}
             <div
               className={`card p-4 ${
                 isOverloaded
-                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
-                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                  ? "bg-red-50 text-red-600"
+                  : "bg-green-50 text-green-700"
               }`}
             >
               <p className="text-sm font-medium">
