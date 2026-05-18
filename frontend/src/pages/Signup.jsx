@@ -9,6 +9,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,6 +71,9 @@ const Signup = () => {
     if (!passwordRegex.test(password)) {
       newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
     }
+    if (password !== confirmPassword) {
+  newErrors.confirmPassword = "Passwords do not match";
+}
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -145,27 +149,7 @@ const Signup = () => {
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-          placeholder="••••••••"
-          required
-          className={`
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            rounded-base
-            shadow-xs
-            input-focus hover-lift
-            ${errors.password ? "border-red-500" : "border-soft"}
-          `}
-        />
-        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
-        <div className="relative">
+      <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             id="password"
@@ -195,6 +179,39 @@ const Signup = () => {
           </button>
         </div>
       </div>
+      <div className="flex flex-col gap-1.5">
+  <label
+    htmlFor="confirmPassword"
+    className="text-sm font-medium text-main"
+  >
+    Confirm Password
+  </label>
+
+  <input
+    type="password"
+    id="confirmPassword"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    placeholder="••••••••"
+    required
+    className={`
+      w-full px-3 py-2.5
+      text-sm
+      surface-bg
+      rounded-base
+      shadow-xs
+      input-focus hover-lift
+      ${errors.confirmPassword ? "border-red-500" : "border-soft"}
+    `}
+  />
+
+  {errors.confirmPassword && (
+    <span className="text-red-500 text-xs">
+      {errors.confirmPassword}
+    </span>
+  )}
+
+</div>
 
       {error && (
         <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
