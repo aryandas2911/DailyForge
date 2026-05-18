@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
 
@@ -65,8 +66,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     );
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] animate-in">
       <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
         {/* Close Button */}
         <button
@@ -202,6 +203,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
