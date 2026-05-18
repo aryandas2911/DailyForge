@@ -77,9 +77,8 @@ const Signup = () => {
     if (name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters long";
     }
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+    if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -162,45 +161,39 @@ const Signup = () => {
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-          placeholder="••••••••"
-          required
-          className={`
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            rounded-base
-            shadow-xs
-            input-focus hover-lift
-            ${errors.password ? "border-red-500" : "border-soft"}
-          `}
-        />
-        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             id="password"
             value={password}
             onChange={(e) => {
-              setPassword(e.target.value);
+              const val = e.target.value;
+              setPassword(val);
+              if (val.length > 0 && val.length < 6) {
+                setErrors((prev) => ({
+                  ...prev,
+                  password: "Password must be at least 6 characters",
+                }));
+              } else {
+                setErrors((prev) => {
+                  const nextErrors = { ...prev };
+                  delete nextErrors.password;
+                  return nextErrors;
+                });
+              }
             }}
             placeholder="••••••••"
             required
-            className="
+            minLength={6}
+            className={`
               w-full px-3 py-2.5 pr-10
               text-sm
               surface-bg
-              border-soft
               rounded-base
               shadow-xs
               input-focus hover-lift
-            "
+              ${errors.password ? "border-red-500" : "border-soft"}
+            `}
           />
           <button
             type="button"
@@ -211,6 +204,7 @@ const Signup = () => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
       </div>
 
       {error && (
