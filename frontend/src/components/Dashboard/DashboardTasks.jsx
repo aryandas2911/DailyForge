@@ -98,23 +98,27 @@ export default function DashboardTasks({ tasks, updateTask }) {
               </div>
 
               {/* Hover affordance */}
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted opacity-0 group-hover:opacity-100 transition">
+             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted opacity-0 group-hover:opacity-100 transition">
                 ✓
               </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
-          No tasks for today.
-          <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
-            onClick={() => navigate("/tasks")}
-          >
-            Add your first task →
-          </span>
-        </div>
-      )}
-    </div>
+         <div className="text-center py-8">
+  <h2 className="text-2xl font-semibold text-teal-500">
+    No tasks yet 🚀
+  </h2>
+
+  <p className="text-gray-400 mt-2">
+    Start organizing your productive day.
+  </p>
+
+  <button className="mt-4 px-4 py-2 rounded-lg bg-teal-500 text-white">
+    + Add Your First Task
+  </button>
+</div>
+)}
+</div>
   );
 }
