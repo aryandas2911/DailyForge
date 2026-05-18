@@ -6,20 +6,35 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import ConfirmModal from "../components/Task/ConfirmModal";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
+  const { tasks, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
+  };
+
+  const handleDeleteClick = (id) => {
+    setTaskToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    await deleteTask(taskToDelete);
+
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
   };
 
   const handleBulkDelete = async () => {
@@ -50,23 +65,28 @@ export default function Tasks() {
   };
 
   const toggleCategoryFilter = (categoryName) => {
-    setSelectedCategories(prev =>
+    setSelectedCategories((prev) =>
       prev.includes(categoryName)
-        ? prev.filter(cat => cat !== categoryName)
-        : [...prev, categoryName]
+        ? prev.filter((cat) => cat !== categoryName)
+        : [...prev, categoryName],
     );
   };
 
   /** --- Filtered Tasks --- */
-  const filteredTasks = selectedCategories.length === 0
-    ? tasks
-    : tasks.filter(task =>
-        task.tags && task.tags.some(tag => selectedCategories.includes(tag))
-      );
+  const filteredTasks =
+    selectedCategories.length === 0
+      ? tasks
+      : tasks.filter(
+          (task) =>
+            task.tags &&
+            task.tags.some((tag) => selectedCategories.includes(tag)),
+        );
 
   /** --- Insights --- */
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  const completedTasks = filteredTasks.filter(
+    (t) => t.status === "Completed",
+  ).length;
   const completionPercent = totalTasks
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
@@ -80,13 +100,13 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+  //changed logic
   const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
-    (t) => t.priority === "High" && t.status !== "Completed"
+    (t) => t.priority === "High" && t.status !== "Completed",
   ).length;
   const isOverloaded = highPriorityCount >= 3;
 
@@ -135,7 +155,9 @@ export default function Tasks() {
           <div className="card p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
+              <h3 className="text-sm font-semibold text-main">
+                Filter by Category
+              </h3>
               {selectedCategories.length > 0 && (
                 <button
                   onClick={() => setSelectedCategories([])}
@@ -154,8 +176,8 @@ export default function Tasks() {
                     onClick={() => toggleCategoryFilter(category.name)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: category.bgColor,
@@ -182,26 +204,25 @@ export default function Tasks() {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    // fix : Ensure onDelete is explicitely reciving the id
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={handleDeleteClick}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}   
-                    onSelect={handleSelect}   
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
                   />
                 ))
             ) : (
-  <EmptyState
-    type="tasks"
-    onAction={() => {
-      setEditingTask(null);
-      setIsModalOpen(true);
-    }}
-  />
-)}
+              <EmptyState
+                type="tasks"
+                onAction={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
           {/* Insights */}
@@ -238,24 +259,19 @@ export default function Tasks() {
                     </li>
                   ))}
                 </ul>
-              ) : (
-               // updated deadlines
-                nextTask ? (
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
-      {nextTask.title}
-    </p>
+              ) : // updated deadlines
+              nextTask ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-main">
+                    {nextTask.title}
+                  </p>
 
-    <p className="text-xs text-muted">
-      Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
-    </p>
-  </div>
-) : (
-  <p className="text-xs text-muted">
-    No upcoming tasks 🎉
-  </p>
-)
+                  <p className="text-xs text-muted">
+                    Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-muted">No upcoming tasks 🎉</p>
               )}
             </div>
 
@@ -279,6 +295,16 @@ export default function Tasks() {
             </div>
           </div>
         </div>
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          title="Delete Task"
+          message="Are you sure you want to delete this task? This action cannot be undone."
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setTaskToDelete(null);
+          }}
+          onConfirm={confirmDelete}
+        />
       </div>
 
       {/* Task Modal */}
