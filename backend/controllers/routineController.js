@@ -2,6 +2,80 @@ import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import { checkOverlap } from "../utils/routineUtils.js";
 
+const validateRoutineItems = (items, res) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    res
+      .status(400)
+      .json({ success: false, message: "Please enter required details" });
+    return false;
+  }
+
+  // calculate endtime for each task
+  const formatted = [];
+  for (const item of items) {
+    // check duration greater than 10 mins
+    if (!item.duration || item.duration < 10) {
+      res.status(400).json({
+        success: false,
+        message: "Each task duration must be at least 10 minutes",
+      });
+      return false;
+    }
+
+    const endTime = item.startTime + item.duration;
+    formatted.push({
+      day: item.day,
+      startTime: item.startTime,
+      endTime: endTime,
+    });
+  }
+
+  // group tasks by day
+  const dayGroups = {};
+  for (const task of formatted) {
+    if (!dayGroups[task.day]) {
+      dayGroups[task.day] = [];
+    }
+    dayGroups[task.day].push(task);
+  }
+
+  // loop through each day
+  for (const day in dayGroups) {
+    const tasks = dayGroups[day];
+
+    // sort tasks by start time
+    tasks.sort((a, b) => a.startTime - b.startTime);
+
+    // compare each task with next task
+    if (checkOverlap(tasks)) {
+      res.status(400).json({
+        success: false,
+        message: `Tasks overlap on ${day}`,
+      });
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const routineItemKey = (item) =>
+  `${item.day}:${item.taskId?.toString?.() ?? item.taskId}:${item.startTime}`;
+
+const mergeRoutineItems = (existingItems, incomingItems) => {
+  const merged = new Map();
+
+  for (const item of existingItems) {
+    merged.set(routineItemKey(item), item);
+  }
+
+  for (const item of incomingItems) {
+    merged.set(routineItemKey(item), item);
+  }
+
+  return [...merged.values()];
+};
+
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
@@ -16,55 +90,14 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
     }
 
-    // calculate endtime for each task
-    const formatted = [];
-    for (const item of items) {
-
-      // check duration greater than 10 mins
-      if (!item.duration || item.duration < 10) {
-        return res.status(400).json({
-          success: false,
-          message: "Each task duration must be at least 10 minutes",
-        });
-      }
-
-      const endTime = item.startTime + item.duration;
-      formatted.push({
-        day: item.day,
-        startTime: item.startTime,
-        endTime: endTime,
-      });
-    }
-
-    // group tasks by day
-    const dayGroups = {};
-    for (const task of formatted) {
-      if (!dayGroups[task.day]) {
-        dayGroups[task.day] = [];
-      }
-      dayGroups[task.day].push(task);
-    }
-
-    // loop through each day
-    for (const day in dayGroups) {
-      const tasks = dayGroups[day];
-
-      // sort tasks by start time
-      tasks.sort((a, b) => a.startTime - b.startTime);
-
-      // compare each task with next task
-      if (checkOverlap(tasks)) {
-        return res.status(400).json({
-          success: false,
-          message: `Tasks overlap on ${day}`,
-        });
-      }
+    if (!validateRoutineItems(items, res)) {
+      return;
     }
 
     // create new routine document
@@ -77,14 +110,14 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    
+
     //Spotted Bug - Bundled newRoutine into the response object-->
     return res
       .status(200)
-      .json({ 
-        success: true, 
-        message: "Routine added successfully", 
-        routine: newRoutine 
+      .json({
+        success: true,
+        message: "Routine added successfully",
+        routine: newRoutine,
       });
   } catch (error) {
     // error handling
@@ -237,41 +270,26 @@ export const updateRoutine = async (req, res) => {
     const updates = req.body;
     const routineId = req.params.id;
 
-    if (updates.items) {
-      // calculate endtime for each task
-      const formatted = [];
-      for (const item of updates.items) {
-        const endTime = item.startTime + item.duration;
-        formatted.push({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: endTime,
+    if (Object.prototype.hasOwnProperty.call(updates, "items")) {
+      if (!validateRoutineItems(updates.items, res)) {
+        return;
+      }
+
+      const existingRoutine = await Routine.findOne({
+        _id: routineId,
+        userId: userId,
+      });
+
+      if (!existingRoutine) {
+        return res.status(404).json({
+          message: "Routine not found",
         });
       }
 
-      // group tasks by day
-      const dayGroups = {};
-      for (const task of formatted) {
-        if (!dayGroups[task.day]) {
-          dayGroups[task.day] = [];
-        }
-        dayGroups[task.day].push(task);
-      }
+      updates.items = mergeRoutineItems(existingRoutine.items, updates.items);
 
-      // loop through each day
-      for (const day in dayGroups) {
-        const tasks = dayGroups[day];
-
-        // sort tasks by start time
-        tasks.sort((a, b) => a.startTime - b.startTime);
-
-        // compare each task with next task
-        if (checkOverlap(tasks)) {
-          return res.status(400).json({
-            success: false,
-            message: `Tasks overlap on ${day}`,
-          });
-        }
+      if (!validateRoutineItems(updates.items, res)) {
+        return;
       }
     }
 
