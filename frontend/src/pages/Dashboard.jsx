@@ -8,6 +8,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import PriorityChart from "../components/Dashboard/PriorityChart";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
@@ -145,6 +146,10 @@ export default function Dashboard() {
       </section>
 
       {/* Today's Tasks */}
+      <div className="w-full animate-in delay-200">
+        <PriorityChart tasks={tasks} />
+      </div>
+
       <div className="w-full animate-in delay-200">
         <DashboardTasks tasks={tasks} updateTask={updateTask} />
       </div>
