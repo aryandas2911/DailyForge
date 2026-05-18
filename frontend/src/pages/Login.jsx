@@ -33,10 +33,12 @@ const Login = () => {
       // save token in localstorage for later api calls
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
+      console.log(res.data.userData)
+      setUser(res.data.userData)
 
       // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+      // const me = await api.get("/auth/me");
+      // setUser(me.data.user);
 
       // redirect to dashboard
       navigate("/dashboard");
