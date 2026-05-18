@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import useTasks from "../../hooks/useTasks";
 
 const priorities = ["Low", "Medium", "High"];
@@ -98,14 +98,19 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                 setTitleCollisionError("");
               }}
               onBlur={validateTitle}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
+              className={`w-full mt-1 p-2 border rounded-lg focus:ring-(--primary) focus:border-(--primary) ${
+                titleCollisionError
+                  ? "border-red-400 bg-white focus:ring-red-100 focus:border-red-500"
+                  : "border-soft"
+              }`}
               placeholder="Task title"
               required
             />
              {titleCollisionError && (
-              <p className="mt-1 text-sm text-red-600">
-                {titleCollisionError}
-              </p>
+              <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                <p>{titleCollisionError}</p>
+              </div>
             )}
           </div>
 
