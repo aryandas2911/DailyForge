@@ -73,16 +73,16 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
-      return res.status(200).json({ success: true, tasks: [] });
-    }
-    return res.status(200).json({ success: true, tasks });
-  } catch (error) {
-    // error handling
-    console.log("Error fetching tasks", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching tasks" });
-  }
+  return res.status(200).json({ success: true, tasks: [] });
+}
+
+return res.status(200).json({ success: true, tasks });
+} catch (error) {
+  console.log("Error fetching tasks", error);
+
+  return res
+    .status(500)
+    .json({ success: false, message: "Error fetching tasks" });
 };
 
 // update task function
