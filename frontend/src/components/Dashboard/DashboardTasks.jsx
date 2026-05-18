@@ -75,8 +75,8 @@ export default function DashboardTasks({ tasks, updateTask }) {
                 <p
                   className={`text-sm font-medium transition-colors ${
                     task.status === "Completed"
-                      ? "line-through text-muted"
-                      : "text-main"
+                      ? "line-through text-gray-500 dark:text-slate-400"
+                      : "text-gray-900 dark:text-white"
                   }`}
                 >
                   {task.title}
@@ -92,13 +92,13 @@ export default function DashboardTasks({ tasks, updateTask }) {
                   </span>
 
                   {task.status === "Completed" && (
-                    <span className="text-[11px] text-muted">Completed</span>
+                    <span className="text-[11px] text-gray-500 dark:text-slate-400">Completed</span>
                   )}
                 </div>
               </div>
 
               {/* Hover affordance */}
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted opacity-0 group-hover:opacity-100 transition">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-slate-400 opacity-0 group-hover:opacity-100 transition">
                 ✓
               </span>
             </div>

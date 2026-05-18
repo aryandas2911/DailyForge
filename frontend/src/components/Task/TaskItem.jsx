@@ -54,13 +54,13 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           <div className="flex-1">
             <p
               className={`text-lg font-semibold ${
-                isCompleted ? "line-through text-muted" : "text-main"
+                isCompleted ? "line-through text-gray-500 dark:text-slate-400" : "text-gray-900 dark:text-white"
               }`}
             >
               {task.title}
             </p>
 
-            <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
+            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500 dark:text-slate-400 flex-wrap">
               <span className="uppercase tracking-wide">{task.priority} priority</span>
 
               {task.dueDate && (

@@ -176,7 +176,7 @@ export default function Dashboard() {
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
           ) : savedRoutines.length === 0 ? (
-            <p className="text-sm text-muted text-center mt-10">
+            <p className="text-sm text-gray-500 dark:text-slate-400 text-center mt-10">
               No routines saved yet
             </p>
           ) : (

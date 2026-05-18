@@ -75,8 +75,8 @@ export default function TaskPreview({ tasks , updateTask}) {
                 <p
                   className={`text-sm font-medium ${
                     task.status === "Completed"
-                      ? "line-through decoration-2 decoration-muted text-muted"
-                      : "text-main"
+                      ? "line-through decoration-2 decoration-gray-300 dark:decoration-slate-500 text-gray-500 dark:text-slate-400"
+                      : "text-gray-900 dark:text-white"
                   }`}
                 >
                   {task.title}
@@ -92,7 +92,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   </span>
 
                   {task.dueDate && (
-                    <span className="text-[11px] text-muted">
+                    <span className="text-[11px] text-gray-500 dark:text-slate-400">
                       {new Date(task.dueDate).toLocaleDateString("en-US", {
                         weekday: "short",
                       })}
