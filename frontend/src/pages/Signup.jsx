@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -9,6 +9,8 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +25,11 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    
+    // clear any previous error messages
+    setErrorMessage("");
 
+    if (!validate()) return;
     // set loading state
     setIsLoading(true);
     setError("");
@@ -48,15 +54,36 @@ const Signup = () => {
       // redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
-      console.log("Signup failed");
-      const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
-      setError(errorMessage);
-      console.log(errorMessage);
-    } finally {
-      // reset loading state
-      setIsLoading(false);
+  console.log("Signup failed");
+
+  const errorMessage =
+    error.response?.data?.message || error.message || "Signup failed. Please try again.";
+
+  console.log(errorMessage);
+
+  // specific handling for duplicate user
+  if (error.response?.status === 409) {
+    setErrorMessage("An account with this email already exists. Please try logging in instead.");
+  } else {
+    setErrorMessage(errorMessage);
+  }
+} finally {
+  setIsLoading(false);
+}
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters long";
     }
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // signup component
@@ -74,6 +101,12 @@ const Signup = () => {
         <h1 className="text-3xl font-bold text-main">Signup</h1>
       </div>
 
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-main">
           Name
@@ -87,16 +120,17 @@ const Signup = () => {
           }}
           placeholder="Full Name"
           required
-          className="
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-sm
             shadow-xs
             input-focus hover-lift
-          "
+            ${errors.name ? "border-red-500" : "border-soft"}
+          `}
         />
+        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -128,6 +162,26 @@ const Signup = () => {
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          placeholder="••••••••"
+          required
+          className={`
+            w-full px-3 py-2.5
+            text-sm
+            surface-bg
+            rounded-base
+            shadow-xs
+            input-focus hover-lift
+            ${errors.password ? "border-red-500" : "border-soft"}
+          `}
+        />
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -175,14 +229,12 @@ const Signup = () => {
 
       <p className="text-center text-sm text-muted">
         Already have an account?{" "}
-        <span
-          onClick={() => {
-            navigate("/login");
-          }}
+        <Link
+          to="/login"
           className="text-main font-medium cursor-pointer hover:underline transition-colors"
         >
           Login
-        </span>
+        </Link>
       </p>
     </form>
   );

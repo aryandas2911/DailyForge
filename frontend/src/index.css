@@ -29,6 +29,38 @@
   --radius: 0.75rem;
 }
 
+.dark {
+  /* App background (outer layout) - deep premium slate dark blue-gray */
+  --bg: #0f172a;
+
+  /* Surfaces: cards, modals, panels - charcoal slate */
+  --surface: #1e293b;
+
+  /* Primary action color (CTAs) - vibrant teal */
+  --primary: #4eb7b3;
+
+  /* Hover / active feedback */
+  --primary-hover: #5ec7c3;
+
+  /* Accents: highlights, tags, blocks */
+  --accent: #1e2e30;
+
+  /* Main readable text - crisp slate-off-white */
+  --text-main: #f8fafc;
+
+  /* Secondary / low-priority text */
+  --text-muted: #94a3b8;
+
+  /* Soft separators and outlines */
+  --border: #334155;
+}
+
+html.dark, html.dark body {
+  background-color: var(--bg);
+  color: var(--text-main);
+  color-scheme: dark;
+}
+
 /* Utility Classes */
 @layer utilities {
   /* Layout backgrounds */

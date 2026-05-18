@@ -1,45 +1,71 @@
 import { useState, useEffect } from "react";
 import { X, Tag , ClipboardList , AlignLeft , Flag, ClipboardPlus , Plus} from "lucide-react";
+import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
 
-export default function TaskFormModal({ task, onClose, onSubmit }) {
+export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  
+  const maxDateObj = new Date();
+  maxDateObj.setFullYear(today.getFullYear() + 1);
+  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
 
   useEffect(() => {
     if (task) {
       /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
-      setTags(task.tags || "");
+      setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
     }
-  }, [task]);
+    onError?.("");
+  }, [task, onError]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return alert("Title is required");
-    if (!priority) return alert("Priority is required");
-    if (!dueDate) return alert("Due date is required");
+    onError?.("");
+    if (!title.trim()) return onError?.("Title is required");
+    if (!priority) return onError?.("Priority is required");
+    if (!dueDate) return onError?.("Due date is required");
+
+    if (dueDate < todayStr) {
+      return alert("Due date cannot be in the past");
+    }
+    
+    if (dueDate > maxDateStr) {
+      return alert("Due date cannot be more than 1 year in the future");
+    }
 
     onSubmit({
       title: title.trim(),
       description: description.trim(),
-      tags: tags.trim(),
+      tags: tags,
       priority,
       dueDate,
     });
   };
 
+  const toggleCategory = (categoryName) => {
+    setTags(prev => 
+      prev.includes(categoryName)
+        ? prev.filter(tag => tag !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg animate-fadeIn">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-modalPop">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-in delay-100 border border-soft">
         
 
         <div className=" bg-teal-900 px-8 pt-5 pb-4 ">
@@ -64,7 +90,14 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
         </div>
 
 
-        <form onSubmit={handleSubmit} className="px-6  pt-5 border-t border-gray-100 spave-y-3">
+        <form onSubmit={handleSubmit} className="px-6  pt-5 border-t border-gray-100 space-y-3">
+        {errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
+       
           {/* Title */}
  <div>
   <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
@@ -105,6 +138,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
               placeholder="Add task details or notes (optional)"
               rows={2}
+               maxLength={300}
             />
 
             <p
@@ -113,7 +147,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
                   ? "text-red-500"
                   : description.length >= 250
                     ? "text-yellow-500"
-                    : "text-gray-500"
+                    : "text-muted"
               }`}
             >
               {description.length}/300
@@ -121,7 +155,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           </div>
           </div>
 
-          {/* Tags */}
+          {/* Categories */}
           <div>
   <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
    Tags (optional)
@@ -177,7 +211,10 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       <input
         type="date"
         value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
+         min={todayStr}
+              max={maxDateStr}
+              onChange={(e) => setDueDate(e.target.value)}
+              onClick={(e) => e.target.showPicker?.()}
         className="w-full mt-2 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-500 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-teal-500/20"
         required
       />
