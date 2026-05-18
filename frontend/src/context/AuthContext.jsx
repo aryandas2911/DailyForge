@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
     if (token) {
       // fetch logged-in user
       api
-        .get("/auth/me")
+        .get("/api/auth/me")
         .then((res) => {
           setUser(res.data.user);
         })

@@ -10,7 +10,6 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,23 +37,18 @@ const Signup = () => {
 
     // send request to server
     try {
-      const res = await api.post("/auth/signup", {
+      const res = await api.post("/api/auth/signup", {
         name,
         email,
         password,
       });
-      console.log("Signup success: ", res.data);
+      console.log(res);
+
+      alert(res.data.message)
+      localStorage.setItem('verificationToken', res.data.verificationToken)
 
       // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
-
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
-
-      // redirect to dashboard
-      navigate("/dashboard");
+      navigate('/verifyotp')
     } catch (error) {
   console.log("Signup failed");
 
@@ -167,13 +161,36 @@ const Signup = () => {
         <label htmlFor="password" className="text-sm font-medium text-main">
           Password
         </label>
+        <input
+          type="password"
+          id="password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          placeholder="••••••••"
+          required
+          className={`
+            w-full px-3 py-2.5
+            text-sm
+            surface-bg
+            rounded-base
+            shadow-xs
+            input-focus hover-lift
+            ${errors.password ? "border-red-500" : "border-soft"}
+          `}
+        />
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
+        <label htmlFor="password" className="text-sm font-medium text-main">
+          Confirm Password
+        </label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             id="password"
-            value={password}
+            value={confirmPassword}
             onChange={(e) => {
-              setPassword(e.target.value);
+              setConfirmPassword(e.target.value);
             }}
             placeholder="••••••••"
             required
@@ -196,45 +213,7 @@ const Signup = () => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-main">
-          Confirm Password
-        </label>
-        <div className="relative">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-            }}
-            placeholder="••••••••"
-            required
-            className="
-              w-full px-3 py-2.5 pr-10
-              text-sm
-              surface-bg
-              border-soft
-              rounded-base
-              shadow-xs
-              input-focus hover-lift
-            "
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
-            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-          >
-            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-        {errors.confirmPassword && (
-          <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
-        )}
+        {password !== confirmPassword && <span className="text-red-500 text-xs">both password must be same</span>}
       </div>
 
       {error && (

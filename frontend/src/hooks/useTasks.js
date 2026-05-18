@@ -7,7 +7,7 @@ const useTasks = () => {
   // fetch tasks from database
   const getTasks = async () => {
     try {
-      const tasks = await api.get("/tasks");
+      const tasks = await api.get("/api/tasks");
       setTasks(tasks.data.tasks);
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to load tasks");
@@ -16,18 +16,8 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    try {
-      await api.post("/tasks", taskData);
-      getTasks();
-    } catch (error) {
-      if (error.response?.status === 409) {
-        throw new Error(
-          error.response.data?.message ||
-            "Task with the same title and due date already exists"
-        );
-      }
-      throw error;
-    }
+    await api.post("/api/tasks", taskData);
+    getTasks();
   };
 
   // update task
@@ -36,7 +26,7 @@ const useTasks = () => {
       prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
     );
     try {
-      await api.put(`/tasks/${id}`, updates);
+      await api.put(`/api/tasks/${id}`, updates);
       await getTasks();
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to update task");
@@ -46,7 +36,7 @@ const useTasks = () => {
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
+    await api.delete(`/api/tasks/${id}`);
     // fix : This line refreshes the UI!
     setTasks(prev => prev.filter(t => t._id !== id)); 
   };
@@ -58,7 +48,7 @@ const useTasks = () => {
   }, []);
   // bulk delete tasks
   const bulkDelete = async (ids) => {
-    await api.post("/tasks/bulk-delete", { ids });
+    await api.post("/api/tasks/bulk-delete", { ids });
     getTasks();
   };
   // return reusable functions

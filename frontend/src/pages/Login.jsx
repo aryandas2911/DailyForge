@@ -24,10 +24,12 @@ const Login = () => {
 
     // send request to server
     try {
-      const res = await api.post("/auth/login", {
+      const res = await api.post("/api/auth/login", {
         email,
         password,
       });
+      console.log(res);
+      
       console.log("Login success: ", res.data);
 
       // save token in localstorage for later api calls
@@ -35,7 +37,7 @@ const Login = () => {
       setToken(res.data.token);
 
       // get user details
-      const me = await api.get("/auth/me");
+      const me = await api.get("/api/auth/me");
       setUser(me.data.user);
 
       // redirect to dashboard
