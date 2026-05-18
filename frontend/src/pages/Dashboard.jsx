@@ -18,8 +18,11 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [rewardPoints, setRewardPoints] = useState(0);
+const [currentStreak, setCurrentStreak] = useState(0);
 
   const { tasks, updateTask } = useTasks();
+
 
   const today = new Date();
  
@@ -90,10 +93,28 @@ export default function Dashboard() {
     }
   };
 
+const fetchRewards = async () => {
+  try {
+    const res = await api.get("/tasks/rewards");
+
+    setRewardPoints(res.data.rewardPoints || 0);
+    setCurrentStreak(res.data.currentStreak || 0);
+
+  } catch (error) {
+    console.error("Error fetching rewards:", error);
+  }
+};
+
   useEffect(() => {
     fetchRoutines();
+     fetchRewards();
   }, []);
 
+
+    const handleTaskUpdate = async (...args) => {
+  await updateTask(...args);
+  fetchRewards();
+};
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
@@ -125,28 +146,51 @@ export default function Dashboard() {
       </header>
 
       {/* Stats Row */}
-      <section className="flex flex-col lg:flex-row gap-6 w-full">
-        <div className="flex-1 animate-in delay-100">
-          <StatCard
-            label="Today"
-            value={`${completedToday} / ${totalToday}`}
-            subtitle="Tasks done"
-            icon={<CheckCircle2 size={20} />}
-          />
-        </div>
-        <div className="flex-1 animate-in delay-200">
-          <StatCard
-            label="This Week"
-            value={`${weeklyCompletionPercent}%`}
-            subtitle="Completion"
-            icon={<Calendar size={20} />}
-          />
-        </div>
-      </section>
+   <section className="flex flex-col lg:flex-row gap-6 w-full flex-wrap">
+  <div className="flex-1 min-w-[250px] animate-in delay-100">
+    <StatCard
+      label="Today"
+      value={`${completedToday} / ${totalToday}`}
+      subtitle="Tasks done"
+      icon={<CheckCircle2 size={20} />}
+    />
+  </div>
+
+  <div className="flex-1 min-w-[250px] animate-in delay-200">
+    <StatCard
+      label="This Week"
+      value={`${weeklyCompletionPercent}%`}
+      subtitle="Completion"
+      icon={<Calendar size={20} />}
+    />
+  </div>
+
+  <div className="flex-1 min-w-[250px] animate-in delay-300">
+    <StatCard
+      label="Reward Points"
+      value={rewardPoints}
+      subtitle="Earn by completing tasks"
+      icon={<span className="text-xl">⭐</span>}
+    />
+  </div>
+
+  <div className="flex-1 min-w-[250px] animate-in delay-400">
+    <StatCard
+      label="Current Streak"
+      value={`${currentStreak} Days`}
+      subtitle={
+        currentStreak > 0
+          ? `${7 - (currentStreak % 7 || 7)} more for bonus`
+          : "Start your streak today"
+      }
+      icon={<Flame size={20} />}
+    />
+  </div>
+</section>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks tasks={tasks} updateTask={updateTask} />
+        <DashboardTasks tasks={tasks} updateTask={handleTaskUpdate} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
@@ -155,7 +199,7 @@ export default function Dashboard() {
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
             tasks={upcomingTasks}
-            updateTask={updateTask}
+            updateTask={handleTaskUpdate}
           />
         </div>
 
