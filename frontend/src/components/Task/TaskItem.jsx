@@ -1,5 +1,5 @@
 import { Check, Trash2, Pencil, Calendar } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
 
@@ -12,11 +12,41 @@ const priorityStyles = {
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
     setIsEditModalOpen(false);
   };
+
+  const handleDeleteClick = () => {
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(task._id);
+    setShowConfirm(false);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirm(false);
+  };
+
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape" && showConfirm) {
+        handleCancelDelete();
+      }
+    };
+
+    if (showConfirm) {
+      document.addEventListener("keydown", handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [showConfirm]);
 
   return (
     <>
@@ -95,21 +125,41 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            {/* Edit Button */}
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
-            >
-              <Pencil size={18} className="text-main" />
-            </button>
+            {/* Confirmation Buttons - Show when showConfirm is true */}
+            {showConfirm ? (
+              <>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-3 py-1.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition cursor-pointer"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={handleCancelDelete}
+                  className="px-3 py-1.5 rounded-lg bg-gray-300 dark:bg-slate-600 text-gray-900 dark:text-white text-sm font-medium hover:bg-gray-400 dark:hover:bg-slate-500 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Edit Button */}
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+                >
+                  <Pencil size={18} className="text-main" />
+                </button>
 
-            {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
-            <button
-              onClick={()=> onDelete(task._id)}
-              className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
-            >
-              <Trash2 size={18} className="text-red-500" />
-            </button>
+                {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
+                <button
+                  onClick={handleDeleteClick}
+                  className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
+                >
+                  <Trash2 size={18} className="text-red-500" />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
