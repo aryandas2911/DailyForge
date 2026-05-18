@@ -1,13 +1,16 @@
 import User from "../src/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { sendOTP } from "../utils/emailVarification.js";
+
+const pendingUsers = new Map();
+const verificationToken = crypto.randomUUID();
 
 // sign up function
 export const signup = async (req, res) => {
   try {
     // fetch values from request
     const { name, email, password } = req.body;
-
     if (!name || name.trim().length < 2) {
       return res.status(400).json({ message: "Name must be at least 2 characters long" });
     }
@@ -26,29 +29,96 @@ export const signup = async (req, res) => {
     // hashing the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // create new user document
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
 
-    // save the new user in database
-    await newUser.save();
+    const otp = await sendOTP(email);
+    pendingUsers.set(verificationToken, { name, email, password: hashedPassword});
 
-    // generate token using jwt
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
-    return res
-      .status(201)
-      .json({ message: "User registered successfully", token });
+    return res.json({
+      success: true,
+      message: "otp sent",
+      verificationToken
+    })
+
   } catch (error) {
     // error handling
     console.error("Signup error:", error);
     return res.status(500).json({ message: "Server error during signup" });
   }
 };
+
+
+export const verifyUser = async (req, res) => {
+  const { otp,verificationToken} = req.body;
+  
+  try {
+    if (!otp) {
+      return res.status(400).json({ success: false, message: "OTP is required." });
+    }
+
+    const pending = pendingUsers.get(verificationToken);
+
+    if (!pending) {
+      return res.status(400).json({
+        success: false,
+        message: "Signup session expired. Please sign up again.",
+      });
+
+    }
+    const newUser = new User({
+      name:pending.name,
+      email:pending.email,
+      password: pending.password,
+    });
+
+    // save the new user in database
+    await newUser.save();
+
+    pendingUsers.delete(verificationToken);
+
+    // generate token using jwt
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", token });
+  } catch (error) {
+
+  }
+}
+
+
+
+export const resend=async (req, res) => {
+  const {verificationToken}=req.body
+  const user=pendingUsers.get(verificationToken)
+  const {email}=user;
+
+  try { 
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required." });
+    }
+
+    // Must have a pending signup
+    if (!pendingUsers.has(verificationToken)) {
+      return res.status(400).json({
+        success: false,
+        message: "No pending signup found for this email. Please sign up again.",
+      });
+    }
+
+    await sendOTP(email);
+
+    return res.status(200).json({
+      success: true,
+      message: "A new OTP has been sent to your email.",
+    });
+  } catch (err) {
+    console.error("Resend OTP error:", err);
+    return res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again." });
+  }
+}
 
 // login function
 export const login = async (req, res) => {
@@ -65,22 +135,25 @@ export const login = async (req, res) => {
 
     // check if user exists or not
     const user = await User.findOne({ email });
+    
     if (!user) {
       return res.status(409).json({ message: "User does not exist" });
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
+    
     if (!passwordCheck) {
       return res.status(401).json({ message: "Password does not match" });
     }
 
     // generate jwt token
-   const token = jwt.sign(
-  { id: user._id },
-  process.env.JWT_SECRET,
-  { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-);
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+    
     return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     // error handling

@@ -50,8 +50,9 @@ export default function RoutineBuilder() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await api.get("/api/routines");
       // res.data.routines is the array you need
+      console.log(res.data.routines);
       setSavedRoutines(
         Array.isArray(res.data.routines) ? res.data.routines : []
       );
@@ -74,7 +75,7 @@ export default function RoutineBuilder() {
       }));
 
     try {
-      await api.post("/routines", {
+      await api.post("/api/routines", {
         name: routineName,
         description: description,
         items,

@@ -80,7 +80,7 @@ export default function Dashboard() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await api.get("/api/routines");
       setSavedRoutines(res.data.routines || []);
     } catch (err) {
       console.error(err);
