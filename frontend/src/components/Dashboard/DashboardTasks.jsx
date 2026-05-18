@@ -3,23 +3,13 @@ import { useNavigate } from "react-router-dom";
 export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
-  const priorityOrder = {
-    High: 3,
-    Medium: 2,
-    Low: 1,
-  };
+  const priorityOrder = { High: 3, Medium: 2, Low: 1 };
 
-  const priorityBorder = {
-    Low: "border-green-400",
-    Medium: "border-yellow-400",
-    High: "border-red-500",
-  };
-
-  const priorityBadge = {
-    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  };
+ const priorityConfig = {
+  Low:    { borderColor: "#22c55e", tint: "rgba(34,197,94,0.20)",  badgeBg: "rgba(34,197,94,0.15)",  badgeColor: "#22c55e" },
+  Medium: { borderColor: "#eab308", tint: "rgba(234,179,8,0.20)",  badgeBg: "rgba(234,179,8,0.15)",  badgeColor: "#eab308" },
+  High:   { borderColor: "#ef4444", tint: "rgba(239,68,68,0.20)",  badgeBg: "rgba(239,68,68,0.15)",  badgeColor: "#ef4444" },
+};
 
   const today = new Date();
 
@@ -33,16 +23,26 @@ export default function DashboardTasks({ tasks, updateTask }) {
     .slice(0, 5);
 
   return (
-    <div className="card w-full">
+    <div
+      className="w-full rounded-2xl border border-border p-6 shadow-sm"
+      style={{ backgroundColor: "var(--color-surface)" }}
+    >
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
         <div>
-          <h2 className="text-lg font-semibold text-main">Today’s Focus</h2>
-          <p className="text-xs text-muted">Top priorities for today</p>
+          <h2
+            className="text-lg font-semibold"
+            style={{ color: "var(--color-text-main)" }}
+          >
+            Today's Focus
+          </h2>
+          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            Top priorities for today
+          </p>
         </div>
-
         <button
-          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
+          className="text-sm hover:underline underline-offset-4 cursor-pointer transition-colors"
+          style={{ color: "var(--color-primary)" }}
           onClick={() => navigate("/tasks")}
         >
           Manage →
@@ -51,64 +51,88 @@ export default function DashboardTasks({ tasks, updateTask }) {
 
       {todayTasks?.length ? (
         <div className="space-y-3">
-          {todayTasks.map((task) => (
-            <div
-              key={task._id}
-              className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
-              ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
-            >
-              {/* Checkbox */}
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
-                checked={task.status === "Completed"}
-                onChange={() =>
-                  updateTask(task._id, {
-                    status: task.status === "Completed" ? "Due" : "Completed",
-                  })
-                }
-              />
+          {todayTasks.map((task) => {
+            const config = priorityConfig[task.priority] || priorityConfig.Low;
+            const isCompleted = task.status === "Completed";
 
-              {/* Task content */}
-              <div className="flex-1">
-                <p
-                  className={`text-sm font-medium transition-colors ${
-                    task.status === "Completed"
-                      ? "line-through text-muted"
-                      : "text-main"
-                  }`}
-                >
-                  {task.title}
-                </p>
+            return (
+              <div
+                key={task._id}
+                className="group relative flex items-center gap-4 rounded-xl p-4 transition-all duration-200 shadow-sm hover:shadow-md"
+                style={{
+                  background: `linear-gradient(to right, ${config.tint}, transparent)`,
+                  backgroundColor: "var(--color-surface)",
+                  border: `1px solid var(--color-border)`,
+                  borderLeft: `4px solid ${config.borderColor}`,
+                  opacity: isCompleted ? 0.6 : 1,
+                }}
+              >
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 cursor-pointer accent-blue-500 shrink-0"
+                  checked={isCompleted}
+                  onChange={() =>
+                    updateTask(task._id, {
+                      status: isCompleted ? "Due" : "Completed",
+                    })
+                  }
+                />
 
-                <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                      priorityBadge[task.priority]
-                    }`}
+                {/* Task content */}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-sm font-medium truncate transition-colors"
+                    style={{
+                      color: isCompleted ? "var(--color-text-muted)" : "var(--color-text-main)",
+                      textDecoration: isCompleted ? "line-through" : "none",
+                    }}
                   >
-                    {task.priority}
-                  </span>
+                    {task.title}
+                  </p>
 
-                  {task.status === "Completed" && (
-                    <span className="text-[11px] text-muted">Completed</span>
-                  )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span
+                      className="text-[11px] px-2 py-0.5 rounded-full font-semibold"
+                      style={{
+                        backgroundColor: config.badgeBg,
+                        color: config.badgeColor,
+                      }}
+                    >
+                      {task.priority}
+                    </span>
+
+                    {isCompleted && (
+                      <span
+                        className="text-[11px]"
+                        style={{ color: "var(--color-text-muted)" }}
+                      >
+                        Completed
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Hover affordance */}
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted opacity-0 group-hover:opacity-100 transition">
-                ✓
-              </span>
-            </div>
-          ))}
+                {/* Hover affordance */}
+                <span
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs opacity-0 group-hover:opacity-100 transition"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  ✓
+                </span>
+              </div>
+            );
+          })}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
+        <div
+          className="text-sm text-center py-6"
+          style={{ color: "var(--color-text-muted)" }}
+        >
           No tasks for today.
           <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
+            className="block mt-2 hover:underline cursor-pointer transition-colors"
+            style={{ color: "var(--color-primary)" }}
             onClick={() => navigate("/tasks")}
           >
             Add your first task →
