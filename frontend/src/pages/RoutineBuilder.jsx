@@ -99,21 +99,30 @@ export default function RoutineBuilder() {
   };
 
   const confirmSaveRoutine = async () => {
-    const items = scheduledTasks
-      .filter((task) => task.day === selectedDay)
-      .map((task) => ({
-        taskId: task.taskId,
-        day: selectedDay,
-        startTime: task.startTime,
-        duration: task.duration,
-      }));
+    // Stage ALL active scheduled tasks across all days to prevent destructive overwriting
+    const items = scheduledTasks.map((task) => ({
+      taskId: task.taskId,
+      day: task.day,
+      startTime: task.startTime,
+      duration: task.duration,
+    }));
 
     try {
-      await api.post("/routines", {
-        name: routineName,
-        description: description,
-        items,
-      });
+      if (savedRoutines.length > 0) {
+        // Safe incremental update (PUT) for existing routine
+        await api.put(`/routines/${savedRoutines[0]._id}`, {
+          name: routineName,
+          description: description,
+          items,
+        });
+      } else {
+        // Initial creation (POST) if no routine is saved yet
+        await api.post("/routines", {
+          name: routineName,
+          description: description,
+          items,
+        });
+      }
 
       setIsSaveModalOpen(false);
       setRoutineName("");
@@ -124,7 +133,12 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const serverMessage = err.response?.data?.message;
+      alert(
+        serverMessage
+          ? `Failed to save routine: ${serverMessage}`
+          : "Failed to save routine. Please try again."
+      );
     }
   };
 
@@ -136,7 +150,16 @@ export default function RoutineBuilder() {
     }
 
     setSelectedDay(day);
-    setRoutineName(`${day} Routine`);
+    
+    // Pre-fill fields with existing routine details to improve UX and avoid re-typing
+    if (savedRoutines.length > 0) {
+      setRoutineName(savedRoutines[0].name || `${day} Routine`);
+      setDescription(savedRoutines[0].description || "");
+    } else {
+      setRoutineName(`${day} Routine`);
+      setDescription("");
+    }
+    
     setIsSaveModalOpen(true);
   };
 
