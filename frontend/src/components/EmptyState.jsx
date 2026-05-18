@@ -70,11 +70,11 @@ const styles = {
     borderRadius: "20px",
     background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
     border: "1.5px dashed #c4b5fd",
-    maxWidth: "420px",
-    margin: "40px auto",
+    width: "100%",
     textAlign: "center",
     overflow: "hidden",
     fontFamily: "'Outfit', 'Segoe UI', sans-serif",
+    boxSizing: "border-box",
   },
   blob: {
     position: "absolute",
