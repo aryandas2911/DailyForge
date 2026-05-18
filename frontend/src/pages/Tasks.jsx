@@ -15,6 +15,8 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [showToast, setShowToast] = useState(false);
+  const [lastDeletedTask, setLastDeletedTask] = useState(null);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -26,6 +28,16 @@ export default function Tasks() {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
   };
+  const handleDeleteWithConfirm = (id) => {
+  const confirmed = window.confirm("Are you sure you want to delete this task?");
+  if (confirmed) {
+    const task = tasks.find(t => t._id === id);
+    setLastDeletedTask(task);
+    deleteTask(id);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 5000);
+  }
+};
 
   /** --- Handlers --- */
   const handleToggle = (task) => {
@@ -183,7 +195,7 @@ export default function Tasks() {
                     task={task}
                     onToggleComplete={handleToggle}
                     // fix : Ensure onDelete is explicitely reciving the id
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={(id) => handleDeleteWithConfirm(id)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
@@ -289,6 +301,16 @@ export default function Tasks() {
           onSubmit={handleSubmit}
         />
       )}
+      {showToast && (
+  <div style={{
+    position:'fixed', bottom:24, left:'50%',
+    transform:'translateX(-50%)', background:'#1e1e2e',
+    color:'#fff', padding:'12px 24px', borderRadius:8,
+    boxShadow:'0 4px 12px rgba(0,0,0,0.3)', zIndex:9999
+  }}>
+    ✅ Task deleted
+  </div>
+)}
     </div>
   );
 }
