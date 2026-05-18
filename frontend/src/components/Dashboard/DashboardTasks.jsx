@@ -35,14 +35,14 @@ export default function DashboardTasks({ tasks, updateTask }) {
   return (
     <div className="card w-full">
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+     <div className="flex flex-wrap justify-between items-center gap-2 mb-5">
         <div>
           <h2 className="text-lg font-semibold text-main">Today’s Focus</h2>
           <p className="text-xs text-muted">Top priorities for today</p>
         </div>
 
         <button
-          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
+         className="text-sm text-primary hover:underline underline-offset-4 transition cursor-pointer"
           onClick={() => navigate("/tasks")}
         >
           Manage →
@@ -56,7 +56,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
               key={task._id}
               className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
+              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-shadow`}
             >
               {/* Checkbox */}
               <input
@@ -105,7 +105,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
+        <div className="text-sm text-muted text-center py-8">
           No tasks for today.
           <span
             className="block mt-2 text-primary hover:underline cursor-pointer"
