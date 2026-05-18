@@ -8,6 +8,15 @@ export const signup = async (req, res) => {
     // fetch values from request
     const { name, email, password } = req.body;
 
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ message: "Name must be at least 2 characters long" });
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!password || !passwordRegex.test(password)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character" });
+    }
+
     // check user exists or not
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
@@ -28,7 +37,7 @@ export const signup = async (req, res) => {
     await newUser.save();
 
     // generate token using jwt
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
     return res
@@ -67,9 +76,11 @@ export const login = async (req, res) => {
     }
 
     // generate jwt token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+   const token = jwt.sign(
+  { id: user._id },
+  process.env.JWT_SECRET,
+  { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+);
     return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     // error handling
