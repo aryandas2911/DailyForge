@@ -64,17 +64,67 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   };
 
   return (
+<<<<<<< style/mobile-task-bottom-sheet
+
+    <div
+      className="
+    fixed inset-0 z-50
+    bg-black/40
+
+    flex items-end md:items-center justify-center
+
+    md:px-4
+
+    overflow-hidden
+  "
+    >
+
+      <div
+        className="
+      relative bg-white shadow-xl
+
+      w-full
+      md:max-w-md
+
+      rounded-t-3xl
+      md:rounded-2xl
+
+      p-5 md:p-6
+
+      max-h-[90vh] md:max-h-fit overflow-y-auto md:overflow-visible
+
+      animate-in slide-in-from-bottom duration-300
+
+      scrollbar-hide
+    "
+      >
+
+        <div className="md:hidden flex justify-center mb-4">
+          <div className="w-12 h-1.5 rounded-full bg-gray-300" />
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="
+        absolute top-4 right-4
+        p-1 rounded-full
+        hover:bg-gray-100
+        transition-colors
+      "
+=======
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
       <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
         {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-main"
+>>>>>>> main
         >
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-semibold text-main mb-4">
+        <h2 className="text-xl font-semibold text-main mb-5">
           {task ? "Edit Task" : "New Task"}
         </h2>
 
@@ -85,14 +135,30 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
           {/* Title */}
           <div>
-            <label className="text-sm font-medium text-main">Title</label>
+            <label className="text-sm font-medium text-main">
+              Title
+            </label>
+
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+<<<<<<< style/mobile-task-bottom-sheet
+              className="
+            w-full mt-1 p-3
+            border border-soft
+            rounded-xl
+            outline-none
+
+            focus:ring-(--primary)
+            focus:border-(--primary)
+          "
+=======
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+>>>>>>> main
               placeholder="Task title"
               required
             />
@@ -106,10 +172,24 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
             <textarea
               value={description}
+<<<<<<< style/mobile-task-bottom-sheet
+              onChange={(e) => setDescription(e.target.value)}
+              className="
+            w-full mt-1 p-3
+            border border-soft
+            rounded-xl
+            outline-none
+            resize-none
+
+            focus:ring-(--primary)
+            focus:border-(--primary)
+          "
+=======
               onChange={(e) =>
                 setDescription(e.target.value)
               }
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+>>>>>>> main
               placeholder="Optional task description"
               rows={3}
               maxLength={300}
@@ -130,6 +210,27 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
           {/* Categories */}
           <div>
+<<<<<<< style/mobile-task-bottom-sheet
+            <label className="text-sm font-medium text-main">
+              Tags
+            </label>
+
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="
+            w-full mt-1 p-3
+            border border-soft
+            rounded-xl
+            outline-none
+
+            focus:ring-(--primary)
+            focus:border-(--primary)
+          "
+              placeholder="Upskilling, College, Personal, Other"
+            />
+=======
             <label className="text-sm font-medium text-main">Categories</label>
             <div className="mt-2 flex flex-wrap gap-2">
               {CATEGORIES.map((category) => {
@@ -156,15 +257,32 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               })}
             </div>
             <p className="text-xs text-muted mt-1">Select one or more categories</p>
+>>>>>>> main
           </div>
 
           {/* Priority */}
           <div>
-            <label className="text-sm font-medium text-main">Priority</label>
+            <label className="text-sm font-medium text-main">
+              Priority
+            </label>
+
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
+<<<<<<< style/mobile-task-bottom-sheet
+              className="
+            w-full mt-1 p-3
+            border border-soft
+            rounded-xl
+            outline-none
+            bg-white
+
+            focus:ring-(--primary)
+            focus:border-(--primary)
+          "
+=======
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
+>>>>>>> main
               required
             >
               {priorities.map((p) => (
@@ -177,15 +295,30 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
           {/* Due Date */}
           <div>
-            <label className="text-sm font-medium text-main">Due Date</label>
+            <label className="text-sm font-medium text-main">
+              Due Date
+            </label>
+
             <input
               type="date"
               value={dueDate}
               min={todayStr}
               max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
+<<<<<<< style/mobile-task-bottom-sheet
+              className="
+            w-full mt-1 p-3
+            border border-soft
+            rounded-xl
+            outline-none
+
+            focus:ring-(--primary)
+            focus:border-(--primary)
+          "
+=======
               onClick={(e) => e.target.showPicker?.()}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+>>>>>>> main
               required
             />
           </div>
@@ -193,13 +326,24 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full btn btn-primary py-2 mt-2 hover-lift"
-            onSubmit={handleSubmit}
+            className="
+          w-full
+          btn btn-primary
+
+          py-3 mt-3
+
+          rounded-xl
+
+          hover-lift
+        "
           >
             {task ? "Update Task" : "Add Task"}
           </button>
+
         </form>
       </div>
     </div>
+
+
   );
 }

@@ -1,7 +1,11 @@
 import { Check, Trash2, Pencil, Calendar } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
+<<<<<<< style/mobile-task-bottom-sheet
+import { createPortal } from "react-dom";
+=======
 import { getCategoryColor } from "../../utils/categoryUtils";
+>>>>>>> main
 
 const priorityStyles = {
   Low: "border-green-500 bg-green-50 dark:bg-green-950/20",
@@ -53,9 +57,8 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           {/* Content */}
           <div className="flex-1">
             <p
-              className={`text-lg font-semibold ${
-                isCompleted ? "line-through text-muted" : "text-main"
-              }`}
+              className={`text-lg font-semibold ${isCompleted ? "line-through text-muted" : "text-main"
+                }`}
             >
               {task.title}
             </p>
@@ -114,14 +117,17 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
         </div>
       </div>
 
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <TaskFormModal
-          task={task}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleEditSubmit}
-        />
-      )}
+
+      {isEditModalOpen &&
+        createPortal(
+          <TaskFormModal
+            task={task}
+            onClose={() => setIsEditModalOpen(false)}
+            onSubmit={handleEditSubmit}
+          />,
+          document.body
+        )}
+
     </>
   );
 }
