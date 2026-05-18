@@ -233,3 +233,60 @@ export const bulkDeleteTasks = async (req, res) => {
       .json({ success: false, message: "Error deleting tasks" });
   }
 };
+// search and filter tasks function
+export const searchTasks = async (req, res) => {
+  try {
+    // check if user is logged in or not
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized, token invalid" });
+    }
+
+    // get query parameters
+    const { q, priority, status, tags } = req.query;
+
+    // build filter object — always filter by userId
+    const filter = { userId: userId };
+
+    // keyword search on title or description
+    if (q && q.trim() !== "") {
+      filter.$or = [
+        { title: { $regex: q.trim(), $options: "i" } },
+        { description: { $regex: q.trim(), $options: "i" } },
+      ];
+    }
+
+    // filter by priority if provided
+    if (priority && ["Low", "Medium", "High"].includes(priority)) {
+      filter.priority = priority;
+    }
+
+    // filter by status if provided
+    if (status && ["Due", "Completed"].includes(status)) {
+      filter.status = status;
+    }
+
+    // filter by tags if provided
+    if (tags && tags.trim() !== "") {
+      filter.tags = { $regex: tags.trim(), $options: "i" };
+    }
+
+    // fetch filtered tasks sorted by newest first
+    const tasks = await Task.find(filter).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: tasks.length,
+      tasks,
+    });
+  } catch (error) {
+    // error handling
+    console.log("Error searching tasks", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error searching tasks" });
+  }
+};
