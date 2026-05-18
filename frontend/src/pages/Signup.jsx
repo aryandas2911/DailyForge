@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Captcha from "../components/Captcha.jsx";
 
 const Signup = () => {
   // three states for inputs
@@ -16,6 +17,7 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   // useNavigate object
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ const Signup = () => {
         name,
         email,
         password,
+        captchaToken,
       });
       console.log("Signup success: ", res.data);
 
@@ -235,6 +238,7 @@ const Signup = () => {
         {errors.confirmPassword && (
           <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
         )}
+        <Captcha onVerify={setCaptchaToken} />
       </div>
 
       {error && (

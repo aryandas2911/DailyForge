@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Captcha from "../components/Captcha.jsx";
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
   // useNavigate object
   const navigate = useNavigate();
 
@@ -27,6 +29,7 @@ const Login = () => {
       const res = await api.post("/auth/login", {
         email,
         password,
+        captchaToken,
       });
       console.log("Login success: ", res.data);
 
@@ -123,6 +126,7 @@ const Login = () => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+        <Captcha onVerify={setCaptchaToken} />
       </div>
       {error && (
         <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">

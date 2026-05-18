@@ -1,13 +1,14 @@
 import User from "../src/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import { verifyCaptcha } from "../utils/captchaUtils.js";
 // sign up function
 export const signup = async (req, res) => {
   try {
     // fetch values from request
-    const { name, email, password } = req.body;
-
+    
+    const { name, email, password, captchaToken } = req.body;
+    await verifyCaptcha(captchaToken);
     if (!name || name.trim().length < 2) {
       return res.status(400).json({ message: "Name must be at least 2 characters long" });
     }
@@ -54,7 +55,8 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     // fetch user data from request
-    const { email, password } = req.body;
+    const { email, password, captchaToken } = req.body;
+    await verifyCaptcha(captchaToken);
 
     // check if email and password exist in request
     if (!email || !password) {
