@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Filter,Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
@@ -17,11 +17,14 @@ export default function Tasks() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const handleSelect = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
+const handleSelect = (id) => {
+  setSelectedIds((prev) => {
+    if (prev.includes(id)) {
+      return prev.filter((taskId) => taskId !== id);
+    }
+    return [...prev, id];
+  });
+};
 
   const handleBulkDelete = async () => {
     await bulkDelete(selectedIds);
