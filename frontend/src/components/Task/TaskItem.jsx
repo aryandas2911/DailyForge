@@ -1,4 +1,4 @@
-import { Check, Trash2, Pencil, Calendar } from "lucide-react";
+  import { Check, Trash2, Pencil, Calendar } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
@@ -31,12 +31,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
       >
         <div className="flex items-center gap-6 px-6 py-6">
           {/* Selection Checkbox */}
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => onSelect(task._id)}
-            className="w-4 h-4 cursor-pointer accent-blue-500"
-          />
+
+          {/* Fix: Removing redundant instance of checkbox */}
+          
           {/* Checkbox */}
           <button
             onClick={() => onToggleComplete(task)}
