@@ -44,7 +44,9 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all duration-200 hover-lift"
+      className="group flex items-center gap-3 rounded-xl border-soft bg-black/200 dark:bg-slate-800/80 p-3
+                 cursor-grab active:cursor-grabbing
+                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
@@ -98,21 +100,12 @@ export default function TaskLibrary({ onAddTask }) {
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <h2
-            className="text-lg font-semibold"
-            style={{ color: "var(--color-text-main)" }}
-          >
-            Task Library
-          </h2>
-          <span
-            className="text-xs font-medium px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: "var(--color-bg)",
-              color: "var(--color-text-muted)",
-            }}
-          >
-            {filteredTasks?.length ?? 0}
-          </span>
+          <h2 className="text-lg font-semibold text-gray-500">
+  Task Library
+</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-gray-500">
+  {filteredTasks?.length ?? 0}
+</span>
         </div>
         <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
           Drag tasks into your week

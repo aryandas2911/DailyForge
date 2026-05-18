@@ -66,16 +66,17 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
 
   useEffect(() => {
-    if (task) {
+  if (task) {
+    queueMicrotask(() => {
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
-      setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
-    }
+    });
+  }
   }, [task]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
@@ -125,6 +126,8 @@ const inputStyle = {
         <h2 className="text-xl font-semibold mb-4" style={{ color: "var(--color-text-main)" }}>
           {task ? "Edit Task" : "New Task"}
         </h2>
+
+        
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
