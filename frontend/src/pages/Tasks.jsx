@@ -3,7 +3,47 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, ClipboardList, Sparkles, Dumbbell, BookOpen, Droplet, Book } from "lucide-react";
+
+// Example tasks for empty state
+const EXAMPLE_TASKS = [
+  { 
+    title: "Morning Workout", 
+    icon: Dumbbell,
+    iconColor: "text-red-500",
+    bgColor: "bg-red-50",
+    category: "Health",
+    priority: "Medium",
+    description: "30 minutes of exercise"
+  },
+  { 
+    title: "Study DSA", 
+    icon: BookOpen,
+    iconColor: "text-blue-500",
+    bgColor: "bg-blue-50",
+    category: "Learning",
+    priority: "High",
+    description: "Practice algorithms and data structures"
+  },
+  { 
+    title: "Drink Water", 
+    icon: Droplet,
+    iconColor: "text-cyan-500",
+    bgColor: "bg-cyan-50",
+    category: "Health",
+    priority: "Low",
+    description: "Stay hydrated throughout the day"
+  },
+  { 
+    title: "Read 10 Pages", 
+    icon: Book,
+    iconColor: "text-purple-500",
+    bgColor: "bg-purple-50",
+    category: "Personal",
+    priority: "Low",
+    description: "Continue current book"
+  },
+];
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -109,10 +149,93 @@ export default function Tasks() {
                   />
                 ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-soft py-20 text-center">
-                <p className="text-lg font-medium text-main">No tasks yet</p>
-                <p className="text-sm text-muted mt-1">
-                  Start with one small win today.
+              <div className="rounded-2xl border border-dashed border-soft py-16 px-8 text-center bg-white/50">
+                {/* Icon with animation */}
+                <div className="flex justify-center mb-6">
+                  <div className="relative">
+                    <ClipboardList 
+                      size={80} 
+                      className="text-primary/20" 
+                      strokeWidth={1.5}
+                    />
+                    <Sparkles 
+                      size={24} 
+                      className="absolute -top-2 -right-2 text-primary animate-pulse" 
+                    />
+                  </div>
+                </div>
+
+                {/* Heading */}
+                <h3 className="text-2xl font-bold text-main mb-2">
+                  No tasks yet
+                </h3>
+                
+                {/* Subheading */}
+                <p className="text-muted mb-8 max-w-md mx-auto">
+                  Start organizing your day! Create your first task or choose from our suggestions below.
+                </p>
+
+                {/* Primary CTA Button */}
+                <button
+                  onClick={() => {
+                    setEditingTask(null);
+                    setIsModalOpen(true);
+                  }}
+                  className="btn btn-primary px-6 py-3 text-base mb-10 cursor-pointer inline-flex items-center gap-2 hover-lift"
+                >
+                  <Plus size={20} />
+                  Create Your First Task
+                </button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4 mb-6 max-w-md mx-auto">
+                  <div className="flex-1 h-px bg-soft"></div>
+                  <span className="text-xs text-muted uppercase tracking-wider">
+                    Popular task ideas
+                  </span>
+                  <div className="flex-1 h-px bg-soft"></div>
+                </div>
+
+                {/* Example Task Suggestions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                  {EXAMPLE_TASKS.map((example, index) => {
+                    const IconComponent = example.icon;
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-4 rounded-xl border border-soft bg-white"
+                      >
+                        {/* Icon with background */}
+                        <div className={`${example.bgColor} p-2 rounded-lg`}>
+                          <IconComponent 
+                            size={24} 
+                            className={example.iconColor}
+                          />
+                        </div>
+                        
+                        {/* Task Info */}
+                        <div className="flex-1">
+                          <p className="font-medium text-main">
+                            {example.title}
+                          </p>
+                          <p className="text-xs text-muted">
+                            {example.category} · {example.priority} Priority
+                          </p>
+                        </div>
+
+                        {/* Add Icon - Placeholder for future functionality */}
+                        <Plus 
+                          size={18} 
+                          className="text-muted" 
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Footer Tip */}
+                <p className="text-xs text-muted mt-8 italic">
+                  💡 Tip: Click "Create Your First Task" above to get started
                 </p>
               </div>
             )}
