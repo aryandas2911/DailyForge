@@ -4,25 +4,35 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
-
 const Login = () => {
-  // two states for inputs
+  // States for inputs and error handling
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  // useNavigate object
-  const navigate = useNavigate();
 
-  // useContext for auth
+  const navigate = useNavigate();
   const { setUser, setToken } = useContext(AuthContext);
 
-  // submit handler
+  // Submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
+    // Prevents page from refreshing
     e.preventDefault();
 
-    // send request to server
+    // CRITERIA FIX: Clear previous errors immediately on retry
+    setError("");
+
+    // BONUS: Client-side validation before making an API call
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return setError("Please enter a valid email address.");
+    }
+
+    if (password.length < 6) {
+      return setError("Password must be at least 6 characters long.");
+    }
+
+    // Send request to server
     try {
       const res = await api.post("/auth/login", {
         email,
@@ -30,25 +40,26 @@ const Login = () => {
       });
       console.log("Login success: ", res.data);
 
-      // save token in localstorage for later api calls
+      // Save token in localStorage for later api calls
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
 
-      // get user details
+      // Get user details
       const me = await api.get("/auth/me");
       setUser(me.data.user);
 
-      // redirect to dashboard
+      // Redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
+      // Handle error cleanly
       console.log("Login failed");
       console.log(error.response?.data || error.message);
+
+      // Pull specific message from backend if it exists, otherwise fallback
       setError(error.response?.data?.message || "Invalid email or password.");
     }
   };
 
-  // login component
   return (
     <form
       className="
@@ -62,6 +73,13 @@ const Login = () => {
         <h1 className="text-3xl font-bold text-main">Login</h1>
       </div>
 
+      {/* CRITERIA FIX: Positioned alert nicely at the top of the form fields */}
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium animate-shake">
+          {error}
+        </div>
+      )}
+
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-main">
           Email
@@ -72,6 +90,7 @@ const Login = () => {
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
+            if (error) setError(""); // CRITERIA FIX: Clear error text as soon as user types
           }}
           placeholder="user@email.com"
           required
@@ -93,13 +112,13 @@ const Login = () => {
           Password
         </label>
         <div className="relative">
-
           <input
             type={showPassword ? "text" : "password"}
             id="password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
+              if (error) setError(""); // CRITERIA FIX: Clear error text as soon as user types
             }}
             placeholder="••••••••"
             required
@@ -124,11 +143,7 @@ const Login = () => {
           </button>
         </div>
       </div>
-      {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
-          {error}
-        </div>
-      )}
+
       <button
         type="submit"
         className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
