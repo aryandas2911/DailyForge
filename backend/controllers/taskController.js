@@ -74,9 +74,9 @@ export const getTasks = async (req, res) => {
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
       return res
-        .status(400)
-        .json({ message: "User has no task", success: false });
-    }
+        .status(200)
+        .json({ success: true, tasks: [] });
+  }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
     // error handling
