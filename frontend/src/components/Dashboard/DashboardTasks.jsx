@@ -24,8 +24,10 @@ export default function DashboardTasks({ tasks, updateTask }) {
 
   return (
     <div
-      className="w-full rounded-2xl border border-border p-6 shadow-sm"
-      style={{ backgroundColor: "var(--color-surface)" }}
+      className="w-full rounded-2xl border  p-6 shadow-sm"
+      style={{ backgroundColor: "var(--surface)" ,
+        border: "none"
+      }}
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-5">

@@ -26,7 +26,9 @@ export default function TaskPreview({ tasks, updateTask }) {
   return (
     <div
       className="w-full rounded-2xl border border-border p-6 shadow-sm"
-      style={{ backgroundColor: "var(--color-surface)" }}
+      style={{ backgroundColor: "var(--surface)",
+        border: "none"
+       }}
     >
       <h2
         className="text-lg font-semibold mb-4"

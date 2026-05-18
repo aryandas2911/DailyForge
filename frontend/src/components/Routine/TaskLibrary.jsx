@@ -36,7 +36,6 @@ function DraggableTask({ task }) {
     backgroundColor: "var(--color-surface)",
     borderLeft: `3px solid ${config.color}`,
     border: `1px solid var(--color-border)`,
-    borderLeft: `3px solid ${config.color}`,
   };
 
   return (

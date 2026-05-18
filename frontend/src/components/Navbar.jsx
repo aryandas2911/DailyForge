@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
@@ -25,7 +25,8 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    setIsOpen(false);
+    queueMicrotask(()=>{
+    setIsOpen(false);});
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -42,7 +43,7 @@ const Navbar = () => {
   ];
 
   return (
-    <motion.nav
+    <Motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -58,13 +59,13 @@ const Navbar = () => {
 
           {/* Logo */}
              <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
-            <motion.div 
+            <Motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
               className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
             >
               <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
-            </motion.div>
+            </Motion.div>
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3]">
               DailyForge
             </span>
@@ -95,7 +96,7 @@ const Navbar = () => {
 
           {/* Desktop Auth + Theme Toggle */}
           <div className="hidden md:flex items-center gap-4">
-            <motion.button
+            <Motion.button
               whileHover={{ scale: 1.1, rotate: 15 }}
               whileTap={{ scale: 0.9 }}
               onClick={toggleTheme}
@@ -107,7 +108,7 @@ const Navbar = () => {
               ) : (
                 <Moon size={18} className="text-text-main" />
               )}
-            </motion.button>
+            </Motion.button>
 
             {!token ? (
               <>
@@ -140,7 +141,7 @@ const Navbar = () => {
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
-                <motion.div
+                <Motion.div
                   key={isOpen ? "close" : "open"}
                   initial={{ opacity: 0, rotate: -90 }}
                   animate={{ opacity: 1, rotate: 0 }}
@@ -148,7 +149,7 @@ const Navbar = () => {
                   transition={{ duration: 0.15 }}
                 >
                   {isOpen ? <X size={24} /> : <Menu size={24} />}
-                </motion.div>
+                </Motion.div>
               </AnimatePresence>
             </button>
           </div>
@@ -158,7 +159,7 @@ const Navbar = () => {
       {/* Mobile Dropdown */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -188,7 +189,7 @@ const Navbar = () => {
               {/* Mobile Theme Toggle */}
               <div className="flex items-center justify-between px-4 py-2 border-t border-border mt-2">
                 <span className="text-sm font-medium text-text-main">Theme Mode</span>
-                <motion.button
+                <Motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={toggleTheme}
                   className="p-2 rounded-xl border border-border text-text-main hover:bg-bg/30 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
@@ -205,7 +206,7 @@ const Navbar = () => {
                       <span className="text-xs text-text-main font-semibold uppercase tracking-wider">Dark</span>
                     </>
                   )}
-                </motion.button>
+                </Motion.button>
               </div>
 
               <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-border" : "pt-2")}>
@@ -239,10 +240,10 @@ const Navbar = () => {
                 )}
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </Motion.nav>
   );
 };
 

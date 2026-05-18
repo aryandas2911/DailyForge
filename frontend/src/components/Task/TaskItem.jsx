@@ -23,7 +23,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
   return (
     <>
       <div
-        className={`animate-in hover-lift w-full rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all duration-200 ${isCompleted ? "opacity-60" : ""}`}
+        className={`animate-in  hover-lift w-full rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all duration-200 ${isCompleted ? "opacity-60" : ""}`}
        style={{
                   background: `linear-gradient(to right, ${priority.tint}, transparent)`,
                   backgroundColor: "var(--color-surface)",
