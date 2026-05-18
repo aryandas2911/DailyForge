@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import useTasks from "../../hooks/useTasks";
 
 const priorities = ["Low", "Medium", "High"];
 
@@ -10,6 +11,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
   const [tags, setTags] = useState("");
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const [titleCollisionError, setTitleCollisionError] = useState("");
+  const { tasks } = useTasks();
+
 
   useEffect(() => {
     if (task) {
@@ -27,11 +31,35 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     titleInputRef.current?.focus();
   }, []);
 
+  const validateTitle = () => {
+    if (!title.trim()) {
+      setTitleCollisionError("");
+      return false;
+    }
+
+    const isTitleUsed = tasks.some(
+      (existingTask) =>
+        existingTask._id !== task?._id &&
+        existingTask.title.trim().toLowerCase() === title.trim().toLowerCase()
+    );
+
+    setTitleCollisionError(
+      isTitleUsed ? "A task with this title already exists." : ""
+    );
+
+    return isTitleUsed;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!title.trim()) return alert("Title is required");
     if (!priority) return alert("Priority is required");
     if (!dueDate) return alert("Due date is required");
+
+    if (validateTitle()) {
+      return;
+    }
 
     onSubmit({
       title: title.trim(),
@@ -65,11 +93,20 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               ref={titleInputRef}
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setTitleCollisionError("");
+              }}
+              onBlur={validateTitle}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Task title"
               required
             />
+             {titleCollisionError && (
+              <p className="mt-1 text-sm text-red-600">
+                {titleCollisionError}
+              </p>
+            )}
           </div>
 
           {/* Description */}
