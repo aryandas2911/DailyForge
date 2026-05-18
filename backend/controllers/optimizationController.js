@@ -2,20 +2,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 
-// Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Helper function to convert time (minutes from midnight) to HH:MM format
-const formatTime = (minutes) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  return `${String(hours).padStart(2, "0")}:${String(
-    mins
-  ).padStart(2, "0")}`;
-};
-
-// Analyze routine structure
+// Helper function to analyze routine structure
 const analyzeRoutineStructure = async (routineData) => {
   const analysis = {
     totalHoursScheduled: 0,
@@ -28,38 +17,29 @@ const analyzeRoutineStructure = async (routineData) => {
 
   // Group tasks by day
   const tasksByDay = {};
-
   for (const item of routineData.items) {
     if (!tasksByDay[item.day]) {
       tasksByDay[item.day] = [];
     }
-
     tasksByDay[item.day].push({
       ...item,
-      task: routineData.taskDetails.find(
-        (t) => t._id.toString() === item.taskId.toString()
-      ),
+      task: routineData.taskDetails.find((t) => t._id.toString() === item.taskId.toString()),
     });
   }
 
   // Analyze each day
   for (const [day, tasks] of Object.entries(tasksByDay)) {
-    const sortedTasks = tasks.sort(
-      (a, b) => a.startTime - b.startTime
-    );
-
+    const sortedTasks = tasks.sort((a, b) => a.startTime - b.startTime);
     let consecutiveHours = 0;
 
     analysis.tasksPerDay[day] = tasks.length;
 
-    // Check overlaps and breaks
+    // Check for overlaps
     for (let i = 0; i < sortedTasks.length - 1; i++) {
       const current = sortedTasks[i];
       const next = sortedTasks[i + 1];
-
       const currentEnd = current.startTime + current.duration;
 
-      // Overlapping tasks
       if (currentEnd > next.startTime) {
         analysis.overlappingTasks.push({
           day,
@@ -70,13 +50,11 @@ const analyzeRoutineStructure = async (routineData) => {
         });
       }
 
-      // Break gap analysis
+      // Check break gaps
       const gapMinutes = next.startTime - currentEnd;
-
       if (!analysis.breakGaps[day]) {
         analysis.breakGaps[day] = [];
       }
-
       analysis.breakGaps[day].push({
         after: current.task?.title,
         gapMinutes,
@@ -84,11 +62,11 @@ const analyzeRoutineStructure = async (routineData) => {
       });
     }
 
-    // Consecutive work duration
+    // Calculate consecutive hours
     for (const task of sortedTasks) {
       consecutiveHours += task.duration;
-
       if (consecutiveHours > 180) {
+        // More than 3 hours without tracking
         if (!analysis.consecutiveHours[day]) {
           analysis.consecutiveHours[day] = consecutiveHours;
         }
@@ -101,34 +79,27 @@ const analyzeRoutineStructure = async (routineData) => {
   return analysis;
 };
 
-// Productivity score calculation
+// Calculate productivity score
 const calculateProductivityScore = (analysis) => {
   let score = 100;
 
-  // Overlap penalty
+  // Deduct for overlaps
   score -= analysis.overlappingTasks.length * 10;
 
-  // Insufficient break penalty
-  const insufficientBreaks = Object.values(analysis.breakGaps)
-    .flat()
-    .filter((b) => !b.sufficient).length;
-
+  // Deduct for insufficient breaks
+  const insufficientBreaks = Object.values(analysis.breakGaps).flat().filter((b) => !b.sufficient).length;
   score -= insufficientBreaks * 3;
 
-  // Overloaded day penalty
-  for (const [day, tasks] of Object.entries(
-    analysis.tasksPerDay
-  )) {
-    if (tasks > 8) {
-      score -= (tasks - 8) * 2;
+  // Deduct for overloaded days (more than 8 hours)
+  for (const [, hours] of Object.entries(analysis.tasksPerDay)) {
+    if (hours > 8) {
+      score -= (hours - 8) * 2;
     }
   }
 
-  // Underutilized day penalty
-  for (const [day, tasks] of Object.entries(
-    analysis.tasksPerDay
-  )) {
-    if (tasks < 2 && tasks > 0) {
+  // Deduct for very light days (less than 2 hours)
+  for (const [, hours] of Object.entries(analysis.tasksPerDay)) {
+    if (hours < 2 && hours > 0) {
       score -= 5;
     }
   }
@@ -136,12 +107,8 @@ const calculateProductivityScore = (analysis) => {
   return Math.max(0, Math.min(100, score));
 };
 
-// Generate AI Suggestions
-const generateAISuggestions = async (
-  analysis,
-  routineData,
-  productivityScore
-) => {
+// Generate AI suggestions using Gemini
+const generateAISuggestions = async (analysis, routineData, productivityScore) => {
   const routineJSON = JSON.stringify(
     {
       name: routineData.name,
@@ -156,8 +123,7 @@ const generateAISuggestions = async (
     2
   );
 
-  const prompt = `
-You are a productivity and time management expert.
+  const prompt = `You are a productivity and time management expert.
 
 Analyze this routine and provide optimization suggestions.
 
@@ -167,40 +133,39 @@ ${routineJSON}
 IMPORTANT:
 - Return ONLY valid JSON
 - Do NOT use markdown
-- Do NOT add explanations
+- Do NOT add explanation text
 
 Format:
 {
   "taskDistribution": [
     {
-      "suggestion": "string",
+      "suggestion": "...",
       "impact": "high"
     }
   ],
   "breakFocusBalance": [
     {
-      "suggestion": "string",
+      "suggestion": "...",
       "impact": "medium"
     }
   ],
   "overlapRisks": [
     {
-      "suggestion": "string",
+      "suggestion": "...",
       "severity": "warning"
     }
   ],
   "productivityTips": [
     {
-      "tip": "string",
+      "tip": "...",
       "impact": "high"
     }
   ],
-  "summary": "string"
-}
-`;
+  "summary": "..."
+}`;
 
   try {
-    // Correct Gemini model
+    // Initialize Gemini model
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
     });
@@ -208,7 +173,7 @@ Format:
     // Generate response
     const result = await model.generateContent(prompt);
 
-    // Extract response text safely
+    // Extract text safely
     const text =
       result?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
@@ -218,12 +183,13 @@ Format:
 
     console.log("Raw Gemini Response:", text);
 
-    // Remove markdown formatting
+    // Clean markdown if Gemini sends it
     const cleanedText = text
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
 
+    // Parse JSON safely
     try {
       return JSON.parse(cleanedText);
     } catch (parseError) {
@@ -241,53 +207,31 @@ Format:
   } catch (error) {
     console.error("Gemini API error:", error);
 
-    return {
-      taskDistribution: [],
-      breakFocusBalance: [],
-      overlapRisks: [],
-      productivityTips: [],
-      summary: "Failed to generate AI suggestions",
-    };
+    throw new Error("Failed to generate AI suggestions", { cause: error });
   }
 };
 
 // Main optimization endpoint
-export const getOptimizationSuggestions = async (
-  req,
-  res
-) => {
+export const getOptimizationSuggestions = async (req, res) => {
   try {
     const { routineId } = req.params;
     const userId = req.userId;
 
-    // Fetch routine
-    const routine = await Routine.findById(
-      routineId
-    ).populate("items.taskId");
+    // Fetch routine with task details
+    const routine = await Routine.findById(routineId).populate("items.taskId");
 
     if (!routine) {
-      return res.status(404).json({
-        message: "Routine not found",
-      });
+      return res.status(404).json({ message: "Routine not found" });
     }
 
-    // Authorization check
     if (routine.userId.toString() !== userId) {
-      return res.status(403).json({
-        message: "Unauthorized",
-      });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
-    // Fetch tasks
-    const taskIds = routine.items.map(
-      (item) => item.taskId._id
-    );
+    // Get full task details
+    const taskIds = routine.items.map((item) => item.taskId._id);
+    const tasks = await Task.find({ _id: { $in: taskIds } });
 
-    const tasks = await Task.find({
-      _id: { $in: taskIds },
-    });
-
-    // Prepare routine data
     const routineData = {
       name: routine.name,
       description: routine.description,
@@ -295,24 +239,13 @@ export const getOptimizationSuggestions = async (
       taskDetails: tasks,
     };
 
-    // Analyze
-    const analysis = await analyzeRoutineStructure(
-      routineData
-    );
+    // Analyze routine
+    const analysis = await analyzeRoutineStructure(routineData);
+    const productivityScore = calculateProductivityScore(analysis);
 
-    // Calculate score
-    const productivityScore =
-      calculateProductivityScore(analysis);
+    // Get AI suggestions
+    const aiSuggestions = await generateAISuggestions(analysis, routineData, productivityScore);
 
-    // Generate AI suggestions
-    const aiSuggestions =
-      await generateAISuggestions(
-        analysis,
-        routineData,
-        productivityScore
-      );
-
-    // Send response
     res.json({
       success: true,
       routine: {
@@ -325,36 +258,24 @@ export const getOptimizationSuggestions = async (
     });
   } catch (error) {
     console.error("Optimization error:", error);
-
     res.status(500).json({
-      message:
-        "Failed to generate optimization suggestions",
+      message: "Failed to generate optimization suggestions",
       error: error.message,
     });
   }
 };
 
-// Summary endpoint
-export const getAllRoutinesWithSuggestions = async (
-  req,
-  res
-) => {
+// Get all routines with suggestions summary
+export const getAllRoutinesWithSuggestions = async (req, res) => {
   try {
     const userId = req.userId;
 
-    const routines = await Routine.find({
-      userId,
-    }).populate("items.taskId");
+    const routines = await Routine.find({ userId }).populate("items.taskId");
 
     const routinesWithScores = await Promise.all(
       routines.map(async (routine) => {
-        const taskIds = routine.items.map(
-          (item) => item.taskId._id
-        );
-
-        const tasks = await Task.find({
-          _id: { $in: taskIds },
-        });
+        const taskIds = routine.items.map((item) => item.taskId._id);
+        const tasks = await Task.find({ _id: { $in: taskIds } });
 
         const routineData = {
           name: routine.name,
@@ -363,20 +284,14 @@ export const getAllRoutinesWithSuggestions = async (
           taskDetails: tasks,
         };
 
-        const analysis =
-          await analyzeRoutineStructure(
-            routineData
-          );
-
-        const score =
-          calculateProductivityScore(analysis);
+        const analysis = await analyzeRoutineStructure(routineData);
+        const score = calculateProductivityScore(analysis);
 
         return {
           id: routine._id,
           name: routine.name,
           productivityScore: Math.round(score),
-          issueCount:
-            analysis.overlappingTasks.length,
+          issueCount: analysis.overlappingTasks.length,
         };
       })
     );
@@ -386,13 +301,7 @@ export const getAllRoutinesWithSuggestions = async (
       routines: routinesWithScores,
     });
   } catch (error) {
-    console.error(
-      "Error fetching routines:",
-      error
-    );
-
-    res.status(500).json({
-      message: "Failed to fetch routines",
-    });
+    console.error("Error fetching routines:", error);
+    res.status(500).json({ message: "Failed to fetch routines" });
   }
 };
