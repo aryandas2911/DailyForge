@@ -4,72 +4,82 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 
-
 const Login = () => {
-  // two states for inputs
+  // Input states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  // useNavigate object
+
+  // Navigation
   const navigate = useNavigate();
 
-  // useContext for auth
+  // Auth context
   const { setUser, setToken } = useContext(AuthContext);
 
-  // submit handler
+  // Submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
 
-    // send request to server
     try {
+      // Login request
       const res = await api.post("/auth/login", {
         email,
         password,
       });
-      console.log("Login success: ", res.data);
 
-      // save token in localstorage for later api calls
+      // Save token
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
 
-      // get user details
+      // Fetch user details
       const me = await api.get("/auth/me");
       setUser(me.data.user);
 
-      // redirect to dashboard
+      // Redirect
       navigate("/dashboard");
     } catch (error) {
-      // handle error
-      console.log("Login failed");
-      console.log(error.response?.data || error.message);
-      setError(error.response?.data?.message || "Invalid email or password.");
+      setError(
+        error.response?.data?.message ||
+          "Invalid email or password."
+      );
     }
   };
 
-  // login component
   return (
     <form
       className="
-        surface-bg px-10 py-15 rounded-2xl
-        w-full max-w-sm
+        surface-bg px-10 py-12 rounded-2xl
+        w-full max-w-md
         flex flex-col gap-6 animate-in
       "
       onSubmit={handleSubmit}
     >
+      {/* Header */}
       <div className="text-center space-y-1 mb-3">
-        <h1 className="text-3xl font-bold text-main">Login</h1>
+        <h1 className="text-3xl font-bold text-main">
+          Login
+        </h1>
+
+        <p className="text-sm text-muted">
+          Welcome back! Please sign in to continue.
+        </p>
       </div>
 
+      {/* Email */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-main">
+        <label
+          htmlFor="email"
+          className="text-sm font-medium text-main"
+        >
           Email
         </label>
+
         <input
           type="email"
           id="email"
           value={email}
+          autoComplete="email"
           onChange={(e) => {
             setEmail(e.target.value);
           }}
@@ -84,20 +94,26 @@ const Login = () => {
             shadow-xs
             input-focus
             hover-lift
+            transition-all
           "
         />
       </div>
 
+      {/* Password */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-main">
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-main"
+        >
           Password
         </label>
-        <div className="relative">
 
+        <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             id="password"
             value={password}
+            autoComplete="current-password"
             onChange={(e) => {
               setPassword(e.target.value);
             }}
@@ -112,35 +128,74 @@ const Login = () => {
               shadow-xs
               input-focus
               hover-lift
+              transition-all
             "
           />
+
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="
+              absolute right-3 top-1/2 -translate-y-1/2
+              text-muted hover:text-main
+              transition-colors cursor-pointer
+              flex items-center justify-center
+            "
+            aria-label={
+              showPassword
+                ? "Hide password"
+                : "Show password"
+            }
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? (
+              <EyeOff size={18} />
+            ) : (
+              <Eye size={18} />
+            )}
           </button>
         </div>
       </div>
+
+      {/* Error Message */}
       {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+        <div
+          className="
+            px-3 py-2.5
+            bg-red-50 dark:bg-red-900/20
+            border border-red-200 dark:border-red-800
+            rounded-base
+            text-sm text-red-600 dark:text-red-400
+          "
+        >
           {error}
         </div>
       )}
+
+      {/* Submit */}
       <button
         type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
+        className="
+          btn btn-primary
+          cursor-pointer
+          w-full mt-2
+          hover-lift
+          transition-all
+        "
       >
         Login
       </button>
 
+      {/* Footer */}
       <p className="text-center text-sm text-muted">
         Don't have an account?{" "}
         <Link
           to="/signup"
-          className="text-main font-medium cursor-pointer hover:underline transition-colors"
+          className="
+            text-primary font-medium
+            cursor-pointer
+            hover:underline
+            transition-colors
+          "
         >
           Sign up
         </Link>

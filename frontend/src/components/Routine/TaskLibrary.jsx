@@ -13,6 +13,12 @@ function DraggableTask({ task }) {
       },
     });
 
+  const priorityColors = {
+    High: "bg-red-500",
+    Medium: "bg-yellow-500",
+    Low: "bg-green-500",
+  };
+
   const style = {
     transform: isDragging
       ? undefined
@@ -32,22 +38,14 @@ function DraggableTask({ task }) {
       {...attributes}
       className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 dark:bg-slate-800/80 p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
+                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
     >
       {/* Color dot */}
       <span
-        className="h-3 w-3 rounded-full"
-        style={{
-          backgroundColor:
-            task.priority === "High"
-              ? "#ef4444"
-              : task.priority === "Medium"
-                ? "#f59e0b"
-                : "#10b981",
-        }}
+        className={`h-3 w-3 rounded-full shrink-0 ${priorityColors[task.priority]}`}
       />
 
       {/* Title */}
@@ -71,14 +69,18 @@ export default function TaskLibrary({ onAddTask }) {
   return (
     <div className="card card-muted h-full flex flex-col animate-in">
       {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
+      <div className="mb-5">
+        <div className="flex items-center gap-2 flex-wrap">
           <h2 className="text-lg font-semibold text-main">Task Library</h2>
+
           <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-main">
             {filteredTasks?.length ?? 0}
           </span>
         </div>
-        <p className="text-xs text-muted">Drag tasks into your week</p>
+
+        <p className="text-xs text-muted mt-1">
+          Drag tasks into your week
+        </p>
       </div>
 
       {/* Search */}
@@ -87,7 +89,10 @@ export default function TaskLibrary({ onAddTask }) {
         placeholder="Search tasks…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
+        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-(--primary)
+                   transition-colors bg-transparent text-main placeholder:text-muted"
+        aria-label="Search tasks"
       />
 
       {/* Task List */}
@@ -102,7 +107,10 @@ export default function TaskLibrary({ onAddTask }) {
       </div>
 
       {/* Footer CTA */}
-      <button className="btn btn-primary w-full mt-4 cursor-pointer hover-lift" onClick={onAddTask}>
+      <button
+        className="btn btn-primary w-full mt-4 cursor-pointer hover-lift transition-all"
+        onClick={onAddTask}
+      >
         + Add Task
       </button>
     </div>

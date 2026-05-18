@@ -7,18 +7,22 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import useTasks from "../hooks/useTasks.js";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
+
+import useTasks from "../hooks/useTasks.js";
+import api from "../api/axios.js";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
+
   const navigate = useNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -29,22 +33,35 @@ export default function RoutineBuilder() {
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
 
-  // Configure sensors for drag-and-drop (mouse + keyboard)
+  /* ---------------- Motivational Quotes ---------------- */
+  const quotes = [
+    "Small daily habits create big results.",
+    "Consistency beats intensity.",
+    "Plan your week. Own your time.",
+    "Discipline creates freedom.",
+    "Focus on progress, not perfection.",
+  ];
+
+  const randomQuote =
+    quotes[Math.floor(Math.random() * quotes.length)];
+
+  /* ---------------- Sensors ---------------- */
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
   );
 
+  /* ---------------- Add Task ---------------- */
   const handleSubmit = async (data) => {
     try {
       await addTask({ ...data, status: "Due" });
       setIsModalOpen(false);
     } catch (err) {
-      console.error(err);
       alert("Failed to add task");
     }
   };
 
+  /* ---------------- Fetch Routines ---------------- */
   useEffect(() => {
     fetchRoutines();
   }, []);
@@ -52,19 +69,22 @@ export default function RoutineBuilder() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
+
       const res = await api.get("/routines");
-      // res.data.routines is the array you need
+
       setSavedRoutines(
-        Array.isArray(res.data.routines) ? res.data.routines : []
+        Array.isArray(res.data.routines)
+          ? res.data.routines
+          : []
       );
     } catch (err) {
-      console.error(err);
       setSavedRoutines([]);
     } finally {
       setLoadingRoutines(false);
     }
   };
 
+  /* ---------------- Save Routine ---------------- */
   const confirmSaveRoutine = async () => {
     const items = scheduledTasks
       .filter((task) => task.day === selectedDay)
@@ -78,7 +98,7 @@ export default function RoutineBuilder() {
     try {
       await api.post("/routines", {
         name: routineName,
-        description: description,
+        description,
         items,
       });
 
@@ -88,15 +108,19 @@ export default function RoutineBuilder() {
       setSelectedDay(null);
 
       alert("Routine saved successfully");
+
       await fetchRoutines();
     } catch (err) {
-      console.error(err);
       alert("Failed to save routine");
     }
   };
 
+  /* ---------------- Open Save Modal ---------------- */
   const openSaveRoutineModal = (day) => {
-    const hasTasks = scheduledTasks.some((t) => t.day === day);
+    const hasTasks = scheduledTasks.some(
+      (t) => t.day === day
+    );
+
     if (!hasTasks) {
       alert(`No tasks scheduled for ${day}`);
       return;
@@ -107,30 +131,33 @@ export default function RoutineBuilder() {
     setIsSaveModalOpen(true);
   };
 
-  /* ---------------- DRAG END HANDLER ---------------- */
-
-  // Removing Schedule task after drag
-  const removeScheduledTask = (taskId , day) => {
-
-    //filtering out 
-    setScheduledTasks((prevTasks) => 
-      prevTasks.filter((task) => {
-        return !(task.taskId === taskId && task.day === day);
-      })
+  /* ---------------- Remove Scheduled Task ---------------- */
+  const removeScheduledTask = (taskId, day) => {
+    setScheduledTasks((prevTasks) =>
+      prevTasks.filter(
+        (task) =>
+          !(task.taskId === taskId && task.day === day)
+      )
     );
   };
 
-
+  /* ---------------- Drag End Handler ---------------- */
   const handleDragEnd = (event) => {
     const { active, over } = event;
+
     if (!over) return;
 
     const task = active.data.current?.task;
+
     if (!task) return;
+
     const { day, startTime } = over.data.current;
 
     setScheduledTasks((prev) => [
-      ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
+      ...prev.filter(
+        (t) =>
+          !(t.taskId === task._id && t.day === day)
+      ),
       {
         taskId: task._id,
         title: task.title,
@@ -153,11 +180,16 @@ export default function RoutineBuilder() {
       }}
     >
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
-        {/* Header */}
+        {/* ================= Header ================= */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
           <button
             onClick={() => navigate("/dashboard")}
-            className="mt-1 rounded-lg p-2 border border-soft text-muted hover:bg-white transition cursor-pointer"
+            className="
+              mt-1 rounded-lg p-2 border border-soft
+              text-muted hover:bg-white dark:hover:bg-slate-800
+              transition-colors cursor-pointer
+            "
+            aria-label="Go back to dashboard"
           >
             <ArrowLeft size={16} />
           </button>
@@ -166,21 +198,38 @@ export default function RoutineBuilder() {
             <h1 className="text-3xl font-semibold text-main">
               Routine Builder
             </h1>
-            <p className="mt-1 text-muted">Design your week</p>
+
+            <p className="mt-1 text-muted">
+              Design your week
+            </p>
+
+            {/* Quote Card */}
+            <div
+              className="
+                mt-3 rounded-xl border-soft
+                bg-(--surface) px-4 py-3
+                text-sm text-muted italic
+                animate-in
+              "
+            >
+              “{randomQuote}”
+            </div>
           </div>
         </header>
 
-        {/* Main Layout */}
+        {/* ================= Main Layout ================= */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
-            <TaskLibrary onAddTask={() => setIsModalOpen(true)} />
+            <TaskLibrary
+              onAddTask={() => setIsModalOpen(true)}
+            />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
-              onDeleteTask={removeScheduledTask} //Passing Removing function to weeklygrid
+              onDeleteTask={removeScheduledTask}
             />
           </section>
         </div>
@@ -192,31 +241,46 @@ export default function RoutineBuilder() {
           </h2>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <p className="text-sm text-muted">
+              Loading routines…
+            </p>
           ) : savedRoutines.length === 0 ? (
-            <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
+            <EmptyState
+              type="routines"
+              onAction={() => setIsModalOpen(true)}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {savedRoutines.map((routine) => {
-                // Group tasks by day
-                const tasksByDay = routine.items.reduce((acc, item) => {
-                  if (!acc[item.day]) acc[item.day] = [];
+                const tasksByDay = routine.items.reduce(
+                  (acc, item) => {
+                    if (!acc[item.day]) {
+                      acc[item.day] = [];
+                    }
 
-                  // Find the full task info by taskId
-                  const taskInfo = tasks.find((t) => t._id === item.taskId);
+                    const taskInfo = tasks.find(
+                      (t) => t._id === item.taskId
+                    );
 
-                  acc[item.day].push({
-                    ...item,
-                    title: taskInfo?.title || "Unknown Task",
-                  });
+                    acc[item.day].push({
+                      ...item,
+                      title:
+                        taskInfo?.title ||
+                        "Unknown Task",
+                    });
 
-                  return acc;
-                }, {});
+                    return acc;
+                  },
+                  {}
+                );
 
                 return (
                   <div
                     key={routine._id}
-                    className="card card-primary hover:shadow-md transition p-4"
+                    className="
+                      card card-primary p-4
+                      hover:shadow-md transition-all
+                    "
                   >
                     <h3 className="font-medium text-main mb-2">
                       {routine.name}
@@ -230,20 +294,32 @@ export default function RoutineBuilder() {
 
                     {Object.keys(tasksByDay).map((day) => (
                       <div key={day} className="mb-2">
-                        <p className="text-sm font-semibold text-main">{day}</p>
-                        <ul className="text-xs text-muted ml-3">
+                        <p className="text-sm font-semibold text-main">
+                          {day}
+                        </p>
+
+                        <ul className="text-xs text-muted ml-3 space-y-1">
                           {tasksByDay[day]
-                            .sort((a, b) => a.startTime - b.startTime)
+                            .sort(
+                              (a, b) =>
+                                a.startTime -
+                                b.startTime
+                            )
                             .map((task) => {
                               const hours = String(
-                                Math.floor(task.startTime / 60)
+                                Math.floor(
+                                  task.startTime / 60
+                                )
                               ).padStart(2, "0");
+
                               const minutes = String(
                                 task.startTime % 60
                               ).padStart(2, "0");
+
                               return (
                                 <li key={task._id}>
-                                  {hours}:{minutes} – {task.title}
+                                  {hours}:{minutes} –{" "}
+                                  {task.title}
                                 </li>
                               );
                             })}
@@ -257,6 +333,7 @@ export default function RoutineBuilder() {
           )}
         </section>
 
+        {/* ================= Task Modal ================= */}
         {isModalOpen && (
           <TaskFormModal
             task={null}
@@ -266,8 +343,16 @@ export default function RoutineBuilder() {
         )}
       </div>
 
+      {/* ================= Save Routine Modal ================= */}
       {isSaveModalOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
+        <div
+          className="
+            fixed inset-0 z-50
+            bg-black/40 backdrop-blur-sm
+            flex items-center justify-center
+            animate-in px-4
+          "
+        >
           <div className="card card-primary w-full max-w-md animate-in delay-100">
             <h3 className="text-lg font-semibold text-main mb-2">
               Save {selectedDay} Routine
@@ -276,28 +361,52 @@ export default function RoutineBuilder() {
             <input
               type="text"
               value={routineName}
-              onChange={(e) => setRoutineName(e.target.value)}
+              onChange={(e) =>
+                setRoutineName(e.target.value)
+              }
               placeholder="Routine name"
-              className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
+              className="
+                w-full mb-4 rounded-xl border-soft
+                px-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-(--primary)
+                transition-colors
+                bg-transparent text-main
+              "
+              aria-label="Routine name"
             />
 
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
               placeholder="Add a description (optional)"
               rows="3"
-              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-transparent text-main resize-none"
+              className="
+                w-full mb-4 rounded-lg border-soft
+                px-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-(--primary)
+                transition-colors
+                bg-transparent text-main resize-none
+              "
+              aria-label="Routine description"
             />
 
             <div className="flex justify-end gap-3">
               <button
-                className="btn btn-muted"
-                onClick={() => setIsSaveModalOpen(false)}
+                className="btn btn-muted transition-all"
+                onClick={() =>
+                  setIsSaveModalOpen(false)
+                }
               >
                 Cancel
               </button>
+
               <button
-                className="btn btn-primary cursor-pointer"
+                className="
+                  btn btn-primary cursor-pointer
+                  transition-all
+                "
                 onClick={confirmSaveRoutine}
                 disabled={!routineName.trim()}
               >
@@ -307,9 +416,17 @@ export default function RoutineBuilder() {
           </div>
         </div>
       )}
+
+      {/* ================= Drag Overlay ================= */}
       <DragOverlay dropAnimation={null}>
         {activeTask ? (
-          <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+          <div
+            className="
+              rounded-xl bg-(--surface)
+              p-3 shadow-xl border border-soft
+              text-main
+            "
+          >
             {activeTask.title}
           </div>
         ) : null}
