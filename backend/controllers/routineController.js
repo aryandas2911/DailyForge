@@ -124,6 +124,103 @@ export const getRoutines = async (req, res) => {
   }
 };
 
+// Duplicate routine function
+export const duplicateRoutine = async (req, res) => {
+  try {
+    // check if user is logged in or not
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized, user not logged in" });
+    }
+
+    // validate the optional target day before creating the copy
+    const validDays = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+    const { targetDay } = req.body;
+    if (targetDay && !validDays.includes(targetDay)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid target day" });
+    }
+
+    // fetch the source routine for this user only
+    const routineId = req.params.id;
+    const sourceRoutine = await Routine.findOne({ _id: routineId, userId });
+    if (!sourceRoutine) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Routine not found" });
+    }
+
+    const duplicatedItems = sourceRoutine.items.map((item) => ({
+      taskId: item.taskId,
+      day: targetDay || item.day,
+      startTime: item.startTime,
+      duration: item.duration,
+    }));
+
+    if (targetDay) {
+      const formatted = duplicatedItems
+        .map((item) => ({
+          day: item.day,
+          startTime: item.startTime,
+          endTime: item.startTime + item.duration,
+        }))
+        .sort((a, b) => a.startTime - b.startTime);
+
+      if (checkOverlap(formatted)) {
+        return res.status(400).json({
+          success: false,
+          message: `Copied tasks overlap on ${targetDay}`,
+        });
+      }
+    }
+
+    const baseRoutineName = sourceRoutine.name
+      .replace(/(\s*\(Copy\))+$/g, "")
+      .trim();
+
+    // If the routine name contains a weekday, rename it for the selected day.
+    const duplicatedName = targetDay
+      ? baseRoutineName.replace(
+        /\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/g,
+        targetDay
+      )
+      : baseRoutineName;
+
+    // copy routine-owned fields and let MongoDB create fresh document ids
+    const duplicatedRoutine = new Routine({
+      userId,
+      name: `${duplicatedName} (Copy)`,
+      description: sourceRoutine.description,
+      items: duplicatedItems,
+    });
+
+    await duplicatedRoutine.save();
+    return res.status(201).json({
+      success: true,
+      message: "Routine duplicated successfully",
+      routine: duplicatedRoutine,
+    });
+  } catch (error) {
+    // error handling
+    console.log("Error duplicating routine", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error duplicating routine" });
+  }
+};
+
 // Update routine function
 export const updateRoutine = async (req, res) => {
   try {

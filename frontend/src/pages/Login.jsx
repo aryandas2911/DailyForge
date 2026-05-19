@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
 
   // submit handler
   const handleSubmit = async (e) => {
@@ -29,10 +29,6 @@ const Login = () => {
         password,
       });
       console.log("Login success: ", res.data);
-
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
 
       // get user details
       const me = await api.get("/auth/me");

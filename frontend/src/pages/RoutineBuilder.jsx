@@ -10,6 +10,7 @@ import {
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
+import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -26,6 +27,7 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
 
@@ -48,6 +50,25 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+
+  if (!savedRoutines.length) return;
+
+  const storedRoutineIds = JSON.parse(
+    localStorage.getItem("activeRoutineIds") || "[]"
+  );
+
+  if (!storedRoutineIds.length) return;
+
+  const restoredRoutines = savedRoutines.filter(
+    (routine) =>
+      storedRoutineIds.includes(routine._id)
+  );
+
+  setActiveRoutine(restoredRoutines);
+
+  }, [savedRoutines]);
 
   const fetchRoutines = async () => {
     try {
@@ -197,62 +218,16 @@ export default function RoutineBuilder() {
             <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedRoutines.map((routine) => {
-                // Group tasks by day
-                const tasksByDay = routine.items.reduce((acc, item) => {
-                  if (!acc[item.day]) acc[item.day] = [];
-
-                  // Find the full task info by taskId
-                  const taskInfo = tasks.find((t) => t._id === item.taskId);
-
-                  acc[item.day].push({
-                    ...item,
-                    title: taskInfo?.title || "Unknown Task",
-                  });
-
-                  return acc;
-                }, {});
-
-                return (
-                  <div
-                    key={routine._id}
-                    className="card card-primary hover:shadow-md transition p-4"
-                  >
-                    <h3 className="font-medium text-main mb-2">
-                      {routine.name}
-                    </h3>
-
-                    {routine.description && (
-                      <p className="text-xs text-muted mb-3 italic">
-                        {routine.description}
-                      </p>
-                    )}
-
-                    {Object.keys(tasksByDay).map((day) => (
-                      <div key={day} className="mb-2">
-                        <p className="text-sm font-semibold text-main">{day}</p>
-                        <ul className="text-xs text-muted ml-3">
-                          {tasksByDay[day]
-                            .sort((a, b) => a.startTime - b.startTime)
-                            .map((task) => {
-                              const hours = String(
-                                Math.floor(task.startTime / 60)
-                              ).padStart(2, "0");
-                              const minutes = String(
-                                task.startTime % 60
-                              ).padStart(2, "0");
-                              return (
-                                <li key={task._id}>
-                                  {hours}:{minutes} – {task.title}
-                                </li>
-                              );
-                            })}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
+              {savedRoutines.map((routine) => (
+                <RoutineCard
+                  key={routine._id}
+                  routine={routine}
+                  tasks={tasks}
+                  activeRoutine={activeRoutine}
+                  setActiveRoutine={setActiveRoutine}
+                  fetchRoutines={fetchRoutines}
+                />
+            ))}
             </div>
           )}
         </section>
