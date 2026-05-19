@@ -40,7 +40,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (dueDate < todayStr) {
+    const isOriginalDate = task && dueDate === task.dueDate.split("T")[0];
+    if (!isOriginalDate && dueDate < todayStr) {
       return alert("Due date cannot be in the past");
     }
     
