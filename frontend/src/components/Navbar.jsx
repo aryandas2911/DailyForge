@@ -58,7 +58,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
 
           {/* Logo */}
-             <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+             <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
             <Motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -72,7 +72,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav Links */}
-          {token && (
+          {user && (
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
@@ -209,8 +209,8 @@ const Navbar = () => {
                 </Motion.button>
               </div>
 
-              <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-border" : "pt-2")}>
-                {!token ? (
+              <div className={cn("flex flex-col gap-2", user? "pt-4 mt-2 border-t border-border" : "pt-2")}>
+                {!user ? (
                   <>
                     <Link
                       to="/login"
