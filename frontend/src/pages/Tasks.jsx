@@ -317,5 +317,6 @@ export default function Tasks() {
         />
       )}
     </div>
-  );
+    </div>
+);
 }
