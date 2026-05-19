@@ -16,6 +16,7 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [selectionMode, setSelectionMode] = useState(false);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -117,6 +118,18 @@ export default function Tasks() {
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectionMode((prev) => {
+                if (prev) setSelectedIds([]);
+                return !prev;
+              });
+            }}
+            className="btn flex items-center gap-2 cursor-pointer border border-soft text-main px-4 py-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition"
+          >
+            {selectionMode ? "Done selecting" : "Select tasks"}
+          </button>
           {selectedIds.length > 0 && (
             <button
               onClick={handleBulkDelete}
@@ -195,8 +208,9 @@ export default function Tasks() {
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}   
-                    onSelect={handleSelect}   
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
+                    selectionMode={selectionMode}
                   />
                 ))
             ) : (

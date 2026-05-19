@@ -9,7 +9,15 @@ const priorityStyles = {
   High: "border-red-500 bg-red-50 dark:bg-red-950/20",
 };
 
-export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
+export default function TaskItem({
+  task,
+  onToggleComplete,
+  onDelete,
+  onUpdate,
+  isSelected,
+  onSelect,
+  selectionMode = false,
+}) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -30,14 +38,16 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
         `}
       >
         <div className="flex items-center gap-6 px-6 py-6">
-          {/* Selection Checkbox */}
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => onSelect(task._id)}
-            className="w-4 h-4 cursor-pointer accent-blue-500"
-          />
-          {/* Checkbox */}
+          {selectionMode && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onSelect(task._id)}
+              className="w-4 h-4 cursor-pointer accent-blue-500"
+              aria-label={`Select task ${task.title}`}
+            />
+          )}
+          {/* Completion toggle */}
           <button
             onClick={() => onToggleComplete(task)}
             className={`
