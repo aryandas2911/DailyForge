@@ -1,5 +1,5 @@
 import express from "express";
-import { getUser, login, signup } from "../controllers/authController.js";
+import { getUser, login, signup, logout } from "../controllers/authController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 // router object for auth
@@ -13,3 +13,6 @@ authRouter.post("/login", login);
 
 // Route for get user (me)
 authRouter.get("/me", authMiddleware, getUser);
+
+// Route for logout
+authRouter.post("/logout", logout);
