@@ -294,6 +294,9 @@ export default function RoutineCard({
               setShowMenu((prev) => !prev);
             }}
             className="rounded-lg p-2 hover:bg-white/10 transition"
+            aria-label="Routine options"
+            aria-haspopup="true"
+            aria-expanded={showMenu}
           >
             <MoreVertical size={18} />
           </button>
