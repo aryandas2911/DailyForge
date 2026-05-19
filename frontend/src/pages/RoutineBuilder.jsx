@@ -29,6 +29,7 @@ export default function RoutineBuilder() {
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
@@ -87,6 +88,8 @@ export default function RoutineBuilder() {
   };
 
   const confirmSaveRoutine = async () => {
+    if (isSaving) return;
+
     const items = scheduledTasks
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
@@ -97,6 +100,7 @@ export default function RoutineBuilder() {
       }));
 
     try {
+      setIsSaving(true);
       await api.post("/routines", {
         name: routineName,
         description: description,
@@ -113,6 +117,8 @@ export default function RoutineBuilder() {
     } catch (err) {
       console.error(err);
       alert("Failed to save routine");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -274,9 +280,9 @@ export default function RoutineBuilder() {
               <button
                 className="btn btn-primary cursor-pointer"
                 onClick={confirmSaveRoutine}
-                disabled={!routineName.trim()}
+                disabled={!routineName.trim() || isSaving}
               >
-                Save Routine
+                {isSaving ? "Saving..." : "Save Routine"}
               </button>
             </div>
           </div>
