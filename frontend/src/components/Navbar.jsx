@@ -14,7 +14,7 @@ function cn(...inputs) {
 }
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -66,7 +66,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo Section with Hover Animation */}
-          <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+          <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
             <motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -80,7 +80,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          {token && (
+          {user && (
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
@@ -119,7 +119,7 @@ const Navbar = () => {
               )}
             </motion.button>
 
-            {!token ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
@@ -179,7 +179,7 @@ const Navbar = () => {
             className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
-              {token && navLinks.map((link) => (
+              {user && navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
@@ -221,8 +221,8 @@ const Navbar = () => {
                 </motion.button>
               </div>
 
-              <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
-                {!token ? (
+              <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
+                {!user ? (
                   <>
                     <Link
                       to="/login"

@@ -4,11 +4,15 @@ import { Navigate } from "react-router-dom";
 
 const ProtectedRoutes = ({ children }) => {
 
-  // access token from AuthContext
-  const { token } = useContext(AuthContext);
+  // access user and isLoading from AuthContext
+  const { user, isLoading } = useContext(AuthContext);
 
-  // if token doesn't exist, return to login page
-  if (!token) {
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // if user doesn't exist, return to login page
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
   // else return the children component
