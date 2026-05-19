@@ -152,7 +152,7 @@ export default function RoutineBuilder() {
         handleDragEnd(event);
       }}
     >
-      <div className="app-bg min-h-screen px-6 py-8 animate-in">
+      <div className="app-bg min-h-screen px-6 py-8">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
           <button
