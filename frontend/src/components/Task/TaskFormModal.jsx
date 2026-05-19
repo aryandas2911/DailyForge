@@ -27,7 +27,14 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
-      setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+      setDueDate(
+        task.dueDate
+        ? new Date(task.dueDate)
+        .toLocaleString("sv-SE")
+        .replace(" ", "T")
+        .slice(0, 16)
+        : ""
+      );
       /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
