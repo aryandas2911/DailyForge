@@ -14,10 +14,14 @@ function DraggableTask({ task }) {
     });
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-    opacity: isDragging ? 0.5 : 1,
+    transform: isDragging
+      ? undefined
+      : transform
+        ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+        : undefined,
+    opacity: isDragging ? 0 : 1,
+    position: "relative",
+    zIndex: isDragging ? 99999 : 1,
   };
 
   return (
@@ -41,8 +45,8 @@ function DraggableTask({ task }) {
             task.priority === "High"
               ? "#ef4444"
               : task.priority === "Medium"
-              ? "#f59e0b"
-              : "#10b981",
+                ? "#f59e0b"
+                : "#10b981",
         }}
       />
 
@@ -94,8 +98,8 @@ export default function TaskLibrary({ tasks, onAddTask }) {
             <DraggableTask key={task._id} task={task} />
           ))
         ) : (
-  <EmptyState type="tasks" onAction={onAddTask} />
-)}
+          <EmptyState type="tasks" onAction={onAddTask} />
+        )}
       </div>
 
       {/* Footer CTA */}

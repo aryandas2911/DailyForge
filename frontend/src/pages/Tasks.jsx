@@ -13,6 +13,7 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -35,6 +36,7 @@ export default function Tasks() {
   };
 
   const handleSubmit = async (data) => {
+    setTaskError("");
     try {
       if (editingTask) {
         await updateTask(editingTask._id, data);
@@ -45,7 +47,7 @@ export default function Tasks() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save task");
+      setTaskError(err.message || "Failed to save task");
     }
   };
 
@@ -285,8 +287,13 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setTaskError("");
+          }}
           onSubmit={handleSubmit}
+          errorMessage={taskError}
+          onError={setTaskError}
         />
       )}
     </div>
