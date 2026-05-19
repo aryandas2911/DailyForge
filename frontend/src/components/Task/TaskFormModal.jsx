@@ -181,15 +181,13 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           <div>
             <label className="text-sm font-medium text-main">Due Date</label>
             <input
-              type="date"
+              type="datetime-local"
               value={dueDate}
-              min={todayStr}
-              max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
-              onClick={(e) => e.target.showPicker?.()}
+              onClick={(e) => e.target.showPicker && e.target.showPicker()}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               required
-            />
+/>
           </div>
 
           {/* Submit Button */}
