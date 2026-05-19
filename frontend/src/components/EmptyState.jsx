@@ -2,20 +2,31 @@ import { useState } from "react";
 
 const CONFIG = {
   tasks: {
-    icon: (
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>
-        <rect x="10" y="18" width="60" height="8" rx="4" fill="#6366f1" opacity="0.18" />
-        <rect x="10" y="34" width="45" height="8" rx="4" fill="#6366f1" opacity="0.13" />
-        <rect x="10" y="50" width="52" height="8" rx="4" fill="#6366f1" opacity="0.10" />
-        <circle cx="56" cy="52" r="18" fill="#6366f1" opacity="0.15" />
-        <path d="M46 52l6 6 12-12" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="10" y="10" width="32" height="4" rx="2" fill="#6366f1" opacity="0.35" />
-      </svg>
-    ),
-    heading: "No tasks yet",
-    subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
-    cta: "+ Create your first task",
-  },
+  icon: (
+    <svg
+      viewBox="0 0 80 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: 80, height: 80 }}
+    >
+      <rect x="10" y="18" width="60" height="8" rx="4" fill="#1d4ed8" opacity="0.18" />
+      <rect x="10" y="34" width="45" height="8" rx="4" fill="#1d4ed8" opacity="0.13" />
+      <rect x="10" y="50" width="52" height="8" rx="4" fill="#1d4ed8" opacity="0.10" />
+      <circle cx="56" cy="52" r="18" fill="#1d4ed8" opacity="0.15" />
+      <path
+        d="M46 52l6 6 12-12"
+        stroke="#1d4ed8"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="10" y="10" width="32" height="4" rx="2" fill="#1d4ed8" opacity="0.35" />
+    </svg>
+  ),
+  heading: "No tasks yet",
+  subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
+  cta: "+ Create your first task",
+},
   routines: {
     icon: (
       <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>
@@ -46,8 +57,15 @@ export default function EmptyState({ type = "tasks", onAction }) {
       <div className="flex items-center justify-center w-[100px] h-[100px] rounded-full bg-purple-100/50 dark:bg-slate-800/80 shadow-[0_0_0_12px_rgba(245,243,255,0.5),0_0_0_20px_rgba(237,233,254,0.3)] dark:shadow-[0_0_0_12px_rgba(30,41,59,0.3),0_0_0_20px_rgba(15,23,42,0.2)] mb-1">
         {cfg.icon}
       </div>
-      <h2 className="m-0 text-xl font-bold text-indigo-900 dark:text-indigo-300 tracking-tight">{cfg.heading}</h2>
-      <p className="m-0 text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[300px]">{cfg.subtext}</p>
+
+      <h2 className="m-0 text-xl font-bold text-blue-900 dark:text-blue-400 tracking-tight">
+        {cfg.heading}
+      </h2>
+
+      <p className="m-0 text-sm text-blue-900 dark:text-blue-200 leading-relaxed max-w-[300px]">
+        {cfg.subtext}
+      </p>
+
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
