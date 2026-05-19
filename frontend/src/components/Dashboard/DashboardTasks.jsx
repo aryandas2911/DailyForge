@@ -1,30 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowRight, CheckCircle2 } from "lucide-react";
-
+import { ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
-  const priorityOrder = {
-    High: 3,
-    Medium: 2,
-    Low: 1,
-  };
-
-  const priorityBorder = {
-    Low: "border-green-400",
-    Medium: "border-yellow-400",
-    High: "border-red-500",
-  };
-
+  const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+  const priorityBorder = { Low: "border-teal-400", Medium: "border-sky-400", High: "border-red-400" };
   const priorityBadge = {
-    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    Low: "bg-teal-500/10 text-teal-600 dark:bg-teal-400/10 dark:text-teal-300",
+    Medium: "bg-sky-500/10 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300",
+    High: "bg-red-500/10 text-red-600 dark:bg-red-400/10 dark:text-red-300",
   };
 
   const today = new Date();
-
   const todayTasks = tasks
     ?.filter((task) => {
       if (!task.dueDate) return false;
@@ -35,88 +24,79 @@ export default function DashboardTasks({ tasks, updateTask }) {
     .slice(0, 5);
 
   return (
-    <div className="card w-full">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+    <div className="card glass-panel w-full">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-main">Today’s Focus</h2>
-          <p className="text-xs text-muted">Top priorities for today</p>
+          <h2 className="text-xl font-bold text-main font-heading tracking-tight">Today's Focus</h2>
+          <p className="text-xs font-medium text-muted mt-1 uppercase tracking-wider">Top priorities for today</p>
         </div>
-
         <button
-          className="mt-3 group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
+          className="group flex gap-2 items-center px-4 py-2 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-slate-900 text-sm font-medium transition-all duration-300 cursor-pointer"
           onClick={() => navigate("/tasks")}
         >
-          Manage <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+          Manage <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
         </button>
       </div>
 
       {todayTasks?.length ? (
         <div className="space-y-3">
-          {todayTasks.map((task) => (
-            <div
-              key={task._id}
-              className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
-              ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
-            >
-              {/* Checkbox */}
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-(--primary) cursor-pointer"
-                checked={task.status === "Completed"}
-                onChange={() =>
-                  updateTask(task._id, {
-                    status: task.status === "Completed" ? "Due" : "Completed",
-                  })
-                }
-              />
-
-              {/* Task content */}
-              <div className="flex-1">
-                <p
-                  className={`text-sm font-medium transition-colors ${
-                    task.status === "Completed"
-                      ? "line-through text-muted"
-                      : "text-main"
-                  }`}
-                >
-                  {task.title}
-                </p>
-
-                <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                      priorityBadge[task.priority]
-                    }`}
-                  >
-                    {task.priority}
-                  </span>
-
+          <AnimatePresence>
+            {todayTasks.map((task, index) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                key={task._id}
+                className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-300
+                ${priorityBorder[task.priority]}
+                glass hover:shadow-lg hover:border-primary/50`}
+              >
+                <div className="relative flex items-center justify-center w-5 h-5 rounded-md border border-muted/50 group-hover:border-primary transition-colors cursor-pointer overflow-hidden shrink-0">
+                  <input
+                    type="checkbox"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    checked={task.status === "Completed"}
+                    onChange={() =>
+                      updateTask(task._id, {
+                        status: task.status === "Completed" ? "Due" : "Completed",
+                      })
+                    }
+                  />
                   {task.status === "Completed" && (
-                    <span className="text-[11px] text-muted">Completed</span>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-3 h-3 bg-primary rounded-sm" />
                   )}
                 </div>
-              </div>
 
-              {/* Hover affordance */}
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted opacity-0 group-hover:opacity-100 transition">
-                ✓
-              </span>
-            </div>
-          ))}
+                <div className="flex-1">
+                  <p
+                    className={`text-sm font-semibold transition-all duration-300 ${
+                      task.status === "Completed" ? "line-through text-muted/50" : "text-main"
+                    }`}
+                  >
+                    {task.title}
+                  </p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${priorityBadge[task.priority]}`}>
+                      {task.priority}
+                    </span>
+                    {task.status === "Completed" && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Completed</span>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6 flex flex-col ">
-          No tasks for today.
-
-          <button
-            className="mt-3 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
-            onClick={() => navigate("/tasks")}
-          >
-            + Add your first task
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted text-center py-10 flex flex-col items-center justify-center glass rounded-xl border-dashed">
+          <p className="font-medium mb-4">No tasks for today. You're all caught up!</p>
+          <button className="btn btn-primary shadow-lg shadow-primary/20" onClick={() => navigate("/tasks")}>
+            Add your first task
           </button>
-        </div>
+        </motion.div>
       )}
     </div>
   );

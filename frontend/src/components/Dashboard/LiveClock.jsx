@@ -24,7 +24,7 @@ const LiveClock = () => {
   }, []);
 
   return (
-    <p className="text-sm text-teal-500 mt-2">
+    <p className="text-sm font-semibold tracking-wider text-accent drop-shadow-[0_0_8px_rgba(45,212,191,0.5)] bg-slate-900/5 dark:bg-slate-800/50 px-3 py-1 rounded-lg border border-accent/20">
       {currentTime}
     </p>
   );
