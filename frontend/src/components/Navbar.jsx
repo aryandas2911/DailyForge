@@ -121,18 +121,33 @@ const Navbar = () => {
 
             {!user ? (
               <>
-                <Link
+                <NavLink
                   to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
-                >
-                  Signup
-                </Link>
+                  className={({ isActive }) =>
+                    cn(
+                        "text-sm font-medium px-4 py-2 rounded-xl transition-colors",
+                        isActive
+                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
+                        : "text-gray-400 hover:text-[#3b8ea0] hover:bg-[#d0f6e3]/50"
+                     )
+                   }
+                 >
+                   Login
+                </NavLink>
+
+                <NavLink
+                  to="/signup"
+                  className={({ isActive }) =>
+                     cn(
+                         "text-sm px-4 py-2 rounded-xl transition-all",
+                           isActive
+                           ? "bg-[#d0f6e3] text-[#3b8ea0]"
+                           : "text-gray-400 hover:text-[#3b8ea0] hover:bg-[#d0f6e3]/50"
+                      )
+                   }
+                  >
+                    Signup
+                </NavLink>
               </>
             ) : (
               <button 
