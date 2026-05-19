@@ -11,11 +11,16 @@ const routineSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: false,
+    },
     items: [ // tasks
       {
         taskId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Tasks",
+          required: true,
         },
         day: {
           type: String,
@@ -41,10 +46,6 @@ const routineSchema = mongoose.Schema(
         },
       },
     ],
-    updatedAt: {
-      type: Date,
-      default: Date.now(),
-    },
   },
   { timestamps: true }
 );
