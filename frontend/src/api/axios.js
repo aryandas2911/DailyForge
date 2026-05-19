@@ -9,13 +9,25 @@ const api = axios.create({
 // attach jwt automatically with each request
 api.interceptors.request.use((config) => {
   try {
+    const publicAuthPaths = ["/auth/login", "/auth/signup"];
+    const isPublicAuthRequest = publicAuthPaths.some((path) =>
+      config.url?.endsWith(path)
+    );
+
+    if (isPublicAuthRequest) {
+      return config;
+    }
+
     // Read token from localStorage
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")?.trim();
 
     // If token exists, attach the Authorization header
-    if (token) {
+    if (token && token.split(".").length === 3) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (token) {
+      localStorage.removeItem("token");
     }
+
     return config;
   } catch (error) {
     // Handle error

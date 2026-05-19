@@ -5,10 +5,26 @@ import api from "../api/axios";
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
+const getStoredToken = () => {
+  const token = localStorage.getItem("token")?.trim();
+
+  if (!token) {
+    localStorage.removeItem("token");
+    return null;
+  }
+
+  if (token.split(".").length !== 3) {
+    localStorage.removeItem("token");
+    return null;
+  }
+
+  return token;
+};
+
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [token, setToken] = useState(getStoredToken);
 
   // logout function
   const logout = () => {
