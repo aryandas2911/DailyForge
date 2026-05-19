@@ -14,7 +14,7 @@ function cn(...inputs) {
 }
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -80,7 +80,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          {token && (
+          {user && (
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
@@ -191,7 +191,7 @@ const Navbar = () => {
             className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
-              {token && navLinks.map((link) => (
+              {user && navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
