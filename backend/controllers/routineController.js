@@ -7,25 +7,32 @@ export const createRoutine = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
     }
 
     // fetch routine details from request body
+<<<<<<< HEAD
+    const { name, items } = req.body;
+=======
     const { name, description, items } = req.body;
     if (!name || items.length == 0 || !items) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
     }
+>>>>>>> upstream/main
 
     // calculate endtime for each task
     const formatted = [];
-    for (const item of items) {
 
+    for (const item of items) {
       // check duration greater than 10 mins
       if (!item.duration || item.duration < 10) {
         return res.status(400).json({
@@ -35,6 +42,7 @@ export const createRoutine = async (req, res) => {
       }
 
       const endTime = item.startTime + item.duration;
+
       formatted.push({
         day: item.day,
         startTime: item.startTime,
@@ -44,10 +52,12 @@ export const createRoutine = async (req, res) => {
 
     // group tasks by day
     const dayGroups = {};
+
     for (const task of formatted) {
       if (!dayGroups[task.day]) {
         dayGroups[task.day] = [];
       }
+
       dayGroups[task.day].push(task);
     }
 
@@ -59,11 +69,24 @@ export const createRoutine = async (req, res) => {
       tasks.sort((a, b) => a.startTime - b.startTime);
 
       // compare each task with next task
+<<<<<<< HEAD
+      for (let i = 0; i < tasks.length - 1; i++) {
+        const curr = tasks[i];
+        const next = tasks[i + 1];
+
+        if (curr.endTime > next.startTime) {
+          return res.status(400).json({
+            success: false,
+            message: `Tasks overlap on ${day}`,
+          });
+        }
+=======
       if (checkOverlap(tasks)) {
         return res.status(400).json({
           success: false,
           message: `Tasks overlap on ${day}`,
         });
+>>>>>>> upstream/main
       }
     }
 
@@ -77,6 +100,14 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
+<<<<<<< HEAD
+
+    return res.status(200).json({
+      success: true,
+      message: "Routine added successfully",
+      newRoutine,
+    });
+=======
     
     //Spotted Bug - Bundled newRoutine into the response object-->
     return res
@@ -86,12 +117,15 @@ export const createRoutine = async (req, res) => {
         message: "Routine added successfully", 
         routine: newRoutine 
       });
+>>>>>>> upstream/main
   } catch (error) {
     // error handling
     console.log("Error creating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating routine" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error creating routine",
+    });
   }
 };
 
@@ -100,27 +134,46 @@ export const getRoutines = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
     }
 
     // fetch routines from database
-    const routines = await Routine.find({ userId: userId }).sort({
+    const routines = await Routine.find({
+      userId: userId,
+    }).sort({
       createdAt: -1,
     });
+
     if (routines.length == 0) {
+<<<<<<< HEAD
+      res.status(400).json({
+        message: "User has no routine",
+        success: false,
+      });
+=======
       return res.status(400).json({ message: "User has no routine", success: false });
+>>>>>>> upstream/main
     }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({
+      success: true,
+      routines,
+    });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching routine" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching routine",
+    });
   }
 };
 
@@ -226,22 +279,28 @@ export const updateRoutine = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
     }
 
     // fetch updated routine details
     const updates = req.body;
+
     const routineId = req.params.id;
 
     if (updates.items) {
       // calculate endtime for each task
       const formatted = [];
+
       for (const item of updates.items) {
         const endTime = item.startTime + item.duration;
+
         formatted.push({
           day: item.day,
           startTime: item.startTime,
@@ -251,10 +310,12 @@ export const updateRoutine = async (req, res) => {
 
       // group tasks by day
       const dayGroups = {};
+
       for (const task of formatted) {
         if (!dayGroups[task.day]) {
           dayGroups[task.day] = [];
         }
+
         dayGroups[task.day].push(task);
       }
 
@@ -266,11 +327,24 @@ export const updateRoutine = async (req, res) => {
         tasks.sort((a, b) => a.startTime - b.startTime);
 
         // compare each task with next task
+<<<<<<< HEAD
+        for (let i = 0; i < tasks.length - 1; i++) {
+          const curr = tasks[i];
+          const next = tasks[i + 1];
+
+          if (curr.endTime > next.startTime) {
+            return res.status(400).json({
+              success: false,
+              message: `Tasks overlap on ${day}`,
+            });
+          }
+=======
         if (checkOverlap(tasks)) {
           return res.status(400).json({
             success: false,
             message: `Tasks overlap on ${day}`,
           });
+>>>>>>> upstream/main
         }
       }
     }
@@ -281,21 +355,29 @@ export const updateRoutine = async (req, res) => {
       { $set: updates },
       { new: true, runValidators: true }
     );
+
     if (!updatedRoutine) {
       return res.status(404).json({
         message: "Routine not found",
       });
     }
+<<<<<<< HEAD
+
+    res.status(200).json({
+=======
     return res.status(200).json({
+>>>>>>> upstream/main
       message: "Routine updated successfully",
       routine: updatedRoutine,
     });
   } catch (error) {
     // error handling
     console.log("Error updating routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating routine" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error updating routine",
+    });
   }
 };
 
@@ -304,11 +386,14 @@ export const deleteRoutine = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
     }
 
     // fetch routine id
@@ -319,19 +404,27 @@ export const deleteRoutine = async (req, res) => {
       _id: routineId,
       userId: userId,
     });
+
     if (!deleteRoutine) {
       return res.status(404).json({
         message: "Routine not found",
       });
     }
+<<<<<<< HEAD
+
+    res.status(200).json({
+=======
     return res.status(200).json({
+>>>>>>> upstream/main
       message: "Routine deleted successfully",
     });
   } catch (error) {
     // error handling
     console.log("Error deleting routine", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting routine" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting routine",
+    });
   }
 };

@@ -7,15 +7,28 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create task function
 export const createTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
     }
 
+<<<<<<< HEAD
+    const {
+      title,
+      description,
+      tags,
+      priority,
+      status,
+      dueDate,
+    } = req.body;
+
+=======
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,6 +71,7 @@ export const createTask = async (req, res) => {
         .json({ success: false, message: "A task with the same title and due date already exists" });
     }
     // new task object
+>>>>>>> upstream/main
     const newTask = new Task({
       userId: userId,
       title,
@@ -68,62 +82,85 @@ export const createTask = async (req, res) => {
       dueDate,
     });
 
-    // save task in database
     await newTask.save();
 
-    return res
-      .status(201)
-      .json({ message: "Task added successfully", newTask });
+    return res.status(201).json({
+      message: "Task added successfully",
+      newTask,
+    });
   } catch (error) {
-    // error handling
     console.log("Error creating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error creating task",
+    });
   }
 };
 
 // get task function
 export const getTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
     }
 
-    // fetch tasks from database
-    const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ userId: userId }).sort({
+      createdAt: -1,
+    });
+
     if (tasks.length == 0) {
+<<<<<<< HEAD
+      res.status(400).json({
+        message: "User has no task",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      tasks,
+    });
+=======
       return res
         .status(200)
         .json({ success: true, tasks: [] });
   }
     return res.status(200).json({ success: true, tasks });
+>>>>>>> upstream/main
   } catch (error) {
-    // error handling
     console.log("Error fetching tasks", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching tasks" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching tasks",
+    });
   }
 };
 
 // update task function
 export const updateTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
     }
 
+<<<<<<< HEAD
+=======
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -135,68 +172,90 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details
+>>>>>>> upstream/main
     const updates = req.body;
     const taskId = req.params.id;
 
-    // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
+
     if (!updatedTask) {
       return res.status(404).json({
         message: "Task not found",
       });
     }
+<<<<<<< HEAD
+
+    res.status(200).json({
+=======
     return res.status(200).json({
+>>>>>>> upstream/main
       message: "Task updated successfully",
       task: updatedTask,
     });
   } catch (error) {
-    // error handling
     console.log("Error updating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error updating task",
+    });
   }
 };
 
 // delete task function
 export const deleteTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
+<<<<<<< HEAD
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
+=======
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized, token invalid" });
+>>>>>>> upstream/main
     }
 
-    // fetch task id
     const taskId = req.params.id;
 
-    // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
       _id: taskId,
       userId: userId,
     });
+
     if (!deleteTask) {
       return res.status(404).json({
         message: "Task not found",
       });
     }
+<<<<<<< HEAD
+
+    res.status(200).json({
+=======
     return res.status(200).json({
+>>>>>>> upstream/main
       message: "Task deleted successfully",
     });
   } catch (error) {
-    // error handling
     console.log("Error deleting task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting task",
+    });
   }
+<<<<<<< HEAD
+=======
 };
 
 // bulk delete tasks function
@@ -232,4 +291,5 @@ export const bulkDeleteTasks = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Error deleting tasks" });
   }
+>>>>>>> upstream/main
 };
