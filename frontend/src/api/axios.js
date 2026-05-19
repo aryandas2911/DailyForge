@@ -2,38 +2,9 @@ import axios from "axios";
 
 // create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://dailyforge-backend.onrender.com/api/",
-  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000,
-});
-
-// attach jwt automatically with each request
-api.interceptors.request.use((config) => {
-  try {
-    const publicAuthPaths = ["/auth/login", "/auth/signup"];
-    const isPublicAuthRequest = publicAuthPaths.some((path) =>
-      config.url?.endsWith(path)
-    );
-
-    if (isPublicAuthRequest) {
-      return config;
-    }
-
-    // Read token from localStorage
-    const token = localStorage.getItem("token")?.trim();
-
-    // If token exists, attach the Authorization header
-    if (token && token.split(".").length === 3) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else if (token) {
-      localStorage.removeItem("token");
-    }
-
-    return config;
-  } catch (error) {
-    // Handle error
-    console.log(error);
-    return Promise.reject(error);
-  }
+  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api/" : "https://dailyforge-backend.onrender.com/api/"),
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000, // updated 15s as default
+  withCredentials: true,
 });
 
 // Handle response errors, including timeout

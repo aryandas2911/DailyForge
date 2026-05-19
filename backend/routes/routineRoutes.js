@@ -2,6 +2,7 @@ import express from "express";
 import {
   createRoutine,
   deleteRoutine,
+  duplicateRoutine,
   getRoutines,
   updateRoutine,
 } from "../controllers/routineController.js";
@@ -15,6 +16,9 @@ routineRouter.post("/", authMiddleware, createRoutine);
 
 // Route for fetching routines
 routineRouter.get("/", authMiddleware, getRoutines);
+
+// Route for duplicating routine
+routineRouter.post("/:id/duplicate", authMiddleware, duplicateRoutine);
 
 // Route for updating routine
 routineRouter.put("/:id", authMiddleware, updateRoutine);

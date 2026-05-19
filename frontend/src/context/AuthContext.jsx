@@ -5,52 +5,39 @@ import api from "../api/axios";
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null);
 
-const getStoredToken = () => {
-  const token = localStorage.getItem("token")?.trim();
-
-  if (!token) {
-    localStorage.removeItem("token");
-    return null;
-  }
-
-  if (token.split(".").length !== 3) {
-    localStorage.removeItem("token");
-    return null;
-  }
-
-  return token;
-};
-
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(getStoredToken);
+  const [isLoading, setIsLoading] = useState(true);
 
   // logout function
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.log(e);
+    }
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
   };
 
   // restore session on app load
   useEffect(() => {
-    if (token) {
-      // fetch logged-in user
-      api
-        .get("/auth/me")
-        .then((res) => {
-          setUser(res.data.user);
-        })
-        .catch(() => {
-          // token invalid or expired
-          logout();
-        });
-    }
-  }, [token]);
+    api
+      .get("/auth/me")
+      .then((res) => {
+        setUser(res.data.user);
+      })
+      .catch(() => {
+        // token invalid or expired
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
