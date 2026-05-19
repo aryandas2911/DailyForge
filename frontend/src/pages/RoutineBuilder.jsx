@@ -28,6 +28,10 @@ export default function RoutineBuilder() {
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [activeTask, setActiveTask] = useState(null);
+   const [errorMessage, setErrorMessage] = useState("");
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -39,9 +43,10 @@ export default function RoutineBuilder() {
     try {
       await addTask({ ...data, status: "Due" });
       setIsModalOpen(false);
+      setErrorMessage("");
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      throw new Error(err.response?.data?.message || "Failed to add task");
     }
   };
 
@@ -260,8 +265,13 @@ export default function RoutineBuilder() {
         {isModalOpen && (
           <TaskFormModal
             task={null}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => {
+              setIsModalOpen(false);
+              setErrorMessage("");
+            }}
             onSubmit={handleSubmit}
+            errorMessage={errorMessage}
+            onError={setErrorMessage}
           />
         )}
       </div>

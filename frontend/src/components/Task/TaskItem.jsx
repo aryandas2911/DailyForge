@@ -12,10 +12,17 @@ const priorityStyles = {
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleEditSubmit = (updatedTask) => {
-    onUpdate(task._id, updatedTask);
-    setIsEditModalOpen(false);
+    try {
+      onUpdate(task._id, updatedTask);
+      setIsEditModalOpen(false);
+      setErrorMessage("");
+    } catch (err) {
+      console.error(err);
+      throw new Error(err.response?.data?.message || "Failed to update task");
+    }
   };
 
   return (
@@ -118,8 +125,13 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
       {isEditModalOpen && (
         <TaskFormModal
           task={task}
-          onClose={() => setIsEditModalOpen(false)}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setErrorMessage("");
+          }}
           onSubmit={handleEditSubmit}
+          errorMessage={errorMessage}
+          onError={setErrorMessage}
         />
       )}
     </>

@@ -16,6 +16,7 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -45,9 +46,14 @@ export default function Tasks() {
       }
       setEditingTask(null);
       setIsModalOpen(false);
+      setErrorMessage("");
     } catch (err) {
       console.error(err);
+<<<<<<< Updated upstream
       setTaskError(err.message || "Failed to save task");
+=======
+      throw new Error(err.response?.data?.message || "Failed to save task");
+>>>>>>> Stashed changes
     }
   };
 
@@ -291,11 +297,20 @@ export default function Tasks() {
           task={editingTask}
           onClose={() => {
             setIsModalOpen(false);
+<<<<<<< Updated upstream
             setTaskError("");
           }}
           onSubmit={handleSubmit}
           errorMessage={taskError}
           onError={setTaskError}
+=======
+            setEditingTask(null);
+            setErrorMessage("");
+          }}
+          onSubmit={handleSubmit}
+          errorMessage={errorMessage}
+          onError={setErrorMessage}
+>>>>>>> Stashed changes
         />
       )}
       </>

@@ -10,8 +10,16 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+  
+  const maxDateObj = new Date();
+  maxDateObj.setFullYear(today.getFullYear() + 1);
+  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
 
   const today = new Date();
   const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -25,6 +33,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
+      setTags(Array.isArray(task.tags) ? task.tags : []);
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
@@ -52,9 +61,18 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       title: title.trim(),
       description: description.trim(),
       tags: tags,
+      tags: tags,
       priority,
       dueDate,
     });
+  };
+
+  const toggleCategory = (categoryName) => {
+    setTags(prev => 
+      prev.includes(categoryName)
+        ? prev.filter(tag => tag !== categoryName)
+        : [...prev, categoryName]
+    );
   };
 
   const toggleCategory = (categoryName) => {
@@ -150,6 +168,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                   : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-muted"
+                    : "text-muted"
               }`}
             >
               {description.length}/{DESCRIPTION_MAX_LENGTH}
@@ -157,6 +176,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           </div>
           </div>
 
+          {/* Categories */}
           {/* Categories */}
           <div>
   <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
@@ -238,7 +258,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           <button
             type="submit"
             className="w-full  bg-teal-900 hover:bg-teal-800 text-teal-50 font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-150"
-            onSubmit={handleSubmit}
+            
           >
             <Plus size={18} />
             {task ? "Update Task" : "Add Task"}
