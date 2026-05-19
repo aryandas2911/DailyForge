@@ -40,7 +40,7 @@ const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/50 backdrop-blur-sm px-4 animate-in">
-      <div className="card card-primary w-full max-w-2xl rounded-3xl p-6 animate-in delay-100 shadow-2xl border border-soft">
+      <div className="card card-primary w-full max-w-2xl rounded-3xl p-6 animate-in delay-100 shadow-2xl border border-soft max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-start justify-between mb-6">

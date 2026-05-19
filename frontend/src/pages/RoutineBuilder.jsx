@@ -59,17 +59,22 @@ export default function RoutineBuilder() {
   }, []);
 
   useEffect(() => {
-    if (!savedRoutines.length) return;
 
-    const storedRoutineIds = JSON.parse(
-      localStorage.getItem("activeRoutineIds") || "[]"
-    );
-    if (!storedRoutineIds.length) return;
+  if (!savedRoutines.length) return;
 
-    const restoredRoutines = savedRoutines.filter((routine) =>
+  const storedRoutineIds = JSON.parse(
+    localStorage.getItem("activeRoutineIds") || "[]"
+  );
+
+  if (!storedRoutineIds.length) return;
+
+  const restoredRoutines = savedRoutines.filter(
+    (routine) =>
       storedRoutineIds.includes(routine._id)
-    );
-    setActiveRoutine(restoredRoutines);
+  );
+
+  setActiveRoutine(restoredRoutines);
+
   }, [savedRoutines]);
 
   const fetchRoutines = async () => {

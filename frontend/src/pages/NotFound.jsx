@@ -28,7 +28,7 @@ const NotFound = () => {
         onClick={handleGoHome}
         className="btn btn-primary hover-lift cursor-pointer"
       >
-        Go Home
+        {token ? "Go to Dashboard" : "Go to Login"}
       </button>
     </div>
   );
