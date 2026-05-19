@@ -1,5 +1,6 @@
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
+import Routine from "../src/models/Routine.js";
 import { validationResult } from "express-validator";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -177,6 +178,21 @@ export const deleteTask = async (req, res) => {
     // fetch task id
     const taskId = req.params.id;
 
+    // check if task is used in any routine
+    const routinesUsingTask = await Routine.find({
+      userId: userId,
+      "items.taskId": taskId,
+    });
+
+    if (routinesUsingTask.length > 0) {
+      const routineNames = routinesUsingTask.map((r) => r.name).join(", ");
+      return res.status(409).json({
+        success: false,
+        message: `Cannot delete task — it is used in ${routinesUsingTask.length} routine(s): ${routineNames}. Please remove it from those routines first.`,
+      });
+    }
+
+
     // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
       _id: taskId,
@@ -217,6 +233,20 @@ export const bulkDeleteTasks = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "No task IDs provided" });
+    }
+
+    // check if any of the tasks are used in routines
+    const routinesUsingTasks = await Routine.find({
+      userId: userId,
+      "items.taskId": { $in: ids },
+    });
+
+    if (routinesUsingTasks.length > 0) {
+      const routineNames = routinesUsingTasks.map((r) => r.name).join(", ");
+      return res.status(409).json({
+        success: false,
+        message: `Cannot delete — some tasks are used in routine(s): ${routineNames}. Please remove them from those routines first.`,
+      });
     }
 
     // delete all matching tasks belonging to this user
