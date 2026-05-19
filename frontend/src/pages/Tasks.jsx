@@ -92,11 +92,15 @@ export default function Tasks() {
   };
 
   /** --- Handlers --- */
-  const handleToggle = (task) => {
-    updateTask(task._id, {
+ const handleToggle = async (task) => {
+  try {
+    await updateTask(task._id, {
       status: task.status === "Completed" ? "Due" : "Completed",
     });
-  };
+  } catch (error) {
+    console.error("Failed to update task:", error);
+  }
+};
 
   const handleSubmit = async (data) => {
     setTaskError("");
@@ -115,23 +119,27 @@ export default function Tasks() {
   };
 
   const toggleCategoryFilter = (categoryName) => {
-    setSelectedCategories(prev =>
+    setSelectedCategories((prev) =>
       prev.includes(categoryName)
-        ? prev.filter(cat => cat !== categoryName)
+        ? prev.filter((cat) => cat !== categoryName)
         : [...prev, categoryName]
     );
   };
 
   /** --- Filtered Tasks --- */
-  const filteredTasks = selectedCategories.length === 0
-    ? tasks
-    : tasks.filter(task =>
-        task.tags && task.tags.some(tag => selectedCategories.includes(tag))
-      );
+  const filteredTasks =
+    selectedCategories.length === 0
+      ? tasks
+      : tasks.filter(
+          (task) =>
+            task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
+        );
 
   /** --- Insights --- */
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  const completedTasks = filteredTasks.filter(
+    (t) => t.status === "Completed"
+  ).length;
   const completionPercent = totalTasks
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
@@ -145,10 +153,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+
   const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -156,8 +164,9 @@ export default function Tasks() {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
-    <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
-      <div className="max-w-[1200px] mx-auto space-y-8">
+    <div className="min-h-screen app-bg px-4 sm:px-8 xl:px-16 py-8 animate-in">
+      <div className="space-y-8">
+
         {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
@@ -176,23 +185,26 @@ export default function Tasks() {
               </p>
             </div>
           </div>
-          {selectedIds.length > 0 && (
+
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              </button>
+            )}
             <button
-              onClick={handleBulkDelete}
-              className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              onClick={() => {
+                setEditingTask(null);
+                setIsModalOpen(true);
+              }}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer"
             >
-              <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              <Plus size={18} /> New Task
             </button>
-          )}
-          <button
-            onClick={() => {
-              setEditingTask(null);
-              setIsModalOpen(true);
-            }}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer"
-          >
-            <Plus size={18} /> New Task
-          </button>
+          </div>
         </div>
 
         {/* Category Filter */}
@@ -219,8 +231,8 @@ export default function Tasks() {
                     onClick={() => toggleCategoryFilter(category.name)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: category.bgColor,
@@ -236,9 +248,9 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Task List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4 animate-in delay-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="md:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
               filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -253,39 +265,51 @@ export default function Tasks() {
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}   
-                    onSelect={handleSelect}   
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
                   />
                 ))
             ) : (
-  <EmptyState
-    type="tasks"
-    onAction={() => {
-      setEditingTask(null);
-      setIsModalOpen(true);
-    }}
-  />
-)}
+              <EmptyState
+                type="tasks"
+                onAction={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
-          {/* Insights */}
-          <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
+          {/* Insights sidebar */}
+          <div className="hidden md:flex flex-col gap-6 animate-in delay-300">
+
+            {/* Completion */}
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
+
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                {completionPercent > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                )}
+
               <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
                   style={{ width: `${completionPercent}%` }}
                 />
+
               </div>
               <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}
-                %)
+                {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
               </p>
             </div>
 
+            {/* Upcoming Deadlines */}
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">
                 Upcoming Deadlines
@@ -303,26 +327,23 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-               // updated deadlines
+                // updated deadlines logic
                 nextTask ? (
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
-      {nextTask.title}
-    </p>
-
-    <p className="text-xs text-muted">
-      Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
-    </p>
-  </div>
-) : (
-  <p className="text-xs text-muted">
-    No upcoming tasks 🎉
-  </p>
-)
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-main">
+                      {nextTask.title}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted">No upcoming tasks 🎉</p>
+                )
               )}
             </div>
 
+            {/* Priority load */}
             <div
               className={`card p-4 ${
                 isOverloaded
@@ -338,7 +359,7 @@ export default function Tasks() {
               <p className="text-xs mt-1 opacity-80">
                 {isOverloaded
                   ? "Consider rescheduling or delegating."
-                  : "You’re pacing this well."}
+                  : "You're pacing this well."}
               </p>
             </div>
           </div>
@@ -428,5 +449,6 @@ export default function Tasks() {
         </div>
       )}
     </div>
-  );
+    </div>
+);
 }
