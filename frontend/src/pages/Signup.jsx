@@ -1,11 +1,10 @@
 import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Spinner from "../components/Spinner";
 
 const Signup = () => {
-  // three states for inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,15 +16,17 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // useNavigate object
   const navigate = useNavigate();
+  const { signup, loading } = useContext(AuthContext);
 
+<<<<<<< HEAD
+=======
   // useContext for auth
   const { setUser } = useContext(AuthContext);
 
   // submit handler
+>>>>>>> 479b2dce3fa7f2b094c77ce9e61424c525003016
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
     
     // clear any previous error messages
@@ -38,6 +39,18 @@ const Signup = () => {
 
     // send request to server
     try {
+<<<<<<< HEAD
+      await signup(name, email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      console.log("Signup failed");
+      const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
+      setError(errorMessage);
+      console.log(errorMessage);
+    } finally {
+      // reset loading state
+      setIsLoading(false);
+=======
       const res = await api.post("/auth/signup", {
         name,
         email,
@@ -74,6 +87,7 @@ const Signup = () => {
     const newErrors = {};
     if (name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters long";
+>>>>>>> 479b2dce3fa7f2b094c77ce9e61424c525003016
     }
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
@@ -87,14 +101,12 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // signup component
   return (
     <form
       className="
         surface-bg px-10 py-15 rounded-2xl
         w-full max-w-sm
-        flex flex-col gap-6
-        animate-in
+        flex flex-col gap-6 animate-in
       "
       onSubmit={handleSubmit}
     >
@@ -116,13 +128,16 @@ const Signup = () => {
           type="text"
           id="name"
           value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Full Name"
           required
           className={`
             w-full px-3 py-2.5
+<<<<<<< HEAD
+            text-sm surface-bg border-soft
+            rounded-sm shadow-xs input-focus hover-lift
+          "
+=======
             text-sm
             surface-bg
             rounded-sm
@@ -130,6 +145,7 @@ const Signup = () => {
             input-focus hover-lift
             ${errors.name ? "border-red-500" : "border-soft"}
           `}
+>>>>>>> 479b2dce3fa7f2b094c77ce9e61424c525003016
         />
         {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
@@ -142,19 +158,13 @@ const Signup = () => {
           type="email"
           id="email"
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="user@email.com"
           required
           className="
             w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-sm
-            shadow-xs
-            input-focus hover-lift
+            text-sm surface-bg border-soft
+            rounded-sm shadow-xs input-focus hover-lift
           "
         />
       </div>
@@ -168,19 +178,13 @@ const Signup = () => {
             type={showPassword ? "text" : "password"}
             id="password"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             required
             className="
               w-full px-3 py-2.5 pr-10
-              text-sm
-              surface-bg
-              border-soft
-              rounded-base
-              shadow-xs
-              input-focus hover-lift
+              text-sm surface-bg border-soft
+              rounded-base shadow-xs input-focus hover-lift
             "
           />
           <button
@@ -249,8 +253,13 @@ const Signup = () => {
 
       <p className="text-center text-sm text-muted">
         Already have an account?{" "}
+<<<<<<< HEAD
+        <span
+          onClick={() => navigate("/login")}
+=======
         <Link
           to="/login"
+>>>>>>> 479b2dce3fa7f2b094c77ce9e61424c525003016
           className="text-main font-medium cursor-pointer hover:underline transition-colors"
         >
           Login

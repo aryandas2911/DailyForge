@@ -1,0 +1,75 @@
+[33mfcadcaa[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfix/loading-spinner-api-calls[m[33m, [m[1;31morigin/fix/loading-spinner-api-calls[m[33m)[m Merge branch 'fix/loading-spinner-api-calls' of https://github.com/bh462007/DailyForge into fix/loading-spinner-api-calls
+[33m4e43998[m fix: separate AuthContext into its own file to resolve linting
+[33m2f2e2b1[m Merge branch 'main' into fix/loading-spinner-api-calls
+[33m331342b[m Feature/bulk delete tasks (#294)
+[33maf3908e[m enable keyboard navigation (#199)
+[33mc55af0e[m Fix: dashboard hardcoded greeting (#162)
+[33m3790099[m fix: return 401 for invalid jwt verification (#166)
+[33m8723230[m fix: add input sanitization to prevent stored XSS on task fields (#147)
+[33m652fb05[m fix: prevent duplicate controller responses (#161)
+[33m5c600df[m fix db startup failure handling (#167)
+[33m612c47a[m fix: add loading state handling to Signup form to prevent duplicate requests (#159)
+[33mbb0cfb7[m feat: add responsive mobile sidebar for navbar (#181)
+[33m56146c1[m Merge branch 'main' of https://github.com/aryandas2911/DailyForge into fix/loading-spinner-api-calls
+[33m90a24e6[m[33m ([m[1;31mupstream/main[m[33m)[m Fix upcoming deadlines (#64)
+[33m86ca3f0[m fix: resolve merge conflicts
+[33m89fd40a[m[33m ([m[1;32mmain[m[33m)[m feat: add EmptyState component with SVG illustrations (#80) (#164)
+[33m33ba397[m feat: add loading spinner during API calls
+[33m014781d[m feat: add show password toggle to auth pages (#169)
+[33m4025f89[m Feature: Added Task Timers and Current Time Display (#173)
+[33m63032ec[m fix: replace hardcoded weekly completion percentage with dynamic calculation (#44)
+[33m1ae1783[m issue fix: display task count in TaskLibrary header (#124)
+[33m55a8a84[m refactor: extract overlap detection into utility function (#129)
+[33m49947a7[m UI: Improve dashboard layout, spacing, and card consistency (#132)
+[33m2886d66[m fix: remove static updatedAt default in Routine model (#128)
+[33m26753cf[m feat: add character counter to task description (#117)
+[33mb733568[m Refactor frontend and backend environment configuration (#116)
+[33me463698[m fix: add logout confirmation dialog (#114)
+[33mc8afcf6[m Changed id error
+[33m5abcfdb[m feat: added optional description field to routines #62 (#104)
+[33m4af7944[m fix: raise axios timeout and add user-friendly timeout error message (#63)
+[33m9492ac2[m fix: add JWT expiration to prevent non-expiring tokens (#125)
+[33m3713448[m docs: add standardized JSDoc comments for all utility functions in frontend/src/utils (#143)
+[33mcc02aac[m docs: add localhost CORS setup instructions (#165)
+[33m6d97c7d[m docs: add security policy (#187)
+[33m4b4825d[m fix: remove redundant useTasks call in TaskPreview (#47)
+[33m4009a07[m fix: resolve missing key prop warning in Dashboard (#35)
+[33mdfc7875[m Added LICENSE.md file
+[33m834e063[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Backend linting error fixed
+[33m8426c1c[m Frontend linting errors fixed
+[33m63422f7[m Fixed backend linting errors
+[33m3ebd2f1[m Updated ci.yml
+[33mf80b6bc[m CI pipeline optimized
+[33m1fb836b[m Linting enabled
+[33m34c6e76[m Added CI Checks
+[33md2a8a2f[m Added pull request template
+[33mceb3b12[m Updated README.md and CONTRIBUTING.md
+[33me1d6537[m Updated CONTRIBUTING.md
+[33m18a6e68[m CONTRIBUTING.md added
+[33m00079aa[m Updated README.md
+[33mf8ef613[m Merge branch 'main' of https://github.com/aryandas2911/DailyForge-MERN-Stack
+[33m1586c5e[m Updated README.md
+[33m188d74b[m Update npm start command to npm run dev
+[33m95fc3db[m Added README.md file
+[33maf62e6e[m Added screenshots
+[33m1eac349[m Bugs fixed
+[33m6662581[m Updated deployed frontend link
+[33me92c73b[m Updated deployed backend
+[33m120a0f2[m Animation added and home page route fixed
+[33mca9692b[m Routine page drag and drop added
+[33mcdf080c[m Routine page added (drag-drop left)
+[33m7312ec5[m Tasks section and page visual fixes
+[33m6d35fb9[m Tasks page bug solved
+[33me305c11[m Tasks page created (Update task bug)
+[33m6ef68b5[m Dashboard Prototype created
+[33mcd6dc36[m Stay logged in on refresh added
+[33m83e49f8[m Protected Routes created
+[33md5b2fc8[m AuthContext added
+[33m214d8ef[m User fetch and dashboard redirection added
+[33m047c7cc[m Login and signup from frontend
+[33ma7259ca[m Signup and Login form completed
+[33m29d9820[m Progress tracking and weekly summary feature added
+[33m60b7dbb[m Routine create, fetch, update, delete feature added
+[33mb0d3922[m Task create, fetch, update, delete feature added
+[33m7b324e0[m Authorization feature added
+[33m5a33862[m Project started

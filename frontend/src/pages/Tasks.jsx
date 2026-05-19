@@ -4,12 +4,13 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
+import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
+import { CATEGORIES } from "../utils/categoryUtils";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
+  const { tasks, loading, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -28,16 +29,15 @@ export default function Tasks() {
     setSelectedIds([]);
   };
 
-  /** --- Handlers --- */
- const handleToggle = async (task) => {
-  try {
-    await updateTask(task._id, {
-      status: task.status === "Completed" ? "Due" : "Completed",
-    });
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  const handleToggle = async (task) => {
+    try {
+      await updateTask(task._id, {
+        status: task.status === "Completed" ? "Due" : "Completed",
+      });
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
 
   const handleSubmit = async (data) => {
     setTaskError("");
@@ -63,14 +63,12 @@ export default function Tasks() {
     );
   };
 
-  /** --- Filtered Tasks --- */
   const filteredTasks = selectedCategories.length === 0
     ? tasks
     : tasks.filter(task =>
         task.tags && task.tags.some(tag => selectedCategories.includes(tag))
       );
 
-  /** --- Insights --- */
   const totalTasks = filteredTasks.length;
   const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
   const completionPercent = totalTasks
@@ -86,10 +84,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+
   const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -159,9 +157,7 @@ export default function Tasks() {
                     key={category.name}
                     onClick={() => toggleCategoryFilter(category.name)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                      isSelected ? 'ring-2 ring-offset-1' : 'opacity-60 hover:opacity-100'
                     }`}
                     style={{
                       backgroundColor: category.bgColor,
@@ -180,7 +176,9 @@ export default function Tasks() {
         {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
-            {filteredTasks.length ? (
+            {loading && tasks.length === 0 ? (
+              <Spinner />
+            ) : filteredTasks.length ? (
               filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
@@ -188,26 +186,25 @@ export default function Tasks() {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    // fix : Ensure onDelete is explicitely reciving the id
                     onDelete={(id) => deleteTask(id)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}   
-                    onSelect={handleSelect}   
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
                   />
                 ))
             ) : (
-  <EmptyState
-    type="tasks"
-    onAction={() => {
-      setEditingTask(null);
-      setIsModalOpen(true);
-    }}
-  />
-)}
+              <EmptyState
+                type="tasks"
+                onAction={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
           {/* Insights */}
@@ -223,8 +220,7 @@ export default function Tasks() {
                 />
               </div>
               <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}
-                %)
+                {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
               </p>
             </div>
 
@@ -235,33 +231,21 @@ export default function Tasks() {
               {upcomingDeadlines.length ? (
                 <ul className="space-y-2 text-sm">
                   {upcomingDeadlines.slice(0, 3).map((task) => (
-                    <li
-                      key={task._id}
-                      className="flex items-center gap-2 text-main"
-                    >
+                    <li key={task._id} className="flex items-center gap-2 text-main">
                       <span className="w-2 h-2 rounded-full bg-red-500" />
                       {task.title}
                     </li>
                   ))}
                 </ul>
+              ) : nextTask ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-main">{nextTask.title}</p>
+                  <p className="text-xs text-muted">
+                    Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                  </p>
+                </div>
               ) : (
-               // updated deadlines
-                nextTask ? (
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
-      {nextTask.title}
-    </p>
-
-    <p className="text-xs text-muted">
-      Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
-    </p>
-  </div>
-) : (
-  <p className="text-xs text-muted">
-    No upcoming tasks 🎉
-  </p>
-)
+                <p className="text-xs text-muted">No upcoming tasks 🎉</p>
               )}
             </div>
 
@@ -273,14 +257,12 @@ export default function Tasks() {
               }`}
             >
               <p className="text-sm font-medium">
-                {isOverloaded
-                  ? "Too many high-priority tasks"
-                  : "Priority load is healthy"}
+                {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
               </p>
               <p className="text-xs mt-1 opacity-80">
                 {isOverloaded
                   ? "Consider rescheduling or delegating."
-                  : "You’re pacing this well."}
+                  : "You're pacing this well."}
               </p>
             </div>
           </div>

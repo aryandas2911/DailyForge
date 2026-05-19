@@ -3,14 +3,18 @@ import api from "../api/axios";
 
 const useTasks = () => {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // fetch tasks from database
   const getTasks = async () => {
     try {
+      setLoading(true);
       const tasks = await api.get("/tasks");
       setTasks(tasks.data.tasks);
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to load tasks");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,24 +50,27 @@ const useTasks = () => {
 
   // delete task
   const deleteTask = async (id) => {
+    setLoading(true);
     await api.delete(`/tasks/${id}`);
-    // fix : This line refreshes the UI!
-    setTasks(prev => prev.filter(t => t._id !== id)); 
+    setTasks(prev => prev.filter(t => t._id !== id));
+    setLoading(false);
   };
 
   // initial fetch
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
+
   // bulk delete tasks
   const bulkDelete = async (ids) => {
     await api.post("/tasks/bulk-delete", { ids });
     getTasks();
   };
+
   // return reusable functions
   return {
     tasks,
+    loading,
     addTask,
     updateTask,
     deleteTask,
