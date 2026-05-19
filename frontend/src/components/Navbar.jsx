@@ -58,7 +58,7 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled 
-          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm" 
+          ? "glass rounded-none border-t-0 border-l-0 border-r-0" 
           : "bg-transparent border-b border-transparent"
       )}
     >
@@ -68,13 +68,13 @@ const Navbar = () => {
           {/* Logo Section with Hover Animation */}
           <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
             <motion.div 
-              whileHover={{ rotate: 180 }} 
+              whileHover={{ rotate: 180, scale: 1.1 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+              className="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 dark:from-cyan-400 dark:to-teal-400 flex items-center justify-center shadow-md shadow-sky-500/30 dark:shadow-cyan-400/30"
             >
               <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
             </motion.div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3]">
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-500 to-teal-400 dark:from-cyan-400 dark:to-teal-400 font-heading tracking-tight">
               DailyForge
             </span>
           </Link>
@@ -88,15 +88,26 @@ const Navbar = () => {
                   to={link.path}
                   className={({ isActive }) =>
                     cn(
-                      "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                      "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 relative",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "text-primary"
+                        : "text-muted hover:text-main"
                     )
                   }
                 >
-                  <link.icon size={16} className={cn("transition-transform duration-200")} />
-                  {link.name}
+                  {({ isActive }) => (
+                    <>
+                      <link.icon size={16} className={cn("transition-transform duration-200", isActive && "scale-110")} />
+                      {link.name}
+                      {isActive && (
+                        <motion.div
+                          layoutId="navbar-active"
+                          className="absolute inset-0 bg-primary/10 rounded-xl -z-10"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>

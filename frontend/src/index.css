@@ -1,177 +1,134 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
+  --color-soft: var(--border);
+}
+
 :root {
-  /* App background (outer layout) */
-  --bg: #d0f6e3;
-
-  /* Surfaces: cards, modals, panels */
+  --bg: #f8fafc;
   --surface: #ffffff;
-
-  /* Primary action color (CTAs) */
-  --primary: #4eb7b3;
-
-  /* Hover / active feedback */
-  --primary-hover: #6dd5c7;
-
-  /* Accents: highlights, tags, blocks */
-  --accent: #98e1d7;
-
-  /* Main readable text */
-  --text-main: #3b8ea0;
-
-  /* Secondary / low-priority text */
-  --text-muted: #4eb7b3;
-
-  /* Soft separators and outlines */
-  --border: #98e1d7;
-
-  /* Consistent rounding across UI */
-  --radius: 0.75rem;
+  --primary: #0ea5e9;
+  --primary-hover: #0284c7;
+  --accent: #2dd4bf;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 1rem;
 }
 
 .dark {
-  /* App background (outer layout) - deep premium slate dark blue-gray */
-  --bg: #0f172a;
-
-  /* Surfaces: cards, modals, panels - charcoal slate */
-  --surface: #1e293b;
-
-  /* Primary action color (CTAs) - vibrant teal */
-  --primary: #4eb7b3;
-
-  /* Hover / active feedback */
-  --primary-hover: #5ec7c3;
-
-  /* Accents: highlights, tags, blocks */
-  --accent: #1e2e30;
-
-  /* Main readable text - crisp slate-off-white */
+  --bg: #020617;
+  --surface: #0f172a;
+  --primary: #22d3ee;
+  --primary-hover: #67e8f9;
+  --accent: #2dd4bf;
   --text-main: #f8fafc;
-
-  /* Secondary / low-priority text */
   --text-muted: #94a3b8;
+  --border: #1e293b;
+}
 
-  /* Soft separators and outlines */
-  --border: #334155;
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html.dark, html.dark body {
-  background-color: var(--bg);
-  color: var(--text-main);
   color-scheme: dark;
 }
 
-/* Utility Classes */
 @layer utilities {
-  /* Layout backgrounds */
-  .app-bg {
-    background-color: var(--bg);
+  .font-heading {
+    font-family: 'Outfit', sans-serif;
   }
 
-  .surface-bg {
-    background-color: var(--surface);
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
   }
 
-  /* Text roles */
-  .text-main {
-    color: var(--text-main);
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   }
 
-  .text-muted {
-    color: var(--text-muted);
+  .glass-panel {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
   }
 
-  /* Structural borders */
-  .border-soft {
-    border: 1px solid var(--border);
+  .dark .glass-panel {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.4));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  /* Button foundation */
   .btn {
-    @apply inline-flex items-center justify-center
-         px-4 py-2
-         font-medium
-         rounded-xl
-         transition-all duration-200
-         select-none;
+    @apply inline-flex items-center justify-center px-5 py-2.5 font-medium rounded-xl transition-all duration-300 select-none font-heading tracking-wide;
   }
 
-  /* Primary action button */
   .btn-primary {
-    @apply text-white
-         shadow-sm
-         hover:shadow-md
-         active:scale-[0.97]
-         focus:outline-none
-         focus:ring-2 focus:ring-offset-2;
+    @apply text-white shadow-lg active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
   }
-
-  /* Color handled via CSS variables */
-  .btn-primary {
-    background-color: var(--primary);
+  
+  .dark .btn-primary {
+    @apply text-slate-900;
   }
 
   .btn-primary:hover {
-    background-color: var(--primary-hover);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-1px);
   }
 
   .card {
     background-color: var(--surface);
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    @apply p-6 shadow-sm transition-shadow duration-200;
+    @apply p-6 shadow-sm transition-all duration-300 relative overflow-hidden;
   }
+  
   .card:hover {
-    @apply shadow-md;
-  }
-
-  .card-muted {
-    @apply bg-white/80;
-  }
-
-  .card-primary {
-    @apply shadow-md;
+    @apply shadow-lg border-primary/30;
+    transform: translateY(-2px);
   }
 }
 
 @layer utilities {
-  /* Fade + slide up on mount */
   .animate-in {
-    animation: fadeUp 0.4s ease-out both;
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-
   .animate-in-slow {
-    animation: fadeUp 0.6s ease-out both;
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  /* Stagger helpers */
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-  .delay-300 {
-    animation-delay: 0.3s;
-  }
-
-  /* Hover lift */
-  .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
-  }
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
 
   @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
+  
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 }
