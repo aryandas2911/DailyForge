@@ -6,7 +6,6 @@ const taskSchema = mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      index: true,
     },
     title: {
       type: String,
