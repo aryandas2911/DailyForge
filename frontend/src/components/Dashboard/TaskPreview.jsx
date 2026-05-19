@@ -122,7 +122,7 @@ export default function TaskPreview({ tasks , updateTask}) {
       <div className="mt-4 text-sm text-primary">
         <button
           onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
+          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
         >
           View All Tasks →
         </button>
