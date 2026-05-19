@@ -241,9 +241,12 @@ export default function RoutineBuilder() {
                               const minutes = String(
                                 task.startTime % 60
                               ).padStart(2, "0");
+                              const endMins = task.startTime + task.duration;
+                              const endH = String(Math.floor(endMins / 60)).padStart(2, "0");
+                              const endM = String(endMins % 60).padStart(2, "0");
                               return (
                                 <li key={task._id}>
-                                  {hours}:{minutes} – {task.title}
+                                  {hours}:{minutes}–{endH}:{endM} – {task.title}
                                 </li>
                               );
                             })}
