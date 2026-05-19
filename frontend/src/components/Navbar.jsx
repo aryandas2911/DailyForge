@@ -119,16 +119,6 @@ const Navbar = () => {
               )}
             </motion.button>
 
-            {/*pomodoro focus mode*/}
-            <>
-              <Link
-                to="/focus-mode"
-                className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
-              >
-                <Timer size={16} />
-                Focus Mode
-              </Link>
-            </>
 
 
             {!token ? (
@@ -147,13 +137,25 @@ const Navbar = () => {
                 </Link>
               </>
             ) : (
-              <button
-                onClick={handleLogout}
-                className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
+              <>
+                {/*pomodoro focus mode*/}
+
+                <Link
+                  to="/focus-mode"
+                  className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
+                >
+                  <Timer size={16} />
+                  Focus Mode
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </>
             )}
           </div>
 
@@ -236,11 +238,7 @@ const Navbar = () => {
 
 
               <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
-                {/* Mobile focus mode*/}
-                <Link to="/focus-mode" className="btn btn-primary flex gap-2">
-                  <Timer size={16} />
-                  Focus Mode
-                </Link>
+
 
                 {!token ? (
                   <>
@@ -262,13 +260,20 @@ const Navbar = () => {
                     </Link>
                   </>
                 ) : (
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                  >
-                    <LogOut size={18} />
-                    Logout
-                  </button>
+                  <>
+                    {/* Mobile focus mode*/}
+                    <Link to="/focus-mode" className="btn btn-primary flex gap-2">
+                      <Timer size={16} />
+                      Focus Mode
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
+                  </>
                 )}
               </div>
             </div>
