@@ -3,6 +3,8 @@ import { X, ChevronDown } from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
 const PrioritySelect = ({ priority, setPriority }) => {
   const [open, setOpen] = useState(false);
@@ -158,17 +160,19 @@ const inputStyle = {
               style={inputStyle}
               placeholder="Optional task description"
               rows={3}
-              maxLength={300}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300 ? "text-red-500"
-                : description.length >= 250 ? "text-yellow-500"
-                : ""
+                description.length >= DESCRIPTION_MAX_LENGTH
+                  ? "text-red-500"
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
               }`}
               style={description.length < 250 ? { color: "var(--color-text-muted)" } : {}}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, ArrowRight, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 
@@ -11,6 +11,7 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
+import { DAYS_OF_WEEK } from "../utils/constants";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -18,6 +19,9 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
+  const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
+  const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
   const { tasks, updateTask } = useTasks();
 
@@ -93,6 +97,44 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  const openDuplicateModal = (routine) => {
+    setRoutineToDuplicate(routine);
+    setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
+  };
+
+  const closeDuplicateModal = () => {
+    setRoutineToDuplicate(null);
+    setDuplicateTargetDay(DAYS_OF_WEEK[0]);
+  };
+
+  const handleDuplicateRoutine = async () => {
+    if (!routineToDuplicate) return;
+
+    try {
+      setDuplicatingRoutineId(routineToDuplicate._id);
+      const res = await api.post(
+        `/routines/${routineToDuplicate._id}/duplicate`,
+        { targetDay: duplicateTargetDay }
+      );
+
+      // Add the new routine immediately so the card appears without a full refresh.
+      if (res.data.routine) {
+        setSavedRoutines((prevRoutines) => [
+          res.data.routine,
+          ...prevRoutines,
+        ]);
+      } else {
+        await fetchRoutines();
+      }
+      closeDuplicateModal();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to duplicate routine");
+    } finally {
+      setDuplicatingRoutineId(null);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
@@ -186,7 +228,19 @@ export default function Dashboard() {
                   key={routine._id}
                   className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
                 >
-                  <p className="font-medium text-main">{routine.name}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium text-main">{routine.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => openDuplicateModal(routine)}
+                      disabled={duplicatingRoutineId === routine._id}
+                      aria-label={`Duplicate ${routine.name}`}
+                      title="Duplicate routine"
+                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                    >
+                      <Copy size={16} />
+                    </button>
+                  </div>
                   {routine.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
                       {routine.description}
@@ -202,6 +256,52 @@ export default function Dashboard() {
           )}
         </div>
       </section>
+
+      {routineToDuplicate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="card card-primary w-full max-w-sm">
+            <h3 className="text-lg font-semibold text-main">
+              Duplicate Routine
+            </h3>
+            <p className="mt-1 text-sm text-muted">
+              Choose the day for "{routineToDuplicate.name} (Copy)".
+            </p>
+
+            <label className="mt-4 block text-sm font-medium text-main">
+              Copy to
+            </label>
+            <select
+              value={duplicateTargetDay}
+              onChange={(e) => setDuplicateTargetDay(e.target.value)}
+              className="mt-2 w-full rounded-lg border-soft bg-transparent px-3 py-2 text-sm text-main focus:outline-none"
+            >
+              {DAYS_OF_WEEK.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                className="btn btn-muted"
+                onClick={closeDuplicateModal}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary cursor-pointer"
+                onClick={handleDuplicateRoutine}
+                disabled={duplicatingRoutineId === routineToDuplicate._id}
+              >
+                Duplicate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

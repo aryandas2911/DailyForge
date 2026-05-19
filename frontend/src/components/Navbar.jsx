@@ -12,7 +12,7 @@ function cn(...inputs) {
 }
 
 const Navbar = () => {
-  const { token, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -110,7 +110,7 @@ const Navbar = () => {
               )}
             </Motion.button>
 
-            {!token ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
@@ -167,7 +167,7 @@ const Navbar = () => {
             className="md:hidden border-b border-border bg-surface/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
-              {token && navLinks.map((link) => (
+              {user && navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
