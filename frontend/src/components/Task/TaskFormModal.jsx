@@ -5,6 +5,8 @@ import { CATEGORIES } from "../../utils/categoryUtils";
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
+const TITLE_MAX_LENGTH = 50;
+const TITLE_WARNING_LENGTH = 40;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
@@ -37,6 +39,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     e.preventDefault();
     onError?.("");
     if (!title.trim()) return onError?.("Title is required");
+    if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
@@ -96,8 +99,20 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               onChange={(e) => setTitle(e.target.value)}
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               placeholder="Task title"
+              maxLength={TITLE_MAX_LENGTH}
               required
             />
+            <p
+              className={`text-sm mt-1 text-right ${
+                title.length >= TITLE_MAX_LENGTH
+                  ? "text-red-500"
+                  : title.length >= TITLE_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
+              }`}
+            >
+              {title.length}/{TITLE_MAX_LENGTH}
+            </p>
           </div>
 
           {/* Description */}
