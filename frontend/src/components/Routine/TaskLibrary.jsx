@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import useTasks from "../../hooks/useTasks.js";
 import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
