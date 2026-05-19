@@ -74,6 +74,7 @@ export const login = async (req, res) => {
     if (user.twoFactorEnabled) {
       return res.status(200).json({ requires2FA: true, tempUserId: user._id });
     }
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '24h',
     });
@@ -110,7 +111,7 @@ export const loginWith2FA = async (req, res) => {
     if (!verified) return res.status(401).json({ message: "Invalid 2FA code" });
 
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
+      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
     });
     return res.status(200).json({ message: "Login successful", token: jwtToken });
   } catch (error) {
