@@ -3,8 +3,10 @@ import { X } from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
-export default function TaskFormModal({ task, onClose, onSubmit }) {
+export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -28,13 +30,15 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
     }
-  }, [task]);
+    onError?.("");
+  }, [task, onError]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return alert("Title is required");
-    if (!priority) return alert("Priority is required");
-    if (!dueDate) return alert("Due date is required");
+    onError?.("");
+    if (!title.trim()) return onError?.("Title is required");
+    if (!priority) return onError?.("Priority is required");
+    if (!dueDate) return onError?.("Due date is required");
 
     if (dueDate < todayStr) {
       return alert("Due date cannot be in the past");
@@ -76,6 +80,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           {task ? "Edit Task" : "New Task"}
         </h2>
 
+        {errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
@@ -104,19 +114,19 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               placeholder="Optional task description"
               rows={3}
-              maxLength={300}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
 
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300
+                description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
-                  : description.length >= 250
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-muted"
               }`}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 
