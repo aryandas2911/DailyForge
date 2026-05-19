@@ -37,6 +37,8 @@ export default function Footer() {
                 href={githubBase} 
                 target="_blank" 
                 rel="noreferrer" 
+                aria-label="DailyForge GitHub repository"
+                title="DailyForge GitHub repository"
                 className="p-2 bg-white/5 rounded-lg text-[#6dd5c7] hover:bg-[#4eb7b3] hover:text-white transition-all border border-white/10"
               >
                 <Github size={18} />
