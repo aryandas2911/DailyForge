@@ -38,7 +38,7 @@ export default function DashboardTasks() {
     .slice(0, 5);
 
   return (
-    <div className="card w-full">
+    <div className="card w-full bg-purple-50/40 dark:bg-slate-900/50 border border-purple-100 dark:border-white/10">
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
         <div>
@@ -61,7 +61,7 @@ export default function DashboardTasks() {
               key={task._id}
               className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white shadow-sm hover:shadow-md`}
+             bg-white dark:bg-slate-950/40 border border-purple-100/50 dark:border-white/5 shadow-sm hover:shadow-md text-slate-800 dark:text-slate-100`}
             >
               {/* Checkbox */}
               <input
