@@ -103,9 +103,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               <Pencil size={18} className="text-main" />
             </button>
 
-            {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
+            {/* Delete Button - Fix : Ensure onDelete uses task*/}
             <button
-              onClick={()=> onDelete(task._id)}
+             onClick={() => onDelete(task)}
               className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
             >
               <Trash2 size={18} className="text-red-500" />
@@ -117,6 +117,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
       {/* Edit Modal */}
       {isEditModalOpen && (
         <TaskFormModal
+          isOpen={isEditModalOpen}
           task={task}
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditSubmit}

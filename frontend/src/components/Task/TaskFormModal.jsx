@@ -6,7 +6,7 @@ const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
 
-export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+export default function TaskFormModal({ isOpen, task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -29,9 +29,18 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
       /* eslint-enable react-hooks/set-state-in-effect */
+    } else {
+      setTitle("");
+      setDescription("");
+      setTags([]);
+      setPriority("Low");
+      setDueDate("");
     }
+
     onError?.("");
   }, [task, onError]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,8 +75,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 overflow-y-auto p-4 animate-in">
+      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md max-h-[calc(100vh-4rem)] overflow-y-auto p-6 relative animate-in delay-100 border border-soft">
         {/* Close Button */}
         <button
           onClick={onClose}

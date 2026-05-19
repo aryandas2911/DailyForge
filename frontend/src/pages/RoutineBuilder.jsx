@@ -259,6 +259,7 @@ export default function RoutineBuilder() {
 
         {isModalOpen && (
           <TaskFormModal
+            isOpen={isModalOpen}
             task={null}
             onClose={() => setIsModalOpen(false)}
             onSubmit={handleSubmit}

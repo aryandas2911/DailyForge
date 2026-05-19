@@ -7,6 +7,7 @@ import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
+
 export default function Tasks() {
   const navigate = useNavigate();
   const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
@@ -16,6 +17,11 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [deletedTask, setDeletedTask] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -27,6 +33,56 @@ export default function Tasks() {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
   };
+
+ const handleDelete = (task) => {
+  setTaskToDelete(task);
+  setShowDeleteModal(true);
+};
+
+  const confirmDeleteTask = async () => {
+  if (!taskToDelete) return;
+
+  try {
+    setDeletedTask(taskToDelete);
+
+    await deleteTask(taskToDelete._id);
+
+    setShowUndo(true);
+
+    setTimeout(() => {
+      setShowUndo(false);
+      setDeletedTask(null);
+    }, 5000);
+
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
+
+  } catch (error) {
+    console.error("Failed to delete task:", error);
+  }
+};
+  
+
+const handleUndo = async () => {
+  if (!deletedTask) return;
+
+  try {
+    await addTask({
+      title: deletedTask.title,
+      description: deletedTask.description,
+      dueDate: deletedTask.dueDate,
+      priority: deletedTask.priority,
+      tags: deletedTask.tags,
+      status: deletedTask.status,
+    });
+
+    setShowUndo(false);
+    setDeletedTask(null);
+
+  } catch (error) {
+    console.error("Failed to restore task:", error);
+  }
+};
 
   /** --- Handlers --- */
  const handleToggle = async (task) => {
@@ -53,7 +109,10 @@ export default function Tasks() {
       console.error(err);
       setTaskError(err.message || "Failed to save task");
     }
+  
   };
+   
+
 
   const toggleCategoryFilter = (categoryName) => {
     setSelectedCategories(prev =>
@@ -189,7 +248,7 @@ export default function Tasks() {
                     task={task}
                     onToggleComplete={handleToggle}
                     // fix : Ensure onDelete is explicitely reciving the id
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={(task) => handleDelete(task)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
@@ -287,19 +346,79 @@ export default function Tasks() {
         </div>
       </div>
 
-      {/* Task Modal */}
-      {isModalOpen && (
-        <TaskFormModal
-          task={editingTask}
-          onClose={() => {
-            setIsModalOpen(false);
-            setTaskError("");
+
+{/* Delete Confirmation Modal */}
+{showDeleteModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 w-[90%] max-w-md animate-in zoom-in-95">
+      
+      <h2 className="text-xl font-bold text-main mb-3">
+        Delete Task
+      </h2>
+
+      <p className="text-muted mb-6">
+        Are you sure you want to delete this task?
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => {
+            setShowDeleteModal(false);
+            setTaskToDelete(null);
           }}
-          onSubmit={handleSubmit}
-          errorMessage={taskError}
-          onError={setTaskError}
-        />
-      )}
+          className="px-4 py-2 rounded-lg border border-soft hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDeleteTask}
+          className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition cursor-pointer"
+        >
+          Delete
+        </button>
+      </div>
     </div>
-  );
-}
+  </div>
+)}
+
+{/* Undo Snackbar */}
+{showUndo && (
+  <div className="fixed bottom-6 right-6 bg-white dark:bg-slate-900 border border-soft shadow-2xl rounded-2xl px-5 py-4 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-5">
+    
+    <div>
+      <p className="text-sm font-semibold text-main">
+        Task deleted
+      </p>
+
+      <p className="text-xs text-muted">
+        You can restore it within 5 seconds
+      </p>
+    </div>
+
+    <button
+      onClick={handleUndo}
+      className="text-sm font-semibold text-blue-500 hover:text-blue-600 transition cursor-pointer"
+    >
+      Undo
+    </button>
+  </div>
+
+)}
+
+<TaskFormModal
+  isOpen={isModalOpen}
+  onClose={() => {
+    setIsModalOpen(false);
+    setEditingTask(null);
+    setTaskError("");
+  }}
+  onSubmit={handleSubmit}
+  task={editingTask}
+  errorMessage={taskError}
+  onError={setTaskError}
+/>
+
+    </div>
+      
+  );}
