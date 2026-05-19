@@ -3,6 +3,8 @@ import { X } from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
@@ -112,19 +114,19 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
               placeholder="Optional task description"
               rows={3}
-              maxLength={300}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
 
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300
+                description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
-                  : description.length >= 250
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-muted"
               }`}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 
