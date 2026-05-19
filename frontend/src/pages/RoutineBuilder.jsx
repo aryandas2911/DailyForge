@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   DndContext,
+  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -9,6 +10,7 @@ import {
 import TaskLibrary from "../components/Routine/TaskLibrary";
 import WeeklyGrid from "../components/Routine/WeeklyGrid";
 import TaskFormModal from "../components/Task/TaskFormModal";
+import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -25,7 +27,9 @@ export default function RoutineBuilder() {
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
+  const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
+  const [activeTask, setActiveTask] = useState(null);
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -46,6 +50,25 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+
+  if (!savedRoutines.length) return;
+
+  const storedRoutineIds = JSON.parse(
+    localStorage.getItem("activeRoutineIds") || "[]"
+  );
+
+  if (!storedRoutineIds.length) return;
+
+  const restoredRoutines = savedRoutines.filter(
+    (routine) =>
+      storedRoutineIds.includes(routine._id)
+  );
+
+  setActiveRoutine(restoredRoutines);
+
+  }, [savedRoutines]);
 
   const fetchRoutines = async () => {
     try {
@@ -106,6 +129,19 @@ export default function RoutineBuilder() {
   };
 
   /* ---------------- DRAG END HANDLER ---------------- */
+
+  // Removing Schedule task after drag
+  const removeScheduledTask = (taskId , day) => {
+
+    //filtering out 
+    setScheduledTasks((prevTasks) => 
+      prevTasks.filter((task) => {
+        return !(task.taskId === taskId && task.day === day);
+      })
+    );
+  };
+
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over) return;
@@ -127,7 +163,16 @@ export default function RoutineBuilder() {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={(event) => {
+        setActiveTask(event.active.data.current?.task);
+      }}
+      onDragEnd={(event) => {
+        setActiveTask(null);
+        handleDragEnd(event);
+      }}
+    >
       <div className="app-bg min-h-screen px-6 py-8 animate-in">
         {/* Header */}
         <header className="mb-8 flex items-start gap-4 animate-in delay-100">
@@ -156,6 +201,7 @@ export default function RoutineBuilder() {
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
+              onDeleteTask={removeScheduledTask} //Passing Removing function to weeklygrid
             />
           </section>
         </div>
@@ -169,65 +215,19 @@ export default function RoutineBuilder() {
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
           ) : savedRoutines.length === 0 ? (
-  <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
+            <EmptyState type="routines" onAction={() => setIsModalOpen(true)} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedRoutines.map((routine) => {
-                // Group tasks by day
-                const tasksByDay = routine.items.reduce((acc, item) => {
-                  if (!acc[item.day]) acc[item.day] = [];
-
-                  // Find the full task info by taskId
-                  const taskInfo = tasks.find((t) => t._id === item.taskId);
-
-                  acc[item.day].push({
-                    ...item,
-                    title: taskInfo?.title || "Unknown Task",
-                  });
-
-                  return acc;
-                }, {});
-
-                return (
-                  <div
-                    key={routine._id}
-                    className="card card-primary hover:shadow-md transition p-4"
-                  >
-                    <h3 className="font-medium text-main mb-2">
-                      {routine.name}
-                    </h3>
-
-                    {routine.description && (
-                      <p className="text-xs text-muted mb-3 italic">
-                        {routine.description}
-                      </p>
-                    )}
-
-                    {Object.keys(tasksByDay).map((day) => (
-                      <div key={day} className="mb-2">
-                        <p className="text-sm font-semibold text-main">{day}</p>
-                        <ul className="text-xs text-muted ml-3">
-                          {tasksByDay[day]
-                            .sort((a, b) => a.startTime - b.startTime)
-                            .map((task) => {
-                              const hours = String(
-                                Math.floor(task.startTime / 60)
-                              ).padStart(2, "0");
-                              const minutes = String(
-                                task.startTime % 60
-                              ).padStart(2, "0");
-                              return (
-                                <li key={task._id}>
-                                  {hours}:{minutes} – {task.title}
-                                </li>
-                              );
-                            })}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
+              {savedRoutines.map((routine) => (
+                <RoutineCard
+                  key={routine._id}
+                  routine={routine}
+                  tasks={tasks}
+                  activeRoutine={activeRoutine}
+                  setActiveRoutine={setActiveRoutine}
+                  fetchRoutines={fetchRoutines}
+                />
+            ))}
             </div>
           )}
         </section>
@@ -253,15 +253,15 @@ export default function RoutineBuilder() {
               value={routineName}
               onChange={(e) => setRoutineName(e.target.value)}
               placeholder="Routine name"
-              className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
+              className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
             />
 
             <textarea
               value={description}
-              onChange={(e)=> setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description (optional)"
               rows="3"
-              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-white resize-none"
+              className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm focus:ring-primary bg-transparent text-main resize-none"
             />
 
             <div className="flex justify-end gap-3">
@@ -282,6 +282,13 @@ export default function RoutineBuilder() {
           </div>
         </div>
       )}
+      <DragOverlay dropAnimation={null}>
+        {activeTask ? (
+          <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            {activeTask.title}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
