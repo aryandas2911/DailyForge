@@ -87,8 +87,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (dueDate < todayStr) {
-      return alert("Due date cannot be in the past");
+    if (!task && dueDate < todayStr) {
+       return alert("Due date cannot be in the past");
     }
 
     if (dueDate > maxDateStr) {
@@ -309,7 +309,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             <input
               type="date"
               value={dueDate}
-              min={todayStr}
+              min={task ? undefined : todayStr}
               max={maxDateStr}
               onChange={(e) => setDueDate(e.target.value)}
               onClick={(e) => e.target.showPicker?.()}
