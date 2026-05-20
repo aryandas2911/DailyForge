@@ -21,6 +21,18 @@ export default function Dashboard() {
 
   const { tasks, updateTask } = useTasks();
 
+  const [allTasks, setAllTasks] = useState([]);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await api.get("/tasks");
+      setAllTasks(res.data.tasks || res.data);
+    } catch (err) {
+      console.error("Failed to fetch tasks", err);
+      setAllTasks([]);
+    }
+  };
+
   const today = new Date();
  
 
@@ -38,7 +50,9 @@ export default function Dashboard() {
       Math.floor(Math.random() * motivationalQuotes.length)
     ];
   });
-  const todayTasks = tasks.filter((task) => {
+  const sourceTasks = allTasks.length ? allTasks : tasks;
+
+  const todayTasks = sourceTasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
     return today.toDateString() === due.toDateString();
@@ -58,7 +72,7 @@ export default function Dashboard() {
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  const weekTasks = tasks.filter((task) => {
+  const weekTasks = sourceTasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
     return due >= startOfWeek && due <= endOfWeek;
@@ -72,9 +86,19 @@ export default function Dashboard() {
     ? Math.round((completedThisWeek / weekTasks.length) * 100)
     : 0;
 
-  const upcomingTasks = tasks
+  const upcomingTasks = sourceTasks
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // overall totals
+  const totalTasks = sourceTasks.length;
+  const completedTasks = sourceTasks.filter((t) => t.status === "Completed").length;
+  const pendingTasks = totalTasks - completedTasks;
+  const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   // Fetch routines
   const fetchRoutines = async () => {
@@ -142,11 +166,19 @@ export default function Dashboard() {
             icon={<Calendar size={20} />}
           />
         </div>
+        <div className="flex-1 animate-in delay-300">
+          <StatCard
+            label="All Tasks"
+            value={`${completedTasks} / ${totalTasks}`}
+            subtitle={`${completionPercent}% completed`}
+            icon={<Flame size={20} />}
+          />
+        </div>
       </section>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks tasks={tasks} updateTask={updateTask} />
+        <DashboardTasks tasks={sourceTasks} updateTask={updateTask} />
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}

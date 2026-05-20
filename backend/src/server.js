@@ -16,15 +16,12 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "https://dailyforge-frontend-lhjq.onrender.com",
-      "http://localhost:5173",
-      process.env.CLIENT_ORIGIN,
-    ],
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
-//https://dailyforge-frontend-lhjq.onrender.com
+
 // Connect to MongoDB using mongoose
 connectDB();
 

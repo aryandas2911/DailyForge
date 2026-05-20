@@ -45,16 +45,8 @@ const Signup = () => {
       });
       console.log("Signup success: ", res.data);
 
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
-
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
-
-      // redirect to dashboard
-      navigate("/dashboard");
+     alert("Account created successfully! Please login.");
+navigate("/login");
     } catch (error) {
   console.log("Signup failed");
 

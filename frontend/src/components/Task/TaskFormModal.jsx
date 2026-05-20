@@ -6,7 +6,7 @@ const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
 
-export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError, isSubmitting }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -195,10 +195,21 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full btn btn-primary py-2 mt-2 hover-lift"
+            className={`w-full btn btn-primary py-2 mt-2 hover-lift ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
             onSubmit={handleSubmit}
+            disabled={isSubmitting}
           >
-            {task ? "Update Task" : "Add Task"}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span>{task ? "Updating..." : "Creating..."}</span>
+              </span>
+            ) : (
+              (task ? "Update Task" : "Add Task")
+            )}
           </button>
         </form>
       </div>
