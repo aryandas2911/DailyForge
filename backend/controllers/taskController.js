@@ -27,7 +27,7 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
+    const { title, description, tags, priority, status, dueDate, estimatedTime } = req.body;
     if (!title || !priority || !status) {
       return res
         .status(400)
@@ -66,6 +66,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      estimatedTime: estimatedTime || null,
     });
 
     // save task in database

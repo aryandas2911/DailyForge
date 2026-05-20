@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, ArrowRight, Copy } from "lucide-react";
+import { CheckCircle2, Calendar, ArrowRight, Copy, Clock } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 
@@ -52,6 +52,14 @@ export default function Dashboard() {
   const completedToday = todayTasks.filter(
     (task) => task.status === "Completed"
   ).length;
+
+  const totalEstimatedToday = todayTasks
+  .filter((task) => task.estimatedTime)
+  .reduce((sum, task) => sum + task.estimatedTime, 0);
+
+  const estimatedDisplay = totalEstimatedToday >= 60
+    ? `${Math.floor(totalEstimatedToday / 60)}h ${totalEstimatedToday % 60 > 0 ? `${totalEstimatedToday % 60}m` : ""}`
+    : `${totalEstimatedToday}m`;
 
   const totalToday = todayTasks.length;
 
@@ -328,6 +336,17 @@ const handleDuplicateRoutine = async () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {totalEstimatedToday > 0 && (
+        <div className="flex-1 animate-in delay-300">
+          <StatCard
+            label="Estimated Today"
+            value={estimatedDisplay}
+            subtitle="Total effort"
+            icon={<Clock size={20} />}
+          />
         </div>
       )}
     </div>

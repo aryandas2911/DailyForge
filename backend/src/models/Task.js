@@ -41,6 +41,11 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    estimatedTime: {
+     type: Number,
+     default: null,
+     min: 0,
+    },
   },
   { timestamps: true }
 );

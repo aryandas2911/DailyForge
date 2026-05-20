@@ -7,6 +7,7 @@ const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+  const [estimatedTime, setEstimatedTime] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -24,6 +25,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (task) {
       /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
+      setEstimatedTime(task.estimatedTime || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
@@ -54,6 +56,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       tags: tags,
       priority,
       dueDate,
+      estimatedTime: estimatedTime ? Number(estimatedTime) : null,
     });
   };
 
@@ -192,6 +195,22 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             />
           </div>
 
+           {/* Estimated Time */}
+          <div>
+            <label className="text-sm font-medium text-main">
+              Estimated Time (minutes)
+            </label>
+            <input
+              type="number"
+              value={estimatedTime}
+              onChange={(e) => setEstimatedTime(e.target.value)}
+              min="1"
+              placeholder="e.g. 30"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+            />
+            <p className="text-xs text-muted mt-1">Optional — how long will this take?</p>
+          </div>   
+          
           {/* Submit Button */}
           <button
             type="submit"
