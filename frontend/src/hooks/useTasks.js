@@ -16,20 +16,39 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    await api.post("/tasks", taskData);
-    getTasks();
+    try {
+      await api.post("/tasks", taskData);
+      getTasks();
+    } catch (error) {
+      if (error.response?.status === 409) {
+        throw new Error(
+          error.response.data?.message ||
+            "Task with the same title and due date already exists"
+        );
+      }
+      throw error;
+    }
   };
 
   // update task
   const updateTask = async (id, updates) => {
-    await api.put(`/tasks/${id}`, updates);
-    getTasks();
+    setTasks((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+    );
+    try {
+      await api.put(`/tasks/${id}`, updates);
+      await getTasks();
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to update task");
+      await getTasks();
+    }
   };
 
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
-    getTasks();
+    // fix : This line refreshes the UI!
+    setTasks(prev => prev.filter(t => t._id !== id)); 
   };
 
   // initial fetch
@@ -37,13 +56,18 @@ const useTasks = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
-
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
+    getTasks();
+  };
   // return reusable functions
   return {
     tasks,
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
