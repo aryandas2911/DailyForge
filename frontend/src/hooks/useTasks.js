@@ -16,19 +16,30 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    try {
-      await api.post("/tasks", taskData);
-      getTasks();
-    } catch (error) {
-      if (error.response?.status === 409) {
-        throw new Error(
-          error.response.data?.message ||
-            "Task with the same title and due date already exists"
-        );
-      }
-      throw error;
-    }
-  };
+  try {
+    const response = await api.post("/tasks", taskData);
+
+    console.log("Task added:", response.data);
+
+    // instantly update UI
+    setTasks((prev) => [response.data.newTask, ...prev]);
+
+  } catch (error) {
+
+    console.log("FULL ERROR:", error);
+
+    console.log(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error.message
+    );
+
+    alert(
+      error?.response?.data?.message ||
+      "Failed to create task"
+    );
+  }
+};
 
   // update task
   const updateTask = async (id, updates) => {
