@@ -111,6 +111,9 @@ export const getRoutines = async (req, res) => {
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
+    if (routines.length == 0) {
+      return res.status(200).json({ success: true, routines: [] });
+    }
     return res.status(200).json({ success: true, routines });
   } catch (error) {
     // error handling
