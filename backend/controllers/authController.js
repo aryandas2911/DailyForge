@@ -1,6 +1,8 @@
 import User from '../src/models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
+import crypto from 'crypto';
 
 // sign up function
 export const signup = async (req, res) => {
@@ -204,3 +206,78 @@ export const logout = (req, res) => {
   });
   return res.status(200).json({ message: 'Logout successful' });
 };
+
+// Google Authentication Login & Register
+export const googleLogin = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ message: 'Firebase ID Token is required' });
+    }
+
+    // Verify the Firebase ID Token using Google public keys
+    let decodedToken;
+    try {
+      decodedToken = await verifyFirebaseIdToken(idToken);
+    } catch (verifyError) {
+      return res.status(401).json({ 
+        message: 'Invalid or expired Firebase token', 
+        error: verifyError.message 
+      });
+    }
+
+    const { email, name } = decodedToken;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is missing from the Google identity token' });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user for Google registration
+      // Generate a secure, random password to satisfy mongoose model validation constraints
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = new User({
+        name: name || email.split('@')[0],
+        email,
+        password: hashedPassword,
+      });
+
+      await user.save();
+      console.log(`[GOOGLE AUTH] Created new user profile for: ${email}`);
+    } else {
+      console.log(`[GOOGLE AUTH] Logged in existing user: ${email}`);
+    }
+
+    // Generate JWT token (matches standard custom auth format)
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    });
+
+    // Write token to HTTP-Only Cookie
+    return res
+      .status(200)
+      .cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .json({
+        message: 'Google sign-in successful',
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      });
+  } catch (error) {
+    console.error('[GOOGLE AUTH] Controller error:', error);
+    return res.status(500).json({ message: 'Server error during Google authentication' });
+  }
+};
+
