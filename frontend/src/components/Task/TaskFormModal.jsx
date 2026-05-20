@@ -6,8 +6,8 @@ import { TAGS } from "../../utils/tagUtils";
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
-const TITLE_MAX_LENGTH = 50;
-const TITLE_WARNING_LENGTH = 40;
+const TITLE_MAX_LENGTH = 30;
+const TITLE_WARNING_LENGTH = 25;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
