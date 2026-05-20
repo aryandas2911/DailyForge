@@ -2,6 +2,7 @@ import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
+import mongoose from "mongoose";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -28,12 +29,10 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-<<<<<<< feature/time-usage-breakdown
     const { title, description, tags, priority, status, dueDate, duration } = req.body;
     const taskDuration = Number(duration);
 
     if (!title || !priority || !status || !dueDate || !taskDuration) {
-=======
     const {
   title,
   description,
@@ -43,7 +42,6 @@ export const createTask = async (req, res) => {
   dueDate,
 } = req.body;
     if (!title || !priority || !dueDate) {
->>>>>>> main
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
@@ -145,6 +143,15 @@ export const updateTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
+    const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
+
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -198,8 +205,14 @@ export const deleteTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // fetch task id
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
 
     // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
