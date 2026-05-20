@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
@@ -44,13 +44,15 @@ const Navbar = () => {
   };
 
   // Navigation Links configuration
-  const navLinks = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Tasks", path: "/tasks", icon: CheckSquare },
-    { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
-  ];
+ const navLinks = [
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Tasks", path: "/tasks", icon: CheckSquare },
+  { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
+  { name: "Profile", path: "/profile", icon: User },
+];
 
   return (
+  
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -237,7 +239,7 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}
                       className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                     >
-                      <UserPlus size={18} />
+                      <User size={18} />
                       Signup
                     </Link>
                   </>

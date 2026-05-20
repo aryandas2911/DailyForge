@@ -98,10 +98,8 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
-      return res
-        .status(200)
-        .json({ success: true, tasks: [] });
-  }
+      return res.status(200).json({ success: true, tasks: [] });
+    }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
     // error handling
