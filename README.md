@@ -191,22 +191,8 @@ cp .env.example .env
 ```
 
 Then fill in your values (see the next section for what each variable means).
-> ⚠️ **Local dev note:** The backend CORS origin is currently configured for the deployed frontend in `backend/src/server.js`.  
-> When running the frontend locally on `http://localhost:5173`, update the CORS origin temporarily for local development.
->
-> Change this:
->
-> ```js
-> origin: "https://dailyforge-frontend-lhjq.onrender.com"
-> ```
->
-> to:
->
-> ```js
-> origin: "http://localhost:5173"
-> ```
->
-> before starting the backend server.
+ 
+> ⚠️ **Local dev note:** The backend CORS origin is already configured for both the deployed frontend (`https://dailyforge-frontend-lhjq.onrender.com`) and local development (`http://localhost:5173`) in `backend/src/server.js`. No changes are needed for local development.
 
 
 **Start the backend dev server:**
