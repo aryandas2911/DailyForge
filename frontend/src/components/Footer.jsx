@@ -1,8 +1,13 @@
-import React from 'react';
-import { Github, Twitter, MessageSquare, BookOpen, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Github, MessageSquare, BookOpen, Heart } from 'lucide-react';
 
 export default function Footer() {
   const githubBase = "https://github.com/aryandas2911/DailyForge";
+  const navLinks = [
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Tasks", path: "/tasks" },
+    { label: "Routine Builder", path: "/routine-builder" },
+  ];
 
   return (
     // Changed to a deep dark shade of your theme's green for better contrast
@@ -32,6 +37,8 @@ export default function Footer() {
                 href={githubBase} 
                 target="_blank" 
                 rel="noreferrer" 
+                aria-label="DailyForge GitHub repository"
+                title="DailyForge GitHub repository"
                 className="p-2 bg-white/5 rounded-lg text-[#6dd5c7] hover:bg-[#4eb7b3] hover:text-white transition-all border border-white/10"
               >
                 <Github size={18} />
@@ -45,9 +52,16 @@ export default function Footer() {
               Navigation
             </h3>
             <ul className="space-y-4 text-sm">
-              <li><a href="/dashboard" className="text-gray-300 hover:text-white transition-colors">Dashboard</a></li>
-              <li><a href="/tasks" className="text-gray-300 hover:text-white transition-colors">Tasks</a></li>
-              <li><a href="/routine-builder" className="text-gray-300 hover:text-white transition-colors">Routine Builder</a></li>
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
