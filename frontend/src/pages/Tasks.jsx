@@ -4,7 +4,7 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
+import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
@@ -95,23 +95,16 @@ const handleActualDurationSubmit = async () => {
     );
   };
 
-  /** --- Filtered Tasks --- */
   const filteredTasks =
     selectedCategories.length === 0
       ? tasks
       : tasks.filter(
-          (task) =>
-            task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
+          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
         );
 
-  /** --- Insights --- */
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter(
-    (t) => t.status === "Completed"
-  ).length;
-  const completionPercent = totalTasks
-    ? Math.round((completedTasks / totalTasks) * 100)
-    : 0;
+  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const now = new Date();
   const threeDaysFromNow = new Date();
@@ -133,9 +126,8 @@ const handleActualDurationSubmit = async () => {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
-    <div className="min-h-screen app-bg px-4 sm:px-8 xl:px-16 py-8 animate-in">
-      <div className="space-y-8">
-
+    <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
+      <div className="max-w-[1200px] mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
@@ -146,9 +138,7 @@ const handleActualDurationSubmit = async () => {
               <ArrowLeft size={16} />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-main tracking-tight">
-                Tasks
-              </h1>
+              <h1 className="text-3xl font-bold text-main tracking-tight">Tasks</h1>
               <p className="text-sm text-muted mt-1">
                 {completedTasks}/{totalTasks} completed · Stay consistent
               </p>
@@ -168,6 +158,7 @@ const handleActualDurationSubmit = async () => {
               onClick={() => {
                 setEditingTask(null);
                 setIsModalOpen(true);
+                setTaskError("");
               }}
               className="btn btn-primary flex items-center gap-2 cursor-pointer"
             >
@@ -191,25 +182,25 @@ const handleActualDurationSubmit = async () => {
                 </button>
               )}
             </div>
+
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((category) => {
-                const isSelected = selectedCategories.includes(category.name);
+              {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
+                const isSelected = selectedCategories.includes(tagName);
+                const cat = getCategoryColor(tagName);
                 return (
                   <button
-                    key={category.name}
-                    onClick={() => toggleCategoryFilter(category.name)}
+                    key={tagName}
+                    onClick={() => toggleCategoryFilter(tagName)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? "ring-2 ring-offset-1"
-                        : "opacity-60 hover:opacity-100"
+                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
-                      backgroundColor: category.bgColor,
-                      color: category.color,
-                      ringColor: category.color,
+                      backgroundColor: cat.bgColor,
+                      color: cat.color,
+                      ringColor: cat.color,
                     }}
                   >
-                    {category.name}
+                    {tagName}
                   </button>
                 );
               })}
@@ -217,9 +208,9 @@ const handleActualDurationSubmit = async () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <div className="md:col-span-2 space-y-4 animate-in delay-200">
+        {/* Task List */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
               filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -249,15 +240,10 @@ const handleActualDurationSubmit = async () => {
             )}
           </div>
 
-          {/* Insights sidebar */}
-          <div className="hidden md:flex flex-col gap-6 animate-in delay-300">
-
-            {/* Completion */}
+          {/* Insights */}
+          <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
             <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">
-                Completion
-              </h3>
-
+              <h3 className="text-lg font-semibold text-main mb-2">Completion</h3>
               <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                 {completionPercent > 0 && (
                   <div
@@ -265,54 +251,35 @@ const handleActualDurationSubmit = async () => {
                     style={{ width: `${completionPercent}%` }}
                   />
                 )}
-
-              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
-                  style={{ width: `${completionPercent}%` }}
-                />
-
               </div>
               <p className="text-xs text-muted mt-1">
                 {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
               </p>
             </div>
 
-            {/* Upcoming Deadlines */}
             <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">
-                Upcoming Deadlines
-              </h3>
+              <h3 className="text-lg font-semibold text-main mb-2">Upcoming Deadlines</h3>
               {upcomingDeadlines.length ? (
                 <ul className="space-y-2 text-sm">
                   {upcomingDeadlines.slice(0, 3).map((task) => (
-                    <li
-                      key={task._id}
-                      className="flex items-center gap-2 text-main"
-                    >
+                    <li key={task._id} className="flex items-center gap-2 text-main">
                       <span className="w-2 h-2 rounded-full bg-red-500" />
                       {task.title}
                     </li>
                   ))}
                 </ul>
+              ) : nextTask ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-main">{nextTask.title}</p>
+                  <p className="text-xs text-muted">
+                    Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                  </p>
+                </div>
               ) : (
-                // updated deadlines logic
-                nextTask ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-main">
-                      {nextTask.title}
-                    </p>
-                    <p className="text-xs text-muted">
-                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted">No upcoming tasks 🎉</p>
-                )
+                <p className="text-xs text-muted">No upcoming tasks 🎉</p>
               )}
             </div>
 
-            {/* Priority load */}
             <div
               className={`card p-4 ${
                 isOverloaded
@@ -321,14 +288,10 @@ const handleActualDurationSubmit = async () => {
               }`}
             >
               <p className="text-sm font-medium">
-                {isOverloaded
-                  ? "Too many high-priority tasks"
-                  : "Priority load is healthy"}
+                {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
               </p>
               <p className="text-xs mt-1 opacity-80">
-                {isOverloaded
-                  ? "Consider rescheduling or delegating."
-                  : "You're pacing this well."}
+                {isOverloaded ? "Consider rescheduling or delegating." : "You’re pacing this well."}
               </p>
             </div>
           </div>
@@ -392,6 +355,5 @@ const handleActualDurationSubmit = async () => {
         </div>
       )}
     </div>
-    </div>
-);
+  );
 }
