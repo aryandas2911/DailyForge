@@ -3,23 +3,23 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoutes = ({ children }) => {
+  const { token, loading } = useContext(AuthContext);
 
-  // access user and isLoading from AuthContext
-  const { user, isLoading } = useContext(AuthContext);
-  const location = useLocation();
+  // access user and loading state from AuthContext
+const { user, isLoading } = useContext(AuthContext);
+const location = useLocation();
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+// wait until auth state is checked
+if (isLoading) {
+  return null;
+}
 
-  // if user doesn't exist, return to login page
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
-  // else return the children component
-  else {
-    return children;
-  }
+// redirect unauthenticated users
+if (!user) {
+  return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+}
+
+  return children;
 };
 
 export default ProtectedRoutes;

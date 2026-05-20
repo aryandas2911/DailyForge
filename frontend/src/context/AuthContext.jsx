@@ -8,6 +8,8 @@ export const AuthContext = createContext(null);
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   // logout function
@@ -22,22 +24,36 @@ const AuthProvider = ({ children }) => {
 
   // restore session on app load
   useEffect(() => {
-    api
-      .get("/auth/me")
-      .then((res) => {
-        setUser(res.data.user);
-      })
-      .catch(() => {
-        // token invalid or expired
-        setUser(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+    if (token) {
+  api
+    .get("/auth/me")
+    .then((res) => {
+      setUser(res.data.user);
+    })
+    .catch(() => {
+      // token invalid or expired
+      logout();
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+} else {
+  setUser(null);
+  setIsLoading(false);
+}
+}, [token]);
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
+return (
+  <AuthContext.Provider
+    value={{
+      user,
+      setUser,
+      token,
+      setToken,
+      logout,
+      isLoading,
+    }}
+  >
       {children}
     </AuthContext.Provider>
   );
