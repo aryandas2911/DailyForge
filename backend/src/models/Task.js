@@ -16,7 +16,12 @@ const taskSchema = mongoose.Schema(
       required: false,
     },
     tags: {
-      type: [String],
+      type: [
+        {
+          type: String,
+          enum: ["Homework", "Routine", "Creative", "Other"],
+        },
+      ],
       required: false,
       default: [],
     },

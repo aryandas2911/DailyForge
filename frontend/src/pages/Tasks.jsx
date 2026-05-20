@@ -4,7 +4,7 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
+import { CATEGORIES, getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
@@ -145,29 +145,29 @@ export default function Tasks() {
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((category) => {
-                const isSelected = selectedCategories.includes(category.name);
-                return (
-                  <button
-                    key={category.name}
-                    onClick={() => toggleCategoryFilter(category.name)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
-                    }`}
-                    style={{
-                      backgroundColor: category.bgColor,
-                      color: category.color,
-                      ringColor: category.color,
-                    }}
-                  >
-                    {category.name}
-                  </button>
-                );
-              })}
-            </div>
+              <div className="flex flex-wrap gap-2">
+                {/** Only show the allowed filter tags */}
+                {['Homework', 'Routine', 'Creative', 'Other'].map((tagName) => {
+                  const isSelected = selectedCategories.includes(tagName);
+                  const cat = getCategoryColor(tagName);
+                  return (
+                    <button
+                      key={tagName}
+                      onClick={() => toggleCategoryFilter(tagName)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                        isSelected ? 'ring-2 ring-offset-1' : 'opacity-60 hover:opacity-100'
+                      }`}
+                      style={{
+                        backgroundColor: cat.bgColor,
+                        color: cat.color,
+                        ringColor: cat.color,
+                      }}
+                    >
+                      {tagName}
+                    </button>
+                  );
+                })}
+              </div>
           </div>
         </div>
 

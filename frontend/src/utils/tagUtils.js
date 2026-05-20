@@ -1,4 +1,5 @@
-// Predefined tags available in the task creation UI
+// Derive tags from categories so tags match the category filter
+// Predefined tags available in the task creation UI — limit to the four allowed filter tags
 export const TAGS = ["Homework", "Routine", "Creative", "Other"];
 
 /**
