@@ -25,6 +25,7 @@
 - [📂 Project Structure](#-project-structure)
 - [⚡ Quick Start](#-quick-start)
 - [🔐 Environment Variables](#-environment-variables)
+- [🌐 Google Authentication Setup](#-google-authentication-setup)
 - [❓ FAQ](#-faq)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [🤝 Contribution Guidelines](#-contribution-guidelines)
@@ -284,6 +285,43 @@ Copy the provided `.env.example` to a new file named `.env`.
 
 
 **Running locally?** Update `VITE_API_URL` in your local `.env` file to `http://localhost:5000/api/`.
+
+---
+
+## 🌐 Google Authentication Setup
+
+DailyForge supports Google Authentication via Firebase. Follow these steps to configure and enable Google Sign-In:
+
+### 1. Firebase Console Setup
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and click **Add project** to create a new project.
+2. Once the project is created, click the **Web icon (`</>`)** on the Project Overview page to register a new Web App.
+3. Copy the `firebaseConfig` object containing the API key, app ID, etc.
+4. Go to **Build** → **Authentication** in the left sidebar and click **Get Started**.
+5. Under the **Sign-in method** tab, click **Add new provider** and select **Google**.
+6. Enable the provider, configure your support email, and click **Save**.
+
+### 2. Environment Variables Configuration
+
+To enable the frontend and backend integration, copy the configuration values into your respective `.env` files:
+
+#### Frontend — `frontend/.env`
+Append your Firebase client configuration to your local `.env` file:
+```env
+# Firebase Client configuration
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+#### Backend — `backend/.env`
+Add your Firebase Project ID to secure RS256 token verification:
+```env
+# Firebase verification configuration
+FIREBASE_PROJECT_ID=your_project_id
+```
 
 ---
 

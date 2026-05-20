@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { Navigate, useLocation } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
 const ProtectedRoutes = ({ children }) => {
