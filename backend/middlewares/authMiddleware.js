@@ -17,22 +17,32 @@ export const authMiddleware = (req, res, next) => {
     req.userId = verify.id || verify.userId;
     next();
 
-  } catch (error) {
-    // error handling
-    console.log("Token verification error", error);
+  }  catch (error) {
+    //error handling
+    // adding if else ladder 
+  console.log("Token verification error", error);
 
-    // expired token
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Session expired, please log in again",
-      });
-    }
-
-    // invalid/tampered token
+  // if statement for when the token is expired
+  if (error.name === "TokenExpiredError") {
     return res.status(401).json({
       success: false,
-      message: "Token invalid",
+      message: "Session expired, please log in again",
+    });
+    //if statement for when the token is invalid
+
+  } else if (error.name === "JsonWebTokenError") {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+
+    // returning 500 for unexected auth error
+
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
+}
 };

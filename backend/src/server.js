@@ -7,6 +7,7 @@ import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import helmet from "helmet";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -15,6 +16,16 @@ const PORT = process.env.PORT;
 // Initialize express     
 const app = express();
 
+app.use(
+  helmet({
+      crossOriginResourcePolicy: { policy : "cross-origin"},
+
+      contentSecurityPolicy:
+      process.env.NODE_ENV === "production"
+      ?undefined
+      : false,
+    })
+);
 
 app.use(
   cors({
