@@ -75,6 +75,7 @@ const useTasks = () => {
   // return reusable functions
   return {
     tasks,
+    getTasks,
     addTask,
     updateTask,
     deleteTask,

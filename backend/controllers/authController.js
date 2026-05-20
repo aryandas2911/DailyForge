@@ -17,6 +17,7 @@ export const signup = async (req, res) => {
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
     if (!password || !passwordRegex.test(password)) {
       return res.status(400).json({
         message:
@@ -26,6 +27,7 @@ export const signup = async (req, res) => {
 
     // check user exists or not
     const checkExisting = await User.findOne({ email });
+
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
@@ -44,23 +46,24 @@ export const signup = async (req, res) => {
     await newUser.save();
 
     // generate token using jwt
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
 
-    return res
-      .status(201)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({ message: 'User registered successfully' });
+    return res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      token,
+    });
   } catch (error) {
     // error handling
     console.error('Signup error:', error);
-    return res.status(500).json({ message: 'Server error during signup' });
+
+    return res.status(500).json({
+      message: 'Server error during signup',
+    });
   }
 };
 
@@ -79,34 +82,37 @@ export const login = async (req, res) => {
 
     // check if user exists or not
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
+
     if (!passwordCheck) {
       return res.status(401).json({ message: 'Password does not match' });
     }
 
     // generate jwt token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
 
-    return res
-      .status(200)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({ message: 'Login successful' });
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+    });
   } catch (error) {
     // error handling
     console.log('Login error: ', error);
-    return res.status(500).json({ message: 'Server error during login' });
+
+    return res.status(500).json({
+      message: 'Server error during login',
+    });
   }
 };
 
@@ -115,17 +121,24 @@ export const getUser = async (req, res) => {
   try {
     // fetch user data from request
     const user = await User.findById(req.userId).select('-password');
+
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
-    return res.status(200).json({ success: true, user: user });
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
   } catch (_error) {
     // error handling
-    return res
-      .status(500)
-      .json({ message: 'Error fetching user data', success: false });
+    return res.status(500).json({
+      message: 'Error fetching user data',
+      success: false,
+    });
   }
 };
 
@@ -198,13 +211,11 @@ export const updateProfile = async (req, res) => {
 };
 
 // logout function
-export const logout = (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+export const logout = (_req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: 'Logout successful',
   });
-  return res.status(200).json({ message: 'Logout successful' });
 };
 
 // Google Authentication Login & Register

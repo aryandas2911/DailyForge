@@ -22,19 +22,24 @@ const AuthProvider = ({ children }) => {
 
   // restore session on app load
   useEffect(() => {
-    api
-      .get("/auth/me")
-      .then((res) => {
-        setUser(res.data.user);
-      })
-      .catch(() => {
-        // token invalid or expired
-        setUser(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
+    if (token) {
+      // fetch logged-in user with Authorization header
+      (async () => {
+        try {
+          const tokenLocal = localStorage.getItem("token");
+          const res = await api.get("/auth/me", {
+            headers: {
+              Authorization: `Bearer ${tokenLocal}`,
+            },
+          });
+          setUser(res.data.user);
+        } catch (err) {
+          // token invalid or expired
+          logout();
+        }
+      })();
+    }
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>

@@ -7,7 +7,14 @@ const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
 
-export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+export default function TaskFormModal({
+  task,
+  onClose,
+  onSubmit,
+  errorMessage,
+  onError,
+  isSubmitting,
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -18,6 +25,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [customTagInput, setCustomTagInput] = useState("");
 
   const today = new Date();
+
   const todayStr =
     today.getFullYear() +
     "-" +
@@ -27,6 +35,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
   const maxDateObj = new Date();
   maxDateObj.setFullYear(today.getFullYear() + 1);
+
   const maxDateStr =
     maxDateObj.getFullYear() +
     "-" +
@@ -36,14 +45,13 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
   useEffect(() => {
     if (task) {
-      /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
-      /* eslint-enable react-hooks/set-state-in-effect */
     }
+
     onError?.("");
   }, [task, onError]);
 
@@ -63,19 +71,26 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       document.body.style.left = "";
       document.body.style.right = "";
       document.body.style.overflowY = "";
-      window.scrollTo({ top: scrollY, behavior: "instant" });
+
+      window.scrollTo({
+        top: scrollY,
+        behavior: "instant",
+      });
     };
   }, []);
 
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+      }
     };
 
     document.addEventListener("keydown", handleKey);
 
-    return () =>
+    return () => {
       document.removeEventListener("keydown", handleKey);
+    };
   }, [onClose]);
 
   const handleSubmit = async (e) => {
@@ -83,48 +98,64 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
     onError?.("");
 
-    if (!title.trim()) return onError?.("Title is required");
-    if (!priority) return onError?.("Priority is required");
-    if (!dueDate) return onError?.("Due date is required");
+    if (!title.trim()) {
+      return onError?.("Title is required");
+    }
+
+    if (!priority) {
+      return onError?.("Priority is required");
+    }
+
+    if (!dueDate) {
+      return onError?.("Due date is required");
+    }
 
     if (!task && dueDate < todayStr) {
-       return alert("Due date cannot be in the past");
+      return alert("Due date cannot be in the past");
     }
 
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-   onSubmit({
-  title: title.trim(),
-  description: description.trim(),
-  tags,
-  priority,
-  status: "Due",
-  dueDate,
-});
+    onSubmit({
+      title: title.trim(),
+      description: description.trim(),
+      tags,
+      priority,
+      status: "Due",
+      dueDate,
+    });
   };
 
   const toggleTag = (tagName) => {
     if (tagName === "Other") {
-      // toggle showing the custom input
       setShowOtherInput((s) => !s);
       return;
     }
+
     setTags((prev) =>
-      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName]
     );
   };
 
   const addCustomTag = () => {
     const raw = customTagInput.trim();
-    if (!raw) return;
-    // avoid duplicates (case-insensitive)
+
+    if (!raw) {
+      return;
+    }
+
     const lower = raw.toLowerCase();
+
     const exists = tags.some((t) => t.toLowerCase() === lower);
+
     if (!exists) {
       setTags((prev) => [...prev, raw]);
     }
+
     setCustomTagInput("");
     setShowOtherInput(false);
   };
@@ -133,7 +164,6 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     setTags((prev) => prev.filter((t) => t !== tagName));
   };
 
-  // custom tags are tags that are not part of the predefined list (excluding "Other")
   const customTags = tags.filter((t) => !TAGS.includes(t));
 
   return createPortal(
@@ -144,7 +174,9 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
       }}
       aria-modal="true"
       role="dialog"
@@ -178,6 +210,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           {/* Title */}
           <div>
             <label className="text-sm font-medium text-main">Title</label>
+
             <input
               type="text"
               value={title}
@@ -192,7 +225,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-main">Description</label>
+            <label className="text-sm font-medium text-main">
+              Description
+            </label>
+
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -203,32 +239,37 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               rows={3}
               maxLength={DESCRIPTION_MAX_LENGTH}
             />
+
             <p
               className={`text-sm mt-1 text-right ${
                 description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
                   : description.length >= DESCRIPTION_WARNING_LENGTH
-                    ? "text-yellow-500"
-                    : "text-muted"
+                  ? "text-yellow-500"
+                  : "text-muted"
               }`}
             >
               {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 
-          {/* Tags (predefined + other) */}
+          {/* Tags */}
           <div>
             <label className="text-sm font-medium text-main">Tags</label>
+
             <div className="mt-2 flex flex-wrap gap-2">
               {TAGS.map((tag) => {
                 const isSelected = tags.includes(tag);
+
                 return (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => toggleTag(tag)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
+                      isSelected
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                   >
                     {tag}
@@ -237,7 +278,6 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               })}
             </div>
 
-            {/* Other input */}
             {showOtherInput && (
               <div className="mt-2 flex gap-2">
                 <input
@@ -245,8 +285,9 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                   value={customTagInput}
                   onChange={(e) => setCustomTagInput(e.target.value)}
                   className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
-                  placeholder="Enter custom tag (e.g., 'Essay')"
+                  placeholder="Enter custom tag"
                 />
+
                 <button
                   type="button"
                   onClick={addCustomTag}
@@ -257,7 +298,6 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               </div>
             )}
 
-            {/* Show custom tags (non-predefined) */}
             {customTags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {customTags.map((ct) => (
@@ -266,6 +306,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                     className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
                   >
                     <span className="text-xs font-medium">{ct}</span>
+
                     <button
                       type="button"
                       onClick={() => removeTag(ct)}
@@ -286,7 +327,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
           {/* Priority */}
           <div>
-            <label className="text-sm font-medium text-main">Priority</label>
+            <label className="text-sm font-medium text-main">
+              Priority
+            </label>
+
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
@@ -296,7 +340,11 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               required
             >
               {priorities.map((p) => (
-                <option key={p} value={p} className="dark:bg-slate-800">
+                <option
+                  key={p}
+                  value={p}
+                  className="dark:bg-slate-800"
+                >
                   {p}
                 </option>
               ))}
@@ -305,7 +353,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
           {/* Due Date */}
           <div>
-            <label className="text-sm font-medium text-main">Due Date</label>
+            <label className="text-sm font-medium text-main">
+              Due Date
+            </label>
+
             <input
               type="date"
               value={dueDate}
@@ -323,9 +374,43 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full btn btn-primary py-2 mt-2 hover-lift"
+            disabled={isSubmitting}
+            className={`w-full btn btn-primary py-2 mt-2 hover-lift ${
+              isSubmitting
+                ? "opacity-60 cursor-not-allowed"
+                : ""
+            }`}
           >
-            {task ? "Update Task" : "Add Task"}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="w-4 h-4 animate-spin"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+
+                <span>
+                  {task ? "Updating..." : "Creating..."}
+                </span>
+              </span>
+            ) : (
+              task ? "Update Task" : "Add Task"
+            )}
           </button>
         </form>
       </div>

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
@@ -9,6 +10,28 @@ import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
+  const { getTasks, updateTask, bulkDelete } = useTasks();
+
+  const [tasks, setTasks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    try {
+      const res = await api.get("/tasks");
+      setTasks(res.data.tasks || res.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const { tasks, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,8 +49,46 @@ export default function Tasks() {
   const handleBulkDelete = async () => {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
+    await fetchTasks();
+    setSuccessMessage("Deleted selected tasks");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
+  /** --- Handlers --- */
+  const handleToggle = async (task) => {
+    await updateTask(task._id, {
+      status: task.status === "Completed" ? "Due" : "Completed",
+    });
+    await fetchTasks();
+    setSuccessMessage("Task updated");
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+
+  const deleteTask = async (id) => {
+    try {
+      await api.delete(`/tasks/${id}`);
+      await fetchTasks();
+      setSuccessMessage("Task deleted");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleTask = async (id) => {
+    try {
+      await api.put(`/tasks/${id}`);
+      await fetchTasks();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUpdate = async (id, updates) => {
+    await updateTask(id, updates);
+    await fetchTasks();
+  };
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
 
@@ -74,14 +135,22 @@ const handleActualDurationSubmit = async () => {
   const handleSubmit = async (data) => {
     setTaskError("");
     try {
+      setIsSubmitting(true);
       if (editingTask) {
         await updateTask(editingTask._id, data);
+        await fetchTasks();
+        setSuccessMessage("Task updated successfully");
       } else {
-        await addTask({ ...data, status: "Due" });
+        await api.post("/tasks", { ...data, status: "Due" });
+        await fetchTasks();
+        setSuccessMessage("Task created successfully");
       }
+      setTimeout(() => setSuccessMessage(""), 3000);
+      setIsSubmitting(false);
       setEditingTask(null);
       setIsModalOpen(false);
     } catch (err) {
+      setIsSubmitting(false);
       console.error(err);
       setTaskError(err.message || "Failed to save task");
     }
@@ -209,6 +278,30 @@ const handleActualDurationSubmit = async () => {
         </div>
 
         {/* Task List */}
+        <div className="animate-in delay-180">
+          {tasks.map((task) => (
+            <div key={task._id} className="p-2 border-b flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold">{task.title}</h3>
+                <p className="text-sm text-muted">{task.description}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleTask(task._id)}
+                  className="btn btn-sm btn-outline"
+                >
+                  Complete
+                </button>
+                <button
+                  onClick={() => deleteTask(task._id)}
+                  className="btn btn-sm btn-danger"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
