@@ -41,8 +41,12 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    actualDuration: {
+      type: Number,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Task model using schema
