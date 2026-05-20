@@ -16,8 +16,18 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    await api.post("/tasks", taskData);
-    getTasks();
+    try {
+      await api.post("/tasks", taskData);
+      getTasks();
+    } catch (error) {
+      if (error.response?.status === 409) {
+        throw new Error(
+          error.response.data?.message ||
+            "Task with the same title and due date already exists"
+        );
+      }
+      throw error;
+    }
   };
 
   // update task

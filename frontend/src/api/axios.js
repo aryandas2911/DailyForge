@@ -5,8 +5,11 @@ const api = axios.create({
   baseURL:
     import.meta.env.VITE_API_BASE_URL ||
     import.meta.env.VITE_API_URL ||
-    "http://localhost:5000/api/",
+    (import.meta.env.DEV
+      ? "http://localhost:5000/api/"
+      : "https://dailyforge-backend.onrender.com/api/"),
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {

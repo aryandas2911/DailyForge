@@ -1,16 +1,21 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight } from "lucide-react";
+import {
+  CheckCircle2,
+  Calendar,
+  ArrowRight,
+  Copy,
+  Flame,
+} from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
-
-
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting";
+import { DAYS_OF_WEEK } from "../utils/constants";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -19,15 +24,18 @@ export default function Dashboard() {
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
   const [rewardPoints, setRewardPoints] = useState(0);
-const [currentStreak, setCurrentStreak] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [routineTasks, setRoutineTasks] = useState([]);
+  const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
+  const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
+  const [duplicateTargetDay, setDuplicateTargetDay] = useState(
+    DAYS_OF_WEEK[0]
+  );
 
   const { tasks, updateTask } = useTasks();
 
-
   const today = new Date();
- 
 
-  //quotes array and random selection
   const motivationalQuotes = [
     "Win the morning, win the day.",
     "Small progress is still progress.",
@@ -41,6 +49,7 @@ const [currentStreak, setCurrentStreak] = useState(0);
       Math.floor(Math.random() * motivationalQuotes.length)
     ];
   });
+
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
@@ -79,7 +88,6 @@ const [currentStreak, setCurrentStreak] = useState(0);
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
 
-  // Fetch routines
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
@@ -93,107 +101,164 @@ const [currentStreak, setCurrentStreak] = useState(0);
     }
   };
 
-const fetchRewards = async () => {
-  try {
-    const res = await api.get("/tasks/rewards");
-
-    setRewardPoints(res.data.rewardPoints || 0);
-    setCurrentStreak(res.data.currentStreak || 0);
-
-  } catch (error) {
-    console.error("Error fetching rewards:", error);
-  }
-};
+  const fetchRewards = async () => {
+    try {
+      const res = await api.get("/tasks/rewards");
+      setRewardPoints(res.data.rewardPoints || 0);
+      setCurrentStreak(res.data.currentStreak || 0);
+    } catch (error) {
+      console.error("Error fetching rewards:", error);
+    }
+  };
 
   useEffect(() => {
     fetchRoutines();
-     fetchRewards();
+    fetchRewards();
   }, []);
 
+  useEffect(() => {
+    const loadRoutineTasks = () => {
+      const storedRoutineTasks = localStorage.getItem("activeRoutineTasks");
 
-    const handleTaskUpdate = async (...args) => {
-  await updateTask(...args);
-  fetchRewards();
-};
+      if (storedRoutineTasks) {
+        setRoutineTasks(JSON.parse(storedRoutineTasks));
+      } else {
+        setRoutineTasks([]);
+      }
+    };
+
+    loadRoutineTasks();
+
+    window.addEventListener("storage", loadRoutineTasks);
+
+    return () => {
+      window.removeEventListener("storage", loadRoutineTasks);
+    };
+  }, []);
+
+  const handleTaskUpdate = async (...args) => {
+    await updateTask(...args);
+    fetchRewards();
+  };
+
+  const openDuplicateModal = (routine) => {
+    setRoutineToDuplicate(routine);
+    setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
+  };
+
+  const closeDuplicateModal = () => {
+    setRoutineToDuplicate(null);
+    setDuplicateTargetDay(DAYS_OF_WEEK[0]);
+  };
+    const handleDuplicateRoutine = async () => {
+    if (!routineToDuplicate) return;
+
+    try {
+      setDuplicatingRoutineId(routineToDuplicate._id);
+
+      const res = await api.post(
+        `/routines/${routineToDuplicate._id}/duplicate`,
+        { targetDay: duplicateTargetDay }
+      );
+
+      if (res.data.routine) {
+        setSavedRoutines((prevRoutines) => [
+          res.data.routine,
+          ...prevRoutines,
+        ]);
+      } else {
+        await fetchRoutines();
+      }
+
+      closeDuplicateModal();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to duplicate routine");
+    } finally {
+      setDuplicatingRoutineId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-        {/* Display time */}
-       <div className="w-full">
-  <h1 className="text-2xl font-semibold text-main leading-tight">
-    {getGreeting()}, {user?.name}
-  </h1>
+        <div className="w-full">
+          <h1 className="text-2xl font-semibold text-main leading-tight">
+            {getGreeting()}, {user?.name}
+          </h1>
 
-  <p className="text-sm italic text-primary mt-2">
-    "{quote}"
-  </p>
+          <p className="text-sm italic text-primary mt-2">
+            "{quote}"
+          </p>
 
-  <div className="flex justify-between items-center mt-1 w-full">
-    <p className="text-sm text-muted">
-      {new Date()
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          day: "2-digit",
-          month: "short",
-        })
-        .replace(",", " ·")}
-    </p>
+          <div className="flex justify-between items-center mt-1 w-full">
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
 
-    <LiveClock />
-  </div>
-</div>
+            <LiveClock />
+          </div>
+        </div>
       </header>
 
-      {/* Stats Row */}
-   <section className="flex flex-col lg:flex-row gap-6 w-full flex-wrap">
-  <div className="flex-1 min-w-[250px] animate-in delay-100">
-    <StatCard
-      label="Today"
-      value={`${completedToday} / ${totalToday}`}
-      subtitle="Tasks done"
-      icon={<CheckCircle2 size={20} />}
-    />
-  </div>
+      {/* Stats */}
+      <section className="flex flex-col lg:flex-row gap-6 w-full flex-wrap">
+        <div className="flex-1 min-w-[250px] animate-in delay-100">
+          <StatCard
+            label="Today"
+            value={`${completedToday} / ${totalToday}`}
+            subtitle="Tasks done"
+            icon={<CheckCircle2 size={20} />}
+          />
+        </div>
 
-  <div className="flex-1 min-w-[250px] animate-in delay-200">
-    <StatCard
-      label="This Week"
-      value={`${weeklyCompletionPercent}%`}
-      subtitle="Completion"
-      icon={<Calendar size={20} />}
-    />
-  </div>
+        <div className="flex-1 min-w-[250px] animate-in delay-200">
+          <StatCard
+            label="This Week"
+            value={`${weeklyCompletionPercent}%`}
+            subtitle="Completion"
+            icon={<Calendar size={20} />}
+          />
+        </div>
 
-  <div className="flex-1 min-w-[250px] animate-in delay-300">
-    <StatCard
-      label="Reward Points"
-      value={rewardPoints}
-      subtitle="Earn by completing tasks"
-      icon={<span className="text-xl">⭐</span>}
-    />
-  </div>
+        <div className="flex-1 min-w-[250px] animate-in delay-300">
+          <StatCard
+            label="Reward Points"
+            value={rewardPoints}
+            subtitle="Earn by completing tasks"
+            icon={<span className="text-xl">⭐</span>}
+          />
+        </div>
 
-  <div className="flex-1 min-w-[250px] animate-in delay-400">
-    <StatCard
-      label="Current Streak"
-      value={`${currentStreak} Days`}
-      subtitle={
-        currentStreak > 0
-          ? `${7 - (currentStreak % 7 || 7)} more for bonus`
-          : "Start your streak today"
-      }
-      icon={<Flame size={20} />}
-    />
-  </div>
-</section>
+        <div className="flex-1 min-w-[250px] animate-in delay-400">
+          <StatCard
+            label="Current Streak"
+            value={`${currentStreak} Days`}
+            subtitle={
+              currentStreak > 0
+                ? `${7 - (currentStreak % 7 || 7)} more for bonus`
+                : "Start your streak today"
+            }
+            icon={<Flame size={20} />}
+          />
+        </div>
+      </section>
 
-      {/* Today's Tasks */}
+      {/* Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks tasks={tasks} updateTask={handleTaskUpdate} />
+        <DashboardTasks
+          tasks={[...tasks, ...routineTasks]}
+          updateTask={handleTaskUpdate}
+        />
       </div>
-
-      {/* Bottom Row: TaskPreview + Routines */}
+            {/* Bottom Section */}
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
@@ -205,15 +270,17 @@ const fetchRewards = async () => {
 
         {/* Saved Routines */}
         <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
-          {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
+            <h2 className="text-lg font-semibold text-main">
+              Saved Routines
+            </h2>
+
             <button
-              className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
+              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
-              <ArrowRight size={16} />
+              <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
             </button>
           </div>
 
@@ -228,14 +295,32 @@ const fetchRewards = async () => {
               {savedRoutines.map((routine) => (
                 <li
                   key={routine._id}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in"
+                  onClick={() => navigate("/routine-builder")}
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
                 >
-                  <p className="font-medium text-main">{routine.name}</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium text-main">
+                      {routine.name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => openDuplicateModal(routine)}
+                      disabled={duplicatingRoutineId === routine._id}
+                      aria-label={`Duplicate ${routine.name}`}
+                      title="Duplicate routine"
+                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                    >
+                      <Copy size={16} />
+                    </button>
+                  </div>
+
                   {routine.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
                       {routine.description}
                     </p>
                   )}
+
                   <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
                     {routine.items.length} tasks across{" "}
                     {new Set(routine.items.map((i) => i.day)).size} day(s)
@@ -246,6 +331,56 @@ const fetchRewards = async () => {
           )}
         </div>
       </section>
+
+      {/* Duplicate Modal */}
+      {routineToDuplicate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="card card-primary w-full max-w-sm">
+            <h3 className="text-lg font-semibold text-main">
+              Duplicate Routine
+            </h3>
+
+            <p className="mt-1 text-sm text-muted">
+              Choose the day for "{routineToDuplicate.name} (Copy)".
+            </p>
+
+            <label className="mt-4 block text-sm font-medium text-main">
+              Copy to
+            </label>
+
+            <select
+              value={duplicateTargetDay}
+              onChange={(e) => setDuplicateTargetDay(e.target.value)}
+              className="mt-2 w-full rounded-lg border-soft bg-transparent px-3 py-2 text-sm text-main focus:outline-none"
+            >
+              {DAYS_OF_WEEK.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                className="btn btn-muted"
+                onClick={closeDuplicateModal}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary cursor-pointer"
+                onClick={handleDuplicateRoutine}
+                disabled={duplicatingRoutineId === routineToDuplicate._id}
+              >
+                Duplicate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
