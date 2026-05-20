@@ -234,11 +234,11 @@ const handleDuplicateRoutine = async () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
             <button
-              className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
+              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
-              <ArrowRight size={16} />
+              <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
             </button>
           </div>
 
