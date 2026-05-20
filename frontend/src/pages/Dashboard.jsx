@@ -1,16 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
+import {
+  CheckCircle2,
+  Calendar,
+  ArrowRight,
+  RotateCw,
+  Copy,
+} from "lucide-react";
+
 import LiveClock from "../components/Dashboard/LiveClock";
-
-
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
-import useMixedTasks from "../hooks/useMixedTasks.js";
+
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
 
@@ -20,33 +26,84 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
-  const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
-  const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
-  const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
-  const { tasks, updateTask: updateDbTask } = useTasks();
-  const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
+  const [routineTasks, setRoutineTasks] = useState([]);
+
+  const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
+
+  const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
+
+  const [duplicateTargetDay, setDuplicateTargetDay] = useState(
+    DAYS_OF_WEEK[0]
+  );
+
+  const { tasks, updateTask } = useTasks();
 
   const today = new Date();
- 
 
-  //quotes array and random selection
-  const motivationalQuotes = [
-    "Win the morning, win the day.",
-    "Small progress is still progress.",
-    "Discipline beats motivation.",
-    "Push yourself, because no one else will.",
-    "Stay consistent and trust the process.",
-  ];
+  const hour = today.getHours();
+
+  let currentTheme = "";
+
+  if (hour >= 5 && hour < 12) {
+    currentTheme = "morning";
+  } else if (hour >= 12 && hour < 17) {
+    currentTheme = "afternoon";
+  } else if (hour >= 17 && hour < 21) {
+    currentTheme = "evening";
+  } else {
+    currentTheme = "night";
+  }
+
+  const themeStyles = {
+    morning:
+      "bg-gradient-to-br from-sky-100 via-blue-50 to-white text-gray-900",
+
+    afternoon:
+      "bg-gradient-to-br from-yellow-50 via-orange-50 to-white text-gray-900",
+
+    evening:
+      "bg-gradient-to-br from-orange-900 via-amber-800 to-slate-900 text-white",
+
+    night:
+      "bg-gradient-to-br from-[#0f172a] via-[#111827] to-black text-cyan-50",
+  };
+
+  // Quotes
+  const quotesByTheme = {
+    morning: [
+      "Win the morning, win the day.",
+      "A fresh start begins now.",
+    ],
+
+    afternoon: [
+      "Keep pushing forward.",
+      "Momentum creates progress.",
+    ],
+
+    evening: [
+      "Small progress is still progress.",
+      "Stay consistent and trust the process.",
+    ],
+
+    night: [
+      "Late-night focus builds greatness.",
+      "Discipline beats motivation.",
+    ],
+  };
 
   const [quote] = useState(() => {
-    return motivationalQuotes[
-      Math.floor(Math.random() * motivationalQuotes.length)
-    ];
+    const quotes = quotesByTheme[currentTheme];
+
+    return quotes[Math.floor(Math.random() * quotes.length)];
   });
+
+  // Today's Tasks
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
+
     const due = new Date(task.dueDate);
+
     return today.toDateString() === due.toDateString();
   });
 
@@ -56,17 +113,24 @@ export default function Dashboard() {
 
   const totalToday = todayTasks.length;
 
+  // Weekly Tasks
   const startOfWeek = new Date(today);
+
   startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
   startOfWeek.setHours(0, 0, 0, 0);
 
   const endOfWeek = new Date(startOfWeek);
+
   endOfWeek.setDate(startOfWeek.getDate() + 6);
+
   endOfWeek.setHours(23, 59, 59, 999);
 
   const weekTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
+
     const due = new Date(task.dueDate);
+
     return due >= startOfWeek && due <= endOfWeek;
   });
 
@@ -78,97 +142,141 @@ export default function Dashboard() {
     ? Math.round((completedThisWeek / weekTasks.length) * 100)
     : 0;
 
+  // Upcoming Tasks
   const upcomingTasks = tasks
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
 
-  // Fetch routines
+  // Fetch Routines
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
+
       const res = await api.get("/routines");
+
       setSavedRoutines(res.data.routines || []);
     } catch (err) {
       console.error(err);
+
       setSavedRoutines([]);
     } finally {
       setLoadingRoutines(false);
     }
   };
+
   useEffect(() => {
     fetchRoutines();
   }, []);
 
-const openDuplicateModal = (routine) => {
-  setRoutineToDuplicate(routine);
-  setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
-};
+  // Load routine tasks from localStorage
+  useEffect(() => {
+    const loadRoutineTasks = () => {
+      const storedRoutineTasks =
+        localStorage.getItem("activeRoutineTasks");
 
-const closeDuplicateModal = () => {
-  setRoutineToDuplicate(null);
-  setDuplicateTargetDay(DAYS_OF_WEEK[0]);
-};
+      if (storedRoutineTasks) {
+        setRoutineTasks(JSON.parse(storedRoutineTasks));
+      } else {
+        setRoutineTasks([]);
+      }
+    };
 
-const handleDuplicateRoutine = async () => {
-  if (!routineToDuplicate) return;
+    loadRoutineTasks();
 
-  try {
-    setDuplicatingRoutineId(routineToDuplicate._id);
+    window.addEventListener("storage", loadRoutineTasks);
 
-    const res = await api.post(
-      `/routines/${routineToDuplicate._id}/duplicate`,
-      { targetDay: duplicateTargetDay }
+    return () => {
+      window.removeEventListener("storage", loadRoutineTasks);
+    };
+  }, []);
+
+  // Duplicate Modal
+  const openDuplicateModal = (routine) => {
+    setRoutineToDuplicate(routine);
+
+    setDuplicateTargetDay(
+      routine.items[0]?.day || DAYS_OF_WEEK[0]
     );
+  };
 
-    // Optimistic UI update
-    if (res.data.routine) {
-      setSavedRoutines((prevRoutines) => [
-        res.data.routine,
-        ...prevRoutines,
-      ]);
-    } else {
-      await fetchRoutines();
+  const closeDuplicateModal = () => {
+    setRoutineToDuplicate(null);
+
+    setDuplicateTargetDay(DAYS_OF_WEEK[0]);
+  };
+
+  // Duplicate Routine
+  const handleDuplicateRoutine = async () => {
+    if (!routineToDuplicate) return;
+
+    try {
+      setDuplicatingRoutineId(routineToDuplicate._id);
+
+      const res = await api.post(
+        `/routines/${routineToDuplicate._id}/duplicate`,
+        {
+          targetDay: duplicateTargetDay,
+        }
+      );
+
+      // Optimistic UI update
+      if (res.data.routine) {
+        setSavedRoutines((prevRoutines) => [
+          res.data.routine,
+          ...prevRoutines,
+        ]);
+      } else {
+        await fetchRoutines();
+      }
+
+      closeDuplicateModal();
+    } catch (err) {
+      console.error(err);
+
+      alert("Failed to duplicate routine");
+    } finally {
+      setDuplicatingRoutineId(null);
     }
+  };
 
-    closeDuplicateModal();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to duplicate routine");
-  } finally {
-    setDuplicatingRoutineId(null);
-  }
-};
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div
+      className={`min-h-screen w-full max-w-[1440px] mx-auto px-6 py-8 space-y-8 animate-in transition-all duration-700 ${themeStyles[currentTheme]}`}
+    >
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-        {/* Display time */}
-       <div className="w-full">
-  <h1 className="text-2xl font-semibold text-main leading-tight">
-    {getGreeting()}, {user?.name}
-  </h1>
+      <header
+        className={`animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-2xl gap-4 transition-all duration-700 ${
+          currentTheme === "night"
+            ? "bg-slate-900/60 backdrop-blur-md border border-cyan-500/10"
+            : "bg-white/70 backdrop-blur-md border border-white/40"
+        }`}
+      >
+        <div className="w-full">
+          <h1 className="text-2xl font-semibold text-main leading-tight">
+            {getGreeting()}, {user?.name}
+          </h1>
 
-  <p className="text-sm italic text-primary mt-2">
-    "{quote}"
-  </p>
+          <p className="text-sm italic text-primary mt-2">
+            "{quote}"
+          </p>
 
-  <div className="flex justify-between items-center mt-1 w-full">
-    <p className="text-sm text-muted">
-      {new Date()
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          day: "2-digit",
-          month: "short",
-        })
-        .replace(",", " ·")}
-    </p>
+          <div className="flex justify-between items-center mt-1 w-full">
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
 
-    <LiveClock />
-  </div>
-</div>
+            <LiveClock />
+          </div>
+        </div>
       </header>
 
-      {/* Stats Row */}
+      {/* Stats */}
       <section className="flex flex-col lg:flex-row gap-6 w-full">
         <div className="flex-1 animate-in delay-100">
           <StatCard
@@ -178,6 +286,7 @@ const handleDuplicateRoutine = async () => {
             icon={<CheckCircle2 size={20} />}
           />
         </div>
+
         <div className="flex-1 animate-in delay-200">
           <StatCard
             label="This Week"
@@ -188,15 +297,15 @@ const handleDuplicateRoutine = async () => {
         </div>
       </section>
 
-      {/* Today's Tasks */}
+      {/* Dashboard Tasks */}
       <div className="w-full animate-in delay-200">
         <DashboardTasks
-            tasks={[...tasks, ...routineTasks]}
-            updateTask={updateTask}
+          tasks={[...tasks, ...routineTasks]}
+          updateTask={updateTask}
         />
       </div>
 
-      {/* Bottom Row: TaskPreview + Routines */}
+      {/* Bottom Row */}
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
@@ -208,33 +317,42 @@ const handleDuplicateRoutine = async () => {
 
         {/* Saved Routines */}
         <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
-          {/* Header with button */}
+          {/* Header */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
-            <button                                                              
-                onClick={fetchRoutines}                                            
-                disabled={loadingRoutines}                                        
-                aria-label="Refresh routines"                                     
-                className="p-1 rounded-full hover:bg-gray-100 transition cursor-pointer disabled:opacity-50" 
-              >                                                                   
-                <RotateCw                                                          
-                  size={15}                                                        
-                  className={`text-muted ${loadingRoutines ? "animate-spin" : ""}`} 
-                />                                                                
-              </button>                                                           
-            </div>                                                               
+              <h2 className="text-lg font-semibold text-main">
+                Saved Routines
+              </h2>
+
+              <button
+                onClick={fetchRoutines}
+                disabled={loadingRoutines}
+                aria-label="Refresh routines"
+                className="p-1 rounded-full hover:bg-gray-100 transition cursor-pointer disabled:opacity-50"
+              >
+                <RotateCw
+                  size={15}
+                  className={`text-muted ${
+                    loadingRoutines ? "animate-spin" : ""
+                  }`}
+                />
+              </button>
+            </div>
+
             <button
               className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
+
               <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
             </button>
           </div>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <p className="text-sm text-muted">
+              Loading routines…
+            </p>
           ) : savedRoutines.length === 0 ? (
             <p className="text-sm text-muted text-center mt-10">
               No routines saved yet
@@ -245,14 +363,26 @@ const handleDuplicateRoutine = async () => {
                 <li
                   key={routine._id}
                   onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                  className={`border-l-4 border-primary rounded-xl p-4 shadow-sm transition-all duration-300 animate-in cursor-pointer hover-lift hover:shadow-xl hover:scale-[1.02] ${
+                    currentTheme === "night"
+                      ? "bg-slate-800/70 hover:bg-slate-800"
+                      : "bg-white/80 hover:bg-white"
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-main">{routine.name}</p>
+                    <p className="font-medium text-main">
+                      {routine.name}
+                    </p>
+
                     <button
                       type="button"
-                      onClick={() => openDuplicateModal(routine)}
-                      disabled={duplicatingRoutineId === routine._id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
+                      disabled={
+                        duplicatingRoutineId === routine._id
+                      }
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"
                       className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
@@ -260,14 +390,21 @@ const handleDuplicateRoutine = async () => {
                       <Copy size={16} />
                     </button>
                   </div>
+
                   {routine.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
                       {routine.description}
                     </p>
                   )}
+
                   <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
                     {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
+                    {
+                      new Set(
+                        routine.items.map((i) => i.day)
+                      ).size
+                    }{" "}
+                    day(s)
                   </p>
                 </li>
               ))}
@@ -276,22 +413,28 @@ const handleDuplicateRoutine = async () => {
         </div>
       </section>
 
+      {/* Duplicate Modal */}
       {routineToDuplicate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="card card-primary w-full max-w-sm">
             <h3 className="text-lg font-semibold text-main">
               Duplicate Routine
             </h3>
+
             <p className="mt-1 text-sm text-muted">
-              Choose the day for "{routineToDuplicate.name} (Copy)".
+              Choose the day for "
+              {routineToDuplicate.name} (Copy)".
             </p>
 
             <label className="mt-4 block text-sm font-medium text-main">
               Copy to
             </label>
+
             <select
               value={duplicateTargetDay}
-              onChange={(e) => setDuplicateTargetDay(e.target.value)}
+              onChange={(e) =>
+                setDuplicateTargetDay(e.target.value)
+              }
               className="mt-2 w-full rounded-lg border-soft bg-transparent px-3 py-2 text-sm text-main focus:outline-none"
             >
               {DAYS_OF_WEEK.map((day) => (
@@ -309,11 +452,15 @@ const handleDuplicateRoutine = async () => {
               >
                 Cancel
               </button>
+
               <button
                 type="button"
                 className="btn btn-primary cursor-pointer"
                 onClick={handleDuplicateRoutine}
-                disabled={duplicatingRoutineId === routineToDuplicate._id}
+                disabled={
+                  duplicatingRoutineId ===
+                  routineToDuplicate._id
+                }
               >
                 Duplicate
               </button>
