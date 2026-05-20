@@ -34,9 +34,10 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       setToken(res.data.token);
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+      // set user details directly from response
+      if (res.data.user) {
+        setUser(res.data.user);
+      }
 
       // redirect to dashboard
       navigate("/dashboard");
