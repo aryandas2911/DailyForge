@@ -10,44 +10,50 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   // logout function
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.log(e);
+    }
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
   };
 
   // restore session on app load
   useEffect(() => {
     if (token) {
-      api
-        .get("/auth/me")
-        .then((res) => {
-          setUser(res.data.user);
-        })
-        .catch(() => {
-          logout();
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+  api
+    .get("/auth/me")
+    .then((res) => {
+      setUser(res.data.user);
+    })
+    .catch(() => {
+      // token invalid or expired
+      logout();
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+} else {
+  setUser(null);
+  setIsLoading(false);
+}
+}, [token]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        setUser,
-        setToken,
-        logout,
-      }}
-    >
+return (
+  <AuthContext.Provider
+    value={{
+      user,
+      setUser,
+      token,
+      setToken,
+      logout,
+      isLoading,
+    }}
+  >
       {children}
     </AuthContext.Provider>
   );
