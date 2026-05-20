@@ -9,7 +9,7 @@ import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 
 // dotenv config
-dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+dotenv.config({ path: path.resolve(import.meta.dirname, ".env") });
 const PORT = process.env.PORT;
 
 // Initialize express     
