@@ -17,6 +17,9 @@ export default function Tasks() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const [durationModalTask, setDurationModalTask] = useState(null);
+  const [actualDuration, setActualDuration] = useState("");
+
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -28,48 +31,43 @@ export default function Tasks() {
     setSelectedIds([]);
   };
 
-  const [durationModalTask, setDurationModalTask] = useState(null);
-  const [actualDuration, setActualDuration] = useState("");
-
- /** --- Handlers --- */
-const handleToggle = async (task) => {
-  try {
-    if (task.status !== "Completed") {
-      // Open modal to enter actual duration
-      setDurationModalTask(task);
-      setActualDuration("");
-    } else {
-      // Mark back to Due
-      await updateTask(task._id, {
-        status: "Due",
-        actualDuration: null,
-      });
+  /** Toggle Completion */
+  const handleToggle = async (task) => {
+    try {
+      if (task.status !== "Completed") {
+        setDurationModalTask(task);
+        setActualDuration("");
+      } else {
+        await updateTask(task._id, {
+          status: "Due",
+          actualDuration: null,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  };
 
-const handleActualDurationSubmit = async () => {
-  const durationValue = Number(actualDuration);
+  const handleActualDurationSubmit = async () => {
+    const durationValue = Number(actualDuration);
 
-  if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
-    return;
-  }
+    if (Number.isNaN(durationValue) || durationValue <= 0) {
+      alert("Please enter a valid duration in minutes");
+      return;
+    }
 
-  try {
-    await updateTask(durationModalTask._id, {
-      status: "Completed",
-      actualDuration: durationValue,
-    });
+    try {
+      await updateTask(durationModalTask._id, {
+        status: "Completed",
+        actualDuration: durationValue,
+      });
 
-    setDurationModalTask(null);
-    setActualDuration("");
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+      setDurationModalTask(null);
+      setActualDuration("");
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
 
   const handleSubmit = async (data) => {
     setTaskError("");
@@ -95,17 +93,25 @@ const handleActualDurationSubmit = async () => {
     );
   };
 
+  /** Filtering */
   const filteredTasks =
     selectedCategories.length === 0
       ? tasks
       : tasks.filter(
-          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
+          (task) =>
+            task.tags &&
+            task.tags.some((tag) => selectedCategories.includes(tag))
         );
 
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
-  const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const completedTasks = filteredTasks.filter(
+    (t) => t.status === "Completed"
+  ).length;
+  const completionPercent = totalTasks
+    ? Math.round((completedTasks / totalTasks) * 100)
+    : 0;
 
+  /** Deadlines */
   const now = new Date();
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(now.getDate() + 3);
@@ -115,19 +121,21 @@ const handleActualDurationSubmit = async () => {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+
   const nextTask = filteredTasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
   ).length;
+
   const isOverloaded = highPriorityCount >= 3;
 
   return (
     <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
+
         {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
@@ -137,8 +145,11 @@ const handleActualDurationSubmit = async () => {
             >
               <ArrowLeft size={16} />
             </button>
+
             <div>
-              <h1 className="text-3xl font-bold text-main tracking-tight">Tasks</h1>
+              <h1 className="text-3xl font-bold text-main tracking-tight">
+                Tasks
+              </h1>
               <p className="text-sm text-muted mt-1">
                 {completedTasks}/{totalTasks} completed · Stay consistent
               </p>
@@ -151,9 +162,11 @@ const handleActualDurationSubmit = async () => {
                 onClick={handleBulkDelete}
                 className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
               >
-                <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+                <Trash2 size={18} />
+                Delete Selected ({selectedIds.length})
               </button>
             )}
+
             <button
               onClick={() => {
                 setEditingTask(null);
@@ -162,7 +175,8 @@ const handleActualDurationSubmit = async () => {
               }}
               className="btn btn-primary flex items-center gap-2 cursor-pointer"
             >
-              <Plus size={18} /> New Task
+              <Plus size={18} />
+              New Task
             </button>
           </div>
         </div>
@@ -172,7 +186,10 @@ const handleActualDurationSubmit = async () => {
           <div className="card p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
+              <h3 className="text-sm font-semibold text-main">
+                Filter by Category
+              </h3>
+
               {selectedCategories.length > 0 && (
                 <button
                   onClick={() => setSelectedCategories([])}
@@ -187,17 +204,19 @@ const handleActualDurationSubmit = async () => {
               {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
                 const isSelected = selectedCategories.includes(tagName);
                 const cat = getCategoryColor(tagName);
+
                 return (
                   <button
                     key={tagName}
                     onClick={() => toggleCategoryFilter(tagName)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
+                      isSelected
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: cat.bgColor,
                       color: cat.color,
-                      ringColor: cat.color,
                     }}
                   >
                     {tagName}
@@ -208,8 +227,10 @@ const handleActualDurationSubmit = async () => {
           </div>
         </div>
 
-        {/* Task List */}
+        {/* Main Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Task List */}
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
               filteredTasks
@@ -240,11 +261,16 @@ const handleActualDurationSubmit = async () => {
             )}
           </div>
 
-          {/* Insights */}
+          {/* Insights Sidebar */}
           <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
+
+            {/* Completion */}
             <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">Completion</h3>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <h3 className="text-lg font-semibold text-main mb-2">
+                Completion
+              </h3>
+
+              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 {completionPercent > 0 && (
                   <div
                     className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
@@ -252,13 +278,18 @@ const handleActualDurationSubmit = async () => {
                   />
                 )}
               </div>
+
               <p className="text-xs text-muted mt-1">
                 {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
               </p>
             </div>
 
+            {/* Deadlines */}
             <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">Upcoming Deadlines</h3>
+              <h3 className="text-lg font-semibold text-main mb-2">
+                Upcoming Deadlines
+              </h3>
+
               {upcomingDeadlines.length ? (
                 <ul className="space-y-2 text-sm">
                   {upcomingDeadlines.slice(0, 3).map((task) => (
@@ -270,7 +301,9 @@ const handleActualDurationSubmit = async () => {
                 </ul>
               ) : nextTask ? (
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-main">{nextTask.title}</p>
+                  <p className="text-sm font-medium text-main">
+                    {nextTask.title}
+                  </p>
                   <p className="text-xs text-muted">
                     Due on {new Date(nextTask.dueDate).toLocaleDateString()}
                   </p>
@@ -280,6 +313,7 @@ const handleActualDurationSubmit = async () => {
               )}
             </div>
 
+            {/* Load Indicator */}
             <div
               className={`card p-4 ${
                 isOverloaded
@@ -288,10 +322,15 @@ const handleActualDurationSubmit = async () => {
               }`}
             >
               <p className="text-sm font-medium">
-                {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
+                {isOverloaded
+                  ? "Too many high-priority tasks"
+                  : "Priority load is healthy"}
               </p>
+
               <p className="text-xs mt-1 opacity-80">
-                {isOverloaded ? "Consider rescheduling or delegating." : "You’re pacing this well."}
+                {isOverloaded
+                  ? "Consider rescheduling or delegating."
+                  : "You’re pacing this well."}
               </p>
             </div>
           </div>
@@ -312,6 +351,7 @@ const handleActualDurationSubmit = async () => {
         />
       )}
 
+      {/* Duration Modal */}
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">

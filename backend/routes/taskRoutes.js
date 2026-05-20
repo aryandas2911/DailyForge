@@ -6,6 +6,7 @@ import {
   getTasks,
   updateTask,
   bulkDeleteTasks,
+  getRewards,
 } from "../controllers/taskController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -63,8 +64,12 @@ export const taskRouter = express.Router();
 // Route for creating task
 taskRouter.post("/", authMiddleware, taskValidationRules, createTask);
 
+//Route for rewards
+taskRouter.get("/rewards", authMiddleware, getRewards);
+
 // Route for fetching task
 taskRouter.get("/", authMiddleware, getTasks);
+
 
 // Route for updating task
 taskRouter.put("/:id", authMiddleware, taskUpdateValidationRules, updateTask);

@@ -2,6 +2,7 @@ import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
+import { checkAndAwardRewards } from "../src/services/rewardService.js";
 import mongoose from "mongoose";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -122,9 +123,10 @@ export const getTasks = async (req, res) => {
 // update task function
 export const updateTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
+
     const user = await User.findById(userId);
+
     if (!user) {
       return res
         .status(401)
@@ -142,6 +144,7 @@ export const updateTask = async (req, res) => {
 
     // check for validation errors
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
@@ -150,32 +153,71 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // fetch update task details
     const updates = req.body;
 
-    // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
+
     if (!updatedTask) {
       return res.status(404).json({
         message: "Task not found",
       });
     }
+
+    let rewardData = null;
+
+    if (updates.status === "Completed") {
+      rewardData = await checkAndAwardRewards(userId);
+    }
+
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
+      rewards: rewardData,
     });
+
   } catch (error) {
-    // error handling
     console.log("Error updating task", error);
+
     return res
       .status(500)
       .json({ success: false, message: "Error updating task" });
   }
 };
+
+//get rewards
+export const getRewards = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      rewardPoints: user.rewardPoints || 0,
+      currentStreak: user.currentStreak || 0,
+    });
+
+  } catch (error) {
+    console.log("Error fetching rewards", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching rewards",
+    });
+  }
+};
+
 
 // delete task function
 export const deleteTask = async (req, res) => {
