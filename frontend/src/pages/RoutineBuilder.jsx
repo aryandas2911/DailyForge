@@ -111,6 +111,12 @@ export default function RoutineBuilder() {
 
       setIsSaveModalOpen(false);
       setRoutineName("");
+
+      // Mark all tasks for this day as saved in the UI
+      setScheduledTasks((prev) =>
+        prev.map((t) => (t.day === selectedDay ? { ...t, isSaved: true } : t))
+      );
+
       setDescription("");
       setSelectedDay(null);
       alert("Routine saved successfully");
@@ -150,9 +156,38 @@ export default function RoutineBuilder() {
     const { day, startTime } = over.data.current;
 
     setScheduledTasks((prev) => [
+      // Filter out if the same task already exists on this day
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      { taskId: task._id, title: task.title, day, startTime, duration: 60 },
+      {
+        taskId: task._id,
+        title: task.title,
+        day,
+        startTime,
+        duration: 60,
+        isSaved: false, // Mark as not saved initially
+      },
     ]);
+  };
+
+  // Removing Schedule task after drag
+                              //string, string, number btw
+  const removeScheduledTask = (taskId, day, startTime) => {
+    setScheduledTasks((prev) =>
+      prev.filter( 
+        (t) =>
+          !(t.taskId === taskId && t.day === day && t.startTime === startTime)
+      )
+    );
+  };
+
+  //for clearing a day's tasks from the weekly grid
+  const clearDayTasks = (day) => {
+    setScheduledTasks((prev) => prev.filter((t) => t.day !== day));
+  };
+
+  //for clearing all days's tasks from the weekly grid
+  const clearWeekTasks = () => {
+    setScheduledTasks([]);
   };
 
   return (
@@ -199,6 +234,8 @@ export default function RoutineBuilder() {
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
+              onClearDay={clearDayTasks}
+              onClearWeek={clearWeekTasks}
             />
           </section>
         </div>
