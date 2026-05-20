@@ -92,13 +92,14 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      tags,
-      priority,
-      dueDate,
-    });
+   onSubmit({
+  title: title.trim(),
+  description: description.trim(),
+  tags,
+  priority,
+  status: "Due",
+  dueDate,
+});
   };
 
   const toggleCategory = (categoryName) => {

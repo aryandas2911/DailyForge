@@ -186,6 +186,10 @@ export default function RoutineBuilder() {
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
+            <TaskLibrary
+  tasks={tasks}
+  onAddTask={() => setIsModalOpen(true)}
+/>
             {/*
              * TaskLibrary's "Add Task" button opens the modal directly
              * (user is already at the top section of the page, no scroll needed).
