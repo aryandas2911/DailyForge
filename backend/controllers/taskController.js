@@ -1,4 +1,5 @@
-﻿import Task from "../src/models/Task.js";
+import Routine from "../src/models/Routine.js";
+import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
@@ -28,8 +29,15 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
-    if (!title || !priority || !status) {
+    const {
+  title,
+  description,
+  tags,
+  priority,
+  status = "Due",
+  dueDate,
+} = req.body;
+    if (!title || !priority || !dueDate) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
@@ -99,9 +107,7 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
-      return res
-        .status(200)
-        .json({ success: true, tasks: [] });
+      return res.status(200).json({ success: true, tasks: [] });
     }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
@@ -228,7 +234,7 @@ export const bulkDeleteTasks = async (req, res) => {
 
     // fetch array of task IDs 
     const { ids } = req.body;
-    if (!ids || ids.length === 0) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No task IDs provided" });
@@ -236,6 +242,17 @@ export const bulkDeleteTasks = async (req, res) => {
 
     // delete all matching tasks belonging to this user
     await Task.deleteMany({ _id: { $in: ids }, userId: userId });
+
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: { $in: ids },
+          },
+        },
+      }
+    );
 
     return res
       .status(200)
