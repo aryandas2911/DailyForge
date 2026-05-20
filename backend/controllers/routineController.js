@@ -21,6 +21,14 @@ export const createRoutine = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please enter required details" });
     }
+    // check if routine with same name already exists for this user
+    const existingRoutine = await Routine.findOne({ userId, name });
+    if (existingRoutine) {
+      return res.status(400).json({
+        success: false,
+        message: "A routine with this name already exists",
+      });
+    }
 
     // calculate endtime for each task
     const formatted = [];
