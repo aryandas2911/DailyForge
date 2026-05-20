@@ -30,28 +30,13 @@
 }
 
 .dark {
-  /* App background (outer layout) - deep premium slate dark blue-gray */
   --bg: #0f172a;
-
-  /* Surfaces: cards, modals, panels - charcoal slate */
   --surface: #1e293b;
-
-  /* Primary action color (CTAs) - vibrant teal */
   --primary: #4eb7b3;
-
-  /* Hover / active feedback */
   --primary-hover: #5ec7c3;
-
-  /* Accents: highlights, tags, blocks */
   --accent: #1e2e30;
-
-  /* Main readable text - crisp slate-off-white */
   --text-main: #f8fafc;
-
-  /* Secondary / low-priority text */
   --text-muted: #94a3b8;
-
-  /* Soft separators and outlines */
   --border: #334155;
 }
 
@@ -61,117 +46,266 @@ html.dark, html.dark body {
   color-scheme: dark;
 }
 
-/* Utility Classes */
+/* ─── Utility Classes ──────────────────────────────────────── */
 @layer utilities {
-  /* Layout backgrounds */
-  .app-bg {
-    background-color: var(--bg);
-  }
+  .app-bg        { background-color: var(--bg); }
+  .surface-bg    { background-color: var(--surface); }
+  .text-main     { color: var(--text-main); }
+  .text-muted    { color: var(--text-muted); }
+  .border-soft   { border: 1px solid var(--border); }
 
-  .surface-bg {
-    background-color: var(--surface);
-  }
-
-  /* Text roles */
-  .text-main {
-    color: var(--text-main);
-  }
-
-  .text-muted {
-    color: var(--text-muted);
-  }
-
-  /* Structural borders */
-  .border-soft {
-    border: 1px solid var(--border);
-  }
-
-  /* Button foundation */
+  /* Base button */
   .btn {
     @apply inline-flex items-center justify-center
-         px-4 py-2
-         font-medium
-         rounded-xl
-         transition-all duration-200
-         select-none;
+           px-4 py-2 font-medium rounded-xl
+           transition-all duration-200 select-none;
   }
 
-  /* Primary action button */
   .btn-primary {
-    @apply text-white
-         shadow-sm
-         hover:shadow-md
-         active:scale-[0.97]
-         focus:outline-none
-         focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Color handled via CSS variables */
-  .btn-primary {
+    @apply text-white shadow-sm hover:shadow-md
+           active:scale-[0.97] focus:outline-none
+           focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
   }
+  .btn-primary:hover { background-color: var(--primary-hover); }
 
-  .btn-primary:hover {
-    background-color: var(--primary-hover);
-  }
-
+  /* ─── Base card ─────────────────────────────────────────── */
   .card {
     background-color: var(--surface);
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    @apply p-6 shadow-sm transition-shadow duration-200;
+    @apply p-6 shadow-sm transition-all duration-300;
+    position: relative;
+    overflow: hidden;
   }
   .card:hover {
-    @apply shadow-md;
+    box-shadow:
+      0 0 0 2px rgba(78, 183, 179, 0.15),
+      0 8px 24px rgba(78, 183, 179, 0.13),
+      0 2px 8px rgba(0, 0, 0, 0.06);
+    border-color: rgba(78, 183, 179, 0.45);
+    transform: translateY(-2px);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.25s ease;
   }
 
-  .card-muted {
-    @apply bg-white/80;
+  .card-muted   { @apply bg-white/80; }
+  .card-primary { @apply shadow-md; }
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+@layer utilities {
+  .animate-in      { animation: fadeUp 0.4s ease-out both; }
+  .animate-in-slow { animation: fadeUp 0.6s ease-out both; }
+
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+
+  .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .hover-lift:hover { transform: translateY(-4px) scale(1.01); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  .card-primary {
-    @apply shadow-md;
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+
+  @keyframes progressFill {
+    from { width: 0%; }
+    to   { width: var(--progress-target); }
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1);   opacity: 1; }
+    50%       { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  @keyframes accentSlide {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  @keyframes skeletonPulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 0.9; }
   }
 }
 
-@layer utilities {
-  /* Fade + slide up on mount */
-  .animate-in {
-    animation: fadeUp 0.4s ease-out both;
-  }
+/* ─── Greeting Card ─────────────────────────────────────────── */
+.greeting-card {
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(78, 183, 179, 0.08);
+  transition:
+    box-shadow 0.35s ease,
+    border-color 0.35s ease,
+    transform 0.25s ease;
+  cursor: default;
+}
 
-  .animate-in-slow {
-    animation: fadeUp 0.6s ease-out both;
-  }
+.greeting-card:hover {
+  box-shadow:
+    0 0 0 2px rgba(78, 183, 179, 0.18),
+    0 12px 28px rgba(78, 183, 179, 0.12);
+  border-color: rgba(78, 183, 179, 0.55);
+  transform: translateY(-2px);
+}
 
-  /* Stagger helpers */
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-  .delay-300 {
-    animation-delay: 0.3s;
-  }
+/* Subtle shimmer on hover via a pseudo-element overlay */
+.greeting-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(78, 183, 179, 0.06) 50%,
+    transparent 60%
+  );
+  background-size: 400px 100%;
+  background-position: -400px 0;
+  pointer-events: none;
+  transition: none;
+}
 
-  /* Hover lift */
-  .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
+.greeting-card:hover::before {
+  animation: shimmer 1.4s ease forwards;
+}
 
-  .hover-lift:hover {
-    transform: translateY(-2px);
-  }
+/* Quote left-border accent */
+.quote-highlight {
+  position: relative;
+  padding-left: 0.75rem;
+  transition: padding-left 0.2s ease;
+}
 
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+.quote-highlight::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--primary);
+  border-radius: 2px;
+  opacity: 0.5;
+  transform: scaleY(0.6);
+  transform-origin: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.greeting-card:hover .quote-highlight::before {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* Progress bar */
+.progress-track {
+  height: 5px;
+  background-color: var(--accent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: progressFill 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.4s;
+}
+
+/* ─── Routines Card ─────────────────────────────────────────── */
+.routines-card {
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.routines-card:hover {
+  box-shadow:
+    0 0 0 2px rgba(78, 183, 179, 0.14),
+    0 10px 24px rgba(78, 183, 179, 0.1);
+  border-color: rgba(78, 183, 179, 0.45);
+}
+
+/* Individual routine list item */
+.routine-item {
+  position: relative;
+  overflow: hidden;
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  animation: fadeUp 0.35s ease-out both;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.dark .routine-item {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.routine-item:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 6px 16px rgba(78, 183, 179, 0.14);
+  background: rgba(255, 255, 255, 1);
+}
+
+.dark .routine-item:hover {
+  background: rgba(30, 41, 59, 1);
+}
+
+/* Sliding teal wash on hover */
+.routine-accent-bar {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(78, 183, 179, 0.07) 0%,
+    transparent 70%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.routine-item:hover .routine-accent-bar {
+  transform: scaleX(1);
+}
+
+/* Pulse dot */
+.routine-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  flex-shrink: 0;
+  animation: pulseDot 2.4s ease-in-out infinite;
+}
+
+/* Skeleton loader */
+.routine-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 25%,
+    rgba(152, 225, 215, 0.5) 50%,
+    var(--accent) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.6s ease-in-out infinite, skeletonPulse 1.6s ease-in-out infinite;
 }
