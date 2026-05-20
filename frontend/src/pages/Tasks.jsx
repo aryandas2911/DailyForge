@@ -3,16 +3,17 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask , bulkDelete} = useTasks();
+  const { tasks, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -30,37 +31,48 @@ export default function Tasks() {
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
 
-  /** --- Handlers --- */
-  const handleToggle = (task) => {
+ /** --- Handlers --- */
+const handleToggle = async (task) => {
+  try {
     if (task.status !== "Completed") {
+      // Open modal to enter actual duration
       setDurationModalTask(task);
       setActualDuration("");
     } else {
-      updateTask(task._id, {
+      // Mark back to Due
+      await updateTask(task._id, {
         status: "Due",
         actualDuration: null,
       });
     }
-  };
+  } catch (error) {
+    console.error("Failed to update task:", error);
+  }
+};
 
-  const handleActualDurationSubmit = () => {
-    const durationValue = Number(actualDuration);
+const handleActualDurationSubmit = async () => {
+  const durationValue = Number(actualDuration);
 
-    if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
-      return;
-    }
+  if (Number.isNaN(durationValue) || durationValue <= 0) {
+    alert("Please enter a valid duration in minutes");
+    return;
+  }
 
-    updateTask(durationModalTask._id, {
+  try {
+    await updateTask(durationModalTask._id, {
       status: "Completed",
       actualDuration: durationValue,
     });
 
     setDurationModalTask(null);
     setActualDuration("");
-  };
+  } catch (error) {
+    console.error("Failed to update task:", error);
+  }
+};
 
   const handleSubmit = async (data) => {
+    setTaskError("");
     try {
       if (editingTask) {
         await updateTask(editingTask._id, data);
@@ -71,28 +83,32 @@ export default function Tasks() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save task");
+      setTaskError(err.message || "Failed to save task");
     }
   };
 
   const toggleCategoryFilter = (categoryName) => {
-    setSelectedCategories(prev =>
+    setSelectedCategories((prev) =>
       prev.includes(categoryName)
-        ? prev.filter(cat => cat !== categoryName)
+        ? prev.filter((cat) => cat !== categoryName)
         : [...prev, categoryName]
     );
   };
 
   /** --- Filtered Tasks --- */
-  const filteredTasks = selectedCategories.length === 0
-    ? tasks
-    : tasks.filter(task =>
-        task.tags && task.tags.some(tag => selectedCategories.includes(tag))
-      );
+  const filteredTasks =
+    selectedCategories.length === 0
+      ? tasks
+      : tasks.filter(
+          (task) =>
+            task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
+        );
 
   /** --- Insights --- */
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  const completedTasks = filteredTasks.filter(
+    (t) => t.status === "Completed"
+  ).length;
   const completionPercent = totalTasks
     ? Math.round((completedTasks / totalTasks) * 100)
     : 0;
@@ -106,10 +122,10 @@ export default function Tasks() {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+
   const nextTask = tasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -117,8 +133,9 @@ export default function Tasks() {
   const isOverloaded = highPriorityCount >= 3;
 
   return (
-    <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
-      <div className="max-w-[1200px] mx-auto space-y-8">
+    <div className="min-h-screen app-bg px-4 sm:px-8 xl:px-16 py-8 animate-in">
+      <div className="space-y-8">
+
         {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
@@ -137,23 +154,26 @@ export default function Tasks() {
               </p>
             </div>
           </div>
-          {selectedIds.length > 0 && (
+
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              </button>
+            )}
             <button
-              onClick={handleBulkDelete}
-              className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              onClick={() => {
+                setEditingTask(null);
+                setIsModalOpen(true);
+              }}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer"
             >
-              <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              <Plus size={18} /> New Task
             </button>
-          )}
-          <button
-            onClick={() => {
-              setEditingTask(null);
-              setIsModalOpen(true);
-            }}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer"
-          >
-            <Plus size={18} /> New Task
-          </button>
+          </div>
         </div>
 
         {/* Category Filter */}
@@ -180,8 +200,8 @@ export default function Tasks() {
                     onClick={() => toggleCategoryFilter(category.name)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: category.bgColor,
@@ -197,9 +217,9 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Task List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4 animate-in delay-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="md:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
               filteredTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -208,46 +228,57 @@ export default function Tasks() {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    // fix : Ensure onDelete is explicitely reciving the id
                     onDelete={(id) => deleteTask(id)}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}   
-                    onSelect={handleSelect}   
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
                   />
                 ))
             ) : (
-  <EmptyState
-    type="tasks"
-    onAction={() => {
-      setEditingTask(null);
-      setIsModalOpen(true);
-    }}
-  />
-)}
+              <EmptyState
+                type="tasks"
+                onAction={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
-          {/* Insights */}
-          <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
+          {/* Insights sidebar */}
+          <div className="hidden md:flex flex-col gap-6 animate-in delay-300">
+
+            {/* Completion */}
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
+
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                {completionPercent > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                )}
+
               <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
                   style={{ width: `${completionPercent}%` }}
                 />
+
               </div>
               <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}
-                %)
+                {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
               </p>
             </div>
 
+            {/* Upcoming Deadlines */}
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">
                 Upcoming Deadlines
@@ -265,26 +296,23 @@ export default function Tasks() {
                   ))}
                 </ul>
               ) : (
-               // updated deadlines
+                // updated deadlines logic
                 nextTask ? (
-  <div className="space-y-1">
-    <p className="text-sm font-medium text-main">
-      {nextTask.title}
-    </p>
-
-    <p className="text-xs text-muted">
-      Due on{" "}
-      {new Date(nextTask.dueDate).toLocaleDateString()}
-    </p>
-  </div>
-) : (
-  <p className="text-xs text-muted">
-    No upcoming tasks 🎉
-  </p>
-)
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-main">
+                      {nextTask.title}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted">No upcoming tasks 🎉</p>
+                )
               )}
             </div>
 
+            {/* Priority load */}
             <div
               className={`card p-4 ${
                 isOverloaded
@@ -300,7 +328,7 @@ export default function Tasks() {
               <p className="text-xs mt-1 opacity-80">
                 {isOverloaded
                   ? "Consider rescheduling or delegating."
-                  : "You’re pacing this well."}
+                  : "You're pacing this well."}
               </p>
             </div>
           </div>
@@ -311,8 +339,13 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setTaskError("");
+          }}
           onSubmit={handleSubmit}
+          errorMessage={taskError}
+          onError={setTaskError}
         />
       )}
 
@@ -359,5 +392,6 @@ export default function Tasks() {
         </div>
       )}
     </div>
-  );
+    </div>
+);
 }

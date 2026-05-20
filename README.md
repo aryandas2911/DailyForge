@@ -16,6 +16,25 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🚀 Project Overview](#-project-overview)
+- [🌐 Live Demo](#-live-demo)
+- [✨ Features](#-features)
+- [🏗 Tech Stack](#-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [⚡ Quick Start](#-quick-start)
+- [🔐 Environment Variables](#-environment-variables)
+- [❓ FAQ](#-faq)
+- [🛠 Troubleshooting](#-troubleshooting)
+- [🤝 Contribution Guidelines](#-contribution-guidelines)
+- [🏷 Issue Guidelines](#-issue-guidelines)
+- [📸 Screenshots](#-screenshots)
+- [📬 Getting Help](#-getting-help)
+- [📬 Contact & Community](#-contact--community)
+
+---
+
 ## 🚀 Project Overview
 
 Most productivity tools are either too bloated or too simple. **DailyForge** is a no-nonsense weekly planner that gives you total control over your schedule — built by students, for students and professionals alike.
@@ -191,22 +210,8 @@ cp .env.example .env
 ```
 
 Then fill in your values (see the next section for what each variable means).
-> ⚠️ **Local dev note:** The backend CORS origin is currently configured for the deployed frontend in `backend/src/server.js`.  
-> When running the frontend locally on `http://localhost:5173`, update the CORS origin temporarily for local development.
->
-> Change this:
->
-> ```js
-> origin: "https://dailyforge-frontend-lhjq.onrender.com"
-> ```
->
-> to:
->
-> ```js
-> origin: "http://localhost:5173"
-> ```
->
-> before starting the backend server.
+ 
+> ⚠️ **Local dev note:** The backend CORS origin is already configured for both the deployed frontend (`https://dailyforge-frontend-lhjq.onrender.com`) and local development (`http://localhost:5173`) in `backend/src/server.js`. No changes are needed for local development.
 
 
 **Start the backend dev server:**
@@ -228,7 +233,7 @@ cd frontend
 npm install
 ```
 
-> ⚠️ > 💡 **Local dev note:** To point the frontend to your local backend, copy `frontend/.env.example` to `frontend/.env` and ensure `VITE_API_URL` is set to `http://localhost:5000/api`.
+> 💡 **Local dev note:** To point the frontend to your local backend, copy `frontend/.env.example` to `frontend/.env` and ensure `VITE_API_URL` is set to `http://localhost:5000/api`.
 
 **Start the frontend dev server:**
 
@@ -275,10 +280,153 @@ JWT_SECRET=your_super_secret_key_here
 
 ### Frontend — `frontend/.env`
 
-Copy the provided .env.example to a new file .env 
+Copy the provided `.env.example` to a new file named `.env`. 
 
 
 **Running locally?** Update `VITE_API_URL` in your local `.env` file to `http://localhost:5000/api/`.
+
+---
+
+## ❓ FAQ
+
+### Why is the app slow on first load?
+
+The project is deployed on Render’s free tier. Services may go to sleep after inactivity, so the first request can take around 30–60 seconds to respond.
+
+---
+
+### Which Node.js version should I use?
+
+Recommended versions:
+
+* Node.js `v18+`
+* npm `v9+`
+
+Check your installed versions:
+
+```bash
+node -v
+npm -v
+```
+
+---
+
+### Do I need MongoDB installed locally?
+
+No. DailyForge uses MongoDB Atlas, so you only need a free Atlas account and a valid connection string.
+
+---
+
+### Why am I getting CORS errors during local development?
+
+Make sure:
+
+* Backend CORS origin is set to:
+
+```js
+origin: "http://localhost:5173"
+```
+
+* Frontend `.env` contains:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+### Where should I add environment variables?
+
+Backend variables go inside:
+
+```bash
+/backend/.env
+```
+
+Frontend variables go inside:
+
+```bash
+/frontend/.env
+```
+---
+
+## 🛠 Troubleshooting
+
+### MongoDB Connection Error
+
+**Error Example**
+
+```bash
+MongooseServerSelectionError
+```
+
+**Possible Fixes**
+
+* Verify your `MONGO_URI`
+* Check your database username/password
+* Ensure your IP address is whitelisted in MongoDB Atlas
+
+---
+
+### Frontend Cannot Connect to Backend
+
+**Possible Causes**
+
+* Backend server is not running
+* Incorrect `VITE_API_URL`
+* Port mismatch
+
+**Fix**
+Ensure:
+
+```env 
+VITE_API_URL=http://localhost:5000/api
+```
+
+And confirm the backend is running on:
+
+```bash 
+http://localhost:5000
+```
+
+---
+
+### JWT Authentication Errors
+
+**Fix**
+
+* Ensure `JWT_SECRET` is present in `backend/.env`
+* Restart the backend server after updating environment variables
+
+---
+
+### Port Already in Use
+
+**Error Example**
+
+```bash 
+EADDRINUSE
+```
+
+**Fix**
+Stop the running process using the port or change the port value in `.env`.
+
+Example:
+
+```env 
+PORT=5001
+```
+
+---
+
+### Dependencies Not Installing Properly
+
+Try removing old dependencies and reinstalling:
+
+```bash 
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ---
 
@@ -335,8 +483,8 @@ We use labels to organize work. Here's what they mean:
 | `bug` | Something is broken or behaving incorrectly |
 | `feature` | New functionality to be added |
 | `documentation` | Improvements to README, guides, or inline comments |
-| `help wanted` | Maintainers need external input or hands | Experienced contributors |
-| `testing` | Adding or improving test coverage | Anyone comfortable with testing |
+| `help wanted` | Maintainers need external input or assistance |
+| `testing` | Adding or improving test coverage |
 
 **Tips for new contributors:**
 - Start with `good first issue` — they're designed to be approachable
@@ -350,17 +498,36 @@ We use labels to organize work. Here's what they mean:
 ### 🔐 Signup Page
 ![Signup Page](Screenshots/Signup.png)
 
-### 📊 Dashboard
+### 📊 Dashboard Overview
 ![Dashboard](Screenshots/Dashboard.png)
 
 ### 📋 Tasks Page
 ![Tasks Page](Screenshots/Tasks.png)
 
-### 🗓️ Routine Builder
+### 🗓️ Drag-and-Drop Routine Builder
 ![Routine Builder](Screenshots/Routine.png)
 
 ---
 
+## 📬 Getting Help
+
+Need help with setup or contributing?
+
+### You can:
+
+* Open a GitHub Issue
+* Comment on an existing issue for clarification
+* Contact the maintainer through the email provided below
+
+### Before asking for help:
+
+* Read the setup instructions carefully
+* Check the FAQ and Troubleshooting sections
+* Search existing GitHub issues first
+
+We welcome contributors of all experience levels 🚀
+
+---
 
 ## 📬 Contact & Community
 
