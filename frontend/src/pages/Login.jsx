@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -13,9 +13,11 @@ const Login = () => {
   const [error, setError] = useState("");
   // useNavigate object
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectPath = location.state?.from || "/dashboard";
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
 
   // submit handler
   const handleSubmit = async (e) => {
@@ -24,6 +26,8 @@ const Login = () => {
 
     // send request to server
     try {
+      localStorage.removeItem("token");
+
       const res = await api.post("/auth/login", {
         email,
         password,
@@ -44,8 +48,8 @@ const Login = () => {
       });
       setUser(me.data.user);
 
-      // redirect to dashboard
-      navigate("/dashboard");
+      // redirect to the requested protected page
+      navigate(redirectPath, { replace: true });
     } catch (error) {
       // handle error
       console.log("Login failed");

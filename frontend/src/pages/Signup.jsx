@@ -21,7 +21,7 @@ const Signup = () => {
   const navigate = useNavigate();
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
 
   // submit handler
   const handleSubmit = async (e) => {
@@ -38,6 +38,8 @@ const Signup = () => {
 
     // send request to server
     try {
+      localStorage.removeItem("token");
+
       const res = await api.post("/auth/signup", {
         name,
         email,

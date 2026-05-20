@@ -7,7 +7,7 @@ const LiveClock = () => {
     const updateTime = () => {
       const now = new Date();
 
-      const formattedTime = now.toLocaleTimeString("en-IN", {
+      const formattedTime = now.toLocaleTimeString(navigator.language, {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",

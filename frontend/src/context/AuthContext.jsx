@@ -8,13 +8,16 @@ export const AuthContext = createContext(null);
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isLoading, setIsLoading] = useState(true);
 
   // logout function
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.log(e);
+    }
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
   };
 
   // restore session on app load
@@ -39,7 +42,7 @@ const AuthProvider = ({ children }) => {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
