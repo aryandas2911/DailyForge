@@ -115,10 +115,10 @@ const handleActualDurationSubmit = async () => {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-
-  const nextTask = tasks
-    .filter((task) => task.dueDate && task.status !== "Completed")
-    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+//changed logic
+  const nextTask = filteredTasks
+  .filter((task) => task.dueDate && task.status !== "Completed")
+  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
