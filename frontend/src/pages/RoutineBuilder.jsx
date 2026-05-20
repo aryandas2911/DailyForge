@@ -117,7 +117,8 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const errorMessage = err.response?.data?.message || "Failed to save routine";
+      alert(errorMessage);
     }
   };
 
