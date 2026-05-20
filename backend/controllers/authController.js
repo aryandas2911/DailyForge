@@ -92,14 +92,13 @@ export const login = async (req, res) => {
 // access user details function
 export const getUser = async (req, res) => {
   try {
-    // fetch user data from request
-    const user = await User.findById(req.userId).select("-password");
-    if (!user) {
+    // user data is attached to req by authMiddleware
+    if (!req.user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    return res.status(200).json({ success: true, user: user });
+    return res.status(200).json({ success: true, user: req.user });
   } catch (_error) {
     // error handling
     return res

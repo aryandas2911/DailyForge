@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../src/models/User.js";
 
-export const authMiddleware = (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   // access the authorization header from the request
   const authHeader = req.header("Authorization");
   if (!authHeader) {
@@ -24,6 +25,16 @@ export const authMiddleware = (req, res, next) => {
 
     // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
     req.userId = verify.id || verify.userId;
+
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User no longer exists",
+      });
+    }
+
+    req.user = user;
     next();
 
   } catch (error) {
