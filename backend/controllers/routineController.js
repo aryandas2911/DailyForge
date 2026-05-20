@@ -1,18 +1,10 @@
 import Routine from "../src/models/Routine.js";
-import User from "../src/models/User.js";
 import { checkOverlap } from "../utils/routineUtils.js";
 
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
@@ -98,14 +90,7 @@ export const createRoutine = async (req, res) => {
 // Fetch routine function
 export const getRoutines = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // fetch routines from database
     const routines = await Routine.find({ userId: userId }).sort({
@@ -224,14 +209,7 @@ export const duplicateRoutine = async (req, res) => {
 // Update routine function
 export const updateRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // fetch updated routine details
     const updates = req.body;
@@ -310,14 +288,7 @@ export const updateRoutine = async (req, res) => {
 // Delete routine function
 export const deleteRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // fetch routine id
     const routineId = req.params.id;

@@ -111,19 +111,23 @@ export const login = async (req, res) => {
 // access user details function
 export const getUser = async (req, res) => {
   try {
-    // fetch user data from request
-    const user = await User.findById(req.userId).select('-password');
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'User not found' });
+    // user attached by auth middleware
+    if (!req.user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
-    return res.status(200).json({ success: true, user: user });
+
+    return res.status(200).json({
+      success: true,
+      user: req.user,
+    });
   } catch (_error) {
-    // error handling
-    return res
-      .status(500)
-      .json({ message: 'Error fetching user data', success: false });
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching user data',
+    });
   }
 };
 

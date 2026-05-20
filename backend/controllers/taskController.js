@@ -1,6 +1,5 @@
 import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
-import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -8,14 +7,7 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create task function
 export const createTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // check for validation errors
     const errors = validationResult(req);
@@ -94,14 +86,7 @@ export const createTask = async (req, res) => {
 // get task function
 export const getTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
 
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
@@ -121,14 +106,7 @@ export const getTasks = async (req, res) => {
 // update task function
 export const updateTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
 
     // check for validation errors
     const errors = validationResult(req);
@@ -141,7 +119,9 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details
-    const updates = req.body;
+    const updates = { ...req.body };
+    delete updates._id;
+    delete updates.userId;
     const taskId = req.params.id;
 
     // fetch task from database and update
@@ -171,14 +151,7 @@ export const updateTask = async (req, res) => {
 // delete task function
 export const deleteTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
 
     // fetch task id
     const taskId = req.params.id;
@@ -208,18 +181,11 @@ export const deleteTask = async (req, res) => {
 // bulk delete tasks function
 export const bulkDeleteTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
 
     // fetch array of task IDs 
     const { ids } = req.body;
-    if (!Array.isArray(ids) || ids.length === 0) {
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No task IDs provided" });
