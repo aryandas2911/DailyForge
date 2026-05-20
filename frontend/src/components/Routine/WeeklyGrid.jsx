@@ -24,6 +24,8 @@ const generateTimeSlots = () => {
 
 const TIME_SLOTS = generateTimeSlots();
 
+const normalizeDay = (day) => String(day || "").trim().toLowerCase();
+
 /* Convert HH:mm → minutes */
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
@@ -60,7 +62,7 @@ function DroppableCell({ day, time, tasks , onDeleteTask}) {
           <button
             onClick={(e) => {
               e.stopPropagation(); //prevents drag from trigerring 
-              onDeleteTask(task.taskId, day);
+              onDeleteTask(task.taskId, task.day);
             }}
             className="absolute -top-1 -right-1 w-5 h-5 rounded-full 
              bg-red-500 text-white text-xs font-bold
@@ -77,13 +79,13 @@ function DroppableCell({ day, time, tasks , onDeleteTask}) {
 /* ---------------- Weekly Grid ---------------- */
 export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask }) {
   return (
-    <div className="card card-primary overflow-x-auto animate-in">
-      <h2 className="text-lg font-semibold text-main mb-4">Weekly Schedule</h2>
+    <div className="card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in">
+      <h2 className="text-lg font-semibold text-main mb-4 px-6.5 pt-3">Weekly Schedule</h2>
 
       <div
-        className="grid"
+      className="grid w-full"
         style={{
-          gridTemplateColumns: "80px repeat(7, minmax(120px, 1fr))",
+          gridTemplateColumns: "34px repeat(7, minmax(0, 1fr))",
         }}
       >
         {/* ===== Save Buttons Row ===== */}
@@ -92,7 +94,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask })
           <div key={`save-${day}`} className="flex justify-center pb-2">
             <button
               onClick={() => onSaveDay(day)}
-              className="btn btn-primary px-3 py-1 text-xs cursor-pointer hover-lift"
+              className="btn btn-primary !px-2.25 !py-1.5 text-[9px] sm:text-xs cursor-pointer hover-lift"
             >
               Save
             </button>
@@ -103,34 +105,47 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask })
         {DAYS.map((day) => (
           <div
             key={day}
-            className="text-sm font-medium text-main text-center pb-2"
+                        className="text-sm font-medium text-main text-center pb-2"
           >
+            {/* Mobile short names */}
+          <span className="sm:hidden">
+            {day.slice(0, 3)}
+          </span>
+          {/* Desktop full names */}
+          <span className="hidden sm:inline">
             {day}
+          </span>
           </div>
         ))}
         {/* ===== Time Rows ===== */}
         {TIME_SLOTS.map((time) => (
           <div key={time} className="contents">
             {/* Time label */}
-            <div className="text-xs text-muted pr-2 pt-3 text-right">
+            <div className="flex items-start justify-end pt-2 pr-2 text-[9px] sm:text-xs text-muted">
               {time}
             </div>
 
             {/* Cells */}
             {DAYS.map((day) => (
+                <div
+              key={`${day}-${time}`}
+              className="min-w-0"
+            >
               <DroppableCell
-                key={`${day}-${time}`}
                 day={day}
                 time={time}
                 tasks={scheduledTasks.filter(
-                  (t) => t.day === day && t.startTime === timeToMinutes(time)
+                  (t) =>
+                    normalizeDay(t.day) === normalizeDay(day) &&
+                    t.startTime === timeToMinutes(time)
                 )}
                 onDeleteTask={onDeleteTask}
               />
+              </div>
             ))}
           </div>
         ))}
       </div>
     </div>
-  );
+);
 }
