@@ -5,6 +5,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
+import PublicRoute from "./components/PublicRoute.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
 import Footer from "./components/Footer.jsx";
@@ -25,9 +26,9 @@ const App = () => {
       <Navbar />
       <main className="app-bg min-h-screen pt-15">
         <Routes>
-          <Route path="/"       element={<AuthLayout><Login /></AuthLayout>} />
-          <Route path="/login"  element={<AuthLayout><Login /></AuthLayout>} />
-          <Route path="/signup" element={<AuthLayout><Signup /></AuthLayout>} />
+          <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
           <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
           <Route
             path="/dashboard"
