@@ -146,17 +146,46 @@ export const updateTask = async (req, res) => {
     // fetch update task details
     const updates = req.body;
 
+    // Fetch existing task to check for conflicts
+    const existingTask = await Task.findOne({ _id: taskId, userId: userId });
+    if (!existingTask) {
+      return res.status(404).json({
+        message: "Task not found",
+      });
+    }
+
+    if (updates.title || updates.dueDate) {
+      const updatedTitle = updates.title || existingTask.title;
+      const updatedDueDate = new Date(updates.dueDate || existingTask.dueDate);
+
+      if (!Number.isNaN(updatedDueDate.getTime())) {
+        const dateStart = new Date(updatedDueDate);
+        dateStart.setUTCHours(0, 0, 0, 0);
+        const dateEnd = new Date(dateStart);
+        dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
+
+        const conflict = await Task.findOne({
+          userId,
+          _id: { $ne: taskId },
+          title: { $regex: new RegExp(`^${escapeRegex(updatedTitle.trim())}$`, "i") },
+          dueDate: { $gte: dateStart, $lt: dateEnd },
+        });
+
+        if (conflict) {
+          return res.status(409).json({
+            success: false,
+            message: "A task with the same title and due date already exists",
+          });
+        }
+      }
+    }
+
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
-    if (!updatedTask) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
-    }
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
