@@ -401,81 +401,17 @@ Frontend variables go inside:
 
 ## 🛠 Troubleshooting
 
-### MongoDB Connection Error
+| Issue | Common Cause | Quick Fix |
+| :--- | :--- | :--- |
+| **CORS Errors** | `CLIENT_ORIGIN` or `FRONTEND_URL` mismatch in backend `.env`. | Ensure backend `.env` has correct origin (e.g., `http://localhost:5173`). Restart the server after changes. |
+| **MongoDB Connection Error** | Incorrect `MONGO_URI`, wrong credentials, or IP not whitelisted. | Verify `MONGO_URI`, replace `<password>` with correct DB password, and whitelist `0.0.0.0/0` in MongoDB Atlas Network Access. |
+| **Frontend Cannot Connect to Backend** | Backend not running, wrong API URL, or port mismatch. | Set `VITE_API_URL=http://localhost:5000/api` and ensure backend is running on `http://localhost:5000`. |
+| **JWT Authentication Errors** | Missing or incorrect `JWT_SECRET`. | Add `JWT_SECRET` in `backend/.env` and restart the backend server. |
+| **Dependency Conflicts** | React 19 / Tailwind v4 strict peer dependency issues. | Run `npm install --legacy-peer-deps` in both frontend and backend directories. |
+| **Glitchy Drag-and-Drop** | Browser extensions interfering with DOM events. | Test the app in **Incognito mode** or disable extensions. |
+| **Port Already in Use** | Another process is using the same port. | Stop the running process or change `PORT` in `.env` (e.g., `PORT=5001`). |
+| **Dependency Installation Issues** | Corrupted `node_modules` or lock file conflicts. | Run `rm -rf node_modules package-lock.json && npm install`. |
 
-**Error Example**
-
-```bash
-MongooseServerSelectionError
-```
-
-**Possible Fixes**
-
-* Verify your `MONGO_URI`
-* Check your database username/password
-* Ensure your IP address is whitelisted in MongoDB Atlas
-
----
-
-### Frontend Cannot Connect to Backend
-
-**Possible Causes**
-
-* Backend server is not running
-* Incorrect `VITE_API_URL`
-* Port mismatch
-
-**Fix**
-Ensure:
-
-```env 
-VITE_API_URL=http://localhost:5000/api
-```
-
-And confirm the backend is running on:
-
-```bash 
-http://localhost:5000
-```
-
----
-
-### JWT Authentication Errors
-
-**Fix**
-
-* Ensure `JWT_SECRET` is present in `backend/.env`
-* Restart the backend server after updating environment variables
-
----
-
-### Port Already in Use
-
-**Error Example**
-
-```bash 
-EADDRINUSE
-```
-
-**Fix**
-Stop the running process using the port or change the port value in `.env`.
-
-Example:
-
-```env 
-PORT=5001
-```
-
----
-
-### Dependencies Not Installing Properly
-
-Try removing old dependencies and reinstalling:
-
-```bash 
-rm -rf node_modules package-lock.json
-npm install
-```
 
 ---
 
