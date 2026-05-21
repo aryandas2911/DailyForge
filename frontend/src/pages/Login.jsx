@@ -85,7 +85,7 @@ const Login = () => {
 
     // send request to server
     try {
-      localStorage.removeItem("token");
+      
 
       const res = await api.post("/auth/login", {
         email,
@@ -93,9 +93,10 @@ const Login = () => {
       });
       console.log("Login success: ", res.data);
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+      // set user details directly from response
+      if (res.data.user) {
+        setUser(res.data.user);
+      }
 
       // redirect to the requested protected page
       navigate(redirectPath, { replace: true });
