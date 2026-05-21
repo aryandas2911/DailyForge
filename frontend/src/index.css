@@ -1,84 +1,142 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
+.preserve-3d {
+  transform-style: preserve-3d;
+}
 
 * {
   font-family: 'Outfit', sans-serif;
 }
-
 :root {
-  /* App background (outer layout) */
-  --bg: #d0f6e3;
+  --bg: #dbf6ee;
 
-  /* Surfaces: cards, modals, panels */
-  --surface: #ffffff;
+  --surface: linear-gradient(
+    145deg,
+    rgba(110, 224, 198, 0.52) 0%,
+    rgba(240, 255, 250, 0.36) 50%,
+    rgba(70, 220, 177, 0.28) 100%
+  );
 
-  /* Primary action color (CTAs) */
-  --primary: #4eb7b3;
+  --surface-border: rgba(198, 246, 220, 0.72);
+  --surface-shadow: 0 8px 40px rgba(13, 61, 82, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.20);
 
-  /* Hover / active feedback */
-  --primary-hover: #6dd5c7;
+  --primary: #2da89f;
+  --primary-hover: #1f9188;
 
-  /* Accents: highlights, tags, blocks */
-  --accent: #98e1d7;
+  --accent: #7dd8cf;
 
-  /* Main readable text */
-  --text-main: #3b8ea0;
+  --text-main: #0d3d52;
+  --text-muted: #476070;
 
-  /* Secondary / low-priority text */
-  --text-muted: #4eb7b3;
+  --border: rgba(45, 168, 159, 0.18);
 
-  /* Soft separators and outlines */
-  --border: #98e1d7;
-
-  /* Consistent rounding across UI */
-  --radius: 0.75rem;
+  --radius: 1rem;
 }
 
 .dark {
-  /* App background (outer layout) - deep premium slate dark blue-gray */
-  --bg: #0f172a;
+  --bg: #080e1a;
 
-  /* Surfaces: cards, modals, panels - charcoal slate */
-  --surface: #1e293b;
+  --surface: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(180, 220, 255, 0.04) 45%,
+    rgba(100, 180, 255, 0.03) 100%
+  );
 
-  /* Primary action color (CTAs) - vibrant teal */
-  --primary: #4eb7b3;
+  --surface-border: rgba(255, 255, 255, 0.10);
+  --surface-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.30);
 
-  /* Hover / active feedback */
-  --primary-hover: #5ec7c3;
+  --primary: #3dbdb8;
+  --primary-hover: #4eccc7;
 
-  /* Accents: highlights, tags, blocks */
-  --accent: #1e2e30;
+  --accent: #162032;
 
-  /* Main readable text - crisp slate-off-white */
-  --text-main: #f8fafc;
+  --text-main: #eef4f8;
+  --text-muted: #7a92a8;
 
-  /* Secondary / low-priority text */
-  --text-muted: #94a3b8;
-
-  /* Soft separators and outlines */
-  --border: #334155;
+  --border: rgba(61, 189, 184, 0.14);
 }
 
-html.dark, html.dark body {
+html,
+body,
+#root {
+  min-height: 100%;
   background-color: var(--bg);
   color: var(--text-main);
+}
+
+html.dark,
+html.dark body {
   color-scheme: dark;
 }
 
-/* Utility Classes */
 @layer utilities {
-  /* Layout backgrounds */
+
   .app-bg {
     background-color: var(--bg);
   }
 
-  .surface-bg {
-    background-color: var(--surface);
+  .bg-auth-light {
+    background:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(45, 168, 159, 0.28), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(14, 165, 233, 0.20), transparent),
+      radial-gradient(ellipse 50% 35% at 85% 5%, rgba(139, 92, 246, 0.13), transparent),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(125, 216, 207, 0.10), transparent),
+      linear-gradient(160deg, #d4f7ec 0%, #eafff8 28%, #dcf4ff 58%, #e8faf3 100%);
   }
 
-  /* Text roles */
+  .bg-auth-dark {
+    background:
+      radial-gradient(ellipse 70% 45% at 5% 0%, rgba(61, 189, 184, 0.20), transparent),
+      radial-gradient(ellipse 55% 40% at 95% 100%, rgba(37, 99, 235, 0.16), transparent),
+      radial-gradient(ellipse 45% 35% at 80% 2%, rgba(124, 58, 237, 0.13), transparent),
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(15, 30, 55, 0.40), transparent),
+      linear-gradient(150deg, #010408 0%, #080e1a 30%, #0c1322 65%, #040810 100%);
+  }
+
+  .surface-bg {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+  }
+
+  .input-modern {
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.60);
+    box-shadow: inset 0 1px 3px rgba(13, 61, 82, 0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .input-modern::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .input-modern:focus {
+    background: rgba(255, 255, 255, 0.62);
+    border-color: var(--primary);
+    box-shadow: inset 0 1px 3px rgba(13, 61, 82, 0.04), 0 0 0 3px rgba(45, 168, 159, 0.18);
+  }
+
+  .dark .input-modern {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  .dark .input-modern:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.20), 0 0 0 3px rgba(61, 189, 184, 0.16);
+  }
+
   .text-main {
     color: var(--text-main);
   }
@@ -87,34 +145,29 @@ html.dark, html.dark body {
     color: var(--text-muted);
   }
 
-  /* Structural borders */
   .border-soft {
     border: 1px solid var(--border);
   }
 
-  /* Button foundation */
   .btn {
     @apply inline-flex items-center justify-center
-         px-4 py-2
-         font-medium
-         rounded-xl
-         transition-all duration-200
-         select-none;
+           px-4 py-2
+           font-medium
+           rounded-xl
+           transition-all duration-200
+           select-none;
   }
 
-  /* Primary action button */
-  .btn-primary {
-    @apply text-white
-         shadow-sm
-         hover:shadow-md
-         active:scale-[0.97]
-         focus:outline-none
-         focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Color handled via CSS variables */
   .btn-primary {
     background-color: var(--primary);
+
+    @apply text-white
+           shadow-sm
+           hover:shadow-md
+           active:scale-[0.97]
+           focus:outline-none
+           focus:ring-2
+           focus:ring-offset-2;
   }
 
   .btn-primary:hover {
@@ -122,59 +175,67 @@ html.dark, html.dark body {
   }
 
   .card {
-    background-color: var(--surface);
+    background: var(--surface);
+
     border-radius: var(--radius);
-    border: 1px solid var(--border);
-    @apply p-6 shadow-sm transition-shadow duration-200;
+    border: 1px solid var(--surface-border);
+    box-shadow: var(--surface-shadow);
+
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+
+    @apply p-6 transition-all duration-300;
   }
+
   .card:hover {
     @apply shadow-md;
   }
 
-  .card-muted {
-    @apply bg-white/80;
+  .input-focus {
+    @apply outline-none transition-all duration-200;
   }
 
-  .card-primary {
-    @apply shadow-md;
-  }
-}
-
-@layer utilities {
-  /* Fade + slide up on mount */
-  .animate-in {
-    animation: fadeUp 0.4s ease-out both;
+  .input-focus:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(45, 168, 159, 0.16);
   }
 
-  .animate-in-slow {
-    animation: fadeUp 0.6s ease-out both;
-  }
-
-  /* Stagger helpers */
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-  .delay-300 {
-    animation-delay: 0.3s;
-  }
-
-  /* Hover lift */
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease;
   }
 
   .hover-lift:hover {
     transform: translateY(-2px);
   }
 
+  .animate-in {
+    animation: fadeUp 0.45s ease-out both;
+  }
+
+  .animate-in-slow {
+    animation: fadeUp 0.7s ease-out both;
+  }
+
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+
   @keyframes fadeUp {
     from {
       opacity: 0;
-      transform: translateY(12px);
+      transform: translateY(14px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
