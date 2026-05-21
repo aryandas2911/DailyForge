@@ -44,7 +44,7 @@ export const signup = async (req, res) => {
     await newUser.save();
 
     // generate token using jwt
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: '24h',
     });
 
@@ -56,7 +56,10 @@ export const signup = async (req, res) => {
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000,
       })
-      .json({ message: 'User registered successfully' });
+      .json({ 
+  message: 'User registered successfully',
+  user: { _id: newUser._id, name: newUser.name, email: newUser.email }
+});
   } catch (error) {
     // error handling
     console.error('Signup error:', error);
