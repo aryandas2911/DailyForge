@@ -399,13 +399,7 @@ Frontend variables go inside:
 ```
 ---
 
-## 🛠 Troubleshooting
 
-| Issue | Common Cause | Quick Fix |
-| :--- | :--- | :--- |
-| **CORS Errors** | `CLIENT_ORIGIN` or `FRONTEND_URL` mismatch in backend `.env`. | Ensure backend `.env` has correct origin (e.g., `http://localhost:5173`). Restart the server after changes. |
-| **MongoDB Connection Error** | Incorrect `MONGO_URI`, wrong credentials, or IP not whitelisted. | Verify `MONGO_URI`, replace `<password>` with correct DB password, and whitelist `0.0.0.0/0` in MongoDB Atlas Network Access. |
-| **Frontend Cannot Connect to Backend** | Backend not running, wrong API URL, or port mismatch. | Set `VITE_API_URL=http://localhost:5000/api` and ensure backend is running on `http://localhost:5000`. |
 | **JWT Authentication Errors** | Missing or incorrect `JWT_SECRET`. | Add `JWT_SECRET` in `backend/.env` and restart the backend server. |
 | **Dependency Conflicts** | React 19 / Tailwind v4 strict peer dependency issues. | Run `npm install --legacy-peer-deps` in both frontend and backend directories. |
 | **Glitchy Drag-and-Drop** | Browser extensions interfering with DOM events. | Test the app in **Incognito mode** or disable extensions. |
