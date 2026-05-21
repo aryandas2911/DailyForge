@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-
-export default function TaskPreview({ tasks , updateTask}) {
+export default function TaskPreview({ tasks, updateTask }) {
   const navigate = useNavigate();
 
   const [now, setNow] = useState(new Date());
@@ -29,34 +28,51 @@ export default function TaskPreview({ tasks , updateTask}) {
   };
 
   return (
-    <div className="card w-full">
+    <div className="card w-full bg-purple-50/40 dark:bg-slate-900/50 border border-purple-100 dark:border-white/10">
       <h2 className="text-lg font-semibold text-main mb-4">Upcoming Tasks</h2>
 
       {tasks?.length ? (
         <div className="space-y-3">
           {tasks.map((task) => {
+            {
+              /*Calculate remaining time */
+            }
+            const remainingTime = new Date(task.dueDate) - now;
 
-              {/*Calculate remaining time */}
-              const remainingTime = new Date(task.dueDate) - now;
+            const hours = Math.floor(remainingTime / (1000 * 60 * 60));
 
-              const hours = Math.floor(
-                remainingTime / (1000 * 60 * 60)
-              );
+            const minutes = Math.floor(
+              (remainingTime % (1000 * 60 * 60)) / (1000 * 60),
+            );
 
-              const minutes = Math.floor(
-                (remainingTime % (1000 * 60 * 60)) /
-                  (1000 * 60)
-              );
-
-              const seconds = Math.floor(
-                (remainingTime % (1000 * 60)) / 1000
-              );
+            const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
             return (
-            <div
-              key={task._id}
-              className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
+              <div
+                key={task._id}
+                className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
               ${priorityBorder[task.priority]}
+              bg-white dark:bg-slate-950/40 border border-purple-100/50 dark:border-white/5 shadow-sm text-slate-800 dark:text-slate-100`}
+              >
+                {/* Checkbox */}
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-(--primary) cursor-pointer"
+                  checked={task.status === "Completed"}
+                  onChange={() =>
+                    updateTask(task._id, {
+                      status: task.status === "Completed" ? "Due" : "Completed",
+                    })
+                  }
+                />
+
+                {/* Content */}
+                <div className="flex-1">
+                  <p
+                    className={`text-sm font-medium ${
+                      task.status === "Completed"
+                        ? "line-through decoration-2 decoration-muted text-muted"
+                        : "text-main"
               bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm`}
             >
               {/* Checkbox */}
@@ -89,30 +105,39 @@ export default function TaskPreview({ tasks , updateTask}) {
                       priorityBadge[task.priority]
                     }`}
                   >
-                    {task.priority}
-                  </span>
+                    {task.title}
+                  </p>
 
-                  {task.dueDate && (
-                    <span className="text-[11px] text-muted">
-                      {new Date(task.dueDate).toLocaleDateString("en-US", {
-                        weekday: "short",
-                      })}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                        priorityBadge[task.priority]
+                      }`}
+                    >
+                      {task.priority}
                     </span>
-                  )}
 
-                  {/*Disply Remaining Time */}
-                  {task.dueDate && (
-                    <span className="text-[11px] text-red-500 font-medium">
-                      {remainingTime > 0
-                        ? `${hours}h ${minutes}m ${seconds}s left`
-                        : "Overdue"}
-                    </span>
-                  )}
+                    {task.dueDate && (
+                      <span className="text-[11px] text-muted">
+                        {new Date(task.dueDate).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
+                      </span>
+                    )}
 
+                    {/*Disply Remaining Time */}
+                    {task.dueDate && (
+                      <span className="text-[11px] text-red-500 font-medium">
+                        {remainingTime > 0
+                          ? `${hours}h ${minutes}m ${seconds}s left`
+                          : "Overdue"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-         ) })}
+            );
+          })}
         </div>
       ) : (
         <p className="text-sm text-muted text-center py-6">
