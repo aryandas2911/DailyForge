@@ -69,6 +69,10 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
                   {new Date(task.dueDate).toLocaleDateString()}
                 </span>
               )}
+              {isCompleted && task.actualDuration != null && (
+                
+                <span>Actual: {task.actualDuration}m</span>
+              )}
 
               {/* Category Badges */}
               {task.tags && task.tags.length > 0 && (
