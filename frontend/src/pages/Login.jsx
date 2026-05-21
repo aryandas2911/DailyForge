@@ -424,7 +424,31 @@ const Login = () => {
               bg-red-500/10
               border-red-500/20
               text-red-500
-              dark:bg-red-900/30
+Suggested Labels:
+bug, frontend, ux, gssoc-approved, good-first-issue
+
+Describe the Bug
+On the user Dashboard page, clicking the "Copy" / "Duplicate" icon button on a saved routine card to clone it immediately redirects the user to the /routine-builder page.
+
+This happens because the parent <li> card element has an onClick navigation handler, and the duplicate <button> nested inside it does not call e.stopPropagation(). The click event bubbles up to the container, causing the page to change instantly, which prevents users from completing the routine duplication flow.
+
+Expected Behavior
+Clicking the duplicate button on the routine card should open the "Duplicate Routine" modal inline on the Dashboard and let the user select a target day without triggering page navigation.
+
+Steps to Reproduce
+Navigate to the Dashboard.
+In the "Saved Routines" panel, locate any saved routine card.
+Click the Copy (Duplicate) icon button in the top-right corner of the routine item.
+Observe that you are immediately redirected to the /routine-builder screen, and the duplicate modal is cut off.
+Target Files/Components
+frontend/src/pages/Dashboard.jsx (around lines 252-258)
+Suggested Fix
+Modify the duplicate button click handler to capture the event and explicitly stop bubbling:
+
+onClick={(e) => {
+  e.stopPropagation();
+  openDuplicateModal(routine);
+}}              dark:bg-red-900/30
               dark:border-red-800
               dark:text-red-300
             "
