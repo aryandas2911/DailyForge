@@ -199,12 +199,6 @@ export default function RoutineBuilder() {
   tasks={tasks}
   onAddTask={() => setIsModalOpen(true)}
 />
-            {/*
-             * TaskLibrary's "Add Task" button opens the modal directly
-             * (user is already at the top section of the page, no scroll needed).
-             * Use openModal instead of handleOpenModal here.
-             */}
-            <TaskLibrary onAddTask={openModal} />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
