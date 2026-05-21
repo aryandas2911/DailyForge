@@ -3,10 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 
-export default function TaskPreview({ tasks , updateTask}) {
+export default function TaskPreview({ tasks, mood = "normal", updateTask }) {
   const navigate = useNavigate();
 
   const [now, setNow] = useState(new Date());
+
+  const moodFilter = (task) => {
+    if (!task) return false;
+    if (mood === "tired") return task.priority === "Low";
+    if (mood === "focused") return task.priority === "High";
+    if (mood === "relaxed") return task.priority !== "High";
+    return true;
+  };
+
+  const filteredTasks = tasks?.filter(moodFilter) ?? [];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,9 +42,9 @@ export default function TaskPreview({ tasks , updateTask}) {
     <div className="card w-full">
       <h2 className="text-lg font-semibold text-main mb-4">Upcoming Tasks</h2>
 
-      {tasks?.length ? (
+      {filteredTasks?.length ? (
         <div className="space-y-3">
-          {tasks.map((task) => {
+          {filteredTasks.map((task) => {
 
               {/*Calculate remaining time */}
               const remainingTime = new Date(task.dueDate) - now;

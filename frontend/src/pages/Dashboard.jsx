@@ -44,6 +44,33 @@ export default function Dashboard() {
       Math.floor(Math.random() * motivationalQuotes.length)
     ];
   });
+
+  const [mood, setMood] = useState("normal");
+  const moodOptions = [
+    { id: "normal", label: "Normal", emoji: "🙂" },
+    { id: "tired", label: "Tired", emoji: "😴" },
+    { id: "focused", label: "Focused", emoji: "🔥" },
+    { id: "relaxed", label: "Relaxed", emoji: "🧘" },
+  ];
+
+  const moodMessages = {
+    normal: "Showing all tasks so you can keep your flow.",
+    tired: "You’re tired — only easy tasks are shown.",
+    focused: "You’re focused — high-priority work is ready.",
+    relaxed: "Take it easy — moderate tasks are recommended.",
+  };
+
+  const moodFilter = (task) => {
+    if (!task) return false;
+    if (mood === "tired") return task.priority === "Low";
+    if (mood === "focused") return task.priority === "High";
+    if (mood === "relaxed") return task.priority !== "High";
+    return true;
+  };
+
+  const combinedTasks = [...tasks, ...routineTasks];
+  const moodFilteredTasks = combinedTasks.filter(moodFilter);
+
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
@@ -168,6 +195,36 @@ const handleDuplicateRoutine = async () => {
 </div>
       </header>
 
+      {/* Mood Selector */}
+      <section className="card animate-in delay-150 p-4 shadow-sm bg-white/80 dark:bg-slate-900/80">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-main">Pick a mood</h2>
+            <p className="text-sm text-muted mt-1">Select how you feel and DailyForge will highlight the best tasks for you.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {moodOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setMood(option.id)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 ${
+                  mood === option.id
+                    ? "bg-(--primary) text-white shadow-sm"
+                    : "bg-slate-100 text-main hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                <span className="mr-2">{option.emoji}</span>
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-sm text-muted mt-4">{moodMessages[mood]}</p>
+      </section>
+
       {/* Stats Row */}
       <section className="flex flex-col lg:flex-row gap-6 w-full">
         <div className="flex-1 animate-in delay-100">
@@ -191,8 +248,9 @@ const handleDuplicateRoutine = async () => {
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
         <DashboardTasks
-            tasks={[...tasks, ...routineTasks]}
-            updateTask={updateTask}
+          tasks={moodFilteredTasks}
+          mood={mood}
+          updateTask={updateTask}
         />
       </div>
 
@@ -201,7 +259,8 @@ const handleDuplicateRoutine = async () => {
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
           <TaskPreview
-            tasks={upcomingTasks}
+            tasks={upcomingTasks.filter(moodFilter)}
+            mood={mood}
             updateTask={updateTask}
           />
         </div>

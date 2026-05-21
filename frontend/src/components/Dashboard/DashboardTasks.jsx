@@ -2,13 +2,28 @@ import { useNavigate } from "react-router-dom";
 import { Plus, ArrowRight, CheckCircle2 } from "lucide-react";
 
 
-export default function DashboardTasks({ tasks, updateTask }) {
+export default function DashboardTasks({ tasks, mood = "normal", updateTask }) {
   const navigate = useNavigate();
 
   const priorityOrder = {
     High: 3,
     Medium: 2,
     Low: 1,
+  };
+
+  const moodLabel = {
+    normal: "Today’s Focus",
+    tired: "Easy Tasks",
+    focused: "High Priority",
+    relaxed: "Relaxed Tasks",
+  };
+
+  const moodFilter = (task) => {
+    if (!task) return false;
+    if (mood === "tired") return task.priority === "Low";
+    if (mood === "focused") return task.priority === "High";
+    if (mood === "relaxed") return task.priority !== "High";
+    return true;
   };
 
   const priorityBorder = {
@@ -28,6 +43,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
   const todayTasks = tasks
     ?.filter((task) => {
       if (!task.dueDate) return false;
+      if (!moodFilter(task)) return false;
       const due = new Date(task.dueDate);
       return today.toDateString() === due.toDateString();
     })
@@ -37,7 +53,11 @@ export default function DashboardTasks({ tasks, updateTask }) {
   return (
     <div className="card w-full">
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
+        <div>
+          <h2 className="text-lg font-semibold text-main">{moodLabel[mood] || "Today’s Focus"}</h2>
+          <p className="text-xs text-muted">Top priorities that match your current mood.</p>
+        </div>
         <div>
           <h2 className="text-lg font-semibold text-main">Today’s Focus</h2>
           <p className="text-xs text-muted">Top priorities for today</p>
