@@ -21,6 +21,14 @@ export const createRoutine = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please enter required details" });
     }
+    // check if routine with same name already exists for this user
+    const existingRoutine = await Routine.findOne({ userId, name });
+    if (existingRoutine) {
+      return res.status(400).json({
+        success: false,
+        message: "A routine with this name already exists",
+      });
+    }
 
     // calculate endtime for each task
     const formatted = [];
@@ -78,13 +86,12 @@ export const createRoutine = async (req, res) => {
     // save routine in collection
     await newRoutine.save();
     
-    //Spotted Bug - Bundled newRoutine into the response object-->
     return res
-      .status(200)
+      .status(201)
       .json({ 
         success: true, 
         message: "Routine added successfully", 
-        routine: newRoutine 
+        routine: newRoutine.toObject() 
       });
   } catch (error) {
     // error handling
@@ -112,7 +119,7 @@ export const getRoutines = async (req, res) => {
       createdAt: -1,
     });
     if (routines.length == 0) {
-      return res.status(400).json({ message: "User has no routine", success: false });
+      return res.status(200).json({ success: true, routines: [] });
     }
     return res.status(200).json({ success: true, routines });
   } catch (error) {
@@ -241,6 +248,14 @@ export const updateRoutine = async (req, res) => {
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
+        // check duration greater than 10 mins
+        if (!item.duration || item.duration < 10) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task duration must be at least 10 minutes",
+          });
+        }
+
         const endTime = item.startTime + item.duration;
         formatted.push({
           day: item.day,
@@ -287,8 +302,9 @@ export const updateRoutine = async (req, res) => {
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Routine updated successfully",
-      routine: updatedRoutine,
+      routine: updatedRoutine.toObject(),
     });
   } catch (error) {
     // error handling
