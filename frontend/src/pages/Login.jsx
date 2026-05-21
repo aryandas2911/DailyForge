@@ -424,6 +424,9 @@ const Login = () => {
               bg-red-500/10
               border-red-500/20
               text-red-500
+              dark:bg-red-900/30
+              dark:border-red-800
+              dark:text-red-300
             "
           >
             {error}
