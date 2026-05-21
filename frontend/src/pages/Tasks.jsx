@@ -6,6 +6,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import NotesWidget from "../components/Task/NotesWidget";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -226,20 +227,11 @@ export default function Tasks() {
                 Completion
               </h3>
 
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                {completionPercent > 0 && (
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                    style={{ width: `${completionPercent}%` }}
-                  />
-                )}
-
               <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
                   style={{ width: `${completionPercent}%` }}
                 />
-
               </div>
               <p className="text-xs text-muted mt-1">
                 {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
@@ -299,6 +291,9 @@ export default function Tasks() {
                   : "You're pacing this well."}
               </p>
             </div>
+
+            {/* Notes Widget */}
+            <NotesWidget />
           </div>
         </div>
       </div>
@@ -317,6 +312,5 @@ export default function Tasks() {
         />
       )}
     </div>
-    </div>
-);
+  );
 }
