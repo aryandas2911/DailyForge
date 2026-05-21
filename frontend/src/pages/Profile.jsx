@@ -10,6 +10,8 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   // update name handler
   const handleNameUpdate = async (e) => {
@@ -32,6 +34,17 @@ const Profile = () => {
   // update password handler
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+    setPasswordError('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match. Please try again.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters long.');
+      return;
+    }
 
     try {
       const res = await api.patch('/auth/profile', {
@@ -44,8 +57,10 @@ const Profile = () => {
       // clear password fields
       setCurrentPassword('');
       setNewPassword('');
+      setConfirmPassword('');
+      setPasswordError('');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update password');
+      setPasswordError(error.response?.data?.message || 'Failed to update password');
     }
   };
 
@@ -212,6 +227,40 @@ const Profile = () => {
                   setNewPassword(e.target.value);
                 }}
                 placeholder="Enter new password"
+                required
+                className="
+              w-full px-3 py-2.5
+              text-sm
+              surface-bg
+              border-soft
+              rounded-sm
+              shadow-xs
+              input-focus hover-lift
+            "
+              />
+            </div>
+
+            {/* Error message */}
+            {passwordError && (
+              <p className="text-sm text-red-500 font-medium">{passwordError}</p>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-main"
+              >
+                Confirm New Password
+              </label>
+
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                }}
+                placeholder="Re-enter new password"
                 required
                 className="
               w-full px-3 py-2.5

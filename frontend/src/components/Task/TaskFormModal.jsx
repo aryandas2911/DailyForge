@@ -12,7 +12,9 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState('');
+  const [dueHours, setDueHours] = useState('12');
+  const [dueMinutes, setDueMinutes] = useState('00');
 
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [customTagInput, setCustomTagInput] = useState("");
@@ -43,12 +45,12 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setPriority(task.priority || "Low");
       setDueDate(
         task.dueDate
-        ? new Date(task.dueDate)
-        .toLocaleString("sv-SE")
-        .replace(" ", "T")
-        .slice(0, 16)
-        : ""
+        ? new Date(task.dueDate).toISOString().slice(0, 10)
+        : ''
       );
+      const d = task.dueDate ? new Date(task.dueDate) : null;
+      setDueHours(d ? String(d.getHours()).padStart(2, '0') : '12');
+      setDueMinutes(d ? String(d.getMinutes()).padStart(2, '00') : '00');
       /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
@@ -94,11 +96,15 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (!task && dueDate < todayStr) {
+    const fullDueDate = dueDate
+      ? `${dueDate}T${String(dueHours).padStart(2, '0')}:${String(dueMinutes).padStart(2, '0')}`
+      : '';
+
+    if (!task && fullDueDate < todayStr) {
        return alert("Due date cannot be in the past");
     }
 
-    if (dueDate > maxDateStr) {
+    if (fullDueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
 
@@ -108,7 +114,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   tags,
   priority,
   status: "Due",
-  dueDate,
+  dueDate: fullDueDate,
 });
   };
 
@@ -314,17 +320,55 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           <div>
             <label className="text-sm font-medium text-main">Due Date</label>
             <input
-  type="datetime-local"
-  value={dueDate}
-  min={task ? undefined : todayStr}
-  max={maxDateStr}
-  onChange={(e) => setDueDate(e.target.value)}
-  onClick={(e) => e.target.showPicker?.()}
-  className="w-full mt-1 p-2 border border-soft rounded-lg
-             focus:ring-(--primary) focus:border-(--primary)
-             bg-transparent text-main"
-  required
-/>
+              type="date"
+              value={dueDate}
+              min={task ? undefined : todayStr}
+              max={maxDateStr}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full mt-1 p-2 border border-soft rounded-lg
+                         focus:ring-(--primary) focus:border-(--primary)
+                         bg-transparent text-main"
+              required
+            />
+          </div>
+
+          {/* Due Time */}
+          <div>
+            <label className="text-sm font-medium text-main">Due Time</label>
+            <div className="flex items-end gap-3 mt-1">
+              <div className="flex flex-col gap-1 flex-1">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wide">Hours</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={dueHours}
+                  onChange={(e) => setDueHours(String(e.target.value).padStart(2, '0'))}
+                  className="p-2 border border-soft rounded-lg text-center
+                             focus:ring-(--primary) focus:border-(--primary)
+                             bg-transparent text-main"
+                  placeholder="HH"
+                  required
+                />
+              </div>
+              <span className="text-main font-bold text-lg pb-2">:</span>
+              <div className="flex flex-col gap-1 flex-1">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wide">Minutes</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={dueMinutes}
+                  onChange={(e) => setDueMinutes(String(e.target.value).padStart(2, '0'))}
+                  className="p-2 border border-soft rounded-lg text-center
+                             focus:ring-(--primary) focus:border-(--primary)
+                             bg-transparent text-main"
+                  placeholder="MM"
+                  required
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted mt-1">24-hour format (e.g. 14:30 for 2:30 PM)</p>
           </div>
 
           {/* Submit Button */}
