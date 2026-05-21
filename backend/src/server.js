@@ -18,9 +18,12 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN 
-      ? process.env.CLIENT_ORIGIN.split(",") 
-      : ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: [
+      "https://dailyforge-frontend-lhjq.onrender.com",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      process.env.CLIENT_ORIGIN,
+    ].filter(Boolean), 
     credentials: true,
   })
 );
