@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 
 const STEPS = [
   {
@@ -39,13 +39,12 @@ const STEPS = [
 ];
 
 const OnboardingModal = () => {
-  const [visible, setVisible] = useState(false);
+  
   const [step, setStep] = useState(0);
 
-  useEffect(() => {
-    const seen = localStorage.getItem("hasSeenOnboarding");
-    if (!seen) setVisible(true);
-  }, []);
+  const [visible, setVisible] = useState(
+  !localStorage.getItem("hasSeenOnboarding")
+);
 
   const finish = () => {
     localStorage.setItem("hasSeenOnboarding", "true");
