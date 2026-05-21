@@ -140,7 +140,11 @@ const handleLogoutClick = () => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo Section with Hover Animation */}
-          <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+          <Link
+            to={user ? "/dashboard" : "/login"}
+            className="flex items-center gap-2 group focus:outline-none"
+            aria-label="Go to DailyForge homepage"
+          >
             <motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
