@@ -16,9 +16,30 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    await api.post("/tasks", taskData);
-    getTasks();
-  };
+  try {
+    const response = await api.post("/tasks", taskData);
+
+    console.log("Task added:", response.data);
+
+    // instantly update UI
+    setTasks((prev) => [response.data.newTask, ...prev]);
+
+  } catch (error) {
+
+    console.log("FULL ERROR:", error);
+
+    console.log(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error.message
+    );
+
+    alert(
+      error?.response?.data?.message ||
+      "Failed to create task"
+    );
+  }
+};
 
   // update task
   const updateTask = async (id, updates) => {

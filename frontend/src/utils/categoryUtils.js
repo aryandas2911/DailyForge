@@ -6,6 +6,9 @@ export const CATEGORIES = [
   { name: 'Learning', color: '#f59e0b', bgColor: '#fef3c7' },  // Amber
   { name: 'Finance', color: '#ef4444', bgColor: '#fee2e2' },   // Red
   { name: 'Shopping', color: '#ec4899', bgColor: '#fce7f3' },  // Pink
+  { name: 'Homework', color: '#0ea5a4', bgColor: '#dbeff0' },  // Teal
+  { name: 'Routine', color: '#7c3aed', bgColor: '#efe7ff' },   // Violet
+  { name: 'Creative', color: '#f97316', bgColor: '#fff4e6' },  // Orange
   { name: 'Other', color: '#6b7280', bgColor: '#f3f4f6' },     // Gray
 ];
 
