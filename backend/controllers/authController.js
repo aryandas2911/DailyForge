@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
 // sign up function
 export const signup = async (req, res) => {
