@@ -2,10 +2,9 @@ import axios from "axios";
 
 // create axios instance
 const api = axios.create({
-  baseURL: "https://dailyforge-backend.onrender.com/api/",
-  timeout: 2000,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api/",
+  timeout: 10000,
 });
-
 // attach jwt automatically with each request
 api.interceptors.request.use((config) => {
   try {
