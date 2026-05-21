@@ -75,6 +75,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      completedAt: status === "Completed" ? new Date() : null,
     });
 
     // save task in database
@@ -152,6 +153,13 @@ export const updateTask = async (req, res) => {
 
     // fetch update task details
     const updates = req.body;
+
+    // Auto-manage completedAt timestamp based on status change
+    if (updates.status === "Completed") {
+      updates.completedAt = new Date();
+    } else if (updates.status === "Due") {
+      updates.completedAt = null;
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
