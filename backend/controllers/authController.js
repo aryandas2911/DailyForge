@@ -3,11 +3,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
 // sign up function
 export const signup = async (req, res) => {
   try {
-    // fetch values from request
     const { name, email, password } = req.body;
 
     if (!name || name.trim().length < 2) {
@@ -29,18 +30,8 @@ export const signup = async (req, res) => {
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
-
-    // hashing the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // create new user document
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    // save the new user in database
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
     // generate token using jwt
@@ -64,32 +55,28 @@ export const signup = async (req, res) => {
   }
 };
 
-// login function
+// login function — now handles 2FA
 export const login = async (req, res) => {
   try {
-    // fetch user data from request
     const { email, password } = req.body;
-
-    // check if email and password exist in request
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: 'Email and password are required' });
     }
-
-    // check if user exists or not
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
-
-    // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
       return res.status(401).json({ message: 'Password does not match' });
     }
+    // If 2FA enabled, don't issue token yet
+    if (user.twoFactorEnabled) {
+      return res.status(200).json({ requires2FA: true, tempUserId: user._id });
+    }
 
-    // generate jwt token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '24h',
     });
@@ -110,7 +97,79 @@ export const login = async (req, res) => {
   }
 };
 
-// access user details function
+// Complete login with TOTP code
+export const loginWith2FA = async (req, res) => {
+  try {
+    const { tempUserId, token } = req.body;
+    const user = await User.findById(tempUserId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token,
+      window: 1,
+    });
+    if (!verified) return res.status(401).json({ message: "Invalid 2FA code" });
+
+    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    });
+    return res.status(200).json({ message: "Login successful", token: jwtToken });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error during 2FA login" });
+  }
+};
+
+// Generate secret and QR code
+export const setup2FA = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    const secret = speakeasy.generateSecret({ name: `DailyForge (${user.email})` });
+    await User.findByIdAndUpdate(req.userId, { twoFactorTempSecret: secret.base32 });
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+    return res.status(200).json({ qrCodeUrl, secret: secret.base32 });
+  } catch (error) {
+    return res.status(500).json({ message: "Error setting up 2FA" });
+  }
+};
+
+// Verify TOTP and enable 2FA
+export const verify2FA = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const user = await User.findById(req.userId);
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorTempSecret,
+      encoding: "base32",
+      token,
+    });
+    if (!verified) return res.status(400).json({ message: "Invalid code" });
+    await User.findByIdAndUpdate(req.userId, {
+      twoFactorSecret: user.twoFactorTempSecret,
+      twoFactorEnabled: true,
+      twoFactorTempSecret: null,
+    });
+    return res.status(200).json({ message: "2FA enabled successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Error verifying 2FA" });
+  }
+};
+
+// Disable 2FA
+export const disable2FA = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.userId, {
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+    });
+    return res.status(200).json({ message: "2FA disabled" });
+  } catch (error) {
+    return res.status(500).json({ message: "Error disabling 2FA" });
+  }
+};
+
+// Get user
 export const getUser = async (req, res) => {
   try {
     // fetch user data from request
