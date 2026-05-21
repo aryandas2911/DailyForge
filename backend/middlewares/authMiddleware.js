@@ -18,21 +18,31 @@ export const authMiddleware = (req, res, next) => {
     next();
 
   } catch (error) {
-    // error handling
-    console.log("Token verification error", error);
+  // error handling
+  console.log("Token verification error", error);
 
-    // expired token
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Session expired, please log in again",
-      });
-    }
-
-    // invalid/tampered token
+  // expired token
+  if (error.name === "TokenExpiredError") {
     return res.status(401).json({
       success: false,
-      message: "Token invalid",
+      message: "Session expired, please log in again",
+    });
+
+  // invalid/tampered token
+  } else if (error.name === "JsonWebTokenError") {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+
+  // unexpected server error
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
+}
+
+
 };
