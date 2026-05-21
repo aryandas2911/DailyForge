@@ -91,7 +91,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
   };
 
   return (
-    <div ref={cardRef} className="card w-full border border-[#334155] dark:border-slate-800 bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
+    <div ref={cardRef} className="card w-full border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
       
       {/* Background radial soft light for aesthetic premium look */}
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#14b8a6]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -191,14 +191,14 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <span className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">
               <Activity size={18} />
             </span>
-            <h2 className="text-lg font-bold text-slate-100 uppercase tracking-wide">
+            <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
               Productivity Contribution
             </h2>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
               Live Tracker
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mt-1">
             Tracking real routines & task completions from your live daily workflow.
           </p>
         </div>
@@ -208,58 +208,58 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
         
         {/* Current Streak */}
-        <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
+        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
           <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:scale-110 transition-transform duration-200">
             <Flame size={20} className="animate-pulse" />
           </div>
           <div>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Current Streak</p>
-            <h3 className="text-xl font-extrabold text-slate-100 mt-0.5">
-              {stats.currentStreak} <span className="text-xs font-medium text-slate-400">days</span>
+            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Current Streak</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+              {stats.currentStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] text-slate-400 mt-0.5">Keep the fire burning!</p>
+            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
           </div>
         </div>
 
         {/* Longest Streak */}
-        <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
+        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
           <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-400 group-hover:scale-110 transition-transform duration-200">
             <Trophy size={20} />
           </div>
           <div>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Longest Streak</p>
-            <h3 className="text-xl font-extrabold text-slate-100 mt-0.5">
-              {stats.longestStreak} <span className="text-xs font-medium text-slate-400">days</span>
+            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Longest Streak</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+              {stats.longestStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] text-slate-400 mt-0.5">Your peak productivity</p>
+            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Your peak productivity</p>
           </div>
         </div>
 
         {/* Total Productive Days */}
-        <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
+        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
           <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400 group-hover:scale-110 transition-transform duration-200">
             <CheckSquare size={20} />
           </div>
           <div>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Productive Days</p>
-            <h3 className="text-xl font-extrabold text-slate-100 mt-0.5">
-              {stats.totalProductiveDays} <span className="text-xs font-medium text-slate-400">days</span>
+            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Productive Days</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+              {stats.totalProductiveDays} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] text-slate-400 mt-0.5">Days with active completions</p>
+            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Days with active completions</p>
           </div>
         </div>
 
         {/* Yearly Productivity Average */}
-        <div className="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
+        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
           <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform duration-200">
             <Percent size={20} />
           </div>
           <div>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Day-wise Completion</p>
-            <h3 className="text-xl font-extrabold text-slate-100 mt-0.5">
+            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Day-wise Completion</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.yearlyPercentage}%
             </h3>
-            <p className="text-[9px] text-slate-400 mt-0.5">Average daily task completion rate</p>
+            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
           </div>
         </div>
       </div>
@@ -269,21 +269,21 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
         
         {/* Loaded Heatmap Display */}
         <div 
-          className="w-full bg-slate-950/20 border border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
+          className="w-full bg-slate-200/30 dark:bg-slate-950/20 border border-slate-300/80 dark:border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
           ref={gridContainerRef}
         >
           {/* Inner Wrapper containing relative position for absolute elements */}
           <div className="min-w-[760px] pb-2 relative">
 
               {/* Grid Header Month Labels */}
-              <div className="grid grid-cols-[30px_1fr] gap-1 text-[10px] font-semibold text-slate-500 mb-2.5 h-4 select-none relative">
+              <div className="grid grid-cols-[30px_1fr] gap-1 text-[10px] font-extrabold text-slate-700 dark:text-slate-400 mb-2.5 h-4 select-none relative">
                 <div /> {/* spacing for weekday column */}
                 <div className="grid grid-cols-53 gap-[3.5px] relative">
                   {monthLabels.map((lbl, idx) => (
                     <span
                       key={idx}
                       style={{ gridColumnStart: lbl.colIndex + 1 }}
-                      className="absolute transform text-slate-400/80 font-bold uppercase tracking-wider"
+                      className="absolute transform text-slate-800 dark:text-slate-400 font-extrabold uppercase tracking-wider"
                     >
                       {lbl.name}
                     </span>
@@ -295,7 +295,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               <div className="grid grid-cols-[30px_1fr] gap-1 items-start">
                 
                 {/* Weekday Column */}
-                <div className="grid grid-rows-7 h-[112px] gap-[3.5px] items-center text-[9px] font-bold text-slate-500/80 uppercase select-none pt-0.5">
+                <div className="grid grid-rows-7 h-[112px] gap-[3.5px] items-center text-[9px] font-extrabold text-slate-800/90 dark:text-slate-400 uppercase select-none pt-0.5">
                   <span aria-hidden="true" className="h-3 text-right pr-1"></span>
                   <span className="h-3 text-right pr-1">Mon</span>
                   <span aria-hidden="true" className="h-3 text-right pr-1"></span>
@@ -378,15 +378,15 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       </div>
 
       {/* Grid Legend & Instructions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs text-slate-400 border-t border-slate-800/80 pt-4 z-10 relative">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold text-slate-700 dark:text-slate-400 border-t border-slate-300 dark:border-slate-800/80 pt-4 z-10 relative">
         <div className="flex items-center gap-1">
-          <HelpCircle size={13} className="text-slate-500" />
+          <HelpCircle size={13} className="text-slate-700 dark:text-slate-500" />
           <span>Hover / Focus cells for details. Hover legend intensities to filter.</span>
         </div>
         
         {/* Interactive Legend Scale */}
         <div className="flex items-center gap-2.5">
-          <span className="text-[10px] text-slate-500 font-bold uppercase select-none">Less</span>
+          <span className="text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">Less</span>
           <div className="flex gap-[3.5px] items-center">
             {[0, 1, 2, 3].map((score) => {
               const details = getProductivityColorDetails(score);
@@ -410,7 +410,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               );
             })}
           </div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase select-none">More</span>
+          <span className="text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">More</span>
         </div>
       </div>
 

@@ -340,7 +340,7 @@ export function getProductivityColorDetails(score) {
     default:
       return {
         color: "#1e293b",
-        bgClass: "bg-slate-800 dark:bg-slate-800/60",
+        bgClass: "bg-slate-300 dark:bg-slate-800/60",
         textClass: "text-slate-400",
         glowClass: "",
         label: "Inactive (0 tasks)",
