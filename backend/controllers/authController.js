@@ -49,14 +49,23 @@ export const signup = async (req, res) => {
     });
 
     return res
-      .status(201)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({ message: 'User registered successfully' });
+  .status(201)
+  .cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production"
+      ? "none"
+      : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+  .json({
+    message: "User registered successfully",
+    user: {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+    },
+  });
   } catch (error) {
     // error handling
     console.error('Signup error:', error);
@@ -102,7 +111,24 @@ export const login = async (req, res) => {
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000,
       })
-      .json({ message: 'Login successful' });
+      .json({ message: 'Login successful' });return res
+  .status(200)
+  .cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production"
+      ? "none"
+      : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+  .json({
+    message: "Login successful",
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    },
+  });
   } catch (error) {
     // error handling
     console.log('Login error: ', error);

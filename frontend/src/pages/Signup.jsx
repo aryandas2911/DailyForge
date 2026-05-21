@@ -97,19 +97,19 @@ const Signup = () => {
     try {
       localStorage.removeItem("token");
 
-      const res = await api.post("/auth/signup", {
-        name,
-        email,
-        password,
-      });
-      console.log("Signup success: ", res.data);
+     const res = await api.post("/auth/signup", {
+  name,
+  email,
+  password,
+});
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+console.log("Signup success: ", res.data);
 
-      // redirect to dashboard
-      navigate("/dashboard");
+// directly use returned user object
+setUser(res.data.user);
+
+// redirect to dashboard
+navigate("/dashboard");
     } catch (error) {
       console.log("Signup failed");
 

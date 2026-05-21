@@ -88,17 +88,17 @@ const Login = () => {
       localStorage.removeItem("token");
 
       const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
-      console.log("Login success: ", res.data);
+  email,
+  password,
+});
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+console.log("Login success: ", res.data);
 
-      // redirect to the requested protected page
-      navigate(redirectPath, { replace: true });
+// directly use returned user object
+setUser(res.data.user);
+
+// redirect to the requested protected page
+navigate(redirectPath, { replace: true });
     } catch (error) {
       // handle error
       console.log("Login failed");
