@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -17,35 +18,39 @@ const Signup = () => {
 
   // submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
-    e.preventDefault();
+  // prevents page refresh
+  e.preventDefault();
 
-    // send request to server
-    try {
-      const res = await api.post("/auth/signup", {
-        name,
-        email,
-        password,
-      });
-      console.log("Signup success: ", res.data);
+  try {
+    // send signup request
+    const res = await api.post("/auth/signup", {
+      name,
+      email,
+      password,
+    });
 
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
+    // success notification
+    toast.success(res.data.message || "Signup successful");
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data);
+    // save token
+    localStorage.setItem("token", res.data.token);
+    setToken(res.data.token);
 
-      // redirect to dashboard
-      navigate("/dashboard");
-    } catch (error) {
-      // handle error
-      console.log("Signup failed");
-      console.log(error.response?.data || error.message);
-    }
-  };
+    // fetch user details
+    const me = await api.get("/auth/me");
+    setUser(me.data);
 
+    // redirect
+    navigate("/dashboard");
+  } catch (error) {
+    // error notification
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "Something went wrong"
+    );
+  }
+};
   // signup component
   return (
     <form

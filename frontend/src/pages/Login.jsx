@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -16,33 +17,38 @@ const Login = () => {
 
   // submit handler
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
-    e.preventDefault();
+  // prevents page from refreshing
+  e.preventDefault();
 
-    // send request to server
-    try {
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
-      console.log("Login success: ", res.data);
+  // send request to server
+  try {
+    const res = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
+    // success notification
+    toast.success(res.data.message || "Login successful");
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data);
+    // save token in localstorage for later api calls
+    localStorage.setItem("token", res.data.token);
+    setToken(res.data.token);
 
-      // redirect to dashboard
-      navigate("/dashboard");
-    } catch (error) {
-      // handle error
-      console.log("Login failed");
-      console.log(error.response?.data || error.message);
-    }
-  };
+    // get user details
+    const me = await api.get("/auth/me");
+    setUser(me.data);
+
+    // redirect to dashboard
+    navigate("/dashboard");
+  } catch (error) {
+    // error notification
+    toast.error(
+      error.response?.data?.message ||
+        error.message ||
+        "Something went wrong"
+    );
+  }
+};
 
   // login component
   return (
