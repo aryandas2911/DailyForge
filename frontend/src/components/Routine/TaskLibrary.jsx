@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import useTasks from "../../hooks/useTasks.js";
 import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
@@ -59,9 +58,8 @@ function DraggableTask({ task }) {
 }
 
 /* ---------------- Task Library ---------------- */
-export default function TaskLibrary({ onAddTask }) {
-  const { tasks } = useTasks();
-
+export default function TaskLibrary({ tasks, onAddTask }) {
+  
   const [query, setQuery] = useState("");
 
   const filteredTasks = tasks?.filter((task) =>
