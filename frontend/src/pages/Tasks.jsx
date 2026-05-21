@@ -3,20 +3,38 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
+import {
+  Plus,
+  ArrowLeft,
+  Filter,
+  Trash2,
+  RotateCcw,
+  X,
+  AlertTriangle,
+} from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
+  const {
+    tasks,
+    recentlyDeletedTasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    undoDelete,
+    clearUndo,
+    bulkDelete,
+  } = useTasks();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -24,9 +42,54 @@ export default function Tasks() {
     );
   };
 
+  const handleDelete = async (id) => {
+    const task = tasks.find((currentTask) => currentTask._id === id);
+    setDeleteConfirmation({
+      type: "single",
+      ids: [id],
+      title: task?.title || "this task",
+    });
+  };
+
   const handleBulkDelete = async () => {
-    await bulkDelete(selectedIds);
-    setSelectedIds([]);
+    setDeleteConfirmation({
+      type: "bulk",
+      ids: selectedIds,
+    });
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmation(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    try {
+      if (deleteConfirmation.type === "single") {
+        const [id] = deleteConfirmation.ids;
+        await deleteTask(id);
+        setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+      } else {
+        await bulkDelete(deleteConfirmation.ids);
+        setSelectedIds([]);
+      }
+
+      setDeleteConfirmation(null);
+    } catch (err) {
+      console.error(err);
+      setTaskError(err.message || "Failed to delete task");
+      setDeleteConfirmation(null);
+    }
+  };
+
+  const handleUndoDelete = async () => {
+    try {
+      await undoDelete();
+    } catch (err) {
+      console.error(err);
+      setTaskError(err.message || "Failed to undo deleted task");
+    }
   };
 
   const [durationModalTask, setDurationModalTask] = useState(null);
@@ -220,7 +283,7 @@ const handleActualDurationSubmit = async () => {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={handleDelete}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
@@ -313,6 +376,46 @@ const handleActualDurationSubmit = async () => {
         />
       )}
 
+      {deleteConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 animate-in">
+          <div className="w-full max-w-md rounded-2xl border border-soft bg-(--surface) p-6 shadow-xl animate-in delay-100">
+            <div className="flex items-start gap-4">
+              <div className="rounded-full bg-red-50 p-3 text-red-500 dark:bg-red-950/30">
+                <AlertTriangle size={22} />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-main">
+                  Delete task?
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  {deleteConfirmation.type === "single"
+                    ? `Are you sure you want to delete "${deleteConfirmation.title}"?`
+                    : `Are you sure you want to delete ${deleteConfirmation.ids.length} selected task${
+                        deleteConfirmation.ids.length === 1 ? "" : "s"
+                      }?`}
+                </p>
+              </div>
+              <button
+                onClick={closeDeleteConfirmation}
+                className="rounded-full p-1 text-main hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer"
+                aria-label="Close delete warning"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={closeDeleteConfirmation}
+                className="btn border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="btn bg-red-500 text-white hover:bg-red-600 active:scale-[0.97] cursor-pointer"
+              >
+                Delete
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
@@ -353,6 +456,29 @@ const handleActualDurationSubmit = async () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {recentlyDeletedTasks.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-3 rounded-lg border border-soft surface-bg px-4 py-3 shadow-lg">
+          <p className="flex-1 text-sm font-medium text-main">
+            {recentlyDeletedTasks.length === 1
+              ? "Task deleted."
+              : `${recentlyDeletedTasks.length} tasks deleted.`}
+          </p>
+          <button
+            onClick={handleUndoDelete}
+            className="btn btn-primary flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer"
+          >
+            <RotateCcw size={16} /> Undo
+          </button>
+          <button
+            onClick={clearUndo}
+            className="rounded-lg p-1.5 text-muted hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer"
+            aria-label="Dismiss undo"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
     </div>
