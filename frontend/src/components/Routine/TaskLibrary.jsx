@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import useTasks from "../../hooks/useTasks.js";
 import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
@@ -30,7 +29,7 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 dark:bg-slate-800/80 p-3
+      className="group flex items-center gap-3 rounded-xl border-soft bg-black/200 dark:bg-slate-800/80 p-3
                  cursor-grab active:cursor-grabbing
                  hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
       role="button"
@@ -59,9 +58,8 @@ function DraggableTask({ task }) {
 }
 
 /* ---------------- Task Library ---------------- */
-export default function TaskLibrary({ onAddTask }) {
-  const { tasks } = useTasks();
-
+export default function TaskLibrary({ tasks, onAddTask }) {
+  
   const [query, setQuery] = useState("");
 
   const filteredTasks = tasks?.filter((task) =>
@@ -73,22 +71,24 @@ export default function TaskLibrary({ onAddTask }) {
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-main">Task Library</h2>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-main">
-            {filteredTasks?.length ?? 0}
-          </span>
+          <h2 className="text-lg font-semibold text-gray-500">
+  Task Library
+</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-gray-500">
+  {filteredTasks?.length ?? 0}
+</span>
         </div>
         <p className="text-xs text-muted">Drag tasks into your week</p>
       </div>
 
       {/* Search */}
       <input
-        type="text"
-        placeholder="Search tasks…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-main"
-      />
+  type="text"
+  placeholder="Search tasks…"
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-500 placeholder:text-gray-500"
+/>
 
       {/* Task List */}
       <div className="flex-1 space-y-3 pr-1">
