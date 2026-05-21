@@ -27,6 +27,8 @@ const LoadingSpinner = () => (
 
 const Login = () => {
   const buttonRef = useRef(null);
+  const cardRef = useRef(null);
+
   // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,6 +44,30 @@ const Login = () => {
 
   // useContext for auth
   const { setUser } = useContext(AuthContext);
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+
+    card.style.transition = "transform 0.1s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    card.style.transition = "transform 0.4s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
+  };
 
   // Google Login popup-based handler
   const handleGoogleLogin = async () => {
@@ -87,14 +113,11 @@ const Login = () => {
 
     // send request to server
     try {
-      
-
       const res = await api.post("/auth/login", {
         email,
         password,
       });
       console.log("Login success: ", res.data);
-
 
       // Animate the button to fill the screen
       if (buttonRef.current) {
@@ -181,131 +204,163 @@ const Login = () => {
 
   // login component
   return (
-    <div className="flex flex-1 justify-center items-center min-h-[calc(100vh-64px)]">
-    <form
+    <div
       className="
-        surface-bg px-10 py-15 rounded-2xl
-        w-full max-w-sm
-        flex flex-col gap-6 animate-in
+        auth-page-bg
+        min-h-screen
+        w-full
+        flex
+        items-center
+        justify-center
+        px-6
+        py-10
+        overflow-hidden
+        relative
       "
-      onSubmit={handleSubmit}
     >
-      <div className="text-center space-y-1 mb-3">
-        <h1 className="text-3xl font-bold text-main">Login</h1>
-      </div>
+      {/* Glow blobs */}
+      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
+      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
+      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        disabled={isGoogleLoading || isSubmitLoading}
+      {/* Card */}
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         className="
-          flex items-center justify-center w-full px-4 py-2.5 
-          rounded-xl border border-soft text-sm font-medium
-          transition-all duration-200 hover-lift active:scale-[0.98]
-          bg-white text-slate-700 hover:bg-slate-50
-          dark:bg-slate-900/40 dark:text-slate-200 dark:hover:bg-slate-800/60
-          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+          relative
+          z-10
+          w-full
+          max-w-md
+          will-change-transform
+          transform-gpu
         "
       >
-        {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
-        {isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}
-      </button>
-
-      <div className="flex items-center my-0.5">
-        <div className="flex-1 border-t border-soft"></div>
-        <span className="px-3 text-xs uppercase tracking-wider text-muted font-semibold bg-transparent">
-          OR
-        </span>
-        <div className="flex-1 border-t border-soft"></div>
-      </div>
-
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="email" className="text-sm font-medium text-main">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
-          placeholder="user@email.com"
-          required
+        <form
           className="
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            border-soft
-            rounded-sm
-            shadow-xs
-            input-focus
-            hover-lift
+            surface-bg px-8 py-10 rounded-[30px]
+            w-full
+            flex flex-col gap-6 animate-in
+            border border-white/10
+            shadow-[0_20px_60px_rgba(0,0,0,0.7)]
           "
-        />
-      </div>
+          onSubmit={handleSubmit}
+        >
+          <div className="text-center space-y-1 mb-2">
+            <h1 className="text-3xl font-bold tracking-tight text-main">Welcome Back</h1>
+            <p className="text-sm text-muted">Login to continue your experience</p>
+          </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="password" className="text-sm font-medium text-main">
-          Password
-        </label>
-        <div className="relative">
-
-          <input
-            type={showPassword ? "text" : "password"}
-            id="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            placeholder="••••••••"
-            required
-            className="
-              w-full px-3 py-2.5 pr-10
-              text-sm
-              surface-bg
-              border-soft
-              rounded-base
-              shadow-xs
-              input-focus
-              hover-lift
-            "
-          />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            onClick={handleGoogleLogin}
+            disabled={isGoogleLoading || isSubmitLoading}
+            className="
+              flex items-center justify-center w-full px-4 py-3
+              rounded-2xl border border-soft text-sm font-medium
+              transition-all duration-200 hover-lift active:scale-[0.98]
+              bg-white text-slate-700 hover:bg-slate-50
+              dark:bg-slate-900/40 dark:text-slate-200 dark:hover:bg-slate-800/60
+              disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+            "
           >
-            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+            {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
+            {isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}
           </button>
-        </div>
-      </div>
-      {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600 dark:bg-red-950/20 dark:border-red-900/50 dark:text-red-400">
-          {error}
-        </div>
-      )}
-      <button
-        ref={buttonRef}
-        type="submit"
-        disabled={isGoogleLoading || isSubmitLoading}
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isSubmitLoading ? "Logging in..." : "Login"}
-      </button>
 
-      <p className="text-center text-sm text-muted">
-        Don't have an account?{" "}
-        <Link
-          to="/signup"
-          className="text-main font-medium cursor-pointer hover:underline transition-colors"
-        >
-          Sign up
-        </Link>
-      </p>
-    </form>
+          <div className="flex items-center my-0.5">
+            <div className="flex-1 border-t border-soft"></div>
+            <span className="px-3 text-xs uppercase tracking-wider text-muted font-semibold bg-transparent">
+              OR
+            </span>
+            <div className="flex-1 border-t border-soft"></div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-main">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@email.com"
+              required
+              className="
+                w-full px-4 py-3
+                text-sm
+                surface-bg
+                border-soft
+                rounded-2xl
+                shadow-xs
+                input-focus
+                hover-lift
+              "
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-main">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="
+                  w-full px-4 py-3 pr-11
+                  text-sm
+                  surface-bg
+                  border-soft
+                  rounded-2xl
+                  shadow-xs
+                  input-focus
+                  hover-lift
+                "
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+          
+          {error && (
+            <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm text-red-500">
+              {error}
+            </div>
+          )}
+          
+          <button
+            ref={buttonRef}
+            type="submit"
+            disabled={isGoogleLoading || isSubmitLoading}
+            className="btn btn-primary cursor-pointer w-full py-3 mt-1 hover-lift disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
+          >
+            {isSubmitLoading ? "Logging in..." : "Login"}
+          </button>
+
+          <p className="text-center text-sm text-muted">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              className="text-main font-semibold cursor-pointer hover:underline transition-colors"
+            >
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };
