@@ -1,25 +1,8 @@
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
-  // access the authorization header from the request
-  const authHeader = req.header("Authorization");
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: "Authorization error, token not present",
-    });
-  }
-
-  // check Bearer format
-  if (!authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Token format invalid. Use: Bearer <token>",
-    });
-  }
-
-  // access token from authorization header
-  const token = authHeader.split(" ")[1];
+  // access the token from cookies
+  const token = req.cookies?.token;
   if (!token) {
     return res
       .status(401)
@@ -38,14 +21,26 @@ export const authMiddleware = (req, res, next) => {
   try {
     // verify token using jwt key
     const verify = jwt.verify(token, process.env.JWT_SECRET);
-    // attach payload userid to request body
-    req.userId = verify.userId;
+
+    // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
+    req.userId = verify.id || verify.userId;
     next();
   } catch (error) {
-    console.log("Token verification error", error.message);
+    // error handling
+    console.log("Token verification error", error);
+
+    // expired token
     if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ success: false, message: "Token expired, please login again" });
+      return res.status(401).json({
+        success: false,
+        message: "Session expired, please log in again",
+      });
     }
-    return res.status(401).json({ success: false, message: "Token invalid" });
+
+    // invalid/tampered token
+    return res.status(401).json({
+      success: false,
+      message: "Token invalid",
+    });
   }
 };

@@ -16,6 +16,26 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🚀 Project Overview](#-project-overview)
+- [🌐 Live Demo](#-live-demo)
+- [✨ Features](#-features)
+- [🏗 Tech Stack](#-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [⚡ Quick Start](#-quick-start)
+- [🔐 Environment Variables](#-environment-variables)
+- [🌐 Google Authentication Setup](#-google-authentication-setup)
+- [❓ FAQ](#-faq)
+- [🛠 Troubleshooting](#-troubleshooting)
+- [🤝 Contribution Guidelines](#-contribution-guidelines)
+- [🏷 Issue Guidelines](#-issue-guidelines)
+- [📸 Screenshots](#-screenshots)
+- [📬 Getting Help](#-getting-help)
+- [📬 Contact & Community](#-contact--community)
+
+---
+
 ## 🚀 Project Overview
 
 Most productivity tools are either too bloated or too simple. **DailyForge** is a no-nonsense weekly planner that gives you total control over your schedule — built by students, for students and professionals alike.
@@ -182,14 +202,18 @@ cd backend
 npm install
 ```
 
-**Create your `.env` file** (see the [Environment Variables](#-environment-variables) section below):
+**Create your `.env` file from the given template** (see the [Environment Variables](#-environment-variables) section below):
 
 ```bash
 # Inside the /backend directory
-cp .env.example .env   # or manually create .env
+
+cp .env.example .env   
 ```
 
 Then fill in your values (see the next section for what each variable means).
+ 
+> ⚠️ **Local dev note:** The backend CORS origin is already configured for both the deployed frontend (`https://dailyforge-frontend-lhjq.onrender.com`) and local development (`http://localhost:5173`) in `backend/src/server.js`. No changes are needed for local development.
+
 
 **Start the backend dev server:**
 
@@ -210,7 +234,7 @@ cd frontend
 npm install
 ```
 
-> ⚠️ **Local dev note:** The frontend base URL is hardcoded in `frontend/src/api/axios.js` to point at the deployed backend. To test against your local backend, temporarily change `baseURL` in that file to `http://localhost:5000/api/`.
+> 💡 **Local dev note:** To point the frontend to your local backend, copy `frontend/.env.example` to `frontend/.env` and ensure `VITE_API_URL` is set to `http://localhost:5000/api`.
 
 **Start the frontend dev server:**
 
@@ -230,14 +254,16 @@ Open `http://localhost:5173`, sign up for an account, and start building your ro
 
 ## 🔐 Environment Variables
 
+
 ### Backend — `backend/.env`
 
-Create this file manually. **Never commit it to git.**
+Copy the provided template to get started. **Never commit the .env to git.**
 
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_super_secret_key_here
+#CLIENT_ORIGIN=your_deployed_frontend_url
 ```
 
 | Variable | Required | Description |
@@ -245,6 +271,7 @@ JWT_SECRET=your_super_secret_key_here
 | `PORT` | ✅ | Port on which the Express server runs (default: `5000`) |
 | `MONGO_URI` | ✅ | Full MongoDB Atlas connection string — get it from your Atlas cluster's "Connect" menu |
 | `JWT_SECRET` | ✅ | Secret key for signing JWTs — use any long, random string (e.g., `openssl rand -hex 32`) |
+| `CLIENT_ORIGIN` | ⬜ | *(Optional)* Allowed CORS origin for API requests. Set this to your production frontend URL (e.g., `https://dailyforge-frontend-lhjq.onrender.com`). If not set, it defaults to `http://localhost:5173` for local development. |
 
 **How to get `MONGO_URI`:**
 1. Log into [MongoDB Atlas](https://cloud.mongodb.com)
@@ -252,18 +279,203 @@ JWT_SECRET=your_super_secret_key_here
 3. Click **Connect** → **Connect your application** → Copy the connection string
 4. Replace `<password>` with your DB user's password
 
-### Frontend — No `.env` required
+### Frontend — `frontend/.env`
 
-The frontend has **no environment variables**. The API base URL is hardcoded in `frontend/src/api/axios.js`:
+Copy the provided `.env.example` to a new file named `.env`. 
 
-```js
-// frontend/src/api/axios.js
-const api = axios.create({
-  baseURL: "https://dailyforge-backend.onrender.com/api/",
-});
+
+**Running locally?** Update `VITE_API_URL` in your local `.env` file to `http://localhost:5000/api/`.
+
+---
+
+## 🛠️ Troubleshooting
+
+| Issue | Common Cause | Quick Fix |
+| :--- | :--- | :--- |
+| **CORS Errors** | `FRONTEND_URL` mismatch in backend `.env`. | Match it to your local frontend URL exactly (e.g., `http://localhost:5173`). Restart server. |
+| **Database Failures** | Incorrect credentials or IP restriction. | Replace `<password>` with your database user password. Whitelist `0.0.0.0/0` in Atlas Network Access. |
+| **Dependency Conflicts** | React 19 / Tailwind v4 version strictness. | Run `npm install --legacy-peer-deps` in both directories. |
+| **Glitchy Drag-and-Drop** | DOM-altering browser extensions. | Test the application in an **Incognito window**. |
+
+---
+
+## 🌐 Google Authentication Setup
+
+DailyForge supports Google Authentication via Firebase. Follow these steps to configure and enable Google Sign-In:
+
+### 1. Firebase Console Setup
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and click **Add project** to create a new project.
+2. Once the project is created, click the **Web icon (`</>`)** on the Project Overview page to register a new Web App.
+3. Copy the `firebaseConfig` object containing the API key, app ID, etc.
+4. Go to **Build** → **Authentication** in the left sidebar and click **Get Started**.
+5. Under the **Sign-in method** tab, click **Add new provider** and select **Google**.
+6. Enable the provider, configure your support email, and click **Save**.
+
+### 2. Environment Variables Configuration
+
+To enable the frontend and backend integration, copy the configuration values into your respective `.env` files:
+
+#### Frontend — `frontend/.env`
+Append your Firebase client configuration to your local `.env` file:
+```env
+# Firebase Client configuration
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
 ```
 
-**Running locally?** Change `baseURL` to `http://localhost:5000/api/` while developing, and revert before committing.
+#### Backend — `backend/.env`
+Add your Firebase Project ID to secure RS256 token verification:
+```env
+# Firebase verification configuration
+FIREBASE_PROJECT_ID=your_project_id
+```
+
+---
+
+## ❓ FAQ
+
+### Why is the app slow on first load?
+
+The project is deployed on Render’s free tier. Services may go to sleep after inactivity, so the first request can take around 30–60 seconds to respond.
+
+---
+
+### Which Node.js version should I use?
+
+Recommended versions:
+
+* Node.js `v18+`
+* npm `v9+`
+
+Check your installed versions:
+
+```bash
+node -v
+npm -v
+```
+
+---
+
+### Do I need MongoDB installed locally?
+
+No. DailyForge uses MongoDB Atlas, so you only need a free Atlas account and a valid connection string.
+
+---
+
+### Why am I getting CORS errors during local development?
+
+Make sure:
+
+* Backend CORS origin is set to:
+
+```js
+origin: "http://localhost:5173"
+```
+
+* Frontend `.env` contains:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+### Where should I add environment variables?
+
+Backend variables go inside:
+
+```bash
+/backend/.env
+```
+
+Frontend variables go inside:
+
+```bash
+/frontend/.env
+```
+---
+
+## 🛠 Troubleshooting
+
+### MongoDB Connection Error
+
+**Error Example**
+
+```bash
+MongooseServerSelectionError
+```
+
+**Possible Fixes**
+
+* Verify your `MONGO_URI`
+* Check your database username/password
+* Ensure your IP address is whitelisted in MongoDB Atlas
+
+---
+
+### Frontend Cannot Connect to Backend
+
+**Possible Causes**
+
+* Backend server is not running
+* Incorrect `VITE_API_URL`
+* Port mismatch
+
+**Fix**
+Ensure:
+
+```env 
+VITE_API_URL=http://localhost:5000/api
+```
+
+And confirm the backend is running on:
+
+```bash 
+http://localhost:5000
+```
+
+---
+
+### JWT Authentication Errors
+
+**Fix**
+
+* Ensure `JWT_SECRET` is present in `backend/.env`
+* Restart the backend server after updating environment variables
+
+---
+
+### Port Already in Use
+
+**Error Example**
+
+```bash 
+EADDRINUSE
+```
+
+**Fix**
+Stop the running process using the port or change the port value in `.env`.
+
+Example:
+
+```env 
+PORT=5001
+```
+
+---
+
+### Dependencies Not Installing Properly
+
+Try removing old dependencies and reinstalling:
+
+```bash 
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ---
 
@@ -320,8 +532,8 @@ We use labels to organize work. Here's what they mean:
 | `bug` | Something is broken or behaving incorrectly |
 | `feature` | New functionality to be added |
 | `documentation` | Improvements to README, guides, or inline comments |
-| `help wanted` | Maintainers need external input or hands | Experienced contributors |
-| `testing` | Adding or improving test coverage | Anyone comfortable with testing |
+| `help wanted` | Maintainers need external input or assistance |
+| `testing` | Adding or improving test coverage |
 
 **Tips for new contributors:**
 - Start with `good first issue` — they're designed to be approachable
@@ -335,17 +547,36 @@ We use labels to organize work. Here's what they mean:
 ### 🔐 Signup Page
 ![Signup Page](Screenshots/Signup.png)
 
-### 📊 Dashboard
+### 📊 Dashboard Overview
 ![Dashboard](Screenshots/Dashboard.png)
 
 ### 📋 Tasks Page
 ![Tasks Page](Screenshots/Tasks.png)
 
-### 🗓️ Routine Builder
+### 🗓️ Drag-and-Drop Routine Builder
 ![Routine Builder](Screenshots/Routine.png)
 
 ---
 
+## 📬 Getting Help
+
+Need help with setup or contributing?
+
+### You can:
+
+* Open a GitHub Issue
+* Comment on an existing issue for clarification
+* Contact the maintainer through the email provided below
+
+### Before asking for help:
+
+* Read the setup instructions carefully
+* Check the FAQ and Troubleshooting sections
+* Search existing GitHub issues first
+
+We welcome contributors of all experience levels 🚀
+
+---
 
 ## 📬 Contact & Community
 
