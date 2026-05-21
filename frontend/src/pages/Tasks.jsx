@@ -11,7 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
+import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 const TASKS_PER_PAGE = 10;
@@ -31,8 +31,11 @@ export default function Tasks() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [durationModalTask, setDurationModalTask] = useState(null);
+  const [actualDuration, setActualDuration] = useState("");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -46,13 +49,47 @@ export default function Tasks() {
   };
 
   /** --- Handlers --- */
-  const handleToggle = (task) => {
-    updateTask(task._id, {
-      status: task.status === "Completed" ? "Due" : "Completed",
-    });
+  const handleToggle = async (task) => {
+    try {
+      if (task.status !== "Completed") {
+        // Open modal to enter actual duration
+        setDurationModalTask(task);
+        setActualDuration("");
+      } else {
+        // Mark back to Due
+        await updateTask(task._id, {
+          status: "Due",
+          actualDuration: null,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
+
+  const handleActualDurationSubmit = async () => {
+    const durationValue = Number(actualDuration);
+
+    if (Number.isNaN(durationValue) || durationValue <= 0) {
+      alert("Please enter a valid duration in minutes");
+      return;
+    }
+
+    try {
+      await updateTask(durationModalTask._id, {
+        status: "Completed",
+        actualDuration: durationValue,
+      });
+
+      setDurationModalTask(null);
+      setActualDuration("");
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
   };
 
   const handleSubmit = async (data) => {
+    setTaskError("");
     try {
       if (editingTask) {
         await updateTask(editingTask._id, data);
@@ -63,7 +100,7 @@ export default function Tasks() {
       setIsModalOpen(false);
     } catch (err) {
       console.error(err);
-      alert("Failed to save task");
+      setTaskError(err.message || "Failed to save task");
     }
   };
 
@@ -75,7 +112,6 @@ export default function Tasks() {
     );
   };
 
-  /** --- Filtered Tasks --- */
   const filteredTasks =
     selectedCategories.length === 0
       ? tasks
@@ -84,7 +120,6 @@ export default function Tasks() {
             task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
         );
 
-  /** --- Insights --- */
   const pageTasks = filteredTasks.length;
   const totalTasks = pagination.totalTasks;
   const completedTasks = filteredTasks.filter(
@@ -107,7 +142,7 @@ export default function Tasks() {
     return due >= now && due <= threeDaysFromNow;
   });
 
-  const nextTask = tasks
+  const nextTask = filteredTasks
     .filter((task) => task.dueDate && task.status !== "Completed")
     .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
@@ -139,24 +174,26 @@ export default function Tasks() {
             </div>
           </div>
 
-          {selectedIds.length > 0 && (
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              </button>
+            )}
             <button
-              onClick={handleBulkDelete}
-              className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              onClick={() => {
+                setEditingTask(null);
+                setIsModalOpen(true);
+                setTaskError("");
+              }}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer"
             >
-              <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+              <Plus size={18} /> New Task
             </button>
-          )}
-
-          <button
-            onClick={() => {
-              setEditingTask(null);
-              setIsModalOpen(true);
-            }}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer"
-          >
-            <Plus size={18} /> New Task
-          </button>
+          </div>
         </div>
 
         {/* Category Filter */}
@@ -176,25 +213,27 @@ export default function Tasks() {
                 </button>
               )}
             </div>
+
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((category) => {
-                const isSelected = selectedCategories.includes(category.name);
+              {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
+                const isSelected = selectedCategories.includes(tagName);
+                const cat = getCategoryColor(tagName);
                 return (
                   <button
-                    key={category.name}
-                    onClick={() => toggleCategoryFilter(category.name)}
+                    key={tagName}
+                    onClick={() => toggleCategoryFilter(tagName)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       isSelected
                         ? "ring-2 ring-offset-1"
                         : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
-                      backgroundColor: category.bgColor,
-                      color: category.color,
-                      ringColor: category.color,
+                      backgroundColor: cat.bgColor,
+                      color: cat.color,
+                      ringColor: cat.color,
                     }}
                   >
-                    {category.name}
+                    {tagName}
                   </button>
                 );
               })}
@@ -264,11 +303,13 @@ export default function Tasks() {
               <h3 className="text-lg font-semibold text-main mb-2">
                 Completion
               </h3>
-              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-linear-to-r from-blue-500 to-indigo-500 transition-all"
-                  style={{ width: `${completionPercent}%` }}
-                />
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                {completionPercent > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                )}
               </div>
               <p className="text-xs text-muted mt-1">
                 {completedTasks} of {pageTasks} visible tasks done (
@@ -332,9 +373,57 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setTaskError("");
+          }}
           onSubmit={handleSubmit}
+          errorMessage={taskError}
+          onError={setTaskError}
         />
+      )}
+
+      {durationModalTask && (
+        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold text-main mb-2">
+              Complete Task
+            </h2>
+
+            <p className="text-sm text-muted mb-4">
+              How long did you actually take to complete "
+              {durationModalTask.title}"?
+            </p>
+
+            <input
+              type="number"
+              min="1"
+              value={actualDuration}
+              onChange={(e) => setActualDuration(e.target.value)}
+              className="w-full p-2 border border-soft rounded-lg"
+              placeholder="Actual duration in minutes"
+            />
+
+            <div className="flex justify-end gap-3 mt-5">
+              <button
+                onClick={() => {
+                  setDurationModalTask(null);
+                  setActualDuration("");
+                }}
+                className="px-4 py-2 rounded-lg border border-soft"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleActualDurationSubmit}
+                className="btn btn-primary px-4 py-2"
+              >
+                Mark Completed
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

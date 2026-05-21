@@ -33,6 +33,13 @@ const ScrollToTop = () => {
     };
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  }, [location.pathname]);
+
   // Don't render the button if we are on the login page
   // Force the button to always show on the Tasks page so it's never hidden
   const isTasksPage = location.pathname === "/tasks";
