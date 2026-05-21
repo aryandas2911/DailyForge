@@ -83,7 +83,6 @@ export default function EmptyState({ type = "tasks", onAction }) {
 
 
 
-import { useState } from "react";
 
 const CONFIG = {
   tasks: {
