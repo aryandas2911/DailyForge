@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { resolveHasTime } from "../../utils/dueDateUtils";
 
 const priorities = ["Low", "Medium", "High"];
+const DESCRIPTION_MAX_LENGTH = 500;
+const DESCRIPTION_WARNING_LENGTH = 450;
 
-export default function TaskFormModal({ task, onClose, onSubmit }) {
+export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -87,12 +90,25 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     };
   };
 
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [customTagInput, setCustomTagInput] = useState("");
+
   const today = new Date();
-  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-  
+  const todayStr =
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0");
+
   const maxDateObj = new Date();
   maxDateObj.setFullYear(today.getFullYear() + 1);
-  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
+  const maxDateStr =
+    maxDateObj.getFullYear() +
+    "-" +
+    String(maxDateObj.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(maxDateObj.getDate()).padStart(2, "0");
 
   useEffect(() => {
     if (task) {
@@ -107,13 +123,42 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       setDueTime(hasTime ? parsedDue.time : "");
       /* eslint-enable react-hooks/set-state-in-effect */
     }
-  }, [task]);
+    onError?.("");
+  }, [task, onError]);
 
-  const handleSubmit = (e) => {
+  /* ---------------- body scroll lock ---------------- */
+  useEffect(() => {
+    const scrollY = window.scrollY;
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflowY = "scroll";
+
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflowY = "";
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKey);
+
+    return () =>
+      document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim()) return alert("Title is required");
-    if (!priority) return alert("Priority is required");
-    if (!dueDate) return alert("Due date is required");
 
     const dueDateValue = dueTime ? `${dueDate}T${dueTime}` : dueDate;
 
@@ -126,21 +171,61 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
     });
   };
 
-  const toggleCategory = (categoryName) => {
-    setTags(prev => 
-      prev.includes(categoryName)
-        ? prev.filter(tag => tag !== categoryName)
-        : [...prev, categoryName]
+  const toggleTag = (tagName) => {
+    if (tagName === "Other") {
+      // toggle showing the custom input
+      setShowOtherInput((s) => !s);
+      return;
+    }
+    setTags((prev) =>
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
     );
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-in">
-      <div className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative animate-in delay-100 border border-soft">
-        {/* Close Button */}
+  const addCustomTag = () => {
+    const raw = customTagInput.trim();
+    if (!raw) return;
+    // avoid duplicates (case-insensitive)
+    const lower = raw.toLowerCase();
+    const exists = tags.some((t) => t.toLowerCase() === lower);
+    if (!exists) {
+      setTags((prev) => [...prev, raw]);
+    }
+    setCustomTagInput("");
+    setShowOtherInput(false);
+  };
+
+  const removeTag = (tagName) => {
+    setTags((prev) => prev.filter((t) => t !== tagName));
+  };
+
+  // custom tags are tags that are not part of the predefined list (excluding "Other")
+  const customTags = tags.filter((t) => !TAGS.includes(t));
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto
+                 flex flex-col items-center
+                 pt-40 pb-10 px-4
+                 bg-black/20 dark:bg-black/50 backdrop-blur-sm
+                 animate-in"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div
+        className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6
+                   relative border border-soft animate-in delay-100"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-main"
+          className="absolute top-4 right-4 p-1 rounded-full text-main
+                     hover:bg-gray-100 dark:hover:bg-slate-700"
+          aria-label="Close modal"
         >
           <X size={20} />
         </button>
@@ -148,6 +233,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
         <h2 className="text-xl font-semibold text-main mb-4">
           {task ? "Edit Task" : "New Task"}
         </h2>
+
+        {errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
@@ -157,7 +248,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              className="w-full mt-1 p-2 border border-soft rounded-lg
+                         focus:ring-(--primary) focus:border-(--primary)
+                         bg-transparent text-main"
               placeholder="Task title"
               required
             />
@@ -165,62 +258,96 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-main">
-              Description
-            </label>
-
+            <label className="text-sm font-medium text-main">Description</label>
             <textarea
               value={description}
-              onChange={(e) =>
-                setDescription(e.target.value)
-              }
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full mt-1 p-2 border border-soft rounded-lg
+                         focus:ring-(--primary) focus:border-(--primary)
+                         bg-transparent text-main"
               placeholder="Optional task description"
               rows={3}
-              maxLength={300}
+              maxLength={DESCRIPTION_MAX_LENGTH}
             />
-
             <p
               className={`text-sm mt-1 text-right ${
-                description.length >= 300
+                description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"
-                  : description.length >= 250
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
                     ? "text-yellow-500"
                     : "text-muted"
               }`}
             >
-              {description.length}/300
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
 
-          {/* Categories */}
+          {/* Tags (predefined + other) */}
           <div>
-            <label className="text-sm font-medium text-main">Categories</label>
+            <label className="text-sm font-medium text-main">Tags</label>
             <div className="mt-2 flex flex-wrap gap-2">
-              {CATEGORIES.map((category) => {
-                const isSelected = tags.includes(category.name);
+              {TAGS.map((tag) => {
+                const isSelected = tags.includes(tag);
                 return (
                   <button
-                    key={category.name}
+                    key={tag}
                     type="button"
-                    onClick={() => toggleCategory(category.name)}
+                    onClick={() => toggleTag(tag)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      isSelected
-                        ? 'ring-2 ring-offset-1'
-                        : 'opacity-60 hover:opacity-100'
+                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
                     }`}
-                    style={{
-                      backgroundColor: category.bgColor,
-                      color: category.color,
-                      ringColor: category.color,
-                    }}
                   >
-                    {category.name}
+                    {tag}
                   </button>
                 );
               })}
             </div>
-            <p className="text-xs text-muted mt-1">Select one or more categories</p>
+
+            {/* Other input */}
+            {showOtherInput && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
+                  placeholder="Enter custom tag (e.g., 'Essay')"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomTag}
+                  className="btn btn-primary px-3 py-1.5"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+
+            {/* Show custom tags (non-predefined) */}
+            {customTags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {customTags.map((ct) => (
+                  <div
+                    key={ct}
+                    className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+                  >
+                    <span className="text-xs font-medium">{ct}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeTag(ct)}
+                      className="text-xs text-red-500 px-1"
+                      aria-label={`Remove tag ${ct}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-muted mt-1">
+              Select one or more tags or choose Other to add a custom tag
+            </p>
           </div>
 
           {/* Priority */}
@@ -229,7 +356,9 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
+              className="w-full mt-1 p-2 border border-soft rounded-lg
+                         focus:ring-(--primary) focus:border-(--primary)
+                         bg-transparent text-main dark:bg-slate-800"
               required
             >
               {priorities.map((p) => (
@@ -297,12 +426,12 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
           <button
             type="submit"
             className="w-full btn btn-primary py-2 mt-2 hover-lift"
-            onSubmit={handleSubmit}
           >
             {task ? "Update Task" : "Add Task"}
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

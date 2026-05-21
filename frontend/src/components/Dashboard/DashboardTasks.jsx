@@ -45,10 +45,10 @@ export default function DashboardTasks({ tasks, updateTask }) {
         </div>
 
         <button
-          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
+          className="mt-3 group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
           onClick={() => navigate("/tasks")}
         >
-          Manage →
+          Manage <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
         </button>
       </div>
 
@@ -115,14 +115,15 @@ export default function DashboardTasks({ tasks, updateTask }) {
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
+        <div className="text-sm text-muted text-center py-6 flex flex-col ">
           No tasks for today.
-          <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
+
+          <button
+            className="mt-3 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
             onClick={() => navigate("/tasks")}
           >
-            Add your first task →
-          </span>
+            + Add your first task
+          </button>
         </div>
       )}
     </div>
