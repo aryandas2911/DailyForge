@@ -57,9 +57,17 @@ const useTasks = () => {
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
+    // Keep a backup of tasks in case of error
+    const previousTasks = [...tasks];
     // fix : This line refreshes the UI!
     setTasks(prev => prev.filter(t => t._id !== id)); 
+    try {
+      await api.delete(`/tasks/${id}`);
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to delete task");
+      // Rollback on failure
+      setTasks(previousTasks);
+    }
   };
 
   // initial fetch
@@ -69,8 +77,13 @@ const useTasks = () => {
   }, []);
   // bulk delete tasks
   const bulkDelete = async (ids) => {
-    await api.post("/tasks/bulk-delete", { ids });
-    getTasks();
+    try {
+      await api.post("/tasks/bulk-delete", { ids });
+      getTasks();
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to bulk delete tasks");
+      getTasks();
+    }
   };
   // return reusable functions
   return {
