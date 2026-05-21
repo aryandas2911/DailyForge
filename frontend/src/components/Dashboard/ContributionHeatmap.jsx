@@ -125,58 +125,58 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -4 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="relative w-64 bg-slate-950/95 backdrop-blur-md border border-slate-800/90 shadow-2xl rounded-xl p-3.5 text-xs select-none"
+                className="relative w-64 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/90 shadow-xl dark:shadow-2xl rounded-xl p-3.5 text-xs select-none text-slate-800 dark:text-slate-200"
               >
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
-                    <span className="font-semibold text-slate-200">
+                  <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-1.5">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {formatFullDate(hoveredDay.date)}
                     </span>
                   </div>
                   
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Tasks Done:</span>
-                      <span className="font-medium text-slate-200">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.tasksCompleted} / {hoveredDay.tasksTotal}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Routines Completed:</span>
-                      <span className="font-medium text-slate-200">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.routinesCompleted}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
                       <span>Productivity:</span>
-                      <span className={`font-semibold ${
-                        hoveredDay.score === 3 ? "text-emerald-400 text-glow" :
-                        hoveredDay.score === 2 ? "text-cyan-400" :
-                        hoveredDay.score === 1 ? "text-teal-600" : "text-slate-500"
+                      <span className={`font-bold ${
+                        hoveredDay.score === 3 ? "text-emerald-600 dark:text-emerald-400 text-glow" :
+                        hoveredDay.score === 2 ? "text-cyan-600 dark:text-cyan-400" :
+                        hoveredDay.score === 1 ? "text-teal-600 dark:text-teal-500" : "text-slate-500"
                       }`}>
                         {getProductivityColorDetails(hoveredDay.score).label.split(" (")[0]}
                       </span>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-800 text-[10px]">
+                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800 text-[10px]">
                     {hoveredDay.score === 3 ? (
-                      <span className="text-emerald-400 flex items-center gap-1 font-semibold animate-pulse">
+                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold animate-pulse">
                         🔥 Perfect productivity streak active!
                       </span>
                     ) : hoveredDay.score > 0 ? (
-                      <span className="text-teal-400 flex items-center gap-1">
+                      <span className="text-teal-600 dark:text-teal-400 flex items-center gap-1 font-bold">
                         ⚡ Keep it going!
                       </span>
                     ) : (
-                      <span className="text-slate-500">No active completions</span>
+                      <span className="text-slate-500 font-bold">No active completions</span>
                     )}
                   </div>
                 </div>
                 {/* Tooltip pointer arrow */}
                 <div 
                   style={{ left: arrowLeft }}
-                  className="absolute top-full -translate-x-1/2 -mt-[1px] border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-950/95" 
+                  className="absolute top-full -translate-x-1/2 -mt-[1px] border-x-[6px] border-x-transparent border-t-[6px] border-t-white/95 dark:border-t-slate-950/95" 
                 />
               </motion.div>
             </div>
@@ -185,16 +185,16 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       </AnimatePresence>
       
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-5 z-10 relative">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-5 z-10 relative">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">
+            <span className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
               <Activity size={18} />
             </span>
             <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
               Productivity Contribution
             </h2>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 uppercase tracking-wider">
               Live Tracker
             </span>
           </div>
@@ -208,8 +208,8 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
         
         {/* Current Streak */}
-        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
-          <div className="p-3 rounded-xl bg-orange-500/10 text-orange-400 group-hover:scale-110 transition-transform duration-200">
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-3 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform duration-200">
             <Flame size={20} className="animate-pulse" />
           </div>
           <div>
@@ -217,13 +217,13 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.currentStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
           </div>
         </div>
 
         {/* Longest Streak */}
-        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
-          <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-400 group-hover:scale-110 transition-transform duration-200">
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition-transform duration-200">
             <Trophy size={20} />
           </div>
           <div>
@@ -231,13 +231,13 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.longestStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Your peak productivity</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Your peak productivity</p>
           </div>
         </div>
 
         {/* Total Productive Days */}
-        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
-          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400 group-hover:scale-110 transition-transform duration-200">
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-200">
             <CheckSquare size={20} />
           </div>
           <div>
@@ -245,13 +245,13 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.totalProductiveDays} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Days with active completions</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Days with active completions</p>
           </div>
         </div>
 
         {/* Yearly Productivity Average */}
-        <div className="bg-slate-200/80 dark:bg-slate-950/40 border border-slate-300/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift">
-          <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-400 group-hover:scale-110 transition-transform duration-200">
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform duration-200">
             <Percent size={20} />
           </div>
           <div>
@@ -259,7 +259,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.yearlyPercentage}%
             </h3>
-            <p className="text-[9px] font-bold text-slate-700 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
           </div>
         </div>
       </div>
@@ -269,7 +269,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
         
         {/* Loaded Heatmap Display */}
         <div 
-          className="w-full bg-slate-200/30 dark:bg-slate-950/20 border border-slate-300/80 dark:border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
+          className="w-full bg-white/70 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
           ref={gridContainerRef}
         >
           {/* Inner Wrapper containing relative position for absolute elements */}
@@ -342,6 +342,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                         // Check legend hover filter conditions
                         const isDimmed = activeLegendScore !== null && day.score !== activeLegendScore;
                         const isHighlighted = activeLegendScore !== null && day.score === activeLegendScore;
+                        const isSelected = hoveredDay?.dateStr === day.dateStr;
 
                         return (
                           <div
@@ -358,12 +359,14 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                             }}
                             className={`
                               w-[13px] h-[13px] rounded-[3px] cursor-pointer outline-none relative transition-all duration-300
+                              border border-transparent
                               ${colorDetails.bgClass}
                               ${isPerfect ? colorDetails.glowClass : ""}
                               ${isDimmed ? "opacity-20 scale-90" : "opacity-100"}
-                              ${isHighlighted ? "scale-115 z-10 border border-white/40 shadow-lg" : ""}
-                              hover:scale-120 hover:z-20 hover:border hover:border-slate-300/40 hover:shadow-xl
-                              focus:ring-2 focus:ring-[#14b8a6] focus:ring-offset-2 focus:ring-offset-slate-900 focus:scale-115 focus:z-10
+                              ${isHighlighted ? "scale-115 z-10 !border-slate-500 dark:!border-white shadow-lg" : ""}
+                              ${isSelected ? "scale-120 z-20 !border-slate-600 dark:!border-slate-200 shadow-xl" : ""}
+                              hover:scale-120 hover:z-20 hover:!border-slate-600 dark:hover:!border-slate-200 hover:shadow-xl
+                              focus:ring-2 focus:ring-[#14b8a6] focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 focus:scale-115 focus:z-10
                             `}
                           />
                         );
@@ -402,7 +405,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                   className={`
                     w-[13px] h-[13px] rounded-[3px] cursor-pointer outline-none transition-all duration-200 hover:scale-120 focus:ring-2 focus:ring-[#14b8a6]
                     ${details.bgClass}
-                    ${isPerfect ? "shadow-[0_0_6px_rgba(153,246,228,0.4)] border border-[#ccfbf1]/40" : ""}
+                    ${isPerfect ? "shadow-[0_0_6px_rgba(13,148,136,0.25)] dark:shadow-[0_0_6px_rgba(153,246,228,0.4)] border border-teal-500/20 dark:border-[#ccfbf1]/40" : ""}
                     ${activeLegendScore !== null && activeLegendScore !== score ? "opacity-30" : "opacity-100 scale-105"}
                   `}
                   title={details.label}
@@ -426,10 +429,16 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
           background: transparent;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background-color: #334155;
+          background-color: #cbd5e1;
           border-radius: 9999px;
         }
+        .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: #334155;
+        }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background-color: #94a3b8;
+        }
+        .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background-color: #475569;
         }
       `}</style>

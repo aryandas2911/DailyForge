@@ -316,32 +316,32 @@ export function getProductivityColorDetails(score) {
     case 1:
       return {
         color: "#0f766e",
-        bgClass: "bg-[#0f766e]",
-        textClass: "text-[#0f766e]",
+        bgClass: "bg-teal-200 dark:bg-[#0f766e]",
+        textClass: "text-teal-600 dark:text-[#0f766e]",
         glowClass: "",
         label: "Low Productivity (1 task)",
       };
     case 2:
       return {
         color: "#14b8a6",
-        bgClass: "bg-[#14b8a6]",
-        textClass: "text-[#14b8a6]",
+        bgClass: "bg-teal-400 dark:bg-[#14b8a6]",
+        textClass: "text-teal-700 dark:text-[#14b8a6]",
         glowClass: "",
         label: "Medium Productivity (2 tasks)",
       };
     case 3:
       return {
         color: "#99f6e4",
-        bgClass: "bg-[#99f6e4]",
-        textClass: "text-[#99f6e4]",
-        glowClass: "shadow-[0_0_10px_rgba(153,246,228,0.5)] border border-[#ccfbf1]",
+        bgClass: "bg-teal-600 dark:bg-[#99f6e4]",
+        textClass: "text-teal-800 dark:text-[#99f6e4]",
+        glowClass: "shadow-[0_0_8px_rgba(13,148,136,0.35)] dark:shadow-[0_0_10px_rgba(153,246,228,0.5)] border border-teal-500/20 dark:border-[#ccfbf1]",
         label: "Perfect Day (3+ tasks)",
       };
     default:
       return {
         color: "#1e293b",
-        bgClass: "bg-slate-300 dark:bg-slate-800/60",
-        textClass: "text-slate-400",
+        bgClass: "bg-slate-300/80 dark:bg-slate-800/60",
+        textClass: "text-slate-400 dark:text-slate-400",
         glowClass: "",
         label: "Inactive (0 tasks)",
       };
