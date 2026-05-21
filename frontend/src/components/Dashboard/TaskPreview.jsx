@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 
 export default function TaskPreview({ tasks , updateTask}) {
@@ -22,9 +23,9 @@ export default function TaskPreview({ tasks , updateTask}) {
   };
 
   const priorityBadge = {
-    Low: "bg-green-100 text-green-700",
-    Medium: "bg-yellow-100 text-yellow-700",
-    High: "bg-red-100 text-red-700",
+    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   };
 
   return (
@@ -56,7 +57,7 @@ export default function TaskPreview({ tasks , updateTask}) {
               key={task._id}
               className={`flex items-center gap-4 border-l-4 rounded-xl p-4 transition
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white shadow-sm`}
+              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm`}
             >
               {/* Checkbox */}
               <input
@@ -122,9 +123,9 @@ export default function TaskPreview({ tasks , updateTask}) {
       <div className="mt-4 text-sm text-primary">
         <button
           onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
+          className="group mt-3 flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
         >
-          View All Tasks →
+          View All Tasks <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
         </button>
       </div>
     </div>

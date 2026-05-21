@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import useTasks from "../../hooks/useTasks.js";
 import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
@@ -14,10 +13,14 @@ function DraggableTask({ task }) {
     });
 
   const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-    opacity: isDragging ? 0.5 : 1,
+    transform: isDragging
+      ? undefined
+      : transform
+        ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+        : undefined,
+    opacity: isDragging ? 0 : 1,
+    position: "relative",
+    zIndex: isDragging ? 99999 : 1,
   };
 
   return (
@@ -26,9 +29,9 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border-soft bg-white/80 p-3
+      className="group flex items-center gap-3 rounded-xl border-soft bg-black/200 dark:bg-slate-800/80 p-3
                  cursor-grab active:cursor-grabbing
-                 hover:bg-white hover:shadow-md transition hover-lift"
+                 hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
@@ -41,8 +44,8 @@ function DraggableTask({ task }) {
             task.priority === "High"
               ? "#ef4444"
               : task.priority === "Medium"
-              ? "#f59e0b"
-              : "#10b981",
+                ? "#f59e0b"
+                : "#10b981",
         }}
       />
 
@@ -55,8 +58,7 @@ function DraggableTask({ task }) {
 }
 
 /* ---------------- Task Library ---------------- */
-export default function TaskLibrary({ onAddTask }) {
-  const { tasks } = useTasks();
+export default function TaskLibrary({ tasks, onAddTask }) {
   
   const [query, setQuery] = useState("");
 
@@ -69,22 +71,24 @@ export default function TaskLibrary({ onAddTask }) {
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-main">Task Library</h2>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-main">
-            {filteredTasks?.length ?? 0}
-          </span>
+          <h2 className="text-lg font-semibold text-gray-500">
+  Task Library
+</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft text-gray-500">
+  {filteredTasks?.length ?? 0}
+</span>
         </div>
         <p className="text-xs text-muted">Drag tasks into your week</p>
       </div>
 
       {/* Search */}
       <input
-        type="text"
-        placeholder="Search tasks…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none"
-      />
+  type="text"
+  placeholder="Search tasks…"
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent text-gray-500 placeholder:text-gray-500"
+/>
 
       {/* Task List */}
       <div className="flex-1 space-y-3 pr-1">
@@ -93,8 +97,8 @@ export default function TaskLibrary({ onAddTask }) {
             <DraggableTask key={task._id} task={task} />
           ))
         ) : (
-  <EmptyState type="tasks" onAction={onAddTask} />
-)}
+          <EmptyState type="tasks" onAction={onAddTask} />
+        )}
       </div>
 
       {/* Footer CTA */}

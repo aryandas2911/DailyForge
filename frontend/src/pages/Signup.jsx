@@ -1,45 +1,108 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import { auth, googleProvider } from "../utils/firebase";
+import { signInWithPopup } from "firebase/auth";
+
+// Colored Google SVG Icon
+const GoogleIcon = () => (
+  <svg className="w-5 h-5 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+  </svg>
+);
+
+// Loading Spinner for Google login state
+const LoadingSpinner = () => (
+  <svg className="animate-spin -ml-1 mr-2.5 h-5 w-5 text-current" fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+  </svg>
+);
 
 const Signup = () => {
   // three states for inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
 
   // useContext for auth
-  const { setUser, setToken } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
+
+  // Google Login popup-based handler
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setErrorMessage("");
+    setError("");
+    try {
+      localStorage.removeItem("token");
+      
+      // 1. Authenticate with Google
+      const result = await signInWithPopup(auth, googleProvider);
+      
+      // 2. Fetch JWT ID Token from Firebase User
+      const idToken = await result.user.getIdToken();
+      
+      // 3. Post Token to backend API
+      const res = await api.post("/auth/google", { idToken });
+      console.log("Google signup/login success:", res.data);
+      
+      // 4. Update the global auth state
+      setUser(res.data.user);
+      
+      // 5. Navigate to dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Google authentication failed:", err);
+      // Handle user cancellation gracefully without noise
+      if (err.code === "auth/popup-closed-by-user") {
+        setErrorMessage("Sign-in popup closed before completion. Please try again.");
+      } else {
+        setErrorMessage(err.response?.data?.message || err.message || "Failed to authenticate with Google.");
+      }
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   // submit handler
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+    
+    // clear any previous error messages
+    setErrorMessage("");
 
+    if (!validate()) return;
     // set loading state
     setIsLoading(true);
     setError("");
 
     // send request to server
     try {
+      localStorage.removeItem("token");
+
       const res = await api.post("/auth/signup", {
         name,
         email,
         password,
       });
       console.log("Signup success: ", res.data);
-
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
 
       // get user details
       const me = await api.get("/auth/me");
@@ -48,19 +111,44 @@ const Signup = () => {
       // redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
-      // handle error
       console.log("Signup failed");
-      const errorMessage = error.response?.data?.message || error.message || "Signup failed. Please try again.";
-      setError(errorMessage);
+
+      const errorMessage =
+        error.response?.data?.message || error.message || "Signup failed. Please try again.";
+
       console.log(errorMessage);
+
+      // specific handling for duplicate user
+      if (error.response?.status === 409) {
+        setErrorMessage("An account with this email already exists. Please try logging in instead.");
+      } else {
+        setErrorMessage(errorMessage);
+      }
     } finally {
-      // reset loading state
       setIsLoading(false);
     }
   };
 
+  const validate = () => {
+    const newErrors = {};
+    if (name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters long";
+    }
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+    }
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // signup component
   return (
+    <div className="flex flex-1 justify-center items-center min-h-[calc(100vh-64px)]">
     <form
       className="
         surface-bg px-10 py-15 rounded-2xl
@@ -73,6 +161,38 @@ const Signup = () => {
       <div className="text-center space-y-1 mb-3">
         <h1 className="text-3xl font-bold text-main">Signup</h1>
       </div>
+
+      <button
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={isGoogleLoading || isLoading}
+        className="
+          flex items-center justify-center w-full px-4 py-2.5 
+          rounded-xl border border-soft text-sm font-medium
+          transition-all duration-200 hover-lift active:scale-[0.98]
+          bg-white text-slate-700 hover:bg-slate-50
+          dark:bg-slate-900/40 dark:text-slate-200 dark:hover:bg-slate-800/60
+          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+        "
+      >
+        {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
+        {isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}
+      </button>
+
+      <div className="flex items-center my-0.5">
+        <div className="flex-1 border-t border-soft"></div>
+        <span className="px-3 text-xs uppercase tracking-wider text-muted font-semibold bg-transparent">
+          OR
+        </span>
+        <div className="flex-1 border-t border-soft"></div>
+      </div>
+
+
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-main">
@@ -87,16 +207,17 @@ const Signup = () => {
           }}
           placeholder="Full Name"
           required
-          className="
+          className={`
             w-full px-3 py-2.5
             text-sm
             surface-bg
-            border-soft
             rounded-sm
             shadow-xs
             input-focus hover-lift
-          "
+            ${errors.name ? "border-red-500" : "border-soft"}
+          `}
         />
+        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -154,20 +275,59 @@ const Signup = () => {
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>
         </div>
+        {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="confirmPassword" className="text-sm font-medium text-main">
+          Confirm Password
+        </label>
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+            }}
+            placeholder="••••••••"
+            required
+            className="
+              w-full px-3 py-2.5 pr-10
+              text-sm
+              surface-bg
+              border-soft
+              rounded-base
+              shadow-xs
+              input-focus hover-lift
+            "
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          >
+            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+        {errors.confirmPassword && (
+          <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
+        )}
       </div>
 
       {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600 dark:bg-red-950/20 dark:border-red-900/50 dark:text-red-400">
           {error}
         </div>
       )}
 
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isGoogleLoading}
         className="btn btn-primary cursor-pointer w-full mt-2 hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? "Signing up..." : "Sign Up"}
@@ -175,16 +335,15 @@ const Signup = () => {
 
       <p className="text-center text-sm text-muted">
         Already have an account?{" "}
-        <span
-          onClick={() => {
-            navigate("/login");
-          }}
+        <Link
+          to="/login"
           className="text-main font-medium cursor-pointer hover:underline transition-colors"
         >
           Login
-        </span>
+        </Link>
       </p>
     </form>
+    </div>
   );
 };
 
