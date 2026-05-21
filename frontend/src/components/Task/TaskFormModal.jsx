@@ -49,6 +49,7 @@ export default function TaskFormModal({ task, onClose, onSubmit }) {
       description: description.trim(),
       tags: tags,
       priority,
+      status: task ? task.status : "Due",
       dueDate,
     });
   };
