@@ -79,7 +79,6 @@ export default function EmptyState({ type = "tasks", onAction }) {
     </div>
   );
 }
-<<<<<<< HEAD
 
 
 
@@ -216,5 +215,3 @@ const styles = {
     boxShadow: "0 8px 20px #6366f155",
   },
 };
-=======
->>>>>>> 77c2be6 (resolve merge conflicts: integrate 2FA with upstream/main)
