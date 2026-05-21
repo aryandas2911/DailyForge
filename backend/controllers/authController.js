@@ -28,6 +28,11 @@ export const signup = async (req, res) => {
     await newUser.save();
 
     // generate token using jwt
+    // check JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not set in environment variables");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
@@ -67,6 +72,11 @@ export const login = async (req, res) => {
     }
 
     // generate jwt token
+    // check JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not set in environment variables");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
