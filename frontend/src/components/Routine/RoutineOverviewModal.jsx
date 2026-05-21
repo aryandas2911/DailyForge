@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MoreVertical, Trash2, X } from "lucide-react";
 
 export default function RoutineOverviewModal({
@@ -12,6 +12,16 @@ export default function RoutineOverviewModal({
 }) {
 
 const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+
+  }, []);
 
   const tasksByDay = routine.items.reduce((acc, item) => {
 
