@@ -19,13 +19,6 @@ const taskSchema = mongoose.Schema(
       type: [String],
       required: false,
       default: [],
-      validate: {
-        validator: function(tags) {
-          const validCategories = ['Work', 'Personal', 'Health', 'Learning', 'Finance', 'Shopping', 'Other'];
-          return tags.every(tag => validCategories.includes(tag));
-        },
-        message: 'Invalid category. Must be one of: Work, Personal, Health, Learning, Finance, Shopping, Other'
-      }
     },
     priority: {
       type: String,
@@ -41,13 +34,17 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
-    estimatedTime: {
-     type: Number,
-     default: null,
-     min: 0,
+  estimatedTime: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+    actualDuration: {
+      type: Number,
+      default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Task model using schema
