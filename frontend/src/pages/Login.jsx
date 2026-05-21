@@ -85,17 +85,13 @@ const Login = () => {
 
     // send request to server
     try {
-      localStorage.removeItem("token");
+      
 
       const res = await api.post("/auth/login", {
         email,
         password,
       });
       console.log("Login success: ", res.data);
-
-      // save token in localstorage for later api calls
-      localStorage.setItem("token", res.data.token);
-      setToken(res.data.token);
 
       // set user details directly from response
       if (res.data.user) {
