@@ -15,6 +15,8 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
+    localStorage.clear(); // Ensure all stale data is wiped
   };
 
   // restore session on app load
