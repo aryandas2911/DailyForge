@@ -14,7 +14,7 @@ import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Download } from "lucide-react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
@@ -37,30 +37,16 @@ export default function RoutineBuilder() {
   const exportToImage = async () => {
     if (!gridRef.current) return;
     try {
-      // Resolve CSS custom property so html2canvas gets a real color, not a variable
-      const bgColor =
-        getComputedStyle(document.documentElement)
-          .getPropertyValue("--surface")
-          .trim() || "#ffffff";
-
-      const canvas = await html2canvas(gridRef.current, {
-        useCORS: true,
-        allowTaint: true,
-        scale: 2,
-        backgroundColor: bgColor,
-        logging: false,
-      });
-
-      const url = canvas.toDataURL("image/png");
+      // html-to-image handles CSS variables and Google Fonts without CORS issues
+      const url = await toPng(gridRef.current, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement("a");
       link.download = "My_Weekly_Routine.png";
       link.href = url;
-      // Must be in DOM for Firefox/Safari to trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error("Failed to export image", error);
+      console.error("Export failed:", error);
       alert("Failed to export routine as image.");
     }
   };
