@@ -95,7 +95,7 @@ const Signup = () => {
 
     // send request to server
     try {
-      localStorage.removeItem("token");
+      
 
       const res = await api.post("/auth/signup", {
         name,
@@ -104,9 +104,12 @@ const Signup = () => {
       });
       console.log("Signup success: ", res.data);
 
-      // get user details
-      const me = await api.get("/auth/me");
-      setUser(me.data.user);
+      
+
+      // set user details directly from response
+      if (res.data.user) {
+        setUser(res.data.user);
+      }
 
       // redirect to dashboard
       navigate("/dashboard");
