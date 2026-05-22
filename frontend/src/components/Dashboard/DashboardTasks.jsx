@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import useTasks from "../../hooks/useTasks";
+import { Plus, ArrowRight, CheckCircle2 } from "lucide-react";
 
-export default function DashboardTasks() {
-  const { tasks, updateTask } = useTasks();
+
+export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
 
   const priorityOrder = {
@@ -18,21 +18,18 @@ export default function DashboardTasks() {
   };
 
   const priorityBadge = {
-    Low: "bg-green-100 text-green-700",
-    Medium: "bg-yellow-100 text-yellow-700",
-    High: "bg-red-100 text-red-700",
+    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   };
+
+  const today = new Date();
 
   const todayTasks = tasks
     ?.filter((task) => {
-      const today = new Date();
-      const created = new Date(task.createdAt);
-
-      return (
-        today.getFullYear() === created.getFullYear() &&
-        today.getMonth() === created.getMonth() &&
-        today.getDate() === created.getDate()
-      );
+      if (!task.dueDate) return false;
+      const due = new Date(task.dueDate);
+      return today.toDateString() === due.toDateString();
     })
     .sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
     .slice(0, 5);
@@ -47,10 +44,10 @@ export default function DashboardTasks() {
         </div>
 
         <button
-          className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer"
+          className="mt-3 group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
           onClick={() => navigate("/tasks")}
         >
-          Manage →
+          Manage <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
         </button>
       </div>
 
@@ -61,7 +58,7 @@ export default function DashboardTasks() {
               key={task._id}
               className={`group relative flex items-center gap-4 border-l-4 rounded-xl p-4 transition-all duration-200
               ${priorityBorder[task.priority]}
-              bg-white/80 hover:bg-white shadow-sm hover:shadow-md`}
+              bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md`}
             >
               {/* Checkbox */}
               <input
@@ -110,14 +107,15 @@ export default function DashboardTasks() {
           ))}
         </div>
       ) : (
-        <div className="text-sm text-muted text-center py-6">
+        <div className="text-sm text-muted text-center py-6 flex flex-col ">
           No tasks for today.
-          <span
-            className="block mt-2 text-primary hover:underline cursor-pointer"
+
+          <button
+            className="mt-3 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
             onClick={() => navigate("/tasks")}
           >
-            Add your first task →
-          </span>
+            + Add your first task
+          </button>
         </div>
       )}
     </div>

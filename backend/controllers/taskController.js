@@ -1,6 +1,10 @@
+import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
+import mongoose from "mongoose";
+
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -26,12 +30,35 @@ export const createTask = async (req, res) => {
 
     // fetch details for task from request body
     const { title, description, tags, priority, status, dueDate } = req.body;
-    if (!title || !priority || !status) {
+    if (!title || !priority || !status || !dueDate) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
+    
+    const dueDateValue = new Date(dueDate);
+    if (Number.isNaN(dueDateValue.getTime())) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid due date" });
+    }
 
+    const dateStart = new Date(dueDateValue);
+    dateStart.setUTCHours(0, 0, 0, 0);
+    const dateEnd = new Date(dateStart);
+    dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
+
+    const existingTask = await Task.findOne({
+      userId,
+      title: { $regex: new RegExp(`^${escapeRegex(title.trim())}$`, "i") },
+      dueDate: { $gte: dateStart, $lt: dateEnd },
+    });
+
+    if (existingTask) {
+      return res
+        .status(409)
+        .json({ success: false, message: "A task with the same title and due date already exists" });
+    }
     // new task object
     const newTask = new Task({
       userId: userId,
@@ -73,9 +100,7 @@ export const getTasks = async (req, res) => {
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
-      return res
-        .status(400)
-        .json({ message: "User has no task", success: false });
+      return res.status(200).json({ success: true, tasks: [] });
     }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
@@ -99,6 +124,15 @@ export const updateTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
+    const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
+
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -111,7 +145,6 @@ export const updateTask = async (req, res) => {
 
     // fetch update task details
     const updates = req.body;
-    const taskId = req.params.id;
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
@@ -149,8 +182,14 @@ export const deleteTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // fetch task id
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
 
     // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
@@ -188,7 +227,7 @@ export const bulkDeleteTasks = async (req, res) => {
 
     // fetch array of task IDs 
     const { ids } = req.body;
-    if (!ids || ids.length === 0) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No task IDs provided" });
@@ -196,6 +235,17 @@ export const bulkDeleteTasks = async (req, res) => {
 
     // delete all matching tasks belonging to this user
     await Task.deleteMany({ _id: { $in: ids }, userId: userId });
+
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: { $in: ids },
+          },
+        },
+      }
+    );
 
     return res
       .status(200)

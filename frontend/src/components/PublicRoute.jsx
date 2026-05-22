@@ -1,14 +1,11 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 
-const ProtectedRoutes = ({ children }) => {
-
-  // access user and isLoading from AuthContext
+const PublicRoute = ({ children }) => {
   const { user, isLoading } = useContext(AuthContext);
-  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -39,14 +36,12 @@ const ProtectedRoutes = ({ children }) => {
     );
   }
 
-  // if user doesn't exist, return to login page
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  // If user is authenticated, redirect them to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
   }
-  // else return the children component
-  else {
-    return children;
-  }
+
+  return children;
 };
 
-export default ProtectedRoutes;
+export default PublicRoute;
