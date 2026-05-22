@@ -9,15 +9,6 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create task function
 export const createTask = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -35,7 +26,7 @@ export const createTask = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
-    
+
     const dueDateValue = new Date(dueDate);
     if (Number.isNaN(dueDateValue.getTime())) {
       return res
@@ -88,17 +79,8 @@ export const createTask = async (req, res) => {
 // get task function
 export const getTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
-
     // fetch tasks from database
-    const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ userId: req.userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
       return res.status(200).json({ success: true, tasks: [] });
     }
@@ -115,15 +97,6 @@ export const getTasks = async (req, res) => {
 // update task function
 export const updateTask = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
-
     // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
@@ -148,7 +121,7 @@ export const updateTask = async (req, res) => {
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
-      { _id: taskId, userId: userId },
+      { _id: taskId, userId: req.userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
@@ -194,7 +167,7 @@ export const deleteTask = async (req, res) => {
     // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
       _id: taskId,
-      userId: userId,
+      userId: req.userId,
     });
     if (!deleteTask) {
       return res.status(404).json({
@@ -216,15 +189,6 @@ export const deleteTask = async (req, res) => {
 // bulk delete tasks function
 export const bulkDeleteTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
-
     // fetch array of task IDs 
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -234,10 +198,10 @@ export const bulkDeleteTasks = async (req, res) => {
     }
 
     // delete all matching tasks belonging to this user
-    await Task.deleteMany({ _id: { $in: ids }, userId: userId });
+    await Task.deleteMany({ _id: { $in: ids }, userId: req.userId });
 
     await Routine.updateMany(
-      { userId },
+      { userId: req.userId },
       {
         $pull: {
           items: {

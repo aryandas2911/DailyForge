@@ -5,15 +5,6 @@ import { checkOverlap } from "../utils/routineUtils.js";
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
     // fetch routine details from request body
     const { name, description, items } = req.body;
     if (!name || items.length == 0 || !items) {
@@ -85,13 +76,13 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
-    
+
     return res
       .status(201)
-      .json({ 
-        success: true, 
-        message: "Routine added successfully", 
-        routine: newRoutine.toObject() 
+      .json({
+        success: true,
+        message: "Routine added successfully",
+        routine: newRoutine.toObject()
       });
   } catch (error) {
     // error handling
@@ -105,17 +96,8 @@ export const createRoutine = async (req, res) => {
 // Fetch routine function
 export const getRoutines = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
     // fetch routines from database
-    const routines = await Routine.find({ userId: userId }).sort({
+    const routines = await Routine.find({ userId: req.userId }).sort({
       createdAt: -1,
     });
     if (routines.length == 0) {
@@ -134,35 +116,9 @@ export const getRoutines = async (req, res) => {
 // Duplicate routine function
 export const duplicateRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
-    // validate the optional target day before creating the copy
-    const validDays = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
-    const { targetDay } = req.body;
-    if (targetDay && !validDays.includes(targetDay)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid target day" });
-    }
-
     // fetch the source routine for this user only
     const routineId = req.params.id;
-    const sourceRoutine = await Routine.findOne({ _id: routineId, userId });
+    const sourceRoutine = await Routine.findOne({ _id: routineId, userId: req.userId });
     if (!sourceRoutine) {
       return res
         .status(404)
@@ -231,15 +187,6 @@ export const duplicateRoutine = async (req, res) => {
 // Update routine function
 export const updateRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
     // fetch updated routine details
     const updates = req.body;
     const routineId = req.params.id;
@@ -318,22 +265,13 @@ export const updateRoutine = async (req, res) => {
 // Delete routine function
 export const deleteRoutine = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
-
     // fetch routine id
     const routineId = req.params.id;
 
     // fetch routine to be deleted from database
     const deleteRoutine = await Routine.findOneAndDelete({
       _id: routineId,
-      userId: userId,
+      userId: req.userId,
     });
     if (!deleteRoutine) {
       return res.status(404).json({
