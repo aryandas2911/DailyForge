@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { MoreVertical, Trash2, X, Calendar, Layers, Clock, RefreshCw } from "lucide-react";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../../utils/firebase";
 import { syncRoutineToGoogleCalendar } from "../../utils/googleCalendar";
 import { MoreVertical, Trash2, X, Calendar, Layers, Clock } from "lucide-react";
 
