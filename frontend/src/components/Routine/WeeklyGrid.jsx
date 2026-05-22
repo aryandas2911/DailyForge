@@ -24,6 +24,8 @@ const generateTimeSlots = () => {
 
 const TIME_SLOTS = generateTimeSlots();
 
+const normalizeDay = (day) => String(day || "").trim().toLowerCase();
+
 /* Convert HH:mm → minutes */
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
@@ -60,7 +62,7 @@ function DroppableCell({ day, time, tasks , onDeleteTask}) {
           <button
             onClick={(e) => {
               e.stopPropagation(); //prevents drag from trigerring 
-              onDeleteTask(task.taskId, day);
+              onDeleteTask(task.taskId, task.day);
             }}
             className="absolute -top-1 -right-1 w-5 h-5 rounded-full 
              bg-red-500 text-white text-xs font-bold
@@ -133,7 +135,9 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay , onDeleteTask })
                 day={day}
                 time={time}
                 tasks={scheduledTasks.filter(
-                  (t) => t.day === day && t.startTime === timeToMinutes(time)
+                  (t) =>
+                    normalizeDay(t.day) === normalizeDay(day) &&
+                    t.startTime === timeToMinutes(time)
                 )}
                 onDeleteTask={onDeleteTask}
               />
