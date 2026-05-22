@@ -32,6 +32,8 @@ export default function RoutineBuilder() {
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
 
+  const normalizeDay = (day) => String(day || "").trim().toLowerCase();
+
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -117,7 +119,8 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const errorMessage = err.response?.data?.message || "Failed to save routine";
+      alert(errorMessage);
     }
   };
 
@@ -138,7 +141,13 @@ export default function RoutineBuilder() {
 
     //filtering out 
     setScheduledTasks((prev) =>
-      prev.filter((task) => !(task.taskId === taskId && task.day === day))
+      prev.filter(
+        (task) =>
+          !(
+            task.taskId === taskId &&
+            normalizeDay(task.day) === normalizeDay(day)
+          )
+      )
     );
   };
 
