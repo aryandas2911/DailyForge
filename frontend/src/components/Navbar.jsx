@@ -196,18 +196,34 @@ const handleLogoutClick = () => {
 
             {!user ? (
               <>
-                <Link
-                  to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
-                >
-                  Signup
-                </Link>
+                <NavLink
+  to="/login"
+  end
+  className={({ isActive }) =>
+    cn(
+      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
+      isActive
+        ? "border-[#3b8ea0] text-[#3b8ea0] bg-[#d0f6e3]"
+        : "border-transparent text-[#4eb7b3] hover:bg-[#d0f6e3]/50"
+    )
+  }
+>
+  Login
+</NavLink>
+<NavLink
+  to="/signup"
+  end
+  className={({ isActive }) =>
+    cn(
+      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
+      isActive
+        ? "border-[#3b8ea0] text-white bg-[#3b8ea0]"
+        : "border-[#4eb7b3] text-[#4eb7b3] bg-transparent hover:bg-[#d0f6e3]/50"
+    )
+  }
+>
+  Signup
+</NavLink>
               </>
             ) : (
               <button 
