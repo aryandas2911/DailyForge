@@ -1,8 +1,27 @@
-import User from '../src/models/User.js';
+import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+
+// Token generation helper to stay unified with project utilities
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
+
+const generateAndSetToken = (res, userId) => {
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    algorithm: JWT_ALGORITHM,
+  });
+
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  return token;
+};
 
 // sign up function
 export const signup = async (req, res) => {
@@ -38,22 +57,13 @@ export const signup = async (req, res) => {
 
     await newUser.save();
 
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    // Use unified token generator
+    generateAndSetToken(res, newUser._id);
 
-    return res
-      .status(201)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({ 
-        message: 'User registered successfully',
-        user: { _id: newUser._id, name: newUser.name, email: newUser.email }
-      });
+    return res.status(201).json({ 
+      message: 'User registered successfully',
+      user: { _id: newUser._id, name: newUser.name, email: newUser.email }
+    });
   } catch (error) {
     console.error('Signup error:', error);
     return res.status(500).json({ message: 'Server error during signup' });
@@ -81,22 +91,13 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Password does not match' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    // Use unified token generator
+    generateAndSetToken(res, user._id);
 
-    return res
-      .status(200)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({ 
-        message: 'Login successful',
-        user: { _id: user._id, name: user.name, email: user.email }
-      });
+    return res.status(200).json({ 
+      message: 'Login successful',
+      user: { _id: user._id, name: user.name, email: user.email }
+    });
   } catch (error) {
     console.log('Login error: ', error);
     return res.status(500).json({ message: 'Server error during login' });
@@ -239,26 +240,17 @@ export const googleLogin = async (req, res) => {
       await user.save();
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-    });
+    // Use unified token generator
+    generateAndSetToken(res, user._id);
 
-    return res
-      .status(200)
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .json({
-        message: 'Google sign-in successful',
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        },
-      });
+    return res.status(200).json({
+      message: 'Google sign-in successful',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error('[GOOGLE AUTH] Controller error:', error);
     return res.status(500).json({ message: 'Server error during Google authentication' });
