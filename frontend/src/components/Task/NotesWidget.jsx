@@ -53,14 +53,14 @@ export default function NotesWidget() {
         <div className="flex items-center gap-3">
           <StickyNote size={20} style={{ color: "var(--primary)" }} />
           <h3
-            className="text-lg font-semibold"
+            className="text-xl font-semibold"
             style={{ color: "var(--text-main)" }}
           >
             Quick Notes
           </h3>
         </div>
         <span
-          className="text-xs font-medium px-2.5 py-1 rounded-full"
+          className="text-sm font-medium px-2.5 py-1 rounded-full"
           style={{
             backgroundColor: "var(--accent)",
             color: "var(--text-muted)",
@@ -92,23 +92,30 @@ export default function NotesWidget() {
               style={{ color: note.completed ? "var(--primary)" : "var(--text-muted)" }}
             >
               {note.completed ? (
-                <CheckCircle2 size={20} />
+                <CheckCircle2 size={22} />
               ) : (
-                <Circle size={20} strokeWidth={1.5} />
+                <Circle size={22} strokeWidth={1.5} />
               )}
             </button>
-            <input
-              type="text"
+            <textarea
               value={note.text}
-              onChange={(e) => handleChange(note.id, e.target.value)}
+              onChange={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+                handleChange(note.id, e.target.value);
+              }}
+              rows={1}
               placeholder="Write a note..."
-              className="w-full bg-transparent outline-none text-sm transition-all"
+              className="w-full bg-transparent outline-none text-base resize-none overflow-hidden"
               style={{
                 color: note.completed ? "var(--text-muted)" : "var(--text-main)",
                 textDecoration: note.completed ? "line-through" : "none",
                 opacity: note.completed ? 0.6 : 1,
                 borderBottom: `1px dotted ${note.completed ? "transparent" : "var(--border)"}`,
                 paddingBottom: "4px",
+                paddingTop: "2px",
+                lineHeight: "1.4",
+                minHeight: "28px"
               }}
             />
             <button
@@ -121,7 +128,7 @@ export default function NotesWidget() {
               }
               aria-label="Delete note"
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
         ))}
@@ -134,14 +141,14 @@ export default function NotesWidget() {
       >
         <button
           onClick={addNote}
-          className="flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer w-max rounded-lg px-3 py-1.5"
+          className="flex items-center gap-2 text-base font-medium transition-colors cursor-pointer w-max rounded-lg px-3 py-1.5"
           style={{ color: "var(--text-muted)" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
           onMouseLeave={(e) =>
             (e.currentTarget.style.color = "var(--text-muted)")
           }
         >
-          <Plus size={16} /> Add Note
+          <Plus size={18} /> Add Note
         </button>
       </div>
     </div>
