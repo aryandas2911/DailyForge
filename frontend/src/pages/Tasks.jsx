@@ -195,7 +195,8 @@ const handleActualDurationSubmit = async () => {
             <select
               value={bulkPriority}
               onChange={(e) => setBulkPriority(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800
+              dark:text-white"
             >
               <option value="">-- Select --</option>
               <option value="Low">Low</option>
