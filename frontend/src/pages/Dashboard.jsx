@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
@@ -17,6 +18,7 @@ import { DAYS_OF_WEEK } from "../utils/constants";
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
@@ -82,6 +84,30 @@ export default function Dashboard() {
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
 
+// handling delete profile request
+    const handleDeleteProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await api.delete("/auth/delete-profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      localStorage.clear();
+      navigate("/login");
+    }
+  } catch (error) {
+    console.log(error);
+
+    alert(
+      error?.response?.data?.message || "Error deleting profile"
+    );
+  }
+};
+  
   // Fetch routines
   const fetchRoutines = async () => {
     try {
@@ -139,15 +165,60 @@ const handleDuplicateRoutine = async () => {
   }
 };
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+
+    {/* Profile delete modal */}
+    {showDeleteModal && createPortal(
+      <div
+        className="fixed inset-0 flex items-center justify-center z-50"
+        style={{ backgroundColor: "rgba(0,0,0,0.4)", backdropFilter: "blur(3px)" }}
+        onClick={() => setShowDeleteModal(false)} 
+      >
+        <div
+          className="bg-(--surface) p-6 rounded-xl shadow-2xl w-[90%] max-w-md text-center border border-(--border)"
+          onClick={(e) => e.stopPropagation()} 
+        >
+          <h2 className="text-xl font-bold mb-2 text-main">
+            Delete Profile?
+          </h2>
+          <p className="text-muted mb-6 text-sm">
+            This action is permanent and cannot be undone.
+          </p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleDeleteProfile}
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg transition-colors"
+            >
+              Yes, delete
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="bg-(--surface) hover:opacity-80 text-main border border-(--border) px-5 py-2 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body  
+    )}
+      
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         {/* Display time */}
        <div className="w-full">
+  <div className="flex justify-between items-center">
   <h1 className="text-2xl font-semibold text-main leading-tight">
     {getGreeting()}, {user?.name}
   </h1>
-
+  {/* delete button */}
+    <button
+    onClick={() => setShowDeleteModal(true)}
+    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg mt-4"
+  >
+    Delete Profile
+  </button>
+  </div>
   <p className="text-sm italic text-primary mt-2">
     "{quote}"
   </p>

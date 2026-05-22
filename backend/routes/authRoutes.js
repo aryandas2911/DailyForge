@@ -8,6 +8,7 @@ import {
   updateProfile,
   logout,
   googleLogin,
+  deleteProfile,
 } from "../controllers/authController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -30,7 +31,9 @@ authRouter.post("/login", authLimiter, login);
 // Route for Google login
 authRouter.post("/google", authLimiter, googleLogin);
 
-// Route for get user (me)
+// Route for deleting profile
+authRouter.delete("/delete-profile", authMiddleware, deleteProfile);
+
 authRouter.get('/me', authMiddleware, getUser);
 
 // Route for profile update
