@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { MoreVertical, Trash2, X, Calendar, Layers, Clock, RefreshCw } from "lucide-react";
 import { syncRoutineToGoogleCalendar } from "../../utils/googleCalendar";
-import { MoreVertical, Trash2, X, Calendar, Layers, Clock } from "lucide-react";
 
 export default function RoutineOverviewModal({
   routine,
