@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2, StickyNote, X } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 import NotesWidget from "../components/Task/NotesWidget";
@@ -17,6 +17,7 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -106,7 +107,7 @@ export default function Tasks() {
       <div className="space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
+        <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100 relative z-50">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
@@ -124,7 +125,7 @@ export default function Tasks() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
             {selectedIds.length > 0 && (
               <button
                 onClick={handleBulkDelete}
@@ -133,6 +134,20 @@ export default function Tasks() {
                 <Trash2 size={18} /> Delete Selected ({selectedIds.length})
               </button>
             )}
+            
+            <button
+              onClick={() => setIsNotesOpen(!isNotesOpen)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${
+                isNotesOpen 
+                  ? 'bg-primary text-white border-transparent' 
+                  : 'bg-white dark:bg-slate-800 text-main border-soft hover:bg-gray-50 dark:hover:bg-slate-700'
+              }`}
+              style={isNotesOpen ? { backgroundColor: "var(--primary)" } : {}}
+            >
+              {isNotesOpen ? <X size={18} /> : <StickyNote size={18} />}
+              <span className="hidden sm:inline">{isNotesOpen ? 'Close Notes' : 'Quick Notes'}</span>
+            </button>
+
             <button
               onClick={() => {
                 setEditingTask(null);
@@ -142,6 +157,13 @@ export default function Tasks() {
             >
               <Plus size={18} /> New Task
             </button>
+
+            {/* Notes Popover */}
+            {isNotesOpen && (
+              <div className="absolute top-full right-0 mt-3 z-50 w-80 md:w-96 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-4 border border-gray-100 dark:border-slate-800">
+                <NotesWidget />
+              </div>
+            )}
           </div>
         </div>
 
@@ -219,81 +241,91 @@ export default function Tasks() {
           </div>
 
           {/* Insights sidebar */}
-          <div className="hidden md:flex flex-col gap-6 animate-in delay-300">
-
-            {/* Completion */}
-            <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">
-                Completion
-              </h3>
-
-              <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                  style={{ width: `${completionPercent}%` }}
-                />
+          <div className="flex flex-col gap-6 animate-in delay-300">
+            {/* Unified Insights Card */}
+            <div className="card p-6 shadow-sm flex flex-col gap-6">
+              {/* Completion */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Completion
+                </h3>
+                <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                    style={{ width: `${completionPercent}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted mt-1">
+                  {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
+                </p>
               </div>
-              <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
-              </p>
-            </div>
 
-            {/* Upcoming Deadlines */}
-            <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">
-                Upcoming Deadlines
-              </h3>
-              {upcomingDeadlines.length ? (
-                <ul className="space-y-2 text-sm">
-                  {upcomingDeadlines.slice(0, 3).map((task) => (
-                    <li
-                      key={task._id}
-                      className="flex items-center gap-2 text-main"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      {task.title}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                // updated deadlines logic
-                nextTask ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-main">
-                      {nextTask.title}
-                    </p>
-                    <p className="text-xs text-muted">
-                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
-                    </p>
-                  </div>
+              {/* Divider */}
+              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+              {/* Upcoming Details */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Upcoming Details
+                </h3>
+                {upcomingDeadlines.length ? (
+                  <ul className="space-y-2 text-sm">
+                    {upcomingDeadlines.slice(0, 3).map((task) => (
+                      <li
+                        key={task._id}
+                        className="flex items-center gap-2 text-main"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        {task.title}
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <p className="text-xs text-muted">No upcoming tasks 🎉</p>
-                )
-              )}
+                  // updated deadlines logic
+                  nextTask ? (
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-main">
+                        {nextTask.title}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted">No upcoming tasks 🎉</p>
+                  )
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+              {/* Priority load */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Priority Load
+                </h3>
+                <div
+                  className={`rounded-lg p-4 ${
+                    isOverloaded
+                      ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
+                      : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                  }`}
+                >
+                  <p className="text-sm font-medium">
+                    {isOverloaded
+                      ? "Too many high-priority tasks"
+                      : "Priority load is healthy"}
+                  </p>
+                  <p className="text-xs mt-1 opacity-80">
+                    {isOverloaded
+                      ? "Consider rescheduling or delegating."
+                      : "You're pacing this well."}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Priority load */}
-            <div
-              className={`card p-4 ${
-                isOverloaded
-                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
-                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-              }`}
-            >
-              <p className="text-sm font-medium">
-                {isOverloaded
-                  ? "Too many high-priority tasks"
-                  : "Priority load is healthy"}
-              </p>
-              <p className="text-xs mt-1 opacity-80">
-                {isOverloaded
-                  ? "Consider rescheduling or delegating."
-                  : "You're pacing this well."}
-              </p>
-            </div>
-
-            {/* Notes Widget */}
-            <NotesWidget />
           </div>
         </div>
       </div>

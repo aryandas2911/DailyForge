@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Circle, CheckCircle2, Plus, X } from "lucide-react";
+import { Circle, CheckCircle2, Plus, X, StickyNote } from "lucide-react";
 
 export default function NotesWidget() {
   const [notes, setNotes] = useState(() => {
@@ -15,7 +15,7 @@ export default function NotesWidget() {
     return [
       { id: 1, text: "", completed: false },
       { id: 2, text: "", completed: false },
-      { id: 3, text: "", completed: false }
+      { id: 3, text: "", completed: false },
     ];
   });
 
@@ -24,11 +24,13 @@ export default function NotesWidget() {
   }, [notes]);
 
   const handleChange = (id, value) => {
-    setNotes(notes.map(n => n.id === id ? { ...n, text: value } : n));
+    setNotes(notes.map((n) => (n.id === id ? { ...n, text: value } : n)));
   };
 
   const toggleComplete = (id) => {
-    setNotes(notes.map(n => n.id === id ? { ...n, completed: !n.completed } : n));
+    setNotes(
+      notes.map((n) => (n.id === id ? { ...n, completed: !n.completed } : n))
+    );
   };
 
   const addNote = () => {
@@ -36,28 +38,63 @@ export default function NotesWidget() {
   };
 
   const removeNote = (id) => {
-    setNotes(notes.filter(n => n.id !== id));
+    setNotes(notes.filter((n) => n.id !== id));
   };
 
+  const completedCount = notes.filter((n) => n.completed).length;
+
   return (
-    <div className="card p-6 shadow-sm flex flex-col">
-      <h3
-        className="text-3xl font-medium text-center mb-8 text-main"
-        style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
+    <div className="card p-0 shadow-sm flex flex-col overflow-hidden">
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        style={{ borderBottom: "1px solid var(--border)" }}
       >
-        Notes
-      </h3>
-      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <StickyNote size={20} style={{ color: "var(--primary)" }} />
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: "var(--text-main)" }}
+          >
+            Quick Notes
+          </h3>
+        </div>
+        <span
+          className="text-xs font-medium px-2.5 py-1 rounded-full"
+          style={{
+            backgroundColor: "var(--accent)",
+            color: "var(--text-muted)",
+          }}
+        >
+          {completedCount}/{notes.length} done
+        </span>
+      </div>
+
+      {/* Notes List */}
+      <div className="px-6 py-4 flex flex-col gap-1">
         {notes.map((note) => (
-          <div key={note.id} className="flex items-center gap-4 group relative">
+          <div
+            key={note.id}
+            className="flex items-center gap-3 group relative rounded-lg px-2 py-2.5 transition-colors"
+            style={{
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--accent)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "transparent")
+            }
+          >
             <button
               onClick={() => toggleComplete(note.id)}
-              className="flex-shrink-0 text-muted hover:text-primary transition-colors cursor-pointer mt-1"
+              className="flex-shrink-0 transition-colors cursor-pointer"
+              style={{ color: note.completed ? "var(--primary)" : "var(--text-muted)" }}
             >
               {note.completed ? (
-                <CheckCircle2 size={22} className="text-primary" />
+                <CheckCircle2 size={20} />
               ) : (
-                <Circle size={22} strokeWidth={1.5} />
+                <Circle size={20} strokeWidth={1.5} />
               )}
             </button>
             <input
@@ -65,29 +102,48 @@ export default function NotesWidget() {
               value={note.text}
               onChange={(e) => handleChange(note.id, e.target.value)}
               placeholder="Write a note..."
-              className={`w-full bg-transparent border-b-2 border-dotted outline-none text-base py-2 transition-all ${
-                note.completed
-                  ? "text-muted line-through border-transparent opacity-70"
-                  : "text-main border-soft focus:border-primary"
-              }`}
+              className="w-full bg-transparent outline-none text-sm transition-all"
+              style={{
+                color: note.completed ? "var(--text-muted)" : "var(--text-main)",
+                textDecoration: note.completed ? "line-through" : "none",
+                opacity: note.completed ? 0.6 : 1,
+                borderBottom: `1px dotted ${note.completed ? "transparent" : "var(--border)"}`,
+                paddingBottom: "4px",
+              }}
             />
             <button
               onClick={() => removeNote(note.id)}
-              className="absolute right-0 opacity-0 group-hover:opacity-100 text-muted hover:text-red-500 transition-opacity cursor-pointer p-1"
+              className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1 rounded-md"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-muted)")
+              }
               aria-label="Delete note"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         ))}
       </div>
-      
-      <button 
-        onClick={addNote}
-        className="flex items-center gap-2 text-sm font-medium text-muted hover:text-primary mt-6 transition-colors cursor-pointer w-max"
+
+      {/* Add Note Button */}
+      <div
+        className="px-6 py-3"
+        style={{ borderTop: "1px solid var(--border)" }}
       >
-        <Plus size={18} /> Add Note
-      </button>
+        <button
+          onClick={addNote}
+          className="flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer w-max rounded-lg px-3 py-1.5"
+          style={{ color: "var(--text-muted)" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-muted)")
+          }
+        >
+          <Plus size={16} /> Add Note
+        </button>
+      </div>
     </div>
   );
 }
