@@ -48,11 +48,11 @@ const useTasks = () => {
     );
     try {
       await api.put(`/tasks/${id}`, updates);
-      await getTasks();
-    } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
-      await getTasks();
-    }
+     } catch (error) {
+    console.error(error?.response?.data?.message || "Failed to update task");
+    setTasks(previous);
+    alert(error?.response?.data?.message || "Failed to update task");
+  }
   };
 
   // delete task
