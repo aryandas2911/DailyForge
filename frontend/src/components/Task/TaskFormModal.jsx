@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { CATEGORIES } from "../../utils/categoryUtils";
+import { TAGS } from "../../utils/tagUtils";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -13,6 +13,9 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [customTagInput, setCustomTagInput] = useState("");
 
   const today = new Date();
   const todayStr =
@@ -38,7 +41,14 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
-      setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+      setDueDate(
+        task.dueDate
+        ? new Date(task.dueDate)
+        .toLocaleString("sv-SE")
+        .replace(" ", "T")
+        .slice(0, 16)
+        : ""
+      );
       /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
@@ -84,31 +94,54 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (dueDate < todayStr) {
-      return alert("Due date cannot be in the past");
+    if (!task && dueDate < todayStr) {
+       return alert("Due date cannot be in the past");
     }
 
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      tags,
-      priority,
-      dueDate,
-    });
+   onSubmit({
+  title: title.trim(),
+  description: description.trim(),
+  tags,
+  priority,
+  status: "Due",
+  dueDate,
+});
   };
 
-  const toggleCategory = (categoryName) => {
+  const toggleTag = (tagName) => {
+    if (tagName === "Other") {
+      // toggle showing the custom input
+      setShowOtherInput((s) => !s);
+      return;
+    }
     setTags((prev) =>
-      prev.includes(categoryName)
-        ? prev.filter((t) => t !== categoryName)
-        : [...prev, categoryName]
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
     );
   };
 
+  const addCustomTag = () => {
+    const raw = customTagInput.trim();
+    if (!raw) return;
+    // avoid duplicates (case-insensitive)
+    const lower = raw.toLowerCase();
+    const exists = tags.some((t) => t.toLowerCase() === lower);
+    if (!exists) {
+      setTags((prev) => [...prev, raw]);
+    }
+    setCustomTagInput("");
+    setShowOtherInput(false);
+  };
+
+  const removeTag = (tagName) => {
+    setTags((prev) => prev.filter((t) => t !== tagName));
+  };
+
+  // custom tags are tags that are not part of the predefined list (excluding "Other")
+  const customTags = tags.filter((t) => !TAGS.includes(t));
 
   return createPortal(
     <div
@@ -190,35 +223,71 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             </p>
           </div>
 
-          {/* Categories */}
+          {/* Tags (predefined + other) */}
           <div>
-            <label className="text-sm font-medium text-main">Categories</label>
+            <label className="text-sm font-medium text-main">Tags</label>
             <div className="mt-2 flex flex-wrap gap-2">
-              {CATEGORIES.map((category) => {
-                const isSelected = tags.includes(category.name);
+              {TAGS.map((tag) => {
+                const isSelected = tags.includes(tag);
                 return (
                   <button
-                    key={category.name}
+                    key={tag}
                     type="button"
-                    onClick={() => toggleCategory(category.name)}
+                    onClick={() => toggleTag(tag)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      isSelected
-                        ? "ring-2 ring-offset-1"
-                        : "opacity-60 hover:opacity-100"
+                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
                     }`}
-                    style={{
-                      backgroundColor: category.bgColor,
-                      color: category.color,
-                      ringColor: category.color,
-                    }}
                   >
-                    {category.name}
+                    {tag}
                   </button>
                 );
               })}
             </div>
+
+            {/* Other input */}
+            {showOtherInput && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
+                  placeholder="Enter custom tag (e.g., 'Essay')"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomTag}
+                  className="btn btn-primary px-3 py-1.5"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+
+            {/* Show custom tags (non-predefined) */}
+            {customTags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {customTags.map((ct) => (
+                  <div
+                    key={ct}
+                    className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+                  >
+                    <span className="text-xs font-medium">{ct}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeTag(ct)}
+                      className="text-xs text-red-500 px-1"
+                      aria-label={`Remove tag ${ct}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <p className="text-xs text-muted mt-1">
-              Select one or more categories
+              Select one or more tags or choose Other to add a custom tag
             </p>
           </div>
 
@@ -245,17 +314,17 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           <div>
             <label className="text-sm font-medium text-main">Due Date</label>
             <input
-              type="date"
-              value={dueDate}
-              min={todayStr}
-              max={maxDateStr}
-              onChange={(e) => setDueDate(e.target.value)}
-              onClick={(e) => e.target.showPicker?.()}
-              className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
-              required
-            />
+  type="datetime-local"
+  value={dueDate}
+  min={task ? undefined : todayStr}
+  max={maxDateStr}
+  onChange={(e) => setDueDate(e.target.value)}
+  onClick={(e) => e.target.showPicker?.()}
+  className="w-full mt-1 p-2 border border-soft rounded-lg
+             focus:ring-(--primary) focus:border-(--primary)
+             bg-transparent text-main"
+  required
+/>
           </div>
 
           {/* Submit Button */}
