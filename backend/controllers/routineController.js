@@ -16,11 +16,12 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please enter required details" });
-    }
+    if (!name || !items || items.length === 0) {
+  return res.status(400).json({
+    success:false,
+    message:"Please enter required details"
+  });
+}
     // check if routine with same name already exists for this user
     const existingRoutine = await Routine.findOne({ userId, name });
     if (existingRoutine) {
@@ -298,8 +299,9 @@ export const updateRoutine = async (req, res) => {
     );
     if (!updatedRoutine) {
       return res.status(404).json({
-        message: "Routine not found",
-      });
+   success:false,
+   message:"Routine not found"
+});
     }
     return res.status(200).json({
       success: true,
@@ -337,10 +339,12 @@ export const deleteRoutine = async (req, res) => {
     });
     if (!deleteRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Routine deleted successfully",
     });
   } catch (error) {
