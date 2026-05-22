@@ -1,4 +1,6 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
 export const authMiddleware = (req, res, next) => {
   // access the token from cookies
@@ -9,40 +11,49 @@ export const authMiddleware = (req, res, next) => {
       .json({ success: false, message: "Token format invalid" });
   }
 
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not configured');
+    return res.status(500).json({
+      success: false,
+      message: 'Authentication service is misconfigured',
+    });
+  }
+
   try {
     // verify token using jwt key
-    const verify = jwt.verify(token, process.env.JWT_SECRET);
+    const verify = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: [JWT_ALGORITHM],
+    });
 
     // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
     req.userId = verify.id || verify.userId;
     next();
 
   } catch (error) {
-  // error handling
-  console.log("Token verification error", error);
+    // error handling
+    console.log('Token verification error', error);
 
-  // expired token
-  if (error.name === "TokenExpiredError") {
-    return res.status(401).json({
-      success: false,
-      message: "Session expired, please log in again",
-    });
+    // expired token
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Session expired, please log in again',
+      });
 
-  // invalid/tampered token
-  } else if (error.name === "JsonWebTokenError") {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid token",
-    });
+    // invalid/tampered token
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+      });
 
-  // unexpected server error
-  } else {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    // unexpected server error
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      });
+    }
   }
-}
-
-
 };
+
