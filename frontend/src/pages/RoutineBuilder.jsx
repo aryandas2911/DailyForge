@@ -25,7 +25,6 @@ export default function RoutineBuilder() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
@@ -113,15 +112,18 @@ export default function RoutineBuilder() {
     }
   };
 
-  const confirmSaveRoutine = async () => {
-    const items = scheduledTasks
-      .filter((task) => task.day === selectedDay)
-      .map((task) => ({
-        taskId: task.taskId,
-        day: selectedDay,
-        startTime: task.startTime,
-        duration: task.duration,
-      }));
+ const confirmSaveRoutine = async () => {
+    if (scheduledTasks.length === 0) {
+      alert("No tasks scheduled. Drag tasks into the grid first.");
+      return;
+    }
+
+    const items = scheduledTasks.map((task) => ({
+      taskId: task.taskId,
+      day: task.day,
+      startTime: task.startTime,
+      duration: task.duration,
+    }));
 
     try {
       await api.post("/routines", {
@@ -133,7 +135,6 @@ export default function RoutineBuilder() {
       setIsSaveModalOpen(false);
       setRoutineName("");
       setDescription("");
-      setSelectedDay(null);
       alert("Routine saved successfully");
       await fetchRoutines();
     } catch (err) {
@@ -142,15 +143,10 @@ export default function RoutineBuilder() {
       alert(errorMessage);
     }
   };
+  
 
-  const openSaveRoutineModal = (day) => {
-    const hasTasks = scheduledTasks.some((t) => t.day === day);
-    if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
-      return;
-    }
-    setSelectedDay(day);
-    setRoutineName(`${day} Routine`);
+  const openSaveRoutineModal = () => {
+    setRoutineName("My Weekly Routine");
     setIsSaveModalOpen(true);
   };
 
@@ -211,13 +207,21 @@ export default function RoutineBuilder() {
               <p className="mt-1 text-muted">Design your week</p>
             </div>
           </div>
-          <button
-            onClick={exportToImage}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
-          >
-            <Download size={16} />
-            Export as PNG
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={openSaveRoutineModal}
+              className="btn btn-primary cursor-pointer hover-lift"
+            >
+              Save Routine
+            </button>
+            <button
+              onClick={exportToImage}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
+            >
+              <Download size={16} />
+              Export as PNG
+            </button>
+          </div>
         </header>
 
         {/* Main Layout */}
@@ -237,7 +241,6 @@ export default function RoutineBuilder() {
           <section className="col-span-12 md:col-span-9">
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
-              onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
               innerRef={gridRef}
             />
@@ -292,7 +295,7 @@ export default function RoutineBuilder() {
           <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in">
             <div className="card card-primary w-full max-w-md animate-in delay-100">
               <h3 className="text-lg font-semibold text-main mb-2">
-                Save {selectedDay} Routine
+                Save Weekly Routine
               </h3>
 
               <input
