@@ -20,6 +20,7 @@ const routineSchema = mongoose.Schema(
         taskId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Tasks",
+          required: true,
         },
         day: {
           type: String,
