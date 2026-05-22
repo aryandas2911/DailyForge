@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
 
-// sign up function
 export const signup = async (req, res) => {
   try {
     // fetch values from request
@@ -16,6 +15,17 @@ export const signup = async (req, res) => {
         .json({ message: 'Name must be at least 2 characters long' });
     }
 
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!password || !passwordRegex.test(password)) {
       return res.status(400).json({
@@ -25,7 +35,7 @@ export const signup = async (req, res) => {
     }
 
     // check user exists or not
-    const checkExisting = await User.findOne({ email });
+    const checkExisting = await User.findOne({ email: normalizedEmail });
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
@@ -36,7 +46,7 @@ export const signup = async (req, res) => {
     // create new user document
     const newUser = new User({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
@@ -57,9 +67,9 @@ export const signup = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000,
       })
       .json({ 
-  message: 'User registered successfully',
-  user: { _id: newUser._id, name: newUser.name, email: newUser.email }
-});
+        message: 'User registered successfully',
+        user: { _id: newUser._id, name: newUser.name, email: newUser.email }
+      });
   } catch (error) {
     // error handling
     console.error('Signup error:', error);
@@ -80,16 +90,18 @@ export const login = async (req, res) => {
         .json({ message: 'Email and password are required' });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     // check if user exists or not
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      return res.status(409).json({ message: 'User does not exist' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
-      return res.status(401).json({ message: 'Password does not match' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // generate jwt token
@@ -106,9 +118,9 @@ export const login = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000,
       })
       .json({ 
-  message: 'Login successful',
-  user: { _id: user._id, name: user.name, email: user.email }
-});
+        message: 'Login successful',
+        user: { _id: user._id, name: user.name, email: user.email }
+      });
   } catch (error) {
     // error handling
     console.log('Login error: ', error);
@@ -238,8 +250,10 @@ export const googleLogin = async (req, res) => {
       return res.status(400).json({ message: 'Email is missing from the Google identity token' });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if user already exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       // Create new user for Google registration
@@ -248,15 +262,15 @@ export const googleLogin = async (req, res) => {
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
       user = new User({
-        name: name || email.split('@')[0],
-        email,
+        name: name || normalizedEmail.split('@')[0],
+        email: normalizedEmail,
         password: hashedPassword,
       });
 
       await user.save();
-      console.log(`[GOOGLE AUTH] Created new user profile for: ${email}`);
+      console.log(`[GOOGLE AUTH] Created new user profile for: ${normalizedEmail}`);
     } else {
-      console.log(`[GOOGLE AUTH] Logged in existing user: ${email}`);
+      console.log(`[GOOGLE AUTH] Logged in existing user: ${normalizedEmail}`);
     }
 
     // Generate JWT token (matches standard custom auth format)

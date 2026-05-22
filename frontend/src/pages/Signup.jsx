@@ -108,6 +108,9 @@ const Signup = () => {
     setErrorMessage("");
     try {
       localStorage.removeItem("token");
+      if (!auth || !googleProvider) {
+        throw new Error("Google Sign-In is not configured. Please set up Firebase environment variables.");
+      }
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await api.post("/auth/google", { idToken });

@@ -139,6 +139,10 @@ const Login = () => {
     try {
       localStorage.removeItem("token");
 
+      if (!auth || !googleProvider) {
+        throw new Error("Google Sign-In is not configured. Please set up Firebase environment variables.");
+      }
+
       const result =
         await signInWithPopup(
           auth,
