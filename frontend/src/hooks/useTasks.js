@@ -16,20 +16,50 @@ const useTasks = () => {
 
   // create new task
   const addTask = async (taskData) => {
-    await api.post("/tasks", taskData);
-    getTasks();
-  };
+  try {
+    const response = await api.post("/tasks", taskData);
+
+    console.log("Task added:", response.data);
+
+    // instantly update UI
+    setTasks((prev) => [response.data.newTask, ...prev]);
+
+  } catch (error) {
+
+    console.log("FULL ERROR:", error);
+
+    console.log(
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error.message
+    );
+
+    alert(
+      error?.response?.data?.message ||
+      "Failed to create task"
+    );
+  }
+};
 
   // update task
   const updateTask = async (id, updates) => {
-    await api.put(`/tasks/${id}`, updates);
-    getTasks();
+    setTasks((prev) =>
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+    );
+    try {
+      await api.put(`/tasks/${id}`, updates);
+      await getTasks();
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to update task");
+      await getTasks();
+    }
   };
 
   // delete task
   const deleteTask = async (id) => {
     await api.delete(`/tasks/${id}`);
-    getTasks();
+    // fix : This line refreshes the UI!
+    setTasks(prev => prev.filter(t => t._id !== id)); 
   };
 
   // initial fetch
@@ -37,13 +67,18 @@ const useTasks = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
-
+  // bulk delete tasks
+  const bulkDelete = async (ids) => {
+    await api.post("/tasks/bulk-delete", { ids });
+    getTasks();
+  };
   // return reusable functions
   return {
     tasks,
     addTask,
     updateTask,
     deleteTask,
+    bulkDelete,
   };
 };
 
