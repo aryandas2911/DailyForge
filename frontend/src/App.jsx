@@ -80,5 +80,10 @@ const App = () => {
     
   );
 };
+import ProductivityAssistant from "./components/ProductivityAssistant";
+
+function App() {
+  return <ProductivityAssistant />;
+}
 
 export default App;
