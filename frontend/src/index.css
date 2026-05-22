@@ -8,7 +8,7 @@
 * {
   font-family: 'Outfit', sans-serif;
 }
-:root {
+root{
   --bg: #dbf6ee;
 
   --surface: linear-gradient(
