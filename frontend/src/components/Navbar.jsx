@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, TrendingUp, User } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
@@ -12,6 +12,15 @@ import { twMerge } from "tailwind-merge";
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+// Navigation Links configuration
+const navLinks = [
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Tasks", path: "/tasks", icon: CheckSquare },
+  { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
+  { name: "Analytics", path: "/analytics", icon: TrendingUp },
+  { name: "Profile", path: "/profile", icon: User },
+];
 
 //logout modal 
 const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
@@ -72,12 +81,12 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
 );
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const location = useLocation();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Handle scroll effect for premium glassmorphism transition
   useEffect(() => {
@@ -94,38 +103,17 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
-const handleLogoutClick = () => {
-    setShowLogoutModal(true);
+  const handleLogout = () => {
+    setIsLogoutModalOpen(true);
   };
 
-  const handleConfirmLogout = () => {
-    setShowLogoutModal(false);
-    setIsOpen(false);
+  const confirmLogout = () => {
     logout();
+    setIsOpen(false);
+    setIsLogoutModalOpen(false);
   };
-
-  const handleCancelLogout = () => {
-    setShowLogoutModal(false);
-  };
-
-  // Navigation Links configuration
- const navLinks = [
-  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Tasks", path: "/tasks", icon: CheckSquare },
-  { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
-  { name: "Analytics", path: "/analytics", icon: TrendingUp },
-  { name: "Profile", path: "/profile", icon: User },
-];
 
   return (
-    <>
-    {/* logout modal here, outside of nav so that it overlays everything */}
-      <LogoutModal
-        isOpen={showLogoutModal}
-        onConfirm={handleConfirmLogout}
-        onCancel={handleCancelLogout}
-      />
-
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -141,21 +129,21 @@ const handleLogoutClick = () => {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo Section with Hover Animation */}
-          <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+          <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
             <motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+              className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
             >
               <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
             </motion.div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3]">
               DailyForge
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          {user && (
+          {token && (
             <div className="hidden md:flex items-center gap-2">
               {navLinks.map((link) => (
                 <NavLink
@@ -194,7 +182,7 @@ const handleLogoutClick = () => {
               )}
             </motion.button>
 
-            {!user ? (
+            {!token ? (
               <>
                 <Link
                   to="/login"
@@ -211,7 +199,7 @@ const handleLogoutClick = () => {
               </>
             ) : (
               <button 
-                onClick={handleLogoutClick} 
+                onClick={handleLogout} 
                 className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
                 <LogOut size={16} />
@@ -254,7 +242,7 @@ const handleLogoutClick = () => {
             className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
-              {user && navLinks.map((link) => (
+              {token && navLinks.map((link) => (
                 <NavLink
                   key={link.name}
                   to={link.path}
@@ -296,8 +284,8 @@ const handleLogoutClick = () => {
                 </motion.button>
               </div>
 
-              <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
-                {!user ? (
+              <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
+                {!token ? (
                   <>
                     <Link
                       to="/login"
@@ -312,13 +300,13 @@ const handleLogoutClick = () => {
                       onClick={() => setIsOpen(false)}
                       className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                     >
-                      <User size={18} />
+                      <UserPlus size={18} />
                       Signup
                     </Link>
                   </>
                 ) : (
                   <button
-                    onClick={handleLogoutClick}
+                    onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                   >
                     <LogOut size={18} />
@@ -330,8 +318,12 @@ const handleLogoutClick = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onConfirm={confirmLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+      />
     </motion.nav>
-    </>
   );
 };
 
