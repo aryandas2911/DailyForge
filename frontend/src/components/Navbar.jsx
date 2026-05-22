@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
@@ -113,6 +113,7 @@ const handleLogoutClick = () => {
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "Tasks", path: "/tasks", icon: CheckSquare },
   { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
+  { name: "Analytics", path: "/analytics", icon: TrendingUp },
   { name: "Profile", path: "/profile", icon: User },
 ];
 
@@ -195,18 +196,34 @@ const handleLogoutClick = () => {
 
             {!user ? (
               <>
-                <Link
-                  to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
-                >
-                  Signup
-                </Link>
+                <NavLink
+  to="/login"
+  end
+  className={({ isActive }) =>
+    cn(
+      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
+      isActive
+        ? "border-[#3b8ea0] text-[#3b8ea0] bg-[#d0f6e3]"
+        : "border-transparent text-[#4eb7b3] hover:bg-[#d0f6e3]/50"
+    )
+  }
+>
+  Login
+</NavLink>
+<NavLink
+  to="/signup"
+  end
+  className={({ isActive }) =>
+    cn(
+      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
+      isActive
+        ? "border-[#3b8ea0] text-white bg-[#3b8ea0]"
+        : "border-[#4eb7b3] text-[#4eb7b3] bg-transparent hover:bg-[#d0f6e3]/50"
+    )
+  }
+>
+  Signup
+</NavLink>
               </>
             ) : (
               <button 
@@ -225,6 +242,8 @@ const handleLogoutClick = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
               aria-label="Toggle menu"
+              aria-expanded={isOpen}
+              aria-controls="mobile-navigation-menu"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -246,6 +265,7 @@ const handleLogoutClick = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-navigation-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
