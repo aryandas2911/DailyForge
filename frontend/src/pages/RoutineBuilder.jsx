@@ -197,7 +197,7 @@ export default function RoutineBuilder() {
           <aside className="col-span-12 md:col-span-3">
             <TaskLibrary
                 tasks={tasks}
-                onAddTask={() => setIsModalOpen(true)}
+                onAddTask={openModal}
             />
          </aside>
 
