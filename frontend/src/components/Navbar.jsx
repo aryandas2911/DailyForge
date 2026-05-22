@@ -2,17 +2,17 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp, Info } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-
+ 
 // Utility for merging tailwind classes safely
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-
+ 
 //logout modal 
 const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
   <AnimatePresence>
@@ -38,7 +38,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           <div className="w-14 h-14 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center mx-auto mb-5">
             <LogOut size={26} className="text-orange-500" />
           </div>
-
+ 
           {/* Text */}
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
             Log out of DailyForge?
@@ -46,7 +46,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-7">
             You'll need to log back in to access your dashboard, tasks, and routines.
           </p>
-
+ 
           {/* Buttons */}
           <div className="flex gap-3">
             <motion.button
@@ -70,7 +70,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
     )}
   </AnimatePresence>
 );
-
+ 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -78,7 +78,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+ 
   // Handle scroll effect for premium glassmorphism transition
   useEffect(() => {
     const handleScroll = () => {
@@ -87,27 +87,27 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+ 
   // Close mobile menu automatically on route change
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [location.pathname]);
-
+ 
 const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
-
+ 
   const handleConfirmLogout = () => {
     setShowLogoutModal(false);
     setIsOpen(false);
     logout();
   };
-
+ 
   const handleCancelLogout = () => {
     setShowLogoutModal(false);
   };
-
+ 
   // Navigation Links configuration
  const navLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -115,8 +115,9 @@ const handleLogoutClick = () => {
   { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
   { name: "Analytics", path: "/analytics", icon: TrendingUp },
   { name: "Profile", path: "/profile", icon: User },
+  { name: "About", path: "/about", icon: Info },
 ];
-
+ 
   return (
     <>
     {/* logout modal here, outside of nav so that it overlays everything */}
@@ -125,7 +126,7 @@ const handleLogoutClick = () => {
         onConfirm={handleConfirmLogout}
         onCancel={handleCancelLogout}
       />
-
+ 
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -153,7 +154,7 @@ const handleLogoutClick = () => {
               DailyForge
             </span>
           </Link>
-
+ 
           {/* Desktop Navigation */}
           {user && (
             <div className="hidden md:flex items-center gap-2">
@@ -176,7 +177,7 @@ const handleLogoutClick = () => {
               ))}
             </div>
           )}
-
+ 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
             {/* Premium Dark Mode Toggle */}
@@ -193,7 +194,7 @@ const handleLogoutClick = () => {
                 <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
               )}
             </motion.button>
-
+ 
             {!user ? (
               <>
                 <Link
@@ -219,7 +220,7 @@ const handleLogoutClick = () => {
               </button>
             )}
           </div>
-
+ 
           {/* Mobile Menu Toggle Button */}
           <div className="md:hidden flex items-center">
             <button
@@ -242,7 +243,7 @@ const handleLogoutClick = () => {
           </div>
         </div>
       </div>
-
+ 
       {/* Mobile Navigation Dropdown */}
       <AnimatePresence>
         {isOpen && (
@@ -272,7 +273,7 @@ const handleLogoutClick = () => {
                   {link.name}
                 </NavLink>
               ))}
-
+ 
               {/* Premium Mobile Dark Mode Toggle */}
               <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
                 <span className="text-sm font-medium text-main">Theme Mode</span>
@@ -295,7 +296,7 @@ const handleLogoutClick = () => {
                   )}
                 </motion.button>
               </div>
-
+ 
               <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
                 {!user ? (
                   <>
@@ -334,5 +335,5 @@ const handleLogoutClick = () => {
     </>
   );
 };
-
+ 
 export default Navbar;
