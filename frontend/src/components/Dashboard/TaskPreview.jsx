@@ -46,16 +46,16 @@ export default function TaskPreview({ tasks , updateTask}) {
                 hasTime: task.hasTime,
               });
 
-              const hours = Math.floor(
+              const hours = isOverdue ? 0 : Math.floor(
                 remainingTime / (1000 * 60 * 60)
               );
 
-              const minutes = Math.floor(
+              const minutes = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60 * 60)) /
                   (1000 * 60)
               );
 
-              const seconds = Math.floor(
+              const seconds = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60)) / 1000
               );
 
