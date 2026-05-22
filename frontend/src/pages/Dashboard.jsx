@@ -1,3 +1,4 @@
+import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -10,6 +11,7 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
 
@@ -19,12 +21,12 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
-  const [routineTasks, setRoutineTasks] = useState([]);
   const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask: updateDbTask } = useTasks();
+  const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
 
   const today = new Date();
  
@@ -97,29 +99,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRoutines();
   }, []);
-  useEffect(() => {
-
-  const loadRoutineTasks = () => {
-
-    const storedRoutineTasks = localStorage.getItem(
-      "activeRoutineTasks"
-    );
-
-    if (storedRoutineTasks) {
-      setRoutineTasks(JSON.parse(storedRoutineTasks));
-    } else {
-      setRoutineTasks([]);
-    }
-  };
-
-  loadRoutineTasks();
-
-  window.addEventListener("storage", loadRoutineTasks);
-
-return () => {
-  window.removeEventListener("storage", loadRoutineTasks);
-};
-}, []);
 
 const openDuplicateModal = (routine) => {
   setRoutineToDuplicate(routine);
@@ -162,6 +141,7 @@ const handleDuplicateRoutine = async () => {
 };
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+      <OnboardingModal />
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         {/* Display time */}
