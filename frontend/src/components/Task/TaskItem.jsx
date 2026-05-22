@@ -1,6 +1,7 @@
-import { Check, Trash2, Pencil, Calendar } from "lucide-react";
+import { Check, Trash2, Pencil, Calendar, Timer } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
+import PomodoroModal from "./PomodoroModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
 
 const priorityStyles = {
@@ -12,6 +13,7 @@ const priorityStyles = {
 export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isTimerModalOpen, setIsTimerModalOpen] = useState(false);
 
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
@@ -99,6 +101,17 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {/* Timer Button */}
+            {!isCompleted && (
+              <button
+                onClick={() => setIsTimerModalOpen(true)}
+                className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition cursor-pointer"
+                title="Start Pomodoro Timer"
+              >
+                <Timer size={18} className="text-blue-500" />
+              </button>
+            )}
+
             {/* Edit Button */}
             <button
               onClick={() => setIsEditModalOpen(true)}
@@ -124,6 +137,14 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           task={task}
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditSubmit}
+        />
+      )}
+
+      {/* Pomodoro Timer Modal */}
+      {isTimerModalOpen && (
+        <PomodoroModal
+          task={task}
+          onClose={() => setIsTimerModalOpen(false)}
         />
       )}
     </>
