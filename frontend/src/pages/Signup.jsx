@@ -289,9 +289,9 @@ const Signup = () => {
                 rounded-2xl
                 text-sm
                 border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
+                bg-red-500/10 dark:bg-red-950/30
+                border-red-500/20 dark:border-red-800
+                text-red-500 dark:text-red-300
               "
             >
               {errorMessage}
@@ -323,137 +323,9 @@ const Signup = () => {
               "
             />
             {errors.name && (
-              <span className="text-red-500 text-xs">{errors.name}</span>
-            )}
-          </div>
-
-          {/* Email */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-main"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              placeholder="user@email.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="
-                input-modern
-                w-full
-                px-4
-                py-3
-                rounded-2xl
-                text-sm
-              "
-            />
-          </div>
-
-          {/* Password */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-main"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                placeholder="••••••••"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  px-4
-                  py-3
-                  pr-11
-                  rounded-2xl
-                  text-sm
-                "
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="
-                  absolute
-                  right-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-muted
-                  hover:text-main
-                  transition-colors
-                  cursor-pointer
-                "
-              >
-                {showPassword ? (
-                  <Eye size={18} />
-                ) : (
-                  <EyeOff size={18} />
-                )}
-              </button>
-            </div>
-            {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
-            )}
-          </div>
-
-          {/* Confirm Password */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="confirmPassword"
-              className="text-sm font-medium text-main"
-            >
-              Confirm Password
-            </label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                placeholder="••••••••"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  px-4
-                  py-3
-                  pr-11
-                  rounded-2xl
-                  text-sm
-                "
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="
-                  absolute
-                  right-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-muted
-                  hover:text-main
-                  transition-colors
-                  cursor-pointer
-                "
-              >
-                {showConfirmPassword ? (
-                  <Eye size={18} />
-                ) : (
-                  <EyeOff size={18} />
-                )}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.name}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.password}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.confirmPassword}</span>
             )}
           </div>
 

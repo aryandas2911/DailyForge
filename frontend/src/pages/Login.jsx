@@ -421,9 +421,9 @@ const Login = () => {
               rounded-2xl
               text-sm
               border
-              bg-red-500/10
-              border-red-500/20
-              text-red-500
+              bg-red-500/10 dark:bg-red-950/30
+              border-red-500/20 dark:border-red-800
+              text-red-500 dark:text-red-300
             "
           >
             {error}
