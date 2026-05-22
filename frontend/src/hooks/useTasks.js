@@ -48,18 +48,23 @@ const useTasks = () => {
     );
     try {
       await api.put(`/tasks/${id}`, updates);
-      await getTasks();
-    } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
-      await getTasks();
-    }
+     } catch (error) {
+    console.error(error?.response?.data?.message || "Failed to update task");
+    setTasks(previous);
+    alert(error?.response?.data?.message || "Failed to update task");
+  }
   };
 
   // delete task
   const deleteTask = async (id) => {
+    try{
     await api.delete(`/tasks/${id}`);
     // fix : This line refreshes the UI!
     setTasks(prev => prev.filter(t => t._id !== id)); 
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      alert(error?.response?.data?.message || "Failed to delete task");
+    }
   };
 
   // initial fetch
@@ -69,8 +74,13 @@ const useTasks = () => {
   }, []);
   // bulk delete tasks
   const bulkDelete = async (ids) => {
+  try {
     await api.post("/tasks/bulk-delete", { ids });
     getTasks();
+  } catch (error) {
+    console.error("Error bulk deleting tasks:", error);
+    alert(error?.response?.data?.message || "Failed to delete selected tasks");
+  }
   };
   // bulk edit tasks
   const bulkUpdate = async (ids, updates) => {
