@@ -8,7 +8,7 @@ import crypto from 'crypto';
 export const signup = async (req, res) => {
   try {
     // fetch values from request
-    const { name, email, password } = req.body;
+    const { name, email: rawEmail, password } = req.body;
     const email = rawEmail?.trim().toLowerCase();
 
     if (!name || name.trim().length < 2) {
@@ -72,7 +72,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     // fetch user data from request
-    const { email, password } = req.body;
+    const {  email: rawEmail, password } = req.body;
     const email = rawEmail?.trim().toLowerCase();
 
     // check if email and password exist in request
