@@ -13,18 +13,9 @@ const formatDateString = (date) => {
 
 export const getAnalytics = async (req, res) => {
   try {
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized, user not logged in",
-      });
-    }
-
     // Fetch all user tasks and routines
-    const tasks = await Task.find({ userId });
-    const routines = await Routine.find({ userId });
+    const tasks = await Task.find({ userId: req.userId });
+    const routines = await Routine.find({ userId: req.userId });
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === "Completed");

@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
+import User from '../src/models/User.js';
 
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
-export const authMiddleware = (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   // access the token from cookies
   const token = req.cookies?.token;
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, message: "Token format invalid" });
+      .json({ success: false, message: "Authentication error, token not present" });
   }
 
   if (!process.env.JWT_SECRET) {
@@ -26,7 +27,19 @@ export const authMiddleware = (req, res, next) => {
     });
 
     // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
-    req.userId = verify.id || verify.userId;
+    const userId = verify.id || verify.userId;
+
+    // verify user exists in database
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found or account deactivated",
+      });
+    }
+
+    req.user = user;
+    req.userId = user._id;
     next();
 
   } catch (error) {
@@ -40,14 +53,14 @@ export const authMiddleware = (req, res, next) => {
         message: 'Session expired, please log in again',
       });
 
-    // invalid/tampered token
+      // invalid/tampered token
     } else if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         message: 'Invalid token',
       });
 
-    // unexpected server error
+      // unexpected server error
     } else {
       return res.status(500).json({
         success: false,
