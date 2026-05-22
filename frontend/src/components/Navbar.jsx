@@ -165,8 +165,8 @@ const handleLogoutClick = () => {
                     cn(
                       "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ?"bg-[#d0f6e3] dark:bg-slate-800 text-[#3b8ea0] dark:text-[#98e1d7] shadow-sm"
+                        : "text-[#4eb7b3] dark:text-[#98e1d7] hover:bg-[#d0f6e3]/50 dark:hover:bg-white/10 hover:text-[#3b8ea0] dark:hover:text-white"
                     )
                   }
                 >
@@ -198,7 +198,7 @@ const handleLogoutClick = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                  className="text-sm font-medium text-[#4eb7b3] dark:text-[#98e1d7] hover:text-[#3b8ea0] dark:hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50 dark:hover:bg-white/10"
                 >
                   Login
                 </Link>
@@ -224,7 +224,7 @@ const handleLogoutClick = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
+              className="p-2 rounded-xl text-[#3b8ea0] dark:text-[#98e1d7] hover:bg-[#d0f6e3] dark:hover:bg-white/10 transition-colors focus:outline-none"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -263,8 +263,8 @@ const handleLogoutClick = () => {
                     cn(
                       "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "bg-[#d0f6e3] dark:bg-slate-800 text-[#3b8ea0] dark:text-[#98e1d7]"
+                        : "text-[#4eb7b3] dark:text-[#98e1d7] hover:bg-[#d0f6e3]/50 dark:hover:bg-white/10 hover:text-[#3b8ea0] dark:hover:text-white"
                     )
                   }
                 >
@@ -302,8 +302,7 @@ const handleLogoutClick = () => {
                     <Link
                       to="/login"
                       onClick={() => setIsOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-[#d0f6e3] transition-colors"
-                    >
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-[#98e1d7] font-medium hover:bg-[#d0f6e3] dark:hover:bg-white/10 transition-colors"                    >
                       <LogIn size={18} />
                       Login
                     </Link>
