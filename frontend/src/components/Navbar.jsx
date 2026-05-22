@@ -160,6 +160,8 @@ const handleLogoutClick = () => {
                 <NavLink
                   key={link.name}
                   to={link.path}
+                  target={link.name === "Profile" ? "_blank" : undefined}
+                  rel={link.name === "Profile" ? "noopener noreferrer" : undefined}
                   className={({ isActive }) =>
                     cn(
                       "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
