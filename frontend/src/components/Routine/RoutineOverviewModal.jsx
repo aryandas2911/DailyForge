@@ -3,6 +3,7 @@ import { MoreVertical, Trash2, X, Calendar, Layers, Clock, RefreshCw } from "luc
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../../utils/firebase";
 import { syncRoutineToGoogleCalendar } from "../../utils/googleCalendar";
+import { MoreVertical, Trash2, X, Calendar, Layers, Clock } from "lucide-react";
 
 export default function RoutineOverviewModal({
   routine,
@@ -171,6 +172,7 @@ export default function RoutineOverviewModal({
                   Sync to Google Calendar
                 </button>
                 <div className="h-px bg-soft/20 w-full" />
+              <div className="absolute top-12 right-10 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
