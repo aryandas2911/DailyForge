@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, ArrowRight, Copy } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
 
@@ -10,6 +10,7 @@ import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
+import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
 
@@ -19,12 +20,12 @@ export default function Dashboard() {
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
-  const [routineTasks, setRoutineTasks] = useState([]);
   const [duplicatingRoutineId, setDuplicatingRoutineId] = useState(null);
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask: updateDbTask } = useTasks();
+  const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
 
   const today = new Date();
  
@@ -97,29 +98,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRoutines();
   }, []);
-  useEffect(() => {
-
-  const loadRoutineTasks = () => {
-
-    const storedRoutineTasks = localStorage.getItem(
-      "activeRoutineTasks"
-    );
-
-    if (storedRoutineTasks) {
-      setRoutineTasks(JSON.parse(storedRoutineTasks));
-    } else {
-      setRoutineTasks([]);
-    }
-  };
-
-  loadRoutineTasks();
-
-  window.addEventListener("storage", loadRoutineTasks);
-
-return () => {
-  window.removeEventListener("storage", loadRoutineTasks);
-};
-}, []);
 
 const openDuplicateModal = (routine) => {
   setRoutineToDuplicate(routine);
@@ -232,13 +210,26 @@ const handleDuplicateRoutine = async () => {
         <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-main">Saved Routines</h2>
+            <button                                                              
+                onClick={fetchRoutines}                                            
+                disabled={loadingRoutines}                                        
+                aria-label="Refresh routines"                                     
+                className="p-1 rounded-full hover:bg-gray-100 transition cursor-pointer disabled:opacity-50" 
+              >                                                                   
+                <RotateCw                                                          
+                  size={15}                                                        
+                  className={`text-muted ${loadingRoutines ? "animate-spin" : ""}`} 
+                />                                                                
+              </button>                                                           
+            </div>                                                               
             <button
-              className="text-sm text-primary hover:underline underline-offset-4 cursor-pointer flex items-center gap-1"
+              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
-              <ArrowRight size={16} />
+              <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
             </button>
           </div>
 

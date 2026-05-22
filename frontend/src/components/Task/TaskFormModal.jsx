@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Tag , ClipboardList , AlignLeft , Flag, ClipboardPlus , Plus} from "lucide-react";
 import { CATEGORIES } from "../../utils/categoryUtils";
+import { createPortal } from "react-dom";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -14,12 +15,25 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
 
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [customTagInput, setCustomTagInput] = useState("");
+
   const today = new Date();
-  const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-  
+  const todayStr =
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0");
+
   const maxDateObj = new Date();
   maxDateObj.setFullYear(today.getFullYear() + 1);
-  const maxDateStr = maxDateObj.getFullYear() + '-' + String(maxDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(maxDateObj.getDate()).padStart(2, '0');
+  const maxDateStr =
+    maxDateObj.getFullYear() +
+    "-" +
+    String(maxDateObj.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(maxDateObj.getDate()).padStart(2, "0");
 
   const today = new Date();
   const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -36,23 +50,63 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
-      setDueDate(task.dueDate ? task.dueDate.split("T")[0] : "");
+      setDueDate(
+        task.dueDate
+        ? new Date(task.dueDate)
+        .toLocaleString("sv-SE")
+        .replace(" ", "T")
+        .slice(0, 16)
+        : ""
+      );
       /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
   }, [task, onError]);
 
+  /* ---------------- body scroll lock ---------------- */
+  useEffect(() => {
+    const scrollY = window.scrollY;
+
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflowY = "scroll";
+
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflowY = "";
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKey);
+
+    return () =>
+      document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     onError?.("");
+
     if (!title.trim()) return onError?.("Title is required");
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (dueDate < todayStr) {
-      return alert("Due date cannot be in the past");
+    if (!task && dueDate < todayStr) {
+       return alert("Due date cannot be in the past");
     }
-    
+
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
@@ -61,46 +115,99 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       title: title.trim(),
       description: description.trim(),
       tags: tags,
-      tags: tags,
+      status: "Due",
       priority,
       dueDate,
     });
   };
 
-  const toggleCategory = (categoryName) => {
-    setTags(prev => 
-      prev.includes(categoryName)
-        ? prev.filter(tag => tag !== categoryName)
-        : [...prev, categoryName]
+  const toggleTag = (tagName) => {
+    if (tagName === "Other") {
+      // toggle showing the custom input
+      setShowOtherInput((s) => !s);
+      return;
+    }
+    setTags((prev) =>
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
     );
   };
 
-  const toggleCategory = (categoryName) => {
-    setTags(prev => 
-      prev.includes(categoryName)
-        ? prev.filter(tag => tag !== categoryName)
-        : [...prev, categoryName]
-    );
-  };
+const addCustomTag = () => {
+  const raw = customTagInput.trim();
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg animate-fadeIn">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-in delay-100 border border-soft">
-        
+  if (!raw) return;
 
-        <div className=" bg-teal-900 px-8 pt-5 pb-4 ">
-          <div className="flex items-center justify-between">
-              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-sm">
-          <ClipboardPlus size={28} className="text-teal-100"/>
+  const lower = raw.toLowerCase();
+
+  const exists = tags.some(
+    (t) => t.toLowerCase() === lower
+  );
+
+  if (!exists) {
+    setTags((prev) => [...prev, raw]);
+  }
+
+  setCustomTagInput("");
+  setShowOtherInput(false);
+};
+
+const removeTag = (tagName) => {
+  setTags((prev) =>
+    prev.filter((t) => t !== tagName)
+  );
+};
+
+const customTags = tags.filter(
+  (t) => !TAGS.includes(t)
+);
+
+return createPortal(
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-lg animate-fadeIn"
+    onMouseDown={(e) => {
+      if (e.target === e.currentTarget) onClose();
+    }}
+    aria-modal="true"
+    role="dialog"
+  >
+    <div
+      className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl animate-in delay-100 border border-soft"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-1 rounded-full text-white/80 hover:bg-white/10"
+        aria-label="Close modal"
+      >
+        <X size={20} />
+      </button>
+
+      <div className="bg-teal-900 px-8 pt-5 pb-4">
+        <div className="flex items-center justify-between">
+
+          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-sm">
+            <ClipboardPlus
+              size={28}
+              className="text-teal-100"
+            />
           </div>
-          {/* text  */}
+
           <div className="space-y-1">
             <span className="text-xs font-bold tracking-[0.2em] text-teal-400 uppercase">
               {task ? "Edit Task" : "New Task"}
             </span>
-          
-        <h2 className=" mt-2 text-2xl font-semibold text-white leading-tight">
-          {task ? "Update your task" : "What do you need to get done?"}
+
+            <h2 className="mt-2 text-2xl font-semibold text-white leading-tight">
+              {task
+                ? "Update your task"
+                : "What do you need to get done?"}
+            </h2>
+          </div>
+
+        </div>
+      </div>
         </h2>
         <p className="text-sm text-teal-400 mt-2">
           {task ? "Make your changes below" : "Fill in the details and hit add task."}
@@ -160,7 +267,6 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               rows={3}
               maxLength={DESCRIPTION_MAX_LENGTH}
             />
-
             <p
               className={`text-sm mt-1 text-right ${
                 description.length >= DESCRIPTION_MAX_LENGTH
@@ -176,70 +282,141 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           </div>
           </div>
 
-          {/* Categories */}
-          {/* Categories */}
-          <div>
+{/* Tags */}
+<div>
   <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
-   Tags (optional)
+    Tags
   </label>
 
-  <div className="relative mt-2">
-    <Tag
-      size={18}
-      className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-800"
-    />
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full  rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-              placeholder="Upskilling , Work , Personal"
-            />
-          </div>
+  {/* Predefined tags */}
+  <div className="mt-2 flex flex-wrap gap-2">
+    {TAGS.map((tag) => {
+      const isSelected = tags.includes(tag);
+
+      return (
+        <button
+          key={tag}
+          type="button"
+          onClick={() => toggleTag(tag)}
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            isSelected
+              ? "ring-2 ring-offset-1"
+              : "opacity-60 hover:opacity-100"
+          }`}
+        >
+          {tag}
+        </button>
+      );
+    })}
+  </div>
+
+  {/* Custom tag input */}
+  {showOtherInput && (
+    <div className="relative mt-3 flex gap-2">
+      <Tag
+        size={18}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-800"
+      />
+
+      <input
+        type="text"
+        value={customTagInput}
+        onChange={(e) => setCustomTagInput(e.target.value)}
+        className="flex-1 rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+        placeholder="Enter custom tag"
+      />
+
+      <button
+        type="button"
+        onClick={addCustomTag}
+        className="btn btn-primary px-3 py-1.5"
+      >
+        Add
+      </button>
+    </div>
+  )}
+
+  {/* Custom tags display */}
+  {customTags.length > 0 && (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {customTags.map((ct) => (
+        <div
+          key={ct}
+          className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+        >
+          <span className="text-xs font-medium">{ct}</span>
+
+          <button
+            type="button"
+            onClick={() => removeTag(ct)}
+            className="text-xs text-red-500 px-1"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+
+  <p className="text-xs text-muted mt-2">
+    Select one or more tags or add custom tags
+  </p>
+</div>
           </div>
 
           {/* Priority */}
           <div className="grid grid-cols-2 gap-3">
           <div>
-             <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
-        Priority
-      </label>
-      <div className="relative mt-2">
+<div>
+  <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
+    Priority
+  </label>
+
+  <div className="relative mt-2">
     <Flag
       size={18}
       className={`absolute left-4 top-1/2 -translate-y-1/2 
-      ${priority === "Low" ? "text-green-500" : 
-        priority === "Medium" ? "text-yellow-500" : 
-        "text-red-500"}`}
+      ${
+        priority === "Low"
+          ? "text-green-500"
+          : priority === "Medium"
+          ? "text-yellow-500"
+          : "text-red-500"
+      }`}
     />
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-        required
-      >
-        {priorities.map((p) => (
-          <option key={p} value={p}>{p}</option>
-        ))}
-        </select>
-          </div>
-          </div>
 
-          {/* Due Date */}
-          <div>
-            <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
-        Due date
-      </label>
-      <input
-        type="date"
-        value={dueDate}
-         min={todayStr}
-              max={maxDateStr}
-              onChange={(e) => setDueDate(e.target.value)}
-              onClick={(e) => e.target.showPicker?.()}
-        className="w-full mt-2 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-500 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-teal-500/20"
-        required
-      />
+    <select
+      value={priority}
+      onChange={(e) => setPriority(e.target.value)}
+      className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm text-gray-800 transition-all duration-200 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+      required
+    >
+      {priorities.map((p) => (
+        <option key={p} value={p}>
+          {p}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
+
+{/* Due Date */}
+<div>
+  <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">
+    Due Date
+  </label>
+
+  <input
+    type="datetime-local"
+    value={dueDate}
+    min={task ? undefined : todayStr}
+    max={maxDateStr}
+    onChange={(e) => setDueDate(e.target.value)}
+    onClick={(e) => e.target.showPicker?.()}
+    className="w-full mt-2 px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-500 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-teal-500/20"
+    required
+  />
+</div>
           </div>
 
           </div>
@@ -267,6 +444,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
