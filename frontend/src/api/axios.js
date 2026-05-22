@@ -22,6 +22,9 @@ api.interceptors.request.use((config) => {
     console.log(error);
     return Promise.reject(error);
   }
+  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api/" : "https://dailyforge-backend.onrender.com/api/"),
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000, // updated 15s as default
+  withCredentials: true,
 });
 
 // Handle response errors, including timeout
