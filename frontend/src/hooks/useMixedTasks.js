@@ -44,32 +44,23 @@ const useMixedTasks = (updateDbTask) => {
     // Check if this is a routine task (synthetic ID with routine- prefix)
     if (id && String(id).startsWith("routine-")) {
       // Handle routine task locally
-      let result;
-      setRoutineTasks((prev) => {
-        const updated = prev.map((task) =>
-          task._id === id ? { ...task, ...updates } : task
+      const updated = routineTasks.map((task) =>
+       task._id === id ? { ...task, ...updates } : task
+      );
+      setRoutineTasks(updated);
+      try {
+        localStorage.setItem("activeRoutineTasks", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Failed to persist routine tasks to localStorage", error);
+       }
+      try {
+        window.dispatchEvent(
+          new CustomEvent("activeRoutineTasksUpdated", { detail: updated })
         );
-        // Persist to localStorage (wrap in try/catch for safety)
-        try {
-          localStorage.setItem("activeRoutineTasks", JSON.stringify(updated));
-        } catch (error) {
-          // ignore localStorage failures
-          console.error("Failed to persist routine tasks to localStorage", error);
-        }
-        // Dispatch a dedicated custom event so same-tab listeners can subscribe
-        try {
-          window.dispatchEvent(
-            new CustomEvent("activeRoutineTasksUpdated", { detail: updated })
-          );
-        } catch {
-          // fallback to a generic event
-          window.dispatchEvent(new Event("activeRoutineTasksUpdated"));
-        }
-        result = updated.find((t) => t._id === id);
-        return updated;
-      });
-      // return the updated task for callers that await this
-      return result;
+      } catch {
+        window.dispatchEvent(new Event("activeRoutineTasksUpdated"));
+      }
+      return updated.find((t) => t._id === id);
     }
 
     if (typeof updateDbTask === "function") {
