@@ -25,6 +25,7 @@
 - [📂 Project Structure](#-project-structure)
 - [⚡ Quick Start](#-quick-start)
 - [🔐 Environment Variables](#-environment-variables)
+- [🌐 Google Authentication Setup](#-google-authentication-setup)
 - [❓ FAQ](#-faq)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [🤝 Contribution Guidelines](#-contribution-guidelines)
@@ -287,6 +288,54 @@ Copy the provided `.env.example` to a new file named `.env`.
 
 ---
 
+## 🛠️ Troubleshooting
+
+| Issue | Common Cause | Quick Fix |
+| :--- | :--- | :--- |
+| **CORS Errors** | `FRONTEND_URL` mismatch in backend `.env`. | Match it to your local frontend URL exactly (e.g., `http://localhost:5173`). Restart server. |
+| **Database Failures** | Incorrect credentials or IP restriction. | Replace `<password>` with your database user password. Whitelist `0.0.0.0/0` in Atlas Network Access. |
+| **Dependency Conflicts** | React 19 / Tailwind v4 version strictness. | Run `npm install --legacy-peer-deps` in both directories. |
+| **Glitchy Drag-and-Drop** | DOM-altering browser extensions. | Test the application in an **Incognito window**. |
+
+---
+
+## 🌐 Google Authentication Setup
+
+DailyForge supports Google Authentication via Firebase. Follow these steps to configure and enable Google Sign-In:
+
+### 1. Firebase Console Setup
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and click **Add project** to create a new project.
+2. Once the project is created, click the **Web icon (`</>`)** on the Project Overview page to register a new Web App.
+3. Copy the `firebaseConfig` object containing the API key, app ID, etc.
+4. Go to **Build** → **Authentication** in the left sidebar and click **Get Started**.
+5. Under the **Sign-in method** tab, click **Add new provider** and select **Google**.
+6. Enable the provider, configure your support email, and click **Save**.
+
+### 2. Environment Variables Configuration
+
+To enable the frontend and backend integration, copy the configuration values into your respective `.env` files:
+
+#### Frontend — `frontend/.env`
+Append your Firebase client configuration to your local `.env` file:
+```env
+# Firebase Client configuration
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+#### Backend — `backend/.env`
+Add your Firebase Project ID to secure RS256 token verification:
+```env
+# Firebase verification configuration
+FIREBASE_PROJECT_ID=your_project_id
+```
+
+---
+
 ## ❓ FAQ
 
 ### Why is the app slow on first load?
@@ -352,81 +401,17 @@ Frontend variables go inside:
 
 ## 🛠 Troubleshooting
 
-### MongoDB Connection Error
+| Issue | Common Cause | Quick Fix |
+| :--- | :--- | :--- |
+| **CORS Errors** | `CLIENT_ORIGIN` or `FRONTEND_URL` mismatch in backend `.env`. | Ensure backend `.env` has correct origin (e.g., `http://localhost:5173`). Restart the server after changes. |
+| **MongoDB Connection Error** | Incorrect `MONGO_URI`, wrong credentials, or IP not whitelisted. | Verify `MONGO_URI`, replace `<password>` with correct DB password, and whitelist `0.0.0.0/0` in MongoDB Atlas Network Access. |
+| **Frontend Cannot Connect to Backend** | Backend not running, wrong API URL, or port mismatch. | Set `VITE_API_URL=http://localhost:5000/api` and ensure backend is running on `http://localhost:5000`. |
+| **JWT Authentication Errors** | Missing or incorrect `JWT_SECRET`. | Add `JWT_SECRET` in `backend/.env` and restart the backend server. |
+| **Dependency Conflicts** | React 19 / Tailwind v4 strict peer dependency issues. | Run `npm install --legacy-peer-deps` in both frontend and backend directories. |
+| **Glitchy Drag-and-Drop** | Browser extensions interfering with DOM events. | Test the app in **Incognito mode** or disable extensions. |
+| **Port Already in Use** | Another process is using the same port. | Stop the running process or change `PORT` in `.env` (e.g., `PORT=5001`). |
+| **Dependency Installation Issues** | Corrupted `node_modules` or lock file conflicts. | Run `rm -rf node_modules package-lock.json && npm install`. |
 
-**Error Example**
-
-```bash
-MongooseServerSelectionError
-```
-
-**Possible Fixes**
-
-* Verify your `MONGO_URI`
-* Check your database username/password
-* Ensure your IP address is whitelisted in MongoDB Atlas
-
----
-
-### Frontend Cannot Connect to Backend
-
-**Possible Causes**
-
-* Backend server is not running
-* Incorrect `VITE_API_URL`
-* Port mismatch
-
-**Fix**
-Ensure:
-
-```env 
-VITE_API_URL=http://localhost:5000/api
-```
-
-And confirm the backend is running on:
-
-```bash 
-http://localhost:5000
-```
-
----
-
-### JWT Authentication Errors
-
-**Fix**
-
-* Ensure `JWT_SECRET` is present in `backend/.env`
-* Restart the backend server after updating environment variables
-
----
-
-### Port Already in Use
-
-**Error Example**
-
-```bash 
-EADDRINUSE
-```
-
-**Fix**
-Stop the running process using the port or change the port value in `.env`.
-
-Example:
-
-```env 
-PORT=5001
-```
-
----
-
-### Dependencies Not Installing Properly
-
-Try removing old dependencies and reinstalling:
-
-```bash 
-rm -rf node_modules package-lock.json
-npm install
-```
 
 ---
 
