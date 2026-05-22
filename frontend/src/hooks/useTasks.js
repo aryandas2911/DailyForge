@@ -57,9 +57,14 @@ const useTasks = () => {
 
   // delete task
   const deleteTask = async (id) => {
+    try{
     await api.delete(`/tasks/${id}`);
     // fix : This line refreshes the UI!
     setTasks(prev => prev.filter(t => t._id !== id)); 
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      alert(error?.response?.data?.message || "Failed to delete task");
+    }
   };
 
   // initial fetch
@@ -69,8 +74,13 @@ const useTasks = () => {
   }, []);
   // bulk delete tasks
   const bulkDelete = async (ids) => {
+  try {
     await api.post("/tasks/bulk-delete", { ids });
     getTasks();
+  } catch (error) {
+    console.error("Error bulk deleting tasks:", error);
+    alert(error?.response?.data?.message || "Failed to delete selected tasks");
+  }
   };
   // return reusable functions
   return {
