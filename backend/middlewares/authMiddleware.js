@@ -8,14 +8,14 @@ export const authMiddleware = (req, res, next) => {
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, message: "Token format invalid" });
+      .json({ success: false, message: "Token format invalid, Access denied. Please log in to continue." });
   }
 
   if (!process.env.JWT_SECRET) {
     console.error('JWT_SECRET is not configured');
     return res.status(500).json({
       success: false,
-      message: 'Authentication service is misconfigured',
+      message: 'Authentication service is unavailable. Please try again later.',
     });
   }
 
@@ -37,21 +37,21 @@ export const authMiddleware = (req, res, next) => {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
-        message: 'Session expired, please log in again',
+        message: 'Your session has expired. Please log in again.',
       });
 
     // invalid/tampered token
     } else if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token',
+        message: 'Invalid session. Please log in again.',
       });
 
     // unexpected server error
     } else {
       return res.status(500).json({
         success: false,
-        message: 'Internal server error',
+        message: 'An unexpected error occurred. Please try again.',
       });
     }
   }

@@ -15,7 +15,7 @@ export const createTask = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // check for validation errors
@@ -23,7 +23,7 @@ export const createTask = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: "Please check your inputs and try again.",
         data: errors.array(),
       });
     }
@@ -33,14 +33,14 @@ export const createTask = async (req, res) => {
     if (!title || !priority || !status || !dueDate) {
       return res
         .status(400)
-        .json({ success: false, message: "Please enter all the details" });
+        .json({ success: false, message: "Title, priority, status, and due date are all required." });
     }
     
     const dueDateValue = new Date(dueDate);
     if (Number.isNaN(dueDateValue.getTime())) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid due date" });
+        .json({ success: false, message: "Please enter a valid due date." });
     }
 
     const dateStart = new Date(dueDateValue);
@@ -57,7 +57,7 @@ export const createTask = async (req, res) => {
     if (existingTask) {
       return res
         .status(409)
-        .json({ success: false, message: "A task with the same title and due date already exists" });
+        .json({ success: false, message: "A task with the same title and due date already exists." });
     }
     // new task object
     const newTask = new Task({
@@ -81,7 +81,7 @@ export const createTask = async (req, res) => {
     console.log("Error creating task", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error creating task" });
+      .json({ success: false, message: "Failed to create task. Please try again." });
   }
 };
 
@@ -94,7 +94,7 @@ export const getTasks = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch tasks from database
@@ -108,7 +108,7 @@ export const getTasks = async (req, res) => {
     console.log("Error fetching tasks", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error fetching tasks" });
+      .json({ success: false, message: "Failed to load tasks. Please try again." });
   }
 };
 
@@ -121,7 +121,7 @@ export const updateTask = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // Validate that taskId is a valid MongoDB ObjectId before attempting cast
@@ -129,7 +129,7 @@ export const updateTask = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid task ID format",
+        message: "Invalid task ID. Please try again.",
       });
     }
 
@@ -138,7 +138,7 @@ export const updateTask = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: "Validation failed",
+        message: "Please check your inputs and try again.",
         data: errors.array(),
       });
     }
@@ -154,7 +154,7 @@ export const updateTask = async (req, res) => {
     );
     if (!updatedTask) {
       return res.status(404).json({
-        message: "Task not found",
+        message: "Task not found. It may have been deleted.",
       });
     }
     return res.status(200).json({
@@ -166,7 +166,7 @@ export const updateTask = async (req, res) => {
     console.log("Error updating task", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error updating task" });
+      .json({ success: false, message: "Failed to update task. Please try again." });
   }
 };
 
@@ -179,7 +179,7 @@ export const deleteTask = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // Validate that taskId is a valid MongoDB ObjectId before attempting cast
@@ -187,7 +187,7 @@ export const deleteTask = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid task ID format",
+        message: "Invalid task ID. Please try again.",
       });
     }
 
@@ -198,7 +198,7 @@ export const deleteTask = async (req, res) => {
     });
     if (!deleteTask) {
       return res.status(404).json({
-        message: "Task not found",
+        message: "Task not found. It may have been deleted.",
       });
     }
     return res.status(200).json({
@@ -209,7 +209,7 @@ export const deleteTask = async (req, res) => {
     console.log("Error deleting task", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error deleting task" });
+      .json({ success: false, message: "Failed to delete task. Please try again." });
   }
 };
 
@@ -222,7 +222,7 @@ export const bulkDeleteTasks = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "User not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch array of task IDs 
@@ -230,7 +230,7 @@ export const bulkDeleteTasks = async (req, res) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "No task IDs provided" });
+        .json({ success: false, message: "Please select at least one task to delete." });
     }
 
     // delete all matching tasks belonging to this user
@@ -255,6 +255,6 @@ export const bulkDeleteTasks = async (req, res) => {
     console.log("Error bulk deleting tasks", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error deleting tasks" });
+      .json({ success: false, message: "Failed to delete tasks. Please try again." });
   }
 };

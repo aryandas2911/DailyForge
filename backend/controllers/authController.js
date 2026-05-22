@@ -56,7 +56,7 @@ export const signup = async (req, res) => {
     // check user exists or not
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
-      return res.status(409).json({ message: 'User already exists' });
+      return res.status(409).json({ message: 'An account with this email already exists!' });
     }
 
     // hashing the password
@@ -93,7 +93,7 @@ export const signup = async (req, res) => {
   } catch (error) {
     // error handling
     console.error('Signup error:', error);
-    return res.status(500).json({ message: 'Server error during signup' });
+    return res.status(500).json({ message: 'SignUp failed. Please try again.' });
   }
 };
 
@@ -107,19 +107,19 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res
         .status(400)
-        .json({ message: 'Email and password are required' });
+        .json({ message: 'Please fill all the details.' });
     }
 
     // check if user exists or not
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(409).json({ message: 'User does not exist' });
+      return res.status(409).json({ message: 'The user with this email does not exist.' });
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
-      return res.status(401).json({ message: 'Password does not match' });
+      return res.status(401).json({ message: 'Please enter the correct password!' });
     }
 
     const jwtSecret = getJwtSecret(res);
@@ -143,7 +143,7 @@ export const login = async (req, res) => {
   } catch (error) {
     // error handling
     console.log('Login error: ', error);
-    return res.status(500).json({ message: 'Server error during login' });
+    return res.status(500).json({ message: 'Login Failed. Please try again.' });
   }
 };
 
@@ -155,14 +155,14 @@ export const getUser = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: 'The user with this account is not found' });
     }
     return res.status(200).json({ success: true, user: user });
   } catch (_error) {
     // error handling
     return res
       .status(500)
-      .json({ message: 'Error fetching user data', success: false });
+      .json({ message: 'Failed to retrieve data! Please try again.', success: false });
   }
 };
 
@@ -179,7 +179,7 @@ export const updateProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: 'The User with this account not found',
       });
     }
 
@@ -200,7 +200,7 @@ export const updateProfile = async (req, res) => {
       if (!passwordCheck) {
         return res.status(401).json({
           success: false,
-          message: 'Current password is incorrect',
+          message: 'Incorrect Password! Please enter the correct password',
         });
       }
 
@@ -216,7 +216,7 @@ export const updateProfile = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Profile updated successfully',
+      message: 'The Profile has been updated successfully',
       user: {
         _id: user._id,
         name: user.name,
@@ -246,7 +246,7 @@ export const googleLogin = async (req, res) => {
     const { idToken } = req.body;
 
     if (!idToken) {
-      return res.status(400).json({ message: 'Firebase ID Token is required' });
+      return res.status(400).json({ message: 'Google sign-in token is missing. Please try again.' });
     }
 
     // Verify the Firebase ID Token using Google public keys
@@ -255,14 +255,14 @@ export const googleLogin = async (req, res) => {
       decodedToken = await verifyFirebaseIdToken(idToken);
     } catch (verifyError) {
       return res.status(401).json({ 
-        message: 'Invalid or expired Firebase token', 
+        message: 'Google sign-in could not be verified. Please try again.', 
         error: verifyError.message 
       });
     }
 
     const { email, name } = decodedToken;
     if (!email) {
-      return res.status(400).json({ message: 'Email is missing from the Google identity token' });
+      return res.status(400).json({ message: 'No email found in your Google account. Please use a different sign-in method.' });
     }
 
     // Check if user already exists
@@ -311,7 +311,7 @@ export const googleLogin = async (req, res) => {
       });
   } catch (error) {
     console.error('[GOOGLE AUTH] Controller error:', error);
-    return res.status(500).json({ message: 'Server error during Google authentication' });
+    return res.status(500).json({ message: 'Google sign-in failed. Please try again.' });
   }
 };
 

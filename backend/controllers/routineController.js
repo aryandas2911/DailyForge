@@ -11,7 +11,7 @@ export const createRoutine = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch routine details from request body
@@ -19,14 +19,14 @@ export const createRoutine = async (req, res) => {
     if (!name || items.length == 0 || !items) {
       return res
         .status(400)
-        .json({ success: false, message: "Please enter required details" });
+        .json({ success: false, message: "Routine name and at least one task are required." });
     }
     // check if routine with same name already exists for this user
     const existingRoutine = await Routine.findOne({ userId, name });
     if (existingRoutine) {
       return res.status(400).json({
         success: false,
-        message: "A routine with this name already exists",
+        message: "A routine with this name already exists. Try a different name.",
       });
     }
 
@@ -38,7 +38,7 @@ export const createRoutine = async (req, res) => {
       if (!item.duration || item.duration < 10) {
         return res.status(400).json({
           success: false,
-          message: "Each task duration must be at least 10 minutes",
+          message: "Each task must be at least 10 minutes long.",
         });
       }
 
@@ -70,7 +70,7 @@ export const createRoutine = async (req, res) => {
       if (checkOverlap(tasks)) {
         return res.status(400).json({
           success: false,
-          message: `Tasks overlap on ${day}`,
+          message: `Tasks on ${day} have overlapping times. Please adjust the schedule.`,
         });
       }
     }
@@ -98,7 +98,7 @@ export const createRoutine = async (req, res) => {
     console.log("Error creating routine", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error creating routine" });
+      .json({ success: false, message: "Failed to create routine. Please try again." });
   }
 };
 
@@ -111,7 +111,7 @@ export const getRoutines = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch routines from database
@@ -127,7 +127,7 @@ export const getRoutines = async (req, res) => {
     console.log("Error fetching routine", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error fetching routine" });
+      .json({ success: false, message: "Failed to load routines. Please try again." });
   }
 };
 
@@ -140,7 +140,7 @@ export const duplicateRoutine = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // validate the optional target day before creating the copy
@@ -157,7 +157,7 @@ export const duplicateRoutine = async (req, res) => {
     if (targetDay && !validDays.includes(targetDay)) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid target day" });
+        .json({ success: false, message: "Please select a valid day of the week." });
     }
 
     // fetch the source routine for this user only
@@ -166,7 +166,7 @@ export const duplicateRoutine = async (req, res) => {
     if (!sourceRoutine) {
       return res
         .status(404)
-        .json({ success: false, message: "Routine not found" });
+        .json({ success: false, message: "The routine you're trying to duplicate no longer exists." });
     }
 
     const duplicatedItems = sourceRoutine.items.map((item) => ({
@@ -188,7 +188,7 @@ export const duplicateRoutine = async (req, res) => {
       if (checkOverlap(formatted)) {
         return res.status(400).json({
           success: false,
-          message: `Copied tasks overlap on ${targetDay}`,
+          message: `Copied tasks overlap on ${targetDay}. Please adjust the schedule.`,
         });
       }
     }
@@ -224,7 +224,7 @@ export const duplicateRoutine = async (req, res) => {
     console.log("Error duplicating routine", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error duplicating routine" });
+      .json({ success: false, message: "Failed to duplicate routine. Please try again." });
   }
 };
 
@@ -237,7 +237,7 @@ export const updateRoutine = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch updated routine details
@@ -252,7 +252,7 @@ export const updateRoutine = async (req, res) => {
         if (!item.duration || item.duration < 10) {
           return res.status(400).json({
             success: false,
-            message: "Each task duration must be at least 10 minutes",
+            message: "Each task must be at least 10 minutes long.",
           });
         }
 
@@ -284,7 +284,7 @@ export const updateRoutine = async (req, res) => {
         if (checkOverlap(tasks)) {
           return res.status(400).json({
             success: false,
-            message: `Tasks overlap on ${day}`,
+            message: `Tasks on ${day} have overlapping times. Please adjust the schedule.`,
           });
         }
       }
@@ -298,7 +298,7 @@ export const updateRoutine = async (req, res) => {
     );
     if (!updatedRoutine) {
       return res.status(404).json({
-        message: "Routine not found",
+        message: "Routine not found. It may have been deleted.",
       });
     }
     return res.status(200).json({
@@ -311,7 +311,7 @@ export const updateRoutine = async (req, res) => {
     console.log("Error updating routine", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error updating routine" });
+      .json({ success: false, message: "Failed to update routine. Please try again." });
   }
 };
 
@@ -324,7 +324,7 @@ export const deleteRoutine = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+        .json({ success: false, message: "Session invalid. Please log in again." });
     }
 
     // fetch routine id
@@ -337,7 +337,7 @@ export const deleteRoutine = async (req, res) => {
     });
     if (!deleteRoutine) {
       return res.status(404).json({
-        message: "Routine not found",
+        message: "Routine not found. It may have been deleted.",
       });
     }
     return res.status(200).json({
@@ -348,6 +348,6 @@ export const deleteRoutine = async (req, res) => {
     console.log("Error deleting routine", error);
     return res
       .status(500)
-      .json({ success: false, message: "Error deleting routine" });
+      .json({ success: false, message: "Failed to delete routine. Please try again." });
   }
 };

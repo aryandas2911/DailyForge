@@ -18,7 +18,7 @@ export const getAnalytics = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized, user not logged in",
+        message: "Your session could not be verified. Please log in and try again.",
       });
     }
 
@@ -246,7 +246,7 @@ export const getAnalytics = async (req, res) => {
     console.error("Error in getAnalytics controller", error);
     return res.status(500).json({
       success: false,
-      message: "Error fetching analytics data",
+      message: "Failed to load the analytics data! Please try again later.",
     });
   }
 };
