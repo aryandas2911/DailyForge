@@ -248,7 +248,7 @@ export const updateRoutine = async (req, res) => {
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
-        // check duration greater than 10 mins
+        // validate minimum task duration
         if (!item.duration || item.duration < 10) {
           return res.status(400).json({
             success: false,
