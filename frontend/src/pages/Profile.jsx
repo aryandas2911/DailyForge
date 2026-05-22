@@ -10,10 +10,13 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [isNameLoading, setIsNameLoading] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
   // update name handler
   const handleNameUpdate = async (e) => {
     e.preventDefault();
+    setIsNameLoading(true);
 
     try {
       const res = await api.patch('/auth/profile', {
@@ -26,12 +29,15 @@ const Profile = () => {
       alert(res.data.message);
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update name');
+    } finally {
+      setIsNameLoading(false);
     }
   };
 
   // update password handler
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+    setIsPasswordLoading(true);
 
     try {
       const res = await api.patch('/auth/profile', {
@@ -46,6 +52,8 @@ const Profile = () => {
       setNewPassword('');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update password');
+    } finally {
+      setIsPasswordLoading(false);
     }
   };
 
@@ -137,13 +145,10 @@ const Profile = () => {
 
             <button
               type="submit"
-              className="
-            btn btn-primary
-            cursor-pointer
-            w-full
-          "
+              disabled={isNameLoading}
+              className={`btn btn-primary w-full ${isNameLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
             >
-              Save Name Changes
+              {isNameLoading ? "Saving..." : "Save Name Changes"}
             </button>
           </form>
 
@@ -227,13 +232,10 @@ const Profile = () => {
 
             <button
               type="submit"
-              className="
-            btn btn-primary
-            cursor-pointer
-            w-full
-          "
+              disabled={isPasswordLoading}
+              className={`btn btn-primary w-full ${isPasswordLoading ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
             >
-              Update Password
+              {isPasswordLoading ? "Updating..." : "Update Password"}
             </button>
           </form>
         </div>
