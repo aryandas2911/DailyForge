@@ -116,6 +116,11 @@ export const login = async (req, res) => {
       return res.status(409).json({ message: 'User does not exist' });
     }
 
+    // block standard login for Google Auth users who haven't set a password yet
+    if (user.password === '[GOOGLE_AUTH_USER]') {
+      return res.status(401).json({ message: 'Please sign in with Google or update your profile password first' });
+    }
+
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
@@ -189,19 +194,30 @@ export const updateProfile = async (req, res) => {
     }
 
     // update password if provided
-    if (currentPassword && newPassword) {
-      // compare current password
-      const passwordCheck = await bcrypt.compare(
-        currentPassword,
-        user.password
-      );
+    if (newPassword) {
+      const isGoogleUser = user.password === '[GOOGLE_AUTH_USER]';
 
-      // check password matches or not
-      if (!passwordCheck) {
-        return res.status(401).json({
-          success: false,
-          message: 'Current password is incorrect',
-        });
+      if (!isGoogleUser) {
+        if (!currentPassword) {
+          return res.status(400).json({
+            success: false,
+            message: 'Current password is required to set a new password',
+          });
+        }
+
+        // compare current password
+        const passwordCheck = await bcrypt.compare(
+          currentPassword,
+          user.password
+        );
+
+        // check password matches or not
+        if (!passwordCheck) {
+          return res.status(401).json({
+            success: false,
+            message: 'Current password is incorrect',
+          });
+        }
       }
 
       // hash new password
@@ -270,14 +286,11 @@ export const googleLogin = async (req, res) => {
 
     if (!user) {
       // Create new user for Google registration
-      // Generate a secure, random password to satisfy mongoose model validation constraints
-      const randomPassword = crypto.randomBytes(32).toString('hex');
-      const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
+      // Set placeholder password for Google users to allow profile updates later
       user = new User({
         name: name || email.split('@')[0],
         email,
-        password: hashedPassword,
+        password: '[GOOGLE_AUTH_USER]',
       });
 
       await user.save();
@@ -314,4 +327,3 @@ export const googleLogin = async (req, res) => {
     return res.status(500).json({ message: 'Server error during Google authentication' });
   }
 };
-
