@@ -9,6 +9,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ProductivityInsights from "../components/Dashboard/ProductivityInsights";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -279,6 +280,11 @@ const handleDuplicateRoutine = async () => {
             </ul>
           )}
         </div>
+      </section>
+
+      {/* Productivity Insights & Time Audit */}
+      <section className="w-full animate-in delay-300">
+        <ProductivityInsights tasks={tasks} />
       </section>
 
       {routineToDuplicate && (
