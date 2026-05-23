@@ -15,6 +15,9 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterPriority, setFilterPriority] = useState("All");
+  const [filterDueDate, setFilterDueDate] = useState("All");
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
@@ -109,12 +112,60 @@ const handleActualDurationSubmit = async () => {
     );
   };
 
-  const filteredTasks =
-    selectedCategories.length === 0
-      ? tasks
-      : tasks.filter(
-          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
-        );
+  const filteredTasks = tasks.filter((task) => {
+    // 1. Category Filter
+    if (selectedCategories.length > 0) {
+      if (!task.tags || !task.tags.some((tag) => selectedCategories.includes(tag))) {
+        return false;
+      }
+    }
+
+    // 2. Status Filter
+    if (filterStatus !== "All") {
+      if (task.status !== filterStatus) {
+        return false;
+      }
+    }
+
+    // 3. Priority Filter
+    if (filterPriority !== "All") {
+      if (task.priority !== filterPriority) {
+        return false;
+      }
+    }
+
+    // 4. Due Date Filter
+    if (filterDueDate !== "All") {
+      if (!task.dueDate) return false;
+
+      const due = new Date(task.dueDate);
+      const now = new Date();
+
+      if (filterDueDate === "Due today") {
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+
+        if (due < startOfToday || due > endOfToday) {
+          return false;
+        }
+      } else if (filterDueDate === "Upcoming") {
+        const threeDaysFromNow = new Date();
+        threeDaysFromNow.setDate(now.getDate() + 3);
+
+        if (due < now || due > threeDaysFromNow) {
+          return false;
+        }
+      } else if (filterDueDate === "Overdue") {
+        if (due >= now || task.status === "Completed") {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  });
 
   const totalTasks = filteredTasks.length;
   const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
@@ -228,43 +279,125 @@ const handleActualDurationSubmit = async () => {
         </div>
       )}
 
-        {/* Category Filter */}
+        {/* Advanced Filters Card */}
         <div className="animate-in delay-150">
-          <div className="card p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
-              {selectedCategories.length > 0 && (
+          <div className="card p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-soft pb-2">
+              <div className="flex items-center gap-2">
+                <Filter size={18} className="text-primary animate-pulse" />
+                <h3 className="text-base font-bold text-main">Filter Controls</h3>
+              </div>
+              {(selectedCategories.length > 0 || filterStatus !== "All" || filterPriority !== "All" || filterDueDate !== "All") && (
                 <button
-                  onClick={() => setSelectedCategories([])}
-                  className="ml-auto text-xs text-primary hover:underline cursor-pointer"
+                  onClick={() => {
+                    setSelectedCategories([]);
+                    setFilterStatus("All");
+                    setFilterPriority("All");
+                    setFilterDueDate("All");
+                  }}
+                  className="text-xs font-semibold text-primary hover:text-primary-hover hover:underline cursor-pointer transition-all"
                 >
-                  Clear all
+                  Clear All Filters
                 </button>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
-                const isSelected = selectedCategories.includes(tagName);
-                const cat = getCategoryColor(tagName);
-                return (
-                  <button
-                    key={tagName}
-                    onClick={() => toggleCategoryFilter(tagName)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
-                    }`}
-                    style={{
-                      backgroundColor: cat.bgColor,
-                      color: cat.color,
-                      ringColor: cat.color,
-                    }}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Category Filter */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">Category</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
+                    const isSelected = selectedCategories.includes(tagName);
+                    const cat = getCategoryColor(tagName);
+                    return (
+                      <button
+                        key={tagName}
+                        onClick={() => toggleCategoryFilter(tagName)}
+                        className={`px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                          isSelected ? "ring-2 ring-offset-1 scale-105" : "opacity-60 hover:opacity-100"
+                        }`}
+                        style={{
+                          backgroundColor: cat.bgColor,
+                          color: cat.color,
+                          ringColor: cat.color,
+                        }}
+                      >
+                        {tagName}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Status Filter */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">Status</label>
+                <div className="flex gap-1 bg-gray-50 dark:bg-slate-800/50 p-1 rounded-xl">
+                  {["All", "Due", "Completed"].map((status) => {
+                    const isSelected = filterStatus === status;
+                    return (
+                      <button
+                        key={status}
+                        onClick={() => setFilterStatus(status)}
+                        className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-white dark:bg-slate-700 shadow text-primary font-bold animate-in fade-in"
+                            : "text-muted hover:text-main"
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Priority Filter */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">Priority</label>
+                <div className="flex gap-1 bg-gray-50 dark:bg-slate-800/50 p-1 rounded-xl">
+                  {["All", "Low", "Medium", "High"].map((priority) => {
+                    const isSelected = filterPriority === priority;
+                    return (
+                      <button
+                        key={priority}
+                        onClick={() => setFilterPriority(priority)}
+                        className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-white dark:bg-slate-700 shadow text-primary font-bold animate-in fade-in"
+                            : "text-muted hover:text-main"
+                        }`}
+                      >
+                        {priority}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Due Date Filter */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted uppercase tracking-wider">Due Date</label>
+                <div className="relative">
+                  <select
+                    value={filterDueDate}
+                    onChange={(e) => setFilterDueDate(e.target.value)}
+                    className="w-full text-xs font-semibold p-2.5 rounded-xl border border-soft bg-white dark:bg-slate-800 text-main shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all appearance-none"
                   >
-                    {tagName}
-                  </button>
-                );
-              })}
+                    <option value="All">📅 All Dates</option>
+                    <option value="Due today">🎯 Due Today</option>
+                    <option value="Upcoming">⏳ Upcoming (Next 3 Days)</option>
+                    <option value="Overdue">⚠️ Overdue</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
