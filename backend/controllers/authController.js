@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+import { checkAndApplyStreakFreezes } from '../utils/streakManager.js';
 
 // sign up function
 export const signup = async (req, res) => {
@@ -126,6 +127,10 @@ export const getUser = async (req, res) => {
         .status(404)
         .json({ success: false, message: 'User not found' });
     }
+    
+    // Apply streak freezes/replenishments on login/refresh session
+    await checkAndApplyStreakFreezes(user);
+    
     return res.status(200).json({ success: true, user: user });
   } catch (_error) {
     // error handling

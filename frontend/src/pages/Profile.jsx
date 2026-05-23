@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
+import { Snowflake } from 'lucide-react';
 
 const Profile = () => {
   // auth context
@@ -236,6 +237,51 @@ const Profile = () => {
               Update Password
             </button>
           </form>
+        </div>
+
+        {/* Streak Protection Stats section */}
+        <div className="border-soft rounded-2xl p-6 bg-gradient-to-tr from-blue-500/5 to-[#4eb7b3]/5 dark:from-blue-950/10 dark:to-[#4eb7b3]/10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <Snowflake size={20} className="animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-main">Streak Protection & Freezes</h2>
+              <p className="text-xs text-muted">Prevent your hard-earned habit streaks from resetting</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white/50 dark:bg-slate-800/40 border border-soft/30 rounded-xl p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Freezes Available</span>
+              <span className="text-3xl font-extrabold text-blue-500 mt-2 flex items-center gap-1.5">
+                <Snowflake size={20} />
+                {user?.streakFreezeCount ?? 2}
+              </span>
+              <span className="text-[10px] text-muted/80 mt-1">Replenishes to 2 at the start of each month</span>
+            </div>
+            
+            <div className="bg-white/50 dark:bg-slate-800/40 border border-soft/30 rounded-xl p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Freezes Consumed</span>
+              <span className="text-3xl font-extrabold text-main mt-2">
+                {user?.freezesUsed ?? 0}
+              </span>
+              <span className="text-[10px] text-muted/80 mt-1">Automatic streak protections applied</span>
+            </div>
+
+            <div className="bg-white/50 dark:bg-slate-800/40 border border-soft/30 rounded-xl p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">Manual Recoveries Used</span>
+              <span className="text-3xl font-extrabold text-main mt-2">
+                {user?.recoveredStreaks ?? 0}
+              </span>
+              <span className="text-[10px] text-muted/80 mt-1">Streaks restored manually in 24h</span>
+            </div>
+          </div>
+          
+          <div className="mt-6 border-t border-soft/30 pt-4 text-xs text-muted/90 leading-relaxed space-y-1">
+            <p>💡 <strong>How it works:</strong> If you miss a day, a Streak Freeze is automatically consumed (if you have one available) to protect your habit streak.</p>
+            <p>⏳ If you had 0 freezes remaining and your streak broke, you can manually click <strong>Recover Streak</strong> within 24 hours (of a missed day) using a newly replenished freeze to restore your consistency records.</p>
+          </div>
         </div>
       </div>
     </div>

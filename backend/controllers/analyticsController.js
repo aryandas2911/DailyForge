@@ -1,15 +1,9 @@
 import Task from "../src/models/Task.js";
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import { formatDateString, checkAndApplyStreakFreezes } from "../utils/streakManager.js";
 
-// Helper to format Date to YYYY-MM-DD in user's timezone/local
-const formatDateString = (date) => {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+
 
 export const getAnalytics = async (req, res) => {
   try {
@@ -21,6 +15,9 @@ export const getAnalytics = async (req, res) => {
         message: "Unauthorized, user not logged in",
       });
     }
+
+    // Apply streak freezes and monthly replenishments
+    await checkAndApplyStreakFreezes(user);
 
     // Fetch all user tasks and routines
     const tasks = await Task.find({ userId });
@@ -36,7 +33,7 @@ export const getAnalytics = async (req, res) => {
     // A completed task date is the date it was completed.
     // We use updatedAt for completion timestamp, fallback to dueDate if updatedAt is not set.
     const completedDates = completedTasks.map((t) => formatDateString(t.updatedAt || t.dueDate));
-    const uniqueDates = [...new Set(completedDates)].sort((a, b) => new Date(b) - new Date(a));
+    const uniqueDates = [...new Set([...completedDates, ...user.frozenDates])].sort((a, b) => new Date(b) - new Date(a));
 
     let currentStreak = 0;
     let bestStreak = 0;
@@ -89,6 +86,14 @@ export const getAnalytics = async (req, res) => {
         prevDate = currentDate;
       }
     }
+
+    // Determine eligibility for manual streak recovery (yesterday missed, has older tasks, has freezes left)
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = formatDateString(yesterday);
+    const yesterdayActive = uniqueDates.includes(yesterdayStr);
+    const olderDatesExist = uniqueDates.some(d => new Date(d) < new Date(yesterdayStr));
+    const isEligibleForRecovery = !yesterdayActive && olderDatesExist && user.streakFreezeCount > 0;
 
     // --- Daily Progress (Last 7 Days) ---
     const dailyProgress = [];
@@ -232,6 +237,12 @@ export const getAnalytics = async (req, res) => {
         streaks: {
           currentStreak,
           bestStreak,
+          streakFreezeCount: user.streakFreezeCount,
+          freezesUsed: user.freezesUsed || 0,
+          recoveredStreaks: user.recoveredStreaks || 0,
+          longestProtectedStreak: user.longestProtectedStreak || 0,
+          isEligibleForRecovery,
+          frozenDates: user.frozenDates,
         },
         dailyProgress,
         weeklyTrend,
@@ -247,6 +258,92 @@ export const getAnalytics = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error fetching analytics data",
+    });
+  }
+};
+
+export const recoverStreak = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const tasks = await Task.find({ userId });
+    const completedTasks = tasks.filter((t) => t.status === "Completed");
+    const completedDates = completedTasks.map((t) => formatDateString(t.updatedAt || t.dueDate));
+    const activeDates = [...new Set([...completedDates, ...user.frozenDates])];
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = formatDateString(yesterday);
+    const yesterdayActive = activeDates.includes(yesterdayStr);
+    const olderDatesExist = activeDates.some(d => new Date(d) < new Date(yesterdayStr));
+    const isEligibleForRecovery = !yesterdayActive && olderDatesExist && user.streakFreezeCount > 0;
+
+    if (!isEligibleForRecovery) {
+      return res.status(400).json({
+        success: false,
+        message: "Streak is not eligible for recovery."
+      });
+    }
+
+    user.streakFreezeCount -= 1;
+    user.frozenDates.push(yesterdayStr);
+    user.recoveredStreaks = (user.recoveredStreaks || 0) + 1;
+    user.lastRecoveryUsed = new Date();
+    
+    // Recalculate streak length to update longestProtectedStreak
+    const newActiveDates = [...activeDates, yesterdayStr];
+    const uniqueDatesSorted = [...new Set(newActiveDates)].sort((a, b) => new Date(b) - new Date(a));
+    let currentStreak = 0;
+    if (uniqueDatesSorted.length > 0) {
+      const todayStr = formatDateString(new Date());
+      let streakStartRef = null;
+      if (uniqueDatesSorted.includes(todayStr)) {
+        streakStartRef = new Date(todayStr);
+      } else if (uniqueDatesSorted.includes(yesterdayStr)) {
+        streakStartRef = new Date(yesterdayStr);
+      }
+
+      if (streakStartRef) {
+        let tempDate = new Date(streakStartRef);
+        while (true) {
+          const tempStr = formatDateString(tempDate);
+          if (uniqueDatesSorted.includes(tempStr)) {
+            currentStreak++;
+            tempDate.setDate(tempDate.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    user.longestProtectedStreak = Math.max(user.longestProtectedStreak || 0, currentStreak);
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Streak successfully recovered!",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        streakFreezeCount: user.streakFreezeCount,
+        frozenDates: user.frozenDates,
+        lastRecoveryUsed: user.lastRecoveryUsed,
+        recoveredStreaks: user.recoveredStreaks,
+        freezesUsed: user.freezesUsed,
+        longestProtectedStreak: user.longestProtectedStreak,
+      }
+    });
+  } catch (error) {
+    console.error("Error in recoverStreak controller", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error recovering streak"
     });
   }
 };
