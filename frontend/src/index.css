@@ -1,69 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
+* {
+  font-family: 'Outfit', sans-serif;
+}
+
 :root {
-  /* App background (outer layout) */
   --bg: #d0f6e3;
-
-  /* Surfaces: cards, modals, panels */
   --surface: #ffffff;
-
-  /* Primary action color (CTAs) */
   --primary: #4eb7b3;
-
-  /* Hover / active feedback */
   --primary-hover: #6dd5c7;
-
-  /* Accents: highlights, tags, blocks */
   --accent: #98e1d7;
-
-  /* Main readable text */
   --text-main: #3b8ea0;
-
-  /* Secondary / low-priority text */
   --text-muted: #4eb7b3;
-
-  /* Soft separators and outlines */
   --border: #98e1d7;
-
-  /* Consistent rounding across UI */
   --radius: 0.75rem;
 }
 
 .dark {
-  /* App background (outer layout) - deep premium slate dark blue-gray */
   --bg: #0f172a;
-
-  /* Surfaces: cards, modals, panels - charcoal slate */
   --surface: #1e293b;
-
-  /* Primary action color (CTAs) - vibrant teal */
   --primary: #4eb7b3;
-
-  /* Hover / active feedback */
   --primary-hover: #5ec7c3;
-
-  /* Accents: highlights, tags, blocks */
   --accent: #1e2e30;
-
-  /* Main readable text - crisp slate-off-white */
   --text-main: #f8fafc;
-
-  /* Secondary / low-priority text */
   --text-muted: #94a3b8;
-
-  /* Soft separators and outlines */
   --border: #334155;
 }
 
-html.dark, html.dark body {
+html.dark,
+html.dark body {
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
 }
 
-/* Utility Classes */
 @layer utilities {
-  /* Layout backgrounds */
   .app-bg {
     background-color: var(--bg);
   }
@@ -72,7 +44,6 @@ html.dark, html.dark body {
     background-color: var(--surface);
   }
 
-  /* Text roles */
   .text-main {
     color: var(--text-main);
   }
@@ -81,33 +52,16 @@ html.dark, html.dark body {
     color: var(--text-muted);
   }
 
-  /* Structural borders */
   .border-soft {
     border: 1px solid var(--border);
   }
 
-  /* Button foundation */
   .btn {
-    @apply inline-flex items-center justify-center
-         px-4 py-2
-         font-medium
-         rounded-xl
-         transition-all duration-200
-         select-none;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-200 select-none;
   }
 
-  /* Primary action button */
   .btn-primary {
-    @apply text-white
-         shadow-sm
-         hover:shadow-md
-         active:scale-[0.97]
-         focus:outline-none
-         focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Color handled via CSS variables */
-  .btn-primary {
+    @apply text-white shadow-sm hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
   }
 
@@ -121,6 +75,7 @@ html.dark, html.dark body {
     border: 1px solid var(--border);
     @apply p-6 shadow-sm transition-shadow duration-200;
   }
+
   .card:hover {
     @apply shadow-md;
   }
@@ -132,10 +87,7 @@ html.dark, html.dark body {
   .card-primary {
     @apply shadow-md;
   }
-}
 
-@layer utilities {
-  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
@@ -144,18 +96,18 @@ html.dark, html.dark body {
     animation: fadeUp 0.6s ease-out both;
   }
 
-  /* Stagger helpers */
   .delay-100 {
     animation-delay: 0.1s;
   }
+
   .delay-200 {
     animation-delay: 0.2s;
   }
+
   .delay-300 {
     animation-delay: 0.3s;
   }
 
-  /* Hover lift */
   .hover-lift {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -163,15 +115,16 @@ html.dark, html.dark body {
   .hover-lift:hover {
     transform: translateY(-2px);
   }
+}
 
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
