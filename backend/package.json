@@ -27,7 +27,7 @@
     "nodemon": "^3.1.11"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.4",
     "eslint": "^9.39.4",
     "globals": "^17.6.0"
   }
