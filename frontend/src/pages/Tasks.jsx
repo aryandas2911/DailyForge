@@ -376,11 +376,11 @@ const handleActualDurationSubmit = async () => {
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
+            <h2 className="text-xl font-semibold mb-2 text-black/90">
               Complete Task
             </h2>
 
-            <p className="text-sm text-muted mb-4">
+            <p className="text-sm mb-4 text-black">
               How long did you actually take to complete "
               {durationModalTask.title}"?
             </p>
@@ -390,7 +390,7 @@ const handleActualDurationSubmit = async () => {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg"
+              className="w-full p-2 border border-soft rounded-lg text-black"
               placeholder="Actual duration in minutes"
             />
 
@@ -400,7 +400,7 @@ const handleActualDurationSubmit = async () => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft"
+                className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
