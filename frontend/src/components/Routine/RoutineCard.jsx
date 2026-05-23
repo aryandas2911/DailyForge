@@ -345,6 +345,9 @@ export default function RoutineCard({
               setShowMenu((prev) => !prev);
             }}
             className="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-muted hover:text-main"
+            aria-label="Routine options"
+            aria-haspopup="true"
+            aria-expanded={showMenu}
           >
             <MoreVertical size={16} />
           </button>
