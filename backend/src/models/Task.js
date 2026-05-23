@@ -18,8 +18,9 @@ const taskSchema = mongoose.Schema(
       required: false,
     },
     tags: {
-      type: String,
+      type: [String],
       required: false,
+      default: [],
     },
     priority: {
       type: String,
@@ -35,8 +36,12 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    actualDuration: {
+      type: Number,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Task model using schema
