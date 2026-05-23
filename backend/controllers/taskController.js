@@ -39,6 +39,13 @@ export const createTask = async (req, res) => {
         .json({ success: false, message: "Please enter all the details" });
     }
 
+    if (title.trim().length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be 50 characters or less",
+      });
+    }
+
     const dueDateValue = new Date(dueDate);
     if (Number.isNaN(dueDateValue.getTime())) {
       return res
@@ -171,6 +178,14 @@ export const updateTask = async (req, res) => {
 
     // fetch update task details
     const updates = req.body;
+
+    // validate title length if title is being updated
+    if (updates.title && updates.title.trim().length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be 50 characters or less",
+      });
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(

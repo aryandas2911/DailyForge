@@ -97,6 +97,12 @@ const useTasks = ({
     await getTasks(page);
   };
 
+  // bulk edit tasks
+  const bulkUpdate = async (ids, updates) => {
+    await Promise.all(ids.map((id) => api.put(`/tasks/${id}`, updates)));
+    await getTasks(page);
+  };
+
   // initial fetch
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -113,6 +119,7 @@ const useTasks = ({
     updateTask,
     deleteTask,
     bulkDelete,
+    bulkUpdate,
   };
 };
 
