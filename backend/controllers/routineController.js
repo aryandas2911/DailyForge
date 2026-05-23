@@ -176,19 +176,24 @@ export const duplicateRoutine = async (req, res) => {
       duration: item.duration,
     }));
 
-    if (targetDay) {
-      const formatted = duplicatedItems
-        .map((item) => ({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: item.startTime + item.duration,
-        }))
-        .sort((a, b) => a.startTime - b.startTime);
+    const formatted = duplicatedItems.map((item) => ({
+      day: item.day,
+      startTime: item.startTime,
+      endTime: item.startTime + item.duration,
+    }));
 
-      if (checkOverlap(formatted)) {
+    const dayGroups = {};
+    for (const task of formatted) {
+      if (!dayGroups[task.day]) dayGroups[task.day] = [];
+      dayGroups[task.day].push(task);
+    }
+
+    for (const day in dayGroups) {
+      const sorted = dayGroups[day].sort((a, b) => a.startTime - b.startTime);
+      if (checkOverlap(sorted)) {
         return res.status(400).json({
           success: false,
-          message: `Copied tasks overlap on ${targetDay}`,
+          message: `Copied tasks overlap on ${day}`,
         });
       }
     }
