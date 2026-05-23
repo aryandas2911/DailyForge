@@ -314,11 +314,11 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               onChange={(e) => setPriority(e.target.value)}
               className="w-full mt-1 p-2 border border-soft rounded-lg
                          focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main dark:bg-slate-800"
+                         bg-white text-black dark:bg-slate-800 dark:text-white"
               required
             >
               {priorities.map((p) => (
-                <option key={p} value={p} className="dark:bg-slate-800">
+                <option key={p} value={p} className="bg-white text-black dark:bg-slate-800 dark:text-white">
                   {p}
                 </option>
               ))}
