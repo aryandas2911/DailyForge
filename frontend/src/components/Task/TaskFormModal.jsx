@@ -89,10 +89,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     onError?.("");
 
     if (!title.trim()) return onError?.("Title is required");
+    if (title.trim().length<3) return onError?.("Title must be at least 3 characters");
     if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
@@ -104,6 +104,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (dueDate > maxDateStr) {
       return alert("Due date cannot be more than 1 year in the future");
     }
+    
 
     onSubmit({
       title: title.trim(),
@@ -192,9 +193,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+              minLength={3} 
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary)"
               placeholder="Task title"
               maxLength={TITLE_MAX_LENGTH}
               required
