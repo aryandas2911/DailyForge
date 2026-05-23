@@ -1,5 +1,4 @@
 import Habit from "../src/models/Habit.js";
-import User from "../src/models/User.js";
 
 // Helper to format Date object to YYYY-MM-DD in local time
 const getLocalDateString = (date = new Date()) => {
