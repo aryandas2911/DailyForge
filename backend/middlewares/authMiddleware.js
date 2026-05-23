@@ -11,16 +11,29 @@ export const authMiddleware = (req, res, next) => {
       .json({ success: false, message: "Token format invalid" });
   }
 
+<<<<<<< HEAD
   if (!process.env.JWT_SECRET) {
     console.error('JWT_SECRET is not configured');
     return res.status(500).json({
       success: false,
       message: 'Authentication service is misconfigured',
+=======
+  // check JWT_SECRET is configured
+  if (!process.env.JWT_SECRET) {
+    console.error("JWT_SECRET is not set in environment variables");
+    return res.status(500).json({
+      success: false,
+      message: "Server configuration error",
+>>>>>>> upstream/main
     });
   }
 
   try {
+<<<<<<< HEAD
     // verify token using jwt key and the designated algorithm from the main updates
+=======
+    // verify token using jwt key
+>>>>>>> upstream/main
     const verify = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: [JWT_ALGORITHM],
     });
@@ -54,4 +67,8 @@ export const authMiddleware = (req, res, next) => {
       });
     }
   }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> upstream/main
