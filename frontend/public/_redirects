@@ -1,4 +1,5 @@
 # Fix for client-side routing on Render (and Netlify) deployments. When a user refreshes on /login, /signup or any route, the server
 # looks for that path as a real file — and fails with a blank screen. This rule tells the server to always serve index.html for any route,
 # letting React Router handle the navigation on the client side.
+
 /* /index.html 200
