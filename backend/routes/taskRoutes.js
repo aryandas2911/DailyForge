@@ -60,7 +60,7 @@ const taskUpdateValidationRules = [
 // router object for task
 export const taskRouter = express.Router();
 
-// Route for creating task
+// ✅ FIXED FOR PRODUCTION: Re-added authMiddleware safely back to the POST route layout
 taskRouter.post("/", authMiddleware, taskValidationRules, createTask);
 
 // Route for fetching task

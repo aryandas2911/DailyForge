@@ -9,7 +9,7 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create task function
 export const createTask = async (req, res) => {
   try {
-    // check if user is logged in or not
+    // RESTORED: Read the real authenticated user ID from the request object
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -54,6 +54,20 @@ export const createTask = async (req, res) => {
     const dateEnd = new Date(dateStart);
     dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
 
+    // FEATURE RETAINED: Active Daily Schedule Congestion Tracker
+    const dailyTaskCount = await Task.countDocuments({
+      userId,
+      dueDate: { $gte: dateStart, $lt: dateEnd },
+      status: { $ne: "Completed" } 
+    });
+
+    if (dailyTaskCount >= 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Schedule Bottleneck! You have reached the maximum limit of 5 pending tasks for this single day. Clear or reschedule existing items first."
+      });
+    }
+
     const existingTask = await Task.findOne({
       userId,
       title: { $regex: new RegExp(`^${escapeRegex(title.trim())}$`, "i") },
@@ -65,6 +79,7 @@ export const createTask = async (req, res) => {
         .status(409)
         .json({ success: false, message: "A task with the same title and due date already exists" });
     }
+    
     // new task object
     const newTask = new Task({
       userId: userId,
@@ -83,7 +98,6 @@ export const createTask = async (req, res) => {
       .status(201)
       .json({ message: "Task added successfully", newTask });
   } catch (error) {
-    // error handling
     console.log("Error creating task", error);
     return res
       .status(500)
@@ -94,7 +108,6 @@ export const createTask = async (req, res) => {
 // get task function
 export const getTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -103,14 +116,12 @@ export const getTasks = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
     if (tasks.length == 0) {
       return res.status(200).json({ success: true, tasks: [] });
     }
     return res.status(200).json({ success: true, tasks });
   } catch (error) {
-    // error handling
     console.log("Error fetching tasks", error);
     return res
       .status(500)
@@ -121,7 +132,6 @@ export const getTasks = async (req, res) => {
 // update task function
 export const updateTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -130,7 +140,6 @@ export const updateTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({
@@ -139,7 +148,6 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -149,33 +157,70 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // fetch update task details
     const updates = req.body;
 
-    // validate title length if title is being updated
     if (updates.title && updates.title.trim().length > 50) {
       return res
         .status(400)
         .json({ success: false, message: "Title must be 50 characters or less" });
     }
 
-    // fetch task from database and update
+    const currentTask = await Task.findOne({ _id: taskId, userId: userId });
+    if (!currentTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const targetDueDate = updates.dueDate ? new Date(updates.dueDate) : currentTask.dueDate;
+    const dateStart = new Date(targetDueDate);
+    dateStart.setUTCHours(0, 0, 0, 0);
+    const dateEnd = new Date(dateStart);
+    dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
+
+    if (updates.dueDate && new Date(updates.dueDate).toDateString() !== currentTask.dueDate.toDateString()) {
+      const dailyTaskCount = await Task.countDocuments({
+        userId,
+        dueDate: { $gte: dateStart, $lt: dateEnd },
+        status: { $ne: "Completed" },
+        _id: { $ne: taskId }
+      });
+
+      if (dailyTaskCount >= 5) {
+        return res.status(400).json({
+          success: false,
+          message: "Schedule Bottleneck! Rescheduling aborted because the destination day already has 5 or more pending items."
+        });
+      }
+    }
+
+    if (updates.title || updates.dueDate) {
+      const targetTitle = updates.title ? updates.title.trim() : currentTask.title;
+      
+      const duplicateCheck = await Task.findOne({
+        userId,
+        _id: { $ne: taskId },
+        title: { $regex: new RegExp(`^${escapeRegex(targetTitle)}$`, "i") },
+        dueDate: { $gte: dateStart, $lt: dateEnd }
+      });
+
+      if (duplicateCheck) {
+        return res.status(409).json({
+          success: false,
+          message: "A task with that title already occupies this specific target day."
+        });
+      }
+    }
+
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
-    if (!updatedTask) {
-      return res.status(404).json({
-        message: "Task not found",
-      });
-    }
+    
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
     });
   } catch (error) {
-    // error handling
     console.log("Error updating task", error);
     return res
       .status(500)
@@ -186,7 +231,6 @@ export const updateTask = async (req, res) => {
 // delete task function
 export const deleteTask = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -195,7 +239,6 @@ export const deleteTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({
@@ -204,7 +247,6 @@ export const deleteTask = async (req, res) => {
       });
     }
 
-    // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
       _id: taskId,
       userId: userId,
@@ -218,7 +260,6 @@ export const deleteTask = async (req, res) => {
       message: "Task deleted successfully",
     });
   } catch (error) {
-    // error handling
     console.log("Error deleting task", error);
     return res
       .status(500)
@@ -229,7 +270,6 @@ export const deleteTask = async (req, res) => {
 // bulk delete tasks function
 export const bulkDeleteTasks = async (req, res) => {
   try {
-    // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -238,7 +278,6 @@ export const bulkDeleteTasks = async (req, res) => {
         .json({ success: false, message: "User not logged in" });
     }
 
-    // fetch array of task IDs 
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return res
@@ -246,7 +285,6 @@ export const bulkDeleteTasks = async (req, res) => {
         .json({ success: false, message: "No task IDs provided" });
     }
 
-    // delete all matching tasks belonging to this user
     await Task.deleteMany({ _id: { $in: ids }, userId: userId });
 
     await Routine.updateMany(
@@ -264,7 +302,6 @@ export const bulkDeleteTasks = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Tasks deleted successfully" });
   } catch (error) {
-    //error handling
     console.log("Error bulk deleting tasks", error);
     return res
       .status(500)
