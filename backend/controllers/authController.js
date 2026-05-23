@@ -7,6 +7,18 @@ import crypto from 'crypto';
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 const AUTH_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000;
 
+const validateAndNormalizeEmail = (email) => {
+  if (!email || typeof email !== 'string') {
+    return { isValid: false, message: 'Email is required' };
+  }
+  const normalized = email.trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalized)) {
+    return { isValid: false, message: 'Invalid email format' };
+  }
+  return { isValid: true, normalized };
+};
+
 const getJwtSecret = (res) => {
   if (!process.env.JWT_SECRET) {
     res.status(500).json({ message: 'Authentication service is misconfigured' });
@@ -37,7 +49,15 @@ const getAuthCookieOptions = () => {
 export const signup = async (req, res) => {
   try {
     // fetch values from request
-    const { name, email, password } = req.body;
+    let { name, email, password } = req.body;
+
+    const emailValidation = validateAndNormalizeEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({
+        message: emailValidation.message,
+      });
+    }
+    email = emailValidation.normalized;
 
     if (!name || name.trim().length < 2) {
       return res
@@ -46,6 +66,7 @@ export const signup = async (req, res) => {
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
     if (!password || !passwordRegex.test(password)) {
       return res.status(400).json({
         message:
@@ -54,7 +75,11 @@ export const signup = async (req, res) => {
     }
 
     // check user exists or not
-    const checkExisting = await User.findOne({ email });
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const checkExisting = await User.findOne({
+      email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') },
+    });
+
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
@@ -73,6 +98,7 @@ export const signup = async (req, res) => {
     await newUser.save();
 
     const jwtSecret = getJwtSecret(res);
+
     if (!jwtSecret) {
       return;
     }
@@ -88,7 +114,11 @@ export const signup = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'User registered successfully',
-        user: { _id: newUser._id, name: newUser.name, email: newUser.email },
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+        },
       });
   } catch (error) {
     // error handling
@@ -101,7 +131,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     // fetch user data from request
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     // check if email and password exist in request
     if (!email || !password) {
@@ -110,30 +140,39 @@ export const login = async (req, res) => {
         .json({ message: 'Email and password are required' });
     }
 
+    const emailValidation = validateAndNormalizeEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({
+        message: 'Invalid email format',
+      });
+    }
+    email = emailValidation.normalized;
+
     // check if user exists or not
-    const user = await User.findOne({ email });
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') },
+    });
+
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
 
     // check password using bcrypt
     const passwordCheck = await bcrypt.compare(password, user.password);
+
     if (!passwordCheck) {
       return res.status(401).json({ message: 'Password does not match' });
     }
 
     const jwtSecret = getJwtSecret(res);
+
     if (!jwtSecret) {
       return;
     }
 
     // generate jwt token
-    // check JWT_SECRET is configured
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not set in environment variables");
-      return res.status(500).json({ message: "Server configuration error" });
-    }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
       expiresIn: '24h',
     });
 
@@ -142,12 +181,19 @@ export const login = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'Login successful',
-        user: { _id: user._id, name: user.name, email: user.email },
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
       });
   } catch (error) {
     // error handling
     console.log('Login error: ', error);
-    return res.status(500).json({ message: 'Server error during login' });
+
+    return res.status(500).json({
+      message: 'Server error during login',
+    });
   }
 };
 
@@ -258,19 +304,28 @@ export const googleLogin = async (req, res) => {
     try {
       decodedToken = await verifyFirebaseIdToken(idToken);
     } catch (verifyError) {
-      return res.status(401).json({ 
-        message: 'Invalid or expired Firebase token', 
-        error: verifyError.message 
+      return res.status(401).json({
+        message: 'Invalid or expired Firebase token',
+        error: verifyError.message
       });
     }
 
-    const { email, name } = decodedToken;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is missing from the Google identity token' });
+    const { email: rawEmail, name } = decodedToken;
+    
+    const emailValidation = validateAndNormalizeEmail(rawEmail);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ 
+        message: 'Email is missing or invalid from the Google identity token' 
+      });
     }
+    
+    const email = emailValidation.normalized;
 
     // Check if user already exists
-    let user = await User.findOne({ email });
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let user = await User.findOne({ 
+      email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') }
+    });
 
     if (!user) {
       // Create new user for Google registration
