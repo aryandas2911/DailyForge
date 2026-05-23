@@ -176,7 +176,8 @@ export const updateTask = async (req, res) => {
     const dateEnd = new Date(dateStart);
     dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
 
-    if (updates.dueDate && new Date(updates.dueDate).toDateString() !== currentTask.dueDate.toDateString()) {
+    // ✅ FIXED FOR TIMEZONE CONSISTENCY: Compares using safe ISO string segments instead of server locale toDateString()
+    if (updates.dueDate && new Date(updates.dueDate).toISOString().split('T')[0] !== currentTask.dueDate.toISOString().split('T')[0]) {
       const dailyTaskCount = await Task.countDocuments({
         userId,
         dueDate: { $gte: dateStart, $lt: dateEnd },
@@ -216,6 +217,14 @@ export const updateTask = async (req, res) => {
       { new: true, runValidators: true }
     );
     
+    // ✅ RESTORED NULL SAFETY GUARD: Avoids passing a 200 message block if the target item vanished between requests
+    if (!updatedTask) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found or modification unauthorized",
+      });
+    }
+
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,

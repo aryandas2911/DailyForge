@@ -8,7 +8,7 @@ export default function TaskForm({ onTaskCreated }) {
     title: '',
     description: '',
     priority: 'Medium',
-    status: 'Pending',
+    status: 'Due', // Fixed: Changed from 'Pending' to match your Mongoose enum ('Due' or 'Completed')
     dueDate: '',
     tags: []
   });
@@ -19,14 +19,21 @@ export default function TaskForm({ onTaskCreated }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 3. Your core request pipeline (now fully wired up)
+  // 3. Your core request pipeline (now fully wired up with auth context)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     
     try {
+      // 🔐 Retrieve the stored authentication token
+      const token = localStorage.getItem('token'); 
+
       const response = await fetch('/api/tasks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          // 🔐 Attach the token to pass your backend authMiddleware guard
+          'Authorization': `Bearer ${token}` 
+        },
         body: JSON.stringify(formData)
       });
 
@@ -45,7 +52,7 @@ export default function TaskForm({ onTaskCreated }) {
         title: '',
         description: '',
         priority: 'Medium',
-        status: 'Pending',
+        status: 'Due',
         dueDate: '',
         tags: []
       });
@@ -54,7 +61,9 @@ export default function TaskForm({ onTaskCreated }) {
       if (onTaskCreated) onTaskCreated();
 
     } catch (err) {
-      toast.error("Something went wrong on the network layer.");
+      // 🛠️ Log the actual runtime error in the console to aid development debugging
+      console.error("Task creation error details:", err);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
