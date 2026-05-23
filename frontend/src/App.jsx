@@ -13,6 +13,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
+import Habits from "./pages/Habits.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
 const AuthLayout = ({ children }) => (
@@ -24,9 +25,10 @@ const AuthLayout = ({ children }) => (
 const App = () => {
   return (
     <BrowserRouter>
-      <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex flex-col">
-        <Routes>
+      <div className="app-bg min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-15 flex flex-col">
+          <Routes>
           <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
@@ -71,11 +73,20 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+          <Route
+            path="/habits"
+            element={
+              <ProtectedRoutes>
+                <Habits />
+              </ProtectedRoutes>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </main>
-      <Footer />
-      <ScrollToTop />
+        </main>
+        <Footer />
+        <ScrollToTop />
+      </div>
     </BrowserRouter>
     
   );
