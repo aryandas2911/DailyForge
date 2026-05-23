@@ -7,6 +7,8 @@ import { TAGS } from "../../utils/tagUtils";
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
+const TITLE_MAX_LENGTH = 30;
+const TITLE_WARNING_LENGTH = 25;
 
   
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
@@ -123,6 +125,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
 
     if (!title.trim()) return onError?.("Title is required");
+    if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
@@ -145,7 +148,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   description: description.trim(),
   tags,
   priority,
-  status: "Due",
+  status: task ? task.status : "Due",
   dueDate,
 });
   };
@@ -239,6 +242,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                   : "border-soft"
               }`}
               placeholder="Task title"
+              maxLength={TITLE_MAX_LENGTH}
               required
             />
              {titleCollisionError && (
@@ -247,6 +251,17 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                 <p>{titleCollisionError}</p>
               </div>
             )}
+            <p
+              className={`text-sm mt-1 text-right ${
+                title.length >= TITLE_MAX_LENGTH
+                  ? "text-red-500"
+                  : title.length >= TITLE_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
+              }`}
+            >
+              {title.length}/{TITLE_MAX_LENGTH}
+            </p>
           </div>
 
           {/* Description */}

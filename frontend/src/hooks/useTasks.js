@@ -72,6 +72,11 @@ const useTasks = () => {
     await api.post("/tasks/bulk-delete", { ids });
     getTasks();
   };
+  // bulk edit tasks
+  const bulkUpdate = async (ids, updates) => {
+    await Promise.all(ids.map((id) => api.put(`/tasks/${id}`, updates)));
+    await getTasks();
+  };
   // return reusable functions
   return {
     tasks,
@@ -79,6 +84,7 @@ const useTasks = () => {
     updateTask,
     deleteTask,
     bulkDelete,
+    bulkUpdate,
   };
 };
 
