@@ -1,32 +1,21 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"No tests specified yet\"",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "lint": "eslint ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "express-validator": "^7.3.2",
-    "jsonwebtoken": "^9.0.3",
-    "mongodb": "^7.2.0",
-    "mongoose": "^9.0.0",
-    "nodemon": "^3.1.11"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.1"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.3.0",
-    "globals": "^17.6.0"
+    "nodemon": "^3.1.4"
   }
 }

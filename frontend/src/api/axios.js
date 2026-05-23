@@ -1,44 +1,48 @@
 import axios from "axios";
 
-// create axios instance
+// Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://dailyforge-backend.onrender.com/api/",
-  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000,
+  baseURL: "http://localhost:5000/api",
+  timeout: 30000,
 });
 
-// attach jwt automatically with each request
+// Attach token automatically
 api.interceptors.request.use((config) => {
-  try {
-    // Read token from localStorage
-    const token = localStorage.getItem("token");
 
-    // If token exists, attach the Authorization header
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  } catch (error) {
-    // Handle error
-    console.log(error);
-    return Promise.reject(error);
+  const token = localStorage.getItem("token");
+
+  // safer token check
+  if (
+    token &&
+    token !== "undefined" &&
+    token !== "null"
+  ) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
+
+  return config;
 });
 
-// Handle response errors, including timeout
+// Handle errors
 api.interceptors.response.use(
-  (response) => response, // success — pass through unchanged
+  (response) => response,
+
   (error) => {
+
+    console.error("Axios Error:", error);
+
     if (error.code === "ECONNABORTED") {
-      // This fires when the timeout is hit
-      console.error("Request timed out. The server may be waking up from sleep. Please wait a moment and try again.");
+
       error.userMessage =
-        "The server is waking up — this can take up to 30 seconds on first load. Please try again shortly.";
+        "Server timeout. Please try again.";
+
     } else if (!error.response) {
-      // Network error (no internet, server completely unreachable)
-      console.error("Network error. Please check your connection.");
-      error.userMessage = "Network error. Please check your internet connection.";
+
+      error.userMessage =
+        "Network error. Backend not running.";
     }
-    return Promise.reject(error); // always reject so callers can handle it
+
+    return Promise.reject(error);
   }
 );
 
