@@ -58,21 +58,11 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
   /* ---------------- body scroll lock ---------------- */
   useEffect(() => {
-    const scrollY = window.scrollY;
-
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.overflowY = "scroll";
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.overflowY = "";
-      window.scrollTo({ top: scrollY, behavior: "instant" });
+      document.body.style.overflow = originalStyle;
     };
   }, []);
 
@@ -149,8 +139,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   return createPortal(
     <div
       className="fixed inset-0 z-50 overflow-y-auto
-                 flex flex-col items-center
-                 pt-40 pb-10 px-4
+                 flex flex-col items-center justify-center
+                 p-4
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
       onMouseDown={(e) => {
@@ -161,7 +151,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     >
       <div
         className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6
-                   relative border border-soft animate-in delay-100"
+                   relative border border-soft animate-in delay-100
+                   max-h-[90vh] overflow-y-auto"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
