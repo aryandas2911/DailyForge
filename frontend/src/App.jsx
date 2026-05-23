@@ -9,6 +9,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import PublicRoute from "./components/PublicRoute.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import Analytics from "./pages/Analytics.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
@@ -61,6 +62,14 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <PageTransition><Profile /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><Analytics /></PageTransition>
             </ProtectedRoutes>
           }
         />
