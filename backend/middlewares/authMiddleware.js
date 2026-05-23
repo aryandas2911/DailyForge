@@ -11,11 +11,12 @@ export const authMiddleware = (req, res, next) => {
       .json({ success: false, message: "Token format invalid" });
   }
 
+  // check JWT_SECRET is configured
   if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET is not configured');
+    console.error("JWT_SECRET is not set in environment variables");
     return res.status(500).json({
       success: false,
-      message: 'Authentication service is misconfigured',
+      message: "Server configuration error",
     });
   }
 
@@ -28,7 +29,6 @@ export const authMiddleware = (req, res, next) => {
     // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
     req.userId = verify.id || verify.userId;
     next();
-
   } catch (error) {
     // error handling
     console.log('Token verification error', error);
@@ -56,4 +56,3 @@ export const authMiddleware = (req, res, next) => {
     }
   }
 };
-
