@@ -214,6 +214,18 @@ export const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: taskId,
+          },
+        },
+      }
+    );
+
     return res.status(200).json({
       message: "Task deleted successfully",
     });
