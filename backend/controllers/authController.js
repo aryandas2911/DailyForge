@@ -1,3 +1,5 @@
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 import User from '../src/models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -79,9 +81,9 @@ export const signup = async (req, res) => {
         message: 'User registered successfully',
         user: { _id: newUser._id, name: newUser.name, email: newUser.email },
       });
-  } catch (error) {
+  } catch (_error) {
     // error handling
-    console.error('Signup error:', error);
+    console.error('Signup error:', _error);
     return res.status(500).json({ message: 'Server error during signup' });
   }
 };
@@ -118,9 +120,9 @@ export const login = async (req, res) => {
         message: 'Login successful',
         user: { _id: user._id, name: user.name, email: user.email },
       });
-  } catch (error) {
+  } catch (_error) {
     // error handling
-    console.log('Login error: ', error);
+    console.log('Login error: ', _error);
     return res.status(500).json({ message: 'Server error during login' });
   }
 };
@@ -144,7 +146,7 @@ export const loginWith2FA = async (req, res) => {
       expiresIn: "24h",
     });
     return res.status(200).json({ message: "Login successful", token: jwtToken });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ message: "Server error during 2FA login" });
   }
 };
@@ -157,7 +159,7 @@ export const setup2FA = async (req, res) => {
     await User.findByIdAndUpdate(req.userId, { twoFactorTempSecret: secret.base32 });
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
     return res.status(200).json({ qrCodeUrl, secret: secret.base32 });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ message: "Error setting up 2FA" });
   }
 };
@@ -179,7 +181,7 @@ export const verify2FA = async (req, res) => {
       twoFactorTempSecret: null,
     });
     return res.status(200).json({ message: "2FA enabled successfully" });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ message: "Error verifying 2FA" });
   }
 };
@@ -192,7 +194,7 @@ export const disable2FA = async (req, res) => {
       twoFactorSecret: null,
     });
     return res.status(200).json({ message: "2FA disabled" });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ message: "Error disabling 2FA" });
   }
 };
@@ -273,9 +275,9 @@ export const updateProfile = async (req, res) => {
         email: user.email,
       },
     });
-  } catch (error) {
+  } catch (_error) {
     // error handling
-    console.log('Profile update error:', error);
+    console.log('Profile update error:', _error);
 
     return res.status(500).json({
       success: false,
@@ -359,8 +361,8 @@ export const googleLogin = async (req, res) => {
           email: user.email,
         },
       });
-  } catch (error) {
-    console.error('[GOOGLE AUTH] Controller error:', error);
+  } catch (_error) {
+    console.error('[GOOGLE AUTH] Controller error:', _error);
     return res.status(500).json({ message: 'Server error during Google authentication' });
   }
 };
