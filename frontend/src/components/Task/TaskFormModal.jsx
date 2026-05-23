@@ -325,22 +325,75 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             </select>
           </div>
 
+          
           {/* Due Date */}
-          <div>
-            <label className="text-sm font-medium text-main">Due Date</label>
-            <input
-  type="datetime-local"
-  value={dueDate}
-  min={task ? undefined : todayStr}
-  max={maxDateStr}
-  onChange={(e) => setDueDate(e.target.value)}
-  onClick={(e) => e.target.showPicker?.()}
-  className="w-full mt-1 p-2 border border-soft rounded-lg
-             focus:ring-(--primary) focus:border-(--primary)
-             bg-transparent text-main"
-  required
-/>
-          </div>
+<div>
+  <label className="text-sm font-medium text-main">Due Date</label>
+  <input
+    type="date"
+    value={dueDate.slice(0, 10)}
+    min={task ? undefined : todayStr}
+    max={maxDateStr}
+    onChange={(e) => {
+      const timePart = dueDate.slice(11, 16) || "00:00";
+      setDueDate(e.target.value + "T" + timePart);
+    }}
+    className="w-full mt-1 p-2 border border-soft rounded-lg
+               focus:ring-(--primary) focus:border-(--primary)
+               bg-transparent text-main"
+    required
+  />
+</div>
+
+{/* Time Picker */}
+<div>
+  <label className="text-sm font-medium text-main">Time</label>
+  <div className="mt-1 flex gap-3">
+    {/* Hours column */}
+    <div className="flex flex-col items-center flex-1">
+      <span className="text-xs font-semibold text-muted uppercase tracking-wide mb-1">
+        Hours
+      </span>
+      <select
+        value={dueDate.slice(11, 13) || "00"}
+        onChange={(e) => {
+          const datePart = dueDate.slice(0, 10) || todayStr;
+          const mins = dueDate.slice(14, 16) || "00";
+          setDueDate(`${datePart}T${e.target.value}:${mins}`);
+        }}
+        className="w-full p-2 border border-soft rounded-lg
+                   focus:ring-(--primary) focus:border-(--primary)
+                   bg-transparent text-main dark:bg-slate-800"
+      >
+        {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map((h) => (
+          <option key={h} value={h}>{h}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Minutes column */}
+    <div className="flex flex-col items-center flex-1">
+      <span className="text-xs font-semibold text-muted uppercase tracking-wide mb-1">
+        Minutes
+      </span>
+      <select
+        value={dueDate.slice(14, 16) || "00"}
+        onChange={(e) => {
+          const datePart = dueDate.slice(0, 10) || todayStr;
+          const hrs = dueDate.slice(11, 13) || "00";
+          setDueDate(`${datePart}T${hrs}:${e.target.value}`);
+        }}
+        className="w-full p-2 border border-soft rounded-lg
+                   focus:ring-(--primary) focus:border-(--primary)
+                   bg-transparent text-main dark:bg-slate-800"
+      >
+        {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0")).map((m) => (
+          <option key={m} value={m}>{m}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+</div> 
 
           {/* Submit Button */}
           <button
