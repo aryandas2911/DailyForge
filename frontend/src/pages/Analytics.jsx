@@ -369,11 +369,7 @@ export default function Analytics() {
       {/* Streaks & Leaderboard Row */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
         {/* Streak Tracker Card */}
-<<<<<<< HEAD
         <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md flex flex-col justify-between">
-=======
-        <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md">
->>>>>>> upstream/main
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
           
           <div className="flex flex-col sm:flex-row items-center gap-6 z-10 relative">
@@ -384,7 +380,6 @@ export default function Analytics() {
               </div>
             </div>
 
-<<<<<<< HEAD
             <div className="text-center sm:text-left space-y-2 w-full">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
                 <h3 className="text-xl font-bold text-main flex items-center gap-2">
@@ -399,40 +394,23 @@ export default function Analytics() {
                   </button>
                 )}
               </div>
-=======
-            <div className="text-center sm:text-left space-y-2">
-              <h3 className="text-xl font-bold text-main flex items-center justify-center sm:justify-start gap-2">
-                Consistency Streak
-              </h3>
->>>>>>> upstream/main
               <p className="text-sm text-muted">
                 Complete at least one task daily to fuel your productivity streak!
               </p>
               
-<<<<<<< HEAD
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-3">
                 <div className="text-center sm:text-left">
-=======
-              <div className="flex justify-center sm:justify-start items-center gap-8 pt-2">
-                <div className="text-center">
->>>>>>> upstream/main
                   <span className="text-3xl font-extrabold bg-gradient-to-r from-amber-500 to-red-500 bg-clip-text text-transparent">
                     {stats.streaks.currentStreak}
                   </span>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Current Streak</p>
                 </div>
-<<<<<<< HEAD
                 <div className="text-center sm:text-left">
-=======
-                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
-                <div className="text-center">
->>>>>>> upstream/main
                   <span className="text-3xl font-extrabold text-main">
                     {stats.streaks.bestStreak}
                   </span>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Best Record</p>
                 </div>
-<<<<<<< HEAD
                 <div className="text-center sm:text-left">
                   <span className="text-3xl font-extrabold text-blue-500 flex items-center justify-center sm:justify-start gap-1">
                     <Snowflake size={20} className="inline-block animate-pulse" />
@@ -458,8 +436,6 @@ export default function Analytics() {
                   </span>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Longest Protected</p>
                 </div>
-=======
->>>>>>> upstream/main
               </div>
             </div>
           </div>
