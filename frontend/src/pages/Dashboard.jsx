@@ -9,6 +9,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import MiniCalendar from "../components/Dashboard/MiniCalendar";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -144,30 +145,37 @@ const handleDuplicateRoutine = async () => {
       <OnboardingModal />
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-        {/* Display time */}
-       <div className="w-full">
-  <h1 className="text-2xl font-semibold text-main leading-tight">
-    {getGreeting()}, {user?.name}
-  </h1>
+        {/* Display time and greeting */}
+        <div className="w-full lg:w-auto flex-1">
+          <h1 className="text-2xl font-semibold text-main leading-tight">
+            {getGreeting()}, {user?.name}
+          </h1>
 
-  <p className="text-sm italic text-primary mt-2">
-    "{quote}"
-  </p>
+          <p className="text-sm italic text-primary mt-2">
+            "{quote}"
+          </p>
 
-  <div className="flex justify-between items-center mt-1 w-full">
-    <p className="text-sm text-muted">
-      {new Date()
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          day: "2-digit",
-          month: "short",
-        })
-        .replace(",", " ·")}
-    </p>
+          <div className="flex flex-col gap-1 mt-6">
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
 
-    <LiveClock />
-  </div>
-</div>
+            <div className="text-sm font-medium text-[var(--primary)]">
+              <LiveClock />
+            </div>
+          </div>
+        </div>
+
+        {/* Mini Calendar at the top corner */}
+        <div className="hidden sm:block">
+          <MiniCalendar />
+        </div>
       </header>
 
       {/* Stats Row */}
