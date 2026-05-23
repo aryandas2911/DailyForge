@@ -89,9 +89,22 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (title.trim().length < 3) return alert("Title must be at least 3 characters");
-    if (!priority) return alert("Priority is required");
-    if (!dueDate) return alert("Due date is required");
+    onError?.("");
+
+    if (!title.trim()) return onError?.("Title is required");
+    if (title.trim().length<3) return onError?.("Title must be at least 3 characters");
+    if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
+    if (!priority) return onError?.("Priority is required");
+    if (!dueDate) return onError?.("Due date is required");
+
+    if (!task && dueDate < todayStr) {
+       return alert("Due date cannot be in the past");
+    }
+
+    if (dueDate > maxDateStr) {
+      return alert("Due date cannot be more than 1 year in the future");
+    }
+    
 
     onSubmit({
       title: title.trim(),
