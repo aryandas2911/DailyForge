@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
+import useTasks from "../hooks/useTasks";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -78,6 +79,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { tasks } = useTasks();
+  const incompleteCount = tasks ? tasks.filter((t) => t.status !== "Completed").length : 0;
 
   // Handle scroll effect for premium glassmorphism transition
   useEffect(() => {
@@ -111,7 +114,7 @@ const handleLogoutClick = () => {
   // Navigation Links configuration
  const navLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Tasks", path: "/tasks", icon: CheckSquare },
+  { name: "Tasks", path: "/tasks", icon: CheckSquare, badge: user && incompleteCount > 0 ? incompleteCount : null },
   { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
   { name: "Analytics", path: "/analytics", icon: TrendingUp },
   { name: "Profile", path: "/profile", icon: User },
@@ -171,7 +174,12 @@ const handleLogoutClick = () => {
                   }
                 >
                   <link.icon size={16} className={cn("transition-transform duration-200")} />
-                  {link.name}
+                  <span>{link.name}</span>
+                  {link.badge !== undefined && link.badge !== null && (
+                    <span className="ml-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center animate-pulse">
+                      {link.badge}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </div>
@@ -288,7 +296,12 @@ const handleLogoutClick = () => {
                   }
                 >
                   <link.icon size={18} />
-                  {link.name}
+                  <span className="flex-1">{link.name}</span>
+                  {link.badge !== undefined && link.badge !== null && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                      {link.badge}
+                    </span>
+                  )}
                 </NavLink>
               ))}
 
