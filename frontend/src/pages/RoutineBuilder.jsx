@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,7 +13,8 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
+import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
@@ -31,6 +32,24 @@ export default function RoutineBuilder() {
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const gridRef = useRef(null);
+
+  const exportToImage = async () => {
+    if (!gridRef.current) return;
+    try {
+      // html-to-image handles CSS variables and Google Fonts without CORS issues
+      const url = await toPng(gridRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = "My_Weekly_Routine.png";
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export routine as image.");
+    }
+  };
 
   const normalizeDay = (day) => String(day || "").trim().toLowerCase();
 
@@ -176,35 +195,43 @@ export default function RoutineBuilder() {
       <div className="app-bg min-h-screen px-6 py-8 pb-40">
 
         {/* Header */}
-        <header className="mb-8 flex items-start gap-4 animate-in delay-100">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="mt-1 rounded-lg p-2 border border-soft text-muted
-                       hover:bg-white transition cursor-pointer"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div>
-            <h1 className="text-3xl font-semibold text-main">
-              Routine Builder
-            </h1>
-            <p className="mt-1 text-muted">Design your week</p>
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in delay-100">
+          <div className="flex items-start gap-4">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="mt-1 rounded-lg p-2 border border-soft text-muted
+                         hover:bg-white transition cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <h1 className="text-3xl font-semibold text-main">
+                Routine Builder
+              </h1>
+              <p className="mt-1 text-muted">Design your week</p>
+            </div>
           </div>
+          <button
+            onClick={exportToImage}
+            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
+          >
+            <Download size={16} />
+            Export as PNG
+          </button>
         </header>
 
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
-            <TaskLibrary
-  tasks={tasks}
-  onAddTask={() => setIsModalOpen(true)}
-/>
             {/*
              * TaskLibrary's "Add Task" button opens the modal directly
              * (user is already at the top section of the page, no scroll needed).
              * Use openModal instead of handleOpenModal here.
              */}
-            <TaskLibrary onAddTask={openModal} />
+            <TaskLibrary
+              tasks={tasks}
+              onAddTask={openModal}
+            />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
@@ -212,6 +239,7 @@ export default function RoutineBuilder() {
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
+              innerRef={gridRef}
             />
           </section>
         </div>

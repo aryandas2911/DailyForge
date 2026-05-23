@@ -3,8 +3,6 @@ import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import { formatDateString, checkAndApplyStreakFreezes } from "../utils/streakManager.js";
 
-
-
 export const getAnalytics = async (req, res) => {
   try {
     const userId = req.userId;
@@ -18,7 +16,6 @@ export const getAnalytics = async (req, res) => {
 
     // Apply streak freezes and monthly replenishments
     await checkAndApplyStreakFreezes(user);
-
     // Fetch all user tasks and routines
     const tasks = await Task.find({ userId });
     const routines = await Routine.find({ userId });
@@ -94,7 +91,6 @@ export const getAnalytics = async (req, res) => {
     const yesterdayActive = uniqueDates.includes(yesterdayStr);
     const olderDatesExist = uniqueDates.some(d => new Date(d) < new Date(yesterdayStr));
     const isEligibleForRecovery = !yesterdayActive && olderDatesExist && user.streakFreezeCount > 0;
-
     // --- Daily Progress (Last 7 Days) ---
     const dailyProgress = [];
     for (let i = 6; i >= 0; i--) {
@@ -261,7 +257,6 @@ export const getAnalytics = async (req, res) => {
     });
   }
 };
-
 export const recoverStreak = async (req, res) => {
   try {
     const userId = req.userId;
