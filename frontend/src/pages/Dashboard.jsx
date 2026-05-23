@@ -253,7 +253,10 @@ const handleDuplicateRoutine = async () => {
                     <p className="font-medium text-main">{routine.name}</p>
                     <button
                       type="button"
-                      onClick={() => openDuplicateModal(routine)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
                       disabled={duplicatingRoutineId === routine._id}
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"

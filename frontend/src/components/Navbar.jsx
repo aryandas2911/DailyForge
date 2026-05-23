@@ -242,6 +242,8 @@ const handleLogoutClick = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
               aria-label="Toggle menu"
+              aria-expanded={isOpen}
+              aria-controls="mobile-navigation-menu"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -263,6 +265,7 @@ const handleLogoutClick = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-navigation-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
