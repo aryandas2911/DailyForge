@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 import html2canvas from "html2canvas";
+import toast from "react-hot-toast";
 
 export default function Analytics() {
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ export default function Analytics() {
       document.body.removeChild(link);
     } catch (err) {
       console.error("Failed to export image:", err);
-      alert("Failed to export dashboard as image");
+      toast.error("Failed to export dashboard as image");
     }
   };
 

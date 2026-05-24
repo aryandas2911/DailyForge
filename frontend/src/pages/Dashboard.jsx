@@ -14,6 +14,7 @@ import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -134,7 +135,7 @@ const handleDuplicateRoutine = async () => {
     closeDuplicateModal();
   } catch (err) {
     console.error(err);
-    alert("Failed to duplicate routine");
+    toast.error("Failed to duplicate routine");
   } finally {
     setDuplicatingRoutineId(null);
   }

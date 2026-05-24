@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MoreVertical, Trash2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
+import toast from "react-hot-toast";
 
 export default function RoutineCard({
   routine,
@@ -226,7 +227,7 @@ export default function RoutineCard({
   } catch (err) {
 
     console.error(err);
-    alert("Failed to delete routine");
+    toast.error("Failed to delete routine");
   }
  };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const useTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -34,7 +35,7 @@ const useTasks = () => {
       error.message
     );
 
-    alert(
+    toast.error(
       error?.response?.data?.message ||
       "Failed to create task"
     );
