@@ -36,19 +36,19 @@ export default function TaskPreview({ tasks , updateTask}) {
         <div className="space-y-3">
           {tasks.map((task) => {
 
-              {/*Calculate remaining time */}
               const remainingTime = new Date(task.dueDate) - now;
+              const isOverdue = remainingTime <= 0;
 
-              const hours = Math.floor(
+              const hours = isOverdue ? 0 : Math.floor(
                 remainingTime / (1000 * 60 * 60)
               );
 
-              const minutes = Math.floor(
+              const minutes = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60 * 60)) /
                   (1000 * 60)
               );
 
-              const seconds = Math.floor(
+              const seconds = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60)) / 1000
               );
 
@@ -103,9 +103,9 @@ export default function TaskPreview({ tasks , updateTask}) {
                   {/*Disply Remaining Time */}
                   {task.dueDate && (
                     <span className="text-[11px] text-red-500 font-medium">
-                      {remainingTime > 0
-                        ? `${hours}h ${minutes}m ${seconds}s left`
-                        : "Overdue"}
+                      {isOverdue 
+                        ? "Overdue"
+                        : `${hours}h ${minutes}m ${seconds}s left`}
                     </span>
                   )}
 

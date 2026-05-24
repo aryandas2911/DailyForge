@@ -10,13 +10,15 @@ import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask, bulkDelete } = useTasks();
-
+  const { tasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate } = useTasks();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkPriority, setBulkPriority] = useState("");
+  const [bulkDueDate, setBulkDueDate] = useState("");
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -27,6 +29,17 @@ export default function Tasks() {
   const handleBulkDelete = async () => {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
+  };
+  const handleBulkEdit = async () => {
+    if (!bulkPriority && !bulkDueDate) return;
+    const updates = {};
+    if (bulkPriority) updates.priority = bulkPriority;
+    if (bulkDueDate) updates.dueDate = bulkDueDate;
+    await bulkUpdate(selectedIds, updates);
+    setSelectedIds([]);
+    setBulkPriority("");
+    setBulkDueDate("");
+    setShowBulkEdit(false);
   };
 
   const [durationModalTask, setDurationModalTask] = useState(null);
@@ -148,12 +161,20 @@ const handleActualDurationSubmit = async () => {
 
           <div className="flex items-center gap-3">
             {selectedIds.length > 0 && (
-              <button
-                onClick={handleBulkDelete}
-                className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                <Trash2 size={18} /> Delete Selected ({selectedIds.length})
-              </button>
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  onClick={() => setShowBulkEdit((prev) => !prev)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 transition cursor-pointer"
+                >
+                  ✏️ Edit Selected ({selectedIds.length})
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  className="btn btn-danger flex items-center gap-2 cursor-pointer bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                >
+                  <Trash2 size={18} /> Delete Selected ({selectedIds.length})
+                </button>
+              </div>
             )}
             <button
               onClick={() => {
@@ -167,6 +188,45 @@ const handleActualDurationSubmit = async () => {
             </button>
           </div>
         </div>
+        {showBulkEdit && selectedIds.length > 0 && (
+        <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-main">Set Priority</label>
+            <select
+              value={bulkPriority}
+              onChange={(e) => setBulkPriority(e.target.value)}
+              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+            >
+              <option value="">-- Select --</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-main">Set Due Date</label>
+            <input
+              type="datetime-local"
+              value={bulkDueDate}
+              onChange={(e) => setBulkDueDate(e.target.value)}
+              className="p-2 border border-soft rounded-lg bg-transparent text-main"
+            />
+          </div>
+          <button
+            onClick={handleBulkEdit}
+            disabled={!bulkPriority && !bulkDueDate}
+            className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Apply to {selectedIds.length} Tasks
+          </button>
+          <button
+            onClick={() => setShowBulkEdit(false)}
+            className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
         {/* Category Filter */}
         <div className="animate-in delay-150">

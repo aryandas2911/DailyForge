@@ -1,3 +1,4 @@
+import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -140,6 +141,7 @@ const handleDuplicateRoutine = async () => {
 };
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+      <OnboardingModal />
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         {/* Display time */}
@@ -251,7 +253,10 @@ const handleDuplicateRoutine = async () => {
                     <p className="font-medium text-main">{routine.name}</p>
                     <button
                       type="button"
-                      onClick={() => openDuplicateModal(routine)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
                       disabled={duplicatingRoutineId === routine._id}
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"
