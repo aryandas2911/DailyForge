@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 import {
   ArrowLeft,
   Flame,
@@ -19,6 +20,7 @@ import html2canvas from "html2canvas";
 
 export default function Analytics() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -117,7 +119,7 @@ export default function Analytics() {
       document.body.removeChild(link);
     } catch (err) {
       console.error("Failed to export image:", err);
-      alert("Failed to export dashboard as image");
+      showToast("Failed to export dashboard as image", "error");
     }
   };
 

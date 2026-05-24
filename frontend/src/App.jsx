@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import { ToastProvider } from "./context/ToastContext.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
@@ -24,6 +25,7 @@ const AuthLayout = ({ children }) => (
 const App = () => {
   return (
     <BrowserRouter>
+      <ToastProvider>
       <Navbar />
       <main className="app-bg min-h-screen pt-15 flex flex-col">
         <Routes>
@@ -76,6 +78,7 @@ const App = () => {
       </main>
       <Footer />
       <ScrollToTop />
+      </ToastProvider>
     </BrowserRouter>
     
   );

@@ -18,10 +18,12 @@ import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import { useToast } from "../context/ToastContext";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scheduledTasks, setScheduledTasks] = useState([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function RoutineBuilder() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Failed to export routine as image.");
+      showToast("Failed to export routine as image.", "error");
     }
   };
 
@@ -71,7 +73,7 @@ export default function RoutineBuilder() {
       closeModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      showToast("Failed to add task", "error");
     }
   };
 
@@ -134,19 +136,19 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
+      showToast("Routine saved successfully");
       await fetchRoutines();
     } catch (err) {
       console.error(err);
       const errorMessage = err.response?.data?.message || "Failed to save routine";
-      alert(errorMessage);
+      showToast(errorMessage, "error");
     }
   };
 
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
+      showToast(`No tasks scheduled for ${day}`, "info");
       return;
     }
     setSelectedDay(day);

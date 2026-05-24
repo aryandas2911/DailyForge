@@ -14,10 +14,12 @@ import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
+import { useToast } from "../context/ToastContext";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
@@ -132,9 +134,10 @@ const handleDuplicateRoutine = async () => {
     }
 
     closeDuplicateModal();
+    showToast("Routine duplicated successfully");
   } catch (err) {
     console.error(err);
-    alert("Failed to duplicate routine");
+    showToast("Failed to duplicate routine", "error");
   } finally {
     setDuplicatingRoutineId(null);
   }
