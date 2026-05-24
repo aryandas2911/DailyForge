@@ -145,11 +145,11 @@ const handleLogoutClick = () => {
             <motion.div 
               whileHover={{ rotate: 180 }} 
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+              className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center shadow-md"
             >
               <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
             </motion.div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-indigo-600">
               DailyForge
             </span>
           </Link>
@@ -163,10 +163,10 @@ const handleLogoutClick = () => {
                   to={link.path}
                   className={({ isActive }) =>
                     cn(
-                      "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                      "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-100/50"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )
                   }
                 >
@@ -196,34 +196,18 @@ const handleLogoutClick = () => {
 
             {!user ? (
               <>
-                <NavLink
-  to="/login"
-  end
-  className={({ isActive }) =>
-    cn(
-      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
-      isActive
-        ? "border-[#3b8ea0] text-[#3b8ea0] bg-[#d0f6e3]"
-        : "border-transparent text-[#4eb7b3] hover:bg-[#d0f6e3]/50"
-    )
-  }
->
-  Login
-</NavLink>
-<NavLink
-  to="/signup"
-  end
-  className={({ isActive }) =>
-    cn(
-      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
-      isActive
-        ? "border-[#3b8ea0] text-white bg-[#3b8ea0]"
-        : "border-[#4eb7b3] text-[#4eb7b3] bg-transparent hover:bg-[#d0f6e3]/50"
-    )
-  }
->
-  Signup
-</NavLink>
+                <Link
+                  to="/login"
+                  className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors px-4 py-2 rounded-xl hover:bg-slate-100"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
+                >
+                  Signup
+                </Link>
               </>
             ) : (
               <button 
@@ -240,7 +224,7 @@ const handleLogoutClick = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none"
               aria-label="Toggle menu"
               aria-expanded={isOpen}
               aria-controls="mobile-navigation-menu"
@@ -280,10 +264,10 @@ const handleLogoutClick = () => {
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
+                      "px-4 py-3 rounded-xl text-base font-semibold transition-colors flex items-center gap-3 w-full",
                       isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     )
                   }
                 >
@@ -321,7 +305,7 @@ const handleLogoutClick = () => {
                     <Link
                       to="/login"
                       onClick={() => setIsOpen(false)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] font-medium hover:bg-[#d0f6e3] transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 transition-colors"
                     >
                       <LogIn size={18} />
                       Login
