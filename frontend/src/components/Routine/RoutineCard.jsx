@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MoreVertical, Trash2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
+import { useToast } from "../../context/ToastContext";
 
 export default function RoutineCard({
   routine,
@@ -11,10 +12,9 @@ export default function RoutineCard({
   fetchRoutines,
 }) {
 
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [showOverlapError, setShowOverlapError] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -104,14 +104,8 @@ export default function RoutineCard({
  const handleStartRoutine = () => {
 
   if (hasOverlap()) {
-
-  setShowOverlapError(true);
-
-  setTimeout(() => {
-    setShowOverlapError(false);
-  }, 3000);
-
-  return;
+    showToast("This routine conflicts with another active routine.", "error");
+    return;
   }
 
   setActiveRoutine((prev) => [
@@ -160,11 +154,7 @@ export default function RoutineCard({
     ])
   );
 
-  setShowToast(true);
-
-  setTimeout(() => {
-    setShowToast(false);
-  }, 3000);
+  showToast("Routine started — tasks added to today's workflow.");
 };
 
  
@@ -226,56 +216,12 @@ export default function RoutineCard({
   } catch (err) {
 
     console.error(err);
-    alert("Failed to delete routine");
+    showToast("Failed to delete routine", "error");
   }
  };
 
   return (
     <>
-{showOverlapError && (
-  <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
-
-    <div className="rounded-2xl border border-red-500/20 bg-red-500 text-white shadow-2xl px-5 py-4 min-w-[320px]">
-
-      <p className="text-sm font-semibold">
-        Routine Overlap Detected
-      </p>
-
-      <p className="text-xs mt-1 text-white/80">
-        This routine conflicts with another active routine.
-      </p>
-
-    </div>
-
-  </div>
-)}
-      {/* Success Toast */}
-      {showToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
-
-          <div className="rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
-
-            <div className="flex items-start gap-3">
-
-              <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
-
-              <div>
-                <p className="text-sm font-semibold text-main">
-                  Routine Started
-                </p>
-
-                <p className="text-xs text-muted mt-1">
-                  Tasks were added to today's workflow.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
       {/* Card */}
       <div
         onClick={() => setIsOpen(true)}

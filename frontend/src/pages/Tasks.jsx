@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
@@ -7,14 +7,17 @@ import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import { useToast } from "../context/ToastContext";
 
 export default function Tasks() {
   const navigate = useNavigate();
   const { tasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate } = useTasks();
+  const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCategories = searchParams.get("categories")?.split(",").filter(Boolean) || [];
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
@@ -68,7 +71,7 @@ const handleActualDurationSubmit = async () => {
   const durationValue = Number(actualDuration);
 
   if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
+    showToast("Please enter a valid duration in minutes", "error");
     return;
   }
 
@@ -102,11 +105,10 @@ const handleActualDurationSubmit = async () => {
   };
 
   const toggleCategoryFilter = (categoryName) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryName)
-        ? prev.filter((cat) => cat !== categoryName)
-        : [...prev, categoryName]
-    );
+    const next = selectedCategories.includes(categoryName)
+      ? selectedCategories.filter((cat) => cat !== categoryName)
+      : [...selectedCategories, categoryName];
+    setSearchParams(next.length > 0 ? { categories: next.join(",") } : {});
   };
 
   const filteredTasks =
@@ -236,7 +238,7 @@ const handleActualDurationSubmit = async () => {
               <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
               {selectedCategories.length > 0 && (
                 <button
-                  onClick={() => setSelectedCategories([])}
+                  onClick={() => setSearchParams({})}
                   className="ml-auto text-xs text-primary hover:underline cursor-pointer"
                 >
                   Clear all

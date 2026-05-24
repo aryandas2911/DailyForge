@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
+import { useToast } from "../../context/ToastContext";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -10,6 +11,7 @@ const TITLE_MAX_LENGTH = 30;
 const TITLE_WARNING_LENGTH = 25;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+  const { showToast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
@@ -98,11 +100,13 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!dueDate) return onError?.("Due date is required");
 
     if (!task && dueDate < todayStr) {
-       return alert("Due date cannot be in the past");
+       showToast("Due date cannot be in the past", "error");
+       return;
     }
 
     if (dueDate > maxDateStr) {
-      return alert("Due date cannot be more than 1 year in the future");
+      showToast("Due date cannot be more than 1 year in the future", "error");
+      return;
     }
 
     onSubmit({

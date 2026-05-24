@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useToast } from "../context/ToastContext";
 
 const useTasks = () => {
+  const { showToast } = useToast();
   const [tasks, setTasks] = useState([]);
 
   // fetch tasks from database
@@ -10,36 +12,20 @@ const useTasks = () => {
       const tasks = await api.get("/tasks");
       setTasks(tasks.data.tasks);
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to load tasks");
+      showToast(error?.response?.data?.message || "Failed to load tasks", "error");
     }
   };
 
   // create new task
   const addTask = async (taskData) => {
-  try {
-    const response = await api.post("/tasks", taskData);
-
-    console.log("Task added:", response.data);
-
-    // instantly update UI
-    setTasks((prev) => [response.data.newTask, ...prev]);
-
-  } catch (error) {
-
-    console.log("FULL ERROR:", error);
-
-    console.log(
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      error.message
-    );
-
-    alert(
-      error?.response?.data?.message ||
-      "Failed to create task"
-    );
-  }
-};
+    try {
+      const response = await api.post("/tasks", taskData);
+      setTasks((prev) => [response.data.newTask, ...prev]);
+      showToast("Task created successfully");
+    } catch (error) {
+      showToast(error?.response?.data?.message || "Failed to create task", "error");
+    }
+  };
 
   // update task
   const updateTask = async (id, updates) => {
@@ -49,17 +35,22 @@ const useTasks = () => {
     try {
       await api.put(`/tasks/${id}`, updates);
       await getTasks();
+      showToast("Task updated successfully");
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
+      showToast(error?.response?.data?.message || "Failed to update task", "error");
       await getTasks();
     }
   };
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
-    // fix : This line refreshes the UI!
-    setTasks(prev => prev.filter(t => t._id !== id)); 
+    try {
+      await api.delete(`/tasks/${id}`);
+      setTasks(prev => prev.filter(t => t._id !== id));
+      showToast("Task deleted successfully");
+    } catch (error) {
+      showToast(error?.response?.data?.message || "Failed to delete task", "error");
+    }
   };
 
   // initial fetch
@@ -67,16 +58,29 @@ const useTasks = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, []);
+
   // bulk delete tasks
   const bulkDelete = async (ids) => {
-    await api.post("/tasks/bulk-delete", { ids });
-    getTasks();
+    try {
+      await api.post("/tasks/bulk-delete", { ids });
+      getTasks();
+      showToast(`${ids.length} task(s) deleted successfully`);
+    } catch (error) {
+      showToast(error?.response?.data?.message || "Failed to delete tasks", "error");
+    }
   };
+
   // bulk edit tasks
   const bulkUpdate = async (ids, updates) => {
-    await Promise.all(ids.map((id) => api.put(`/tasks/${id}`, updates)));
-    await getTasks();
+    try {
+      await Promise.all(ids.map((id) => api.put(`/tasks/${id}`, updates)));
+      await getTasks();
+      showToast(`${ids.length} task(s) updated successfully`);
+    } catch (error) {
+      showToast(error?.response?.data?.message || "Failed to update tasks", "error");
+    }
   };
+
   // return reusable functions
   return {
     tasks,
