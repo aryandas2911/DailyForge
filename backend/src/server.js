@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
@@ -7,6 +8,8 @@ import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import optimizationRouter from "../routes/optimizationRoutes.js";
+
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 
 // dotenv config
@@ -44,6 +47,8 @@ app.use("/api/tasks", taskRouter);
 // Router for accessing routine routes
 app.use("/api/routines", routineRouter);
 
+// Router for accessing optimization routes
+app.use("/api/optimization", optimizationRouter);
 // Router for accessing analytics routes
 app.use("/api/analytics", analyticsRouter);
 

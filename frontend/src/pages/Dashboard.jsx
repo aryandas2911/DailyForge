@@ -2,6 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { CheckCircle2, Calendar, Flame, ArrowRight, Zap } from "lucide-react";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 
@@ -145,6 +146,29 @@ const handleDuplicateRoutine = async () => {
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
         {/* Display time */}
+        <div className="w-full">
+  <h1 className="text-2xl font-semibold text-main leading-tight">
+    {getGreeting()}, {user?.name}
+  </h1>
+
+  <p className="text-sm italic text-primary mt-2">
+    "{quote}"
+  </p>
+
+  <div className="flex justify-between items-center mt-1 w-full">
+    <p className="text-sm text-muted">
+      {new Date()
+        .toLocaleDateString("en-US", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+        })
+        .replace(",", " ·")}
+    </p>
+
+    <LiveClock />
+  </div>
+</div>
        <div className="w-full">
   <h1 className="text-2xl font-semibold text-main leading-tight">
     {getGreeting()}, {user?.name}
@@ -249,6 +273,27 @@ const handleDuplicateRoutine = async () => {
                   onClick={() => navigate("/routine-builder")}
                   className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
                 >
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1">
+                      <p className="font-medium text-main">{routine.name}</p>
+                      {routine.description && (
+                        <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                          {routine.description}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
+                        {routine.items.length} tasks across{" "}
+                        {new Set(routine.items.map((i) => i.day)).size} day(s)
+                      </p>
+                    </div>
+                    <button
+                      className="flex-shrink-0 p-2 hover:bg-primary/10 rounded-lg transition-colors duration-200"
+                      onClick={() => navigate(`/optimization/${routine._id}`)}
+                      title="Analyze routine"
+                    >
+                      <Zap size={16} className="text-primary" />
+                    </button>
+                  </div>
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-medium text-main">{routine.name}</p>
                     <button

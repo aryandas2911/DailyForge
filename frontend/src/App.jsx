@@ -8,6 +8,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 import PublicRoute from "./components/PublicRoute.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import RoutineBuilder from "./pages/RoutineBuilder.jsx";
+import OptimizationSuggestions from "./pages/OptimizationSuggestions.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
@@ -56,6 +57,10 @@ const App = () => {
             }
           />
           <Route
+            path="/optimization/:routineId"
+            element={
+              <ProtectedRoutes>
+                <OptimizationSuggestions />
             path="/profile"
             element={
               <ProtectedRoutes>
