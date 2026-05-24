@@ -31,7 +31,7 @@ const App = () => {
         
         <Navbar />
 
-        <main className="pt-15 flex-grow flex flex-col">
+        <main className="pt-[3.75rem] flex-grow flex flex-col">
           <Routes>
             <Route
               path="/"
