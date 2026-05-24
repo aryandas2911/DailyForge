@@ -15,6 +15,7 @@
  * @param {string} taskData.title - The title of the task.
  * @param {string} taskData.priority - The priority level ("Low", "Medium", or "High").
  * @param {string} taskData.dueDate - The due date in "YYYY-MM-DD" format.
+ * @param {number} taskData.duration - The estimated duration of the task in minutes.
  * @returns {string | null} An error message if validation fails, or `null` if valid.
  *
  * @example
@@ -24,10 +25,11 @@
  * validateTaskForm({ title: "Study", priority: "High", dueDate: "2026-05-14" });
  * // null
  */
-export function validateTaskForm({ title, priority, dueDate }) {
+export function validateTaskForm({ title, priority, dueDate ,duration}) {
   if (!title || !title.trim()) return "Title is required";
   if (!priority) return "Priority is required";
   if (!dueDate) return "Due date is required";
+  if (!duration || duration<=0) return "Duration is required"; 
   return null;
 }
 

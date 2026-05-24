@@ -17,6 +17,7 @@ import { ArrowLeft } from "lucide-react";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import {autoScheduleTasks} from "../utils/schedulingutils.js";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -93,7 +94,18 @@ export default function RoutineBuilder() {
       setLoadingRoutines(false);
     }
   };
+  const handleAutoSchedule = () => {
+  const autoTasks =
+    autoScheduleTasks(
+      unscheduledTasks,
+      scheduledTasks
+    );
 
+  setScheduledTasks([
+    ...scheduledTasks,
+    ...autoTasks,
+  ]);
+};
   const confirmSaveRoutine = async () => {
     const items = scheduledTasks
       .filter((task) => task.day === selectedDay)
@@ -275,7 +287,7 @@ export default function RoutineBuilder() {
                 className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm
                            focus:outline-none bg-transparent text-main"
               />
-
+              
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -284,7 +296,14 @@ export default function RoutineBuilder() {
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
                            focus:ring-primary bg-transparent text-main resize-none"
               />
-
+              <input
+  type="number"
+  placeholder="Duration in minutes"
+  value={duration}
+  onChange={(e) =>
+    setDuration(Number(e.target.value))
+  }
+/>
               <div className="flex justify-end gap-3">
                 <button
                   className="btn btn-muted"
@@ -299,6 +318,9 @@ export default function RoutineBuilder() {
                 >
                   Save Routine
                 </button>
+                <button onClick={handleAutoSchedule}>
+  Auto Schedule
+</button>
               </div>
             </div>
           </div>

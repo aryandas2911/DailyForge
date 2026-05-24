@@ -15,6 +15,10 @@ const taskSchema = mongoose.Schema(
       type: String,
       required: false,
     },
+    duration: {
+  type: Number,
+  required: true,
+ },
     tags: {
       type: [String],
       required: false,
@@ -34,6 +38,10 @@ const taskSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
+    isAutoScheduled: {
+  type: Boolean,
+  default: false,
+},
     actualDuration: {
       type: Number,
       default: null,
