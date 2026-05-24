@@ -19,6 +19,7 @@ export default function Tasks() {
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -27,9 +28,15 @@ export default function Tasks() {
   };
 
   const handleBulkDelete = async () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = async () => {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
+    setShowDeleteConfirm(false);
   };
+
   const handleBulkEdit = async () => {
     if (!bulkPriority && !bulkDueDate) return;
     const updates = {};
@@ -45,45 +52,39 @@ export default function Tasks() {
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
 
- /** --- Handlers --- */
-const handleToggle = async (task) => {
-  try {
-    if (task.status !== "Completed") {
-      // Open modal to enter actual duration
-      setDurationModalTask(task);
-      setActualDuration("");
-    } else {
-      // Mark back to Due
-      await updateTask(task._id, {
-        status: "Due",
-        actualDuration: null,
-      });
+  const handleToggle = async (task) => {
+    try {
+      if (task.status !== "Completed") {
+        setDurationModalTask(task);
+        setActualDuration("");
+      } else {
+        await updateTask(task._id, {
+          status: "Due",
+          actualDuration: null,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  };
 
-const handleActualDurationSubmit = async () => {
-  const durationValue = Number(actualDuration);
-
-  if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
-    return;
-  }
-
-  try {
-    await updateTask(durationModalTask._id, {
-      status: "Completed",
-      actualDuration: durationValue,
-    });
-
-    setDurationModalTask(null);
-    setActualDuration("");
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  const handleActualDurationSubmit = async () => {
+    const durationValue = Number(actualDuration);
+    if (Number.isNaN(durationValue) || durationValue <= 0) {
+      alert("Please enter a valid duration in minutes");
+      return;
+    }
+    try {
+      await updateTask(durationModalTask._id, {
+        status: "Completed",
+        actualDuration: durationValue,
+      });
+      setDurationModalTask(null);
+      setActualDuration("");
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
 
   const handleSubmit = async (data) => {
     setTaskError("");
@@ -129,10 +130,10 @@ const handleActualDurationSubmit = async () => {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
+
   const nextTask = filteredTasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
@@ -142,7 +143,6 @@ const handleActualDurationSubmit = async () => {
   return (
     <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
-        {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
             <button
@@ -188,47 +188,47 @@ const handleActualDurationSubmit = async () => {
             </button>
           </div>
         </div>
-        {showBulkEdit && selectedIds.length > 0 && (
-        <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Priority</label>
-            <select
-              value={bulkPriority}
-              onChange={(e) => setBulkPriority(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
-            >
-              <option value="">-- Select --</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Due Date</label>
-            <input
-              type="datetime-local"
-              value={bulkDueDate}
-              onChange={(e) => setBulkDueDate(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main"
-            />
-          </div>
-          <button
-            onClick={handleBulkEdit}
-            disabled={!bulkPriority && !bulkDueDate}
-            className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Apply to {selectedIds.length} Tasks
-          </button>
-          <button
-            onClick={() => setShowBulkEdit(false)}
-            className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
 
-        {/* Category Filter */}
+        {showBulkEdit && selectedIds.length > 0 && (
+          <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Priority</label>
+              <select
+                value={bulkPriority}
+                onChange={(e) => setBulkPriority(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+              >
+                <option value="">-- Select --</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Due Date</label>
+              <input
+                type="datetime-local"
+                value={bulkDueDate}
+                onChange={(e) => setBulkDueDate(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+              />
+            </div>
+            <button
+              onClick={handleBulkEdit}
+              disabled={!bulkPriority && !bulkDueDate}
+              className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Apply to {selectedIds.length} Tasks
+            </button>
+            <button
+              onClick={() => setShowBulkEdit(false)}
+              className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <div className="animate-in delay-150">
           <div className="card p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
@@ -243,7 +243,6 @@ const handleActualDurationSubmit = async () => {
                 </button>
               )}
             </div>
-
             <div className="flex flex-wrap gap-2">
               {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
                 const isSelected = selectedCategories.includes(tagName);
@@ -269,7 +268,6 @@ const handleActualDurationSubmit = async () => {
           </div>
         </div>
 
-        {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
@@ -301,7 +299,6 @@ const handleActualDurationSubmit = async () => {
             )}
           </div>
 
-          {/* Insights */}
           <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">Completion</h3>
@@ -352,14 +349,15 @@ const handleActualDurationSubmit = async () => {
                 {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
               </p>
               <p className="text-xs mt-1 opacity-80">
-                {isOverloaded ? "Consider rescheduling or delegating." : "You’re pacing this well."}
+                {isOverloaded
+                  ? "Consider rescheduling or delegating."
+                  : "You're pacing this well."}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Task Modal */}
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
@@ -373,18 +371,38 @@ const handleActualDurationSubmit = async () => {
         />
       )}
 
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold text-main mb-2">Delete Tasks?</h2>
+            <p className="text-sm text-muted mb-4">
+              Are you sure you want to delete {selectedIds.length} task(s)? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 mt-5">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 rounded-lg border border-soft"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmBulkDelete}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
-              Complete Task
-            </h2>
-
+            <h2 className="text-xl font-semibold text-main mb-2">Complete Task</h2>
             <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
+              How long did you actually take to complete "{durationModalTask.title}"?
             </p>
-
             <input
               type="number"
               min="1"
@@ -393,7 +411,6 @@ const handleActualDurationSubmit = async () => {
               className="w-full p-2 border border-soft rounded-lg"
               placeholder="Actual duration in minutes"
             />
-
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
@@ -404,7 +421,6 @@ const handleActualDurationSubmit = async () => {
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleActualDurationSubmit}
                 className="btn btn-primary px-4 py-2"
