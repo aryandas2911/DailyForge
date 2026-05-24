@@ -7,6 +7,7 @@ import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import toast from "react-hot-toast";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const handleActualDurationSubmit = async () => {
   const durationValue = Number(actualDuration);
 
   if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
+    toast.error("Please enter a valid duration in minutes");
     return;
   }
 

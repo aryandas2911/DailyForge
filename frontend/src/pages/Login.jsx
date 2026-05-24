@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import {
   useNavigate,
   Link,
@@ -76,33 +76,6 @@ const LoadingSpinner = () => (
 );
 
 const Login = () => {
-  // Tilt
-  const cardRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    card.style.transition = "transform 0.4s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
-  };
-
   // Auth State
   const [email, setEmail] = useState("");
 
@@ -232,16 +205,11 @@ const Login = () => {
 
       {/* Card */}
       <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
         className="
           relative
           z-10
           w-full
           max-w-md
-          will-change-transform
-          transform-gpu
         "
       >
       <form
@@ -258,7 +226,13 @@ const Login = () => {
           gap-6
           border
           border-white/10
-          shadow-[0_20px_60px_rgba(0,0,0,0.7)]
+          shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+          dark:shadow-[0_8px_30px_rgb(0,0,0,0.5)]
+          transition-all
+          duration-300
+          hover:shadow-[0_20px_40px_rgb(0,0,0,0.16)]
+          dark:hover:shadow-[0_20px_40px_rgb(0,0,0,0.7)]
+          hover:-translate-y-1
         "
       >
         {/* Heading */}

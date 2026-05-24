@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   // auth context
@@ -23,9 +24,9 @@ const Profile = () => {
       // update user in context
       setUser(res.data.user);
 
-      alert(res.data.message);
+      toast.success(res.data.message || 'Name updated successfully');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update name');
+      toast.error(error.response?.data?.message || 'Failed to update name');
     }
   };
 
@@ -39,13 +40,13 @@ const Profile = () => {
         newPassword,
       });
 
-      alert(res.data.message);
+      toast.success(res.data.message || 'Password updated successfully');
 
       // clear password fields
       setCurrentPassword('');
       setNewPassword('');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update password');
+      toast.error(error.response?.data?.message || 'Failed to update password');
     }
   };
 

@@ -13,11 +13,12 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, GripVertical } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import toast from "react-hot-toast";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -47,7 +48,7 @@ export default function RoutineBuilder() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Failed to export routine as image.");
+      toast.error("Failed to export routine as image.");
     }
   };
 
@@ -71,7 +72,7 @@ export default function RoutineBuilder() {
       closeModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      toast.error("Failed to add task");
     }
   };
 
@@ -134,19 +135,19 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
+      toast.success("Routine saved successfully");
       await fetchRoutines();
     } catch (err) {
       console.error(err);
       const errorMessage = err.response?.data?.message || "Failed to save routine";
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
+      toast.error(`No tasks scheduled for ${day}`);
       return;
     }
     setSelectedDay(day);
