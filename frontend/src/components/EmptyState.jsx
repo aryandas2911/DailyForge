@@ -23,10 +23,11 @@ const CONFIG = {
       <rect x="10" y="10" width="32" height="4" rx="2" fill="#1d4ed8" opacity="0.35" />
     </svg>
   ),
-  heading: "No tasks yet",
-  subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
-  cta: "+ Create your first task",
-},
+    heading: "No tasks yet",
+    subtext: "Your to-do list is empty. Add your first task and start crushing the day.",
+    cta: "+ Create your first task",
+    suggestions: ["Morning Workout", "Study DSA", "Drink Water", "Read 10 Pages"],
+  },
   routines: {
     icon: (
       <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>
@@ -69,13 +70,30 @@ export default function EmptyState({ type = "tasks", onAction }) {
       <button
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={onAction}
+        onClick={() => onAction()}
         className={`mt-2 px-7 py-3 rounded-xl border-none bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-sm cursor-pointer shadow-[0_4px_14px_rgba(99,102,241,0.4)] transition-all duration-200 ${
           hovered ? "translate-y-[-2px] shadow-[0_8px_20px_rgba(99,102,241,0.55)] scale-[1.02]" : ""
         }`}
       >
         {cfg.cta}
       </button>
+
+      {cfg.suggestions && (
+        <div className="mt-8 flex flex-col items-center animate-in delay-200">
+          <p className="text-xs text-blue-800/60 dark:text-blue-200/60 font-medium uppercase tracking-wider mb-3">Or start with a quick win</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {cfg.suggestions.map((s, idx) => (
+              <button
+                key={idx}
+                onClick={() => onAction(s)}
+                className="px-4 py-2 rounded-full bg-white/60 dark:bg-slate-700/60 hover:bg-white dark:hover:bg-slate-700 text-sm text-blue-900 dark:text-blue-100 border border-purple-100 dark:border-slate-600 shadow-sm hover:shadow transition-all cursor-pointer hover:-translate-y-0.5"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -88,7 +88,7 @@ const handleActualDurationSubmit = async () => {
   const handleSubmit = async (data) => {
     setTaskError("");
     try {
-      if (editingTask) {
+      if (editingTask && editingTask._id) {
         await updateTask(editingTask._id, data);
       } else {
         await addTask({ ...data, status: "Due" });
@@ -293,8 +293,8 @@ const handleActualDurationSubmit = async () => {
             ) : (
               <EmptyState
                 type="tasks"
-                onAction={() => {
-                  setEditingTask(null);
+                onAction={(suggestion) => {
+                  setEditingTask(typeof suggestion === 'string' ? { title: suggestion } : null);
                   setIsModalOpen(true);
                 }}
               />

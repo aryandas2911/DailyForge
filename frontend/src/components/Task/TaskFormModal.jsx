@@ -97,7 +97,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
-    if (!task && dueDate < todayStr) {
+    if ((!task || !task._id) && dueDate < todayStr) {
        return alert("Due date cannot be in the past");
     }
 
@@ -110,7 +110,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       description: description.trim(),
       tags: tags,
       priority,
-      status: task ? task.status : "Due",
+      status: task && task.status ? task.status : "Due",
       dueDate,
     });
   };
@@ -175,7 +175,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
         </button>
 
         <h2 className="text-xl font-semibold text-main mb-4">
-          {task ? "Edit Task" : "New Task"}
+          {task && task._id ? "Edit Task" : "New Task"}
         </h2>
 
         {errorMessage && (
@@ -347,7 +347,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             type="submit"
             className="w-full btn btn-primary py-2 mt-2 hover-lift"
           >
-            {task ? "Update Task" : "Add Task"}
+            {task && task._id ? "Update Task" : "Add Task"}
           </button>
         </form>
       </div>
