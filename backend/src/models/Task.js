@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-
-// Task schema
 const taskSchema = mongoose.Schema(
   {
     userId: {
@@ -38,11 +36,9 @@ const taskSchema = mongoose.Schema(
       type: Number,
       default: null,
     },
+    isArchived: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
-
-// Task model using schema
 const taskModel = mongoose.model("Tasks", taskSchema);
-
 export default taskModel;

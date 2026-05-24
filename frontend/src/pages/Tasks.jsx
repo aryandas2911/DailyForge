@@ -4,13 +4,13 @@ import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
-import { getCategoryColor } from "../utils/categoryUtils";
+import { CATEGORIES, getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate } = useTasks();
+  const { activeTasks, archivedTasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate, archiveTask, unarchiveTask } = useTasks();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
@@ -19,6 +19,9 @@ export default function Tasks() {
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const [durationModalTask, setDurationModalTask] = useState(null);
+  const [actualDuration, setActualDuration] = useState("");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -30,6 +33,7 @@ export default function Tasks() {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
   };
+
   const handleBulkEdit = async () => {
     if (!bulkPriority && !bulkDueDate) return;
     const updates = {};
@@ -42,48 +46,39 @@ export default function Tasks() {
     setShowBulkEdit(false);
   };
 
-  const [durationModalTask, setDurationModalTask] = useState(null);
-  const [actualDuration, setActualDuration] = useState("");
-
- /** --- Handlers --- */
-const handleToggle = async (task) => {
-  try {
-    if (task.status !== "Completed") {
-      // Open modal to enter actual duration
-      setDurationModalTask(task);
-      setActualDuration("");
-    } else {
-      // Mark back to Due
-      await updateTask(task._id, {
-        status: "Due",
-        actualDuration: null,
-      });
+  const handleToggle = async (task) => {
+    try {
+      if (task.status !== "Completed") {
+        setDurationModalTask(task);
+        setActualDuration("");
+      } else {
+        await updateTask(task._id, {
+          status: "Due",
+          actualDuration: null,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  };
 
-const handleActualDurationSubmit = async () => {
-  const durationValue = Number(actualDuration);
-
-  if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
-    return;
-  }
-
-  try {
-    await updateTask(durationModalTask._id, {
-      status: "Completed",
-      actualDuration: durationValue,
-    });
-
-    setDurationModalTask(null);
-    setActualDuration("");
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  const handleActualDurationSubmit = async () => {
+    const durationValue = Number(actualDuration);
+    if (Number.isNaN(durationValue) || durationValue <= 0) {
+      alert("Please enter a valid duration in minutes");
+      return;
+    }
+    try {
+      await updateTask(durationModalTask._id, {
+        status: "Completed",
+        actualDuration: durationValue,
+      });
+      setDurationModalTask(null);
+      setActualDuration("");
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
 
   const handleSubmit = async (data) => {
     setTaskError("");
@@ -109,32 +104,33 @@ const handleActualDurationSubmit = async () => {
     );
   };
 
-  const filteredTasks =
-    selectedCategories.length === 0
-      ? tasks
-      : tasks.filter(
-          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
-        );
+  // Filter active/archived tasks by category
+  const displayedTasks = (showArchived ? archivedTasks : activeTasks).filter(
+    (task) =>
+      selectedCategories.length === 0 ||
+      (task.tags && task.tags.some((tag) => selectedCategories.includes(tag)))
+  );
 
-  const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  // Insights use activeTasks only
+  const totalTasks = activeTasks.length;
+  const completedTasks = activeTasks.filter((t) => t.status === "Completed").length;
   const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const now = new Date();
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(now.getDate() + 3);
 
-  const upcomingDeadlines = filteredTasks.filter((task) => {
+  const upcomingDeadlines = activeTasks.filter((task) => {
     if (!task.dueDate || task.status === "Completed") return false;
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
-  const nextTask = filteredTasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
-  const highPriorityCount = filteredTasks.filter(
+  const nextTask = activeTasks
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+
+  const highPriorityCount = activeTasks.filter(
     (t) => t.priority === "High" && t.status !== "Completed"
   ).length;
   const isOverloaded = highPriorityCount >= 3;
@@ -188,45 +184,46 @@ const handleActualDurationSubmit = async () => {
             </button>
           </div>
         </div>
+
         {showBulkEdit && selectedIds.length > 0 && (
-        <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Priority</label>
-            <select
-              value={bulkPriority}
-              onChange={(e) => setBulkPriority(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+          <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Priority</label>
+              <select
+                value={bulkPriority}
+                onChange={(e) => setBulkPriority(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+              >
+                <option value="">-- Select --</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Due Date</label>
+              <input
+                type="datetime-local"
+                value={bulkDueDate}
+                onChange={(e) => setBulkDueDate(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+              />
+            </div>
+            <button
+              onClick={handleBulkEdit}
+              disabled={!bulkPriority && !bulkDueDate}
+              className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="">-- Select --</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
+              Apply to {selectedIds.length} Tasks
+            </button>
+            <button
+              onClick={() => setShowBulkEdit(false)}
+              className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </button>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Due Date</label>
-            <input
-              type="datetime-local"
-              value={bulkDueDate}
-              onChange={(e) => setBulkDueDate(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main"
-            />
-          </div>
-          <button
-            onClick={handleBulkEdit}
-            disabled={!bulkPriority && !bulkDueDate}
-            className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Apply to {selectedIds.length} Tasks
-          </button>
-          <button
-            onClick={() => setShowBulkEdit(false)}
-            className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
+        )}
 
         {/* Category Filter */}
         <div className="animate-in delay-150">
@@ -243,7 +240,6 @@ const handleActualDurationSubmit = async () => {
                 </button>
               )}
             </div>
-
             <div className="flex flex-wrap gap-2">
               {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
                 const isSelected = selectedCategories.includes(tagName);
@@ -272,8 +268,17 @@ const handleActualDurationSubmit = async () => {
         {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
-            {filteredTasks.length ? (
-              filteredTasks
+
+            {/* Archive toggle */}
+            <button
+              onClick={() => setShowArchived(!showArchived)}
+              className="text-sm text-muted underline cursor-pointer hover:text-main transition"
+            >
+              {showArchived ? "← Back to Active Tasks" : "Show Archived Tasks"}
+            </button>
+
+            {displayedTasks.length ? (
+              displayedTasks
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem
@@ -288,11 +293,13 @@ const handleActualDurationSubmit = async () => {
                     onUpdate={updateTask}
                     isSelected={selectedIds.includes(task._id)}
                     onSelect={handleSelect}
+                    onArchive={archiveTask}
+                    onUnarchive={unarchiveTask}
                   />
                 ))
             ) : (
               <EmptyState
-                type="tasks"
+                type={showArchived ? "archived" : "tasks"}
                 onAction={() => {
                   setEditingTask(null);
                   setIsModalOpen(true);
@@ -341,18 +348,12 @@ const handleActualDurationSubmit = async () => {
               )}
             </div>
 
-            <div
-              className={`card p-4 ${
-                isOverloaded
-                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
-                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-              }`}
-            >
+            <div className={`card p-4 ${isOverloaded ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400" : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"}`}>
               <p className="text-sm font-medium">
                 {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
               </p>
               <p className="text-xs mt-1 opacity-80">
-                {isOverloaded ? "Consider rescheduling or delegating." : "You’re pacing this well."}
+                {isOverloaded ? "Consider rescheduling or delegating." : "You're pacing this well."}
               </p>
             </div>
           </div>
@@ -376,15 +377,10 @@ const handleActualDurationSubmit = async () => {
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
-              Complete Task
-            </h2>
-
+            <h2 className="text-xl font-semibold text-main mb-2">Complete Task</h2>
             <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
+              How long did you actually take to complete "{durationModalTask.title}"?
             </p>
-
             <input
               type="number"
               min="1"
@@ -393,7 +389,6 @@ const handleActualDurationSubmit = async () => {
               className="w-full p-2 border border-soft rounded-lg"
               placeholder="Actual duration in minutes"
             />
-
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
@@ -404,7 +399,6 @@ const handleActualDurationSubmit = async () => {
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleActualDurationSubmit}
                 className="btn btn-primary px-4 py-2"

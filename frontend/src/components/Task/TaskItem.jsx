@@ -1,4 +1,4 @@
-import { Check, Trash2, Pencil, Calendar } from "lucide-react";
+import { Check, Trash2, Pencil, Calendar, Archive, ArchiveRestore } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
@@ -9,7 +9,7 @@ const priorityStyles = {
   High: "border-red-500 bg-red-50 dark:bg-red-950/20",
 };
 
-export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
+export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect, onArchive, onUnarchive }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -37,7 +37,8 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             onChange={() => onSelect(task._id)}
             className="w-4 h-4 cursor-pointer accent-blue-500"
           />
-          {/* Checkbox */}
+
+          {/* Complete Checkbox */}
           <button
             onClick={() => onToggleComplete(task)}
             className={`
@@ -62,7 +63,6 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
 
             <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
               <span className="uppercase tracking-wide">{task.priority} priority</span>
-
               {task.dueDate && (
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />
@@ -70,7 +70,6 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
                 </span>
               )}
               {isCompleted && task.actualDuration != null && (
-                
                 <span>Actual: {task.actualDuration}m</span>
               )}
 
@@ -107,9 +106,21 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               <Pencil size={18} className="text-main" />
             </button>
 
-            {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
+            {/* Archive / Restore Button */}
             <button
-              onClick={()=> onDelete(task._id)}
+              onClick={() => task.isArchived ? onUnarchive(task._id) : onArchive(task._id)}
+              className="p-2 rounded-lg hover:bg-yellow-100 transition cursor-pointer"
+              title={task.isArchived ? "Restore task" : "Archive task"}
+            >
+              {task.isArchived
+                ? <ArchiveRestore size={18} className="text-green-500" />
+                : <Archive size={18} className="text-yellow-500" />
+              }
+            </button>
+
+            {/* Delete Button */}
+            <button
+              onClick={() => onDelete(task._id)}
               className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
             >
               <Trash2 size={18} className="text-red-500" />
