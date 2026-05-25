@@ -6,6 +6,8 @@ import { TAGS } from "../../utils/tagUtils";
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
 const DESCRIPTION_WARNING_LENGTH = 450;
+const TITLE_MAX_LENGTH = 30;
+const TITLE_WARNING_LENGTH = 25;
 
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
   const [title, setTitle] = useState("");
@@ -91,6 +93,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     onError?.("");
 
     if (!title.trim()) return onError?.("Title is required");
+    if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
     if (!dueDate) return onError?.("Due date is required");
 
@@ -102,14 +105,14 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-   onSubmit({
-  title: title.trim(),
-  description: description.trim(),
-  tags,
-  priority,
-  status: "Due",
-  dueDate,
-});
+    onSubmit({
+      title: title.trim(),
+      description: description.trim(),
+      tags: tags,
+      priority,
+      status: task ? task.status : "Due",
+      dueDate,
+    });
   };
 
   const toggleTag = (tagName) => {
@@ -144,10 +147,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const customTags = tags.filter((t) => !TAGS.includes(t));
 
   return createPortal(
+    <div className="fixed inset-0 z-50">
     <div
-      className="fixed inset-0 z-50 overflow-y-auto
-                 flex flex-col items-center
-                 pt-40 pb-10 px-4
+      className="absolute inset-0 flex items-center justify-center 
+                 py-10 px-4
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
       onMouseDown={(e) => {
@@ -158,7 +161,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     >
       <div
         className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6
-                   relative border border-soft animate-in delay-100"
+                   relative border border-soft animate-in delay-100 overflow-y-auto max-h-screen"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -193,8 +196,20 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                          focus:ring-(--primary) focus:border-(--primary)
                          bg-transparent text-main"
               placeholder="Task title"
+              maxLength={TITLE_MAX_LENGTH}
               required
             />
+            <p
+              className={`text-sm mt-1 text-right ${
+                title.length >= TITLE_MAX_LENGTH
+                  ? "text-red-500"
+                  : title.length >= TITLE_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
+              }`}
+            >
+              {title.length}/{TITLE_MAX_LENGTH}
+            </p>
           </div>
 
           {/* Description */}
@@ -336,6 +351,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           </button>
         </form>
       </div>
+    </div>
     </div>,
     document.body
   );
