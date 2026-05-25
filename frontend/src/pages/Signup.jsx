@@ -289,9 +289,9 @@ const Signup = () => {
                 rounded-2xl
                 text-sm
                 border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
+                bg-red-500/10 dark:bg-red-950/30
+                border-red-500/20 dark:border-red-800
+                text-red-500 dark:text-red-300
               "
             >
               {errorMessage}
@@ -323,7 +323,7 @@ const Signup = () => {
               "
             />
             {errors.name && (
-              <span className="text-red-500 text-xs">{errors.name}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.name}</span>
             )}
           </div>
 
@@ -401,7 +401,7 @@ const Signup = () => {
               </button>
             </div>
             {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.password}</span>
             )}
           </div>
 
@@ -453,7 +453,7 @@ const Signup = () => {
               </button>
             </div>
             {errors.confirmPassword && (
-              <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
+              <span className="text-red-500 dark:text-red-300 text-xs">{errors.confirmPassword}</span>
             )}
           </div>
 
