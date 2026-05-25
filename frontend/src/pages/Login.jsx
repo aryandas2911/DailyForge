@@ -208,7 +208,7 @@ const Login = () => {
     }
   };
 
-  return (
+ return (
     <div
       className="
         auth-page-bg
@@ -225,9 +225,7 @@ const Login = () => {
     >
       {/* Glow blobs */}
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
@@ -244,232 +242,166 @@ const Login = () => {
           transform-gpu
         "
       >
-      <form
-        onSubmit={handleSubmit}
-        className="
-          surface-bg
-          animate-in
-          w-full
-          rounded-[30px]
-          px-8
-          py-10
-          flex
-          flex-col
-          gap-6
-          border
-          border-white/10
-          shadow-[0_20px_60px_rgba(0,0,0,0.7)]
-        "
-      >
-        {/* Heading */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-main">
-            Welcome Back
-          </h1>
-
-          <p className="text-sm text-muted">
-            Login to continue your
-            experience
-          </p>
-        </div>
-
-        {/* Google */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={
-            isGoogleLoading ||
-            isSubmitLoading
-          }
+        <form
+          onSubmit={handleSubmit}
           className="
-            flex items-center justify-center
+            surface-bg
+            animate-in
             w-full
-            px-4 py-3
-            rounded-2xl
-            border border-soft
-            bg-white/70
-            dark:bg-slate-900/50
-            text-slate-700
-            dark:text-slate-100
-            font-medium
-            transition-all duration-200
-            hover:-translate-y-[1px]
-            hover:shadow-md
-            disabled:opacity-50
-            cursor-pointer
+            rounded-[30px]
+            px-8
+            py-10
+            flex
+            flex-col
+            gap-6
+            border
+            border-white/10
+            shadow-[0_20px_60px_rgba(0,0,0,0.7)]
           "
         >
-          {isGoogleLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <GoogleIcon />
-          )}
+          {/* Heading */}
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-main">
+              Welcome Back
+            </h1>
+            <p className="text-sm text-muted">
+              Login to continue your experience
+            </p>
+          </div>
 
-          {isGoogleLoading
-            ? "Connecting..."
-            : "Continue with Google"}
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center">
-          <div className="flex-1 h-px bg-white/20"></div>
-
-          <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
-            OR
-          </span>
-
-          <div className="flex-1 h-px bg-white/20"></div>
-        </div>
-
-        {/* Email */}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium text-main"
-          >
-            Email
-          </label>
-
-          <input
-            type="email"
-            id="email"
-            placeholder="user@email.com"
-            required
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
+          {/* Google */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isGoogleLoading || isSubmitLoading}
             className="
-              input-modern
+              flex items-center justify-center
               w-full
-              px-4
-              py-3
+              px-4 py-3
               rounded-2xl
-              text-sm
+              border border-soft
+              bg-white/70
+              dark:bg-slate-900/50
+              text-slate-700
+              dark:text-slate-100
+              font-medium
+              transition-all duration-200
+              hover:-translate-y-[1px]
+              hover:shadow-md
+              disabled:opacity-50
+              cursor-pointer
             "
-          />
-        </div>
-
-        {/* Password */}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-main"
           >
-            Password
-          </label>
+            {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
+            {isGoogleLoading ? "Connecting..." : "Continue with Google"}
+          </button>
 
-          <div className="relative">
+          {/* Divider */}
+          <div className="flex items-center">
+            <div className="flex-1 h-px bg-white/20"></div>
+            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
+              OR
+            </span>
+            <div className="flex-1 h-px bg-white/20"></div>
+          </div>
+
+          {/* Email */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-sm font-medium text-main">
+              Email
+            </label>
             <input
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
-              id="password"
-              placeholder="••••••••"
+              type="email"
+              id="email"
+              placeholder="user@email.com"
               required
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="
                 input-modern
                 w-full
                 px-4
                 py-3
-                pr-11
                 rounded-2xl
                 text-sm
               "
             />
-
-            <button
-              type="button"
-              onClick={() =>
-                setShowPassword(
-                  !showPassword
-                )
-              }
-              className="
-                absolute
-                right-4
-                top-1/2
-                -translate-y-1/2
-                text-muted
-                hover:text-main
-                transition-colors
-                cursor-pointer
-              "
-            >
-              {showPassword ? (
-                <Eye size={18} />
-              ) : (
-                <EyeOff size={18} />
-              )}
-            </button>
           </div>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div
+          {/* Password */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-medium text-main">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="••••••••"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="
+                  input-modern
+                  w-full
+                  px-4
+                  py-3
+                  pr-12
+                  rounded-2xl
+                  text-sm
+                "
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer flex items-center justify-center"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300">
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isGoogleLoading || isSubmitLoading}
             className="
-              px-4 py-3
+              btn btn-primary
+              w-full
+              py-3
               rounded-2xl
-              text-sm
-              border
-              bg-red-500/10
-              border-red-500/20
-              text-red-500
+              cursor-pointer
+              disabled:opacity-50
             "
           >
-            {error}
-          </div>
-        )}
+            {isSubmitLoading ? "Logging in..." : "Login"}
+          </button>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={
-            isGoogleLoading ||
-            isSubmitLoading
-          }
-          className="
-            btn btn-primary
-            w-full
-            py-3
-            rounded-2xl
-            cursor-pointer
-            disabled:opacity-50
-          "
-        >
-          {isSubmitLoading
-            ? "Logging in..."
-            : "Login"}
-        </button>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-muted">
-          Don&apos;t have an
-          account?{" "}
-          <Link
-            to="/signup"
-            className="
-              text-main
-              font-semibold
-              hover:underline
-            "
-          >
-            Sign up
-          </Link>
-        </p>
-      </form>
+          {/* Footer */}
+          <p className="text-center text-sm text-muted">
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/signup"
+              className="text-main font-semibold hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
+};
+
+export default Login;
 };
 
 export default Login;
