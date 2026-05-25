@@ -44,6 +44,7 @@ export default function Tasks() {
 
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
+  const [durationError, setDurationError] = useState("");
 
  /** --- Handlers --- */
 const handleToggle = async (task) => {
@@ -68,7 +69,7 @@ const handleActualDurationSubmit = async () => {
   const durationValue = Number(actualDuration);
 
   if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
+    setDurationError("Please enter a valid duration in minutes");
     return;
   }
 
@@ -77,9 +78,9 @@ const handleActualDurationSubmit = async () => {
       status: "Completed",
       actualDuration: durationValue,
     });
-
     setDurationModalTask(null);
     setActualDuration("");
+    setDurationError("");
   } catch (error) {
     console.error("Failed to update task:", error);
   }
@@ -375,36 +376,40 @@ const handleActualDurationSubmit = async () => {
 
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
-              Complete Task
-            </h2>
-
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold text-main mb-2">Complete Task</h2>
             <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
+              How long did you actually take to complete "{durationModalTask.title}"?
             </p>
 
             <input
               type="number"
               min="1"
               value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
+              onChange={(e) => {
+                setActualDuration(e.target.value);
+                setDurationError("");
+              }}
               className="w-full p-2 border border-soft rounded-lg"
               placeholder="Actual duration in minutes"
             />
+
+            {/* inline error message */}
+            {durationError && (
+              <p className="text-sm text-red-500 mt-2">{durationError}</p>
+            )}
 
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
+                  setDurationError("");  // ← clear on cancel
                 }}
-                className="px-4 py-2 rounded-lg border border-soft"
+                className="px-4 py-2 rounded-lg border border-soft text-main"
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleActualDurationSubmit}
                 className="btn btn-primary px-4 py-2"

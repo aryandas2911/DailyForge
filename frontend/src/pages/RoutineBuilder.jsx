@@ -32,6 +32,9 @@ export default function RoutineBuilder() {
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const [routineError, setRoutineError] = useState("");
+  const [routineSuccess, setRoutineSuccess] = useState("");
+
   const gridRef = useRef(null);
 
   const exportToImage = async () => {
@@ -47,7 +50,7 @@ export default function RoutineBuilder() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Failed to export routine as image.");
+      setRoutineError("Failed to export routine as image.")
     }
   };
 
@@ -114,39 +117,40 @@ export default function RoutineBuilder() {
   };
 
   const confirmSaveRoutine = async () => {
-    const items = scheduledTasks
-      .filter((task) => task.day === selectedDay)
-      .map((task) => ({
-        taskId: task.taskId,
-        day: selectedDay,
-        startTime: task.startTime,
-        duration: task.duration,
-      }));
+  const items = scheduledTasks
+    .filter((task) => task.day === selectedDay)
+    .map((task) => ({
+      taskId: task.taskId,
+      day: selectedDay,
+      startTime: task.startTime,
+      duration: task.duration,
+    }));
 
-    try {
+  try {
       await api.post("/routines", {
         name: routineName,
         description,
         items,
       });
-
       setIsSaveModalOpen(false);
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
+      setRoutineSuccess("Routine saved successfully!");
+      setTimeout(() => setRoutineSuccess(""), 3000);
       await fetchRoutines();
     } catch (err) {
-      console.error(err);
-      const errorMessage = err.response?.data?.message || "Failed to save routine";
-      alert(errorMessage);
+    console.error(err);
+    setRoutineError(err.response?.data?.message || "Failed to save routine");
+    setTimeout(() => setRoutineError(""), 3000);
     }
   };
 
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
+      setRoutineError(`No tasks scheduled for ${day}`);
+      setTimeout(() => setRoutineError(""), 3000);
       return;
     }
     setSelectedDay(day);
@@ -219,6 +223,18 @@ export default function RoutineBuilder() {
             Export as PNG
           </button>
         </header>
+
+        {/* Inline error/success feedback */}
+        {routineError && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400">
+            {routineError}
+          </div>
+        )}
+        {routineSuccess && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-700 dark:bg-green-950/20 dark:border-green-800 dark:text-green-400">
+            {routineSuccess}
+          </div>
+        )}
 
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
