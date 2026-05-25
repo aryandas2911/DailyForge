@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
 /* Default theme - will be overridden by data-theme attribute */
@@ -133,21 +134,20 @@
 /* Light override (manual toggle) */
 :root[data-theme="light"] {
   /* App background */
-  --bg: #d0f6e3;
+* {
+  font-family: 'Outfit', sans-serif;
+}
 
-  /* Surfaces: cards, modals, panels */
+:root {
+  --bg: #d0f6e3;
   --surface: #ffffff;
 
   /* Primary action color */
   --primary: #4eb7b3;
-
-  /* Hover / active feedback */
   --primary-hover: #6dd5c7;
 
   /* Accents */
   --accent: #98e1d7;
-
-  /* Main readable text */
   --text-main: #3b8ea0;
 
   /* Secondary text */
@@ -169,9 +169,15 @@
   --surface: #1e293b;
 
   /* Primary action color */
-  --primary: #4eb7b3;
+  --text-muted: #4eb7b3;
+  --border: #98e1d7;
+  --radius: 0.75rem;
+}
 
-  /* Hover / active feedback */
+.dark {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
 
   /* Accents */
@@ -184,6 +190,9 @@
   --text-muted: #94a3b8;
 
   /* Borders */
+  --accent: #1e2e30;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
   --border: #334155;
 
   /* Background gradient */
@@ -195,7 +204,8 @@ html, body {
     color var(--transition-duration) var(--transition-timing);
 }
 
-html.dark, html.dark body {
+html.dark,
+html.dark body {
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -209,7 +219,6 @@ html, html body, html[data-theme], html[data-theme] body {
 }
 
 @layer utilities {
-  /* Layout backgrounds */
   .app-bg {
     background-color: var(--bg);
     background-image: var(--gradient);
@@ -222,7 +231,6 @@ html, html body, html[data-theme], html[data-theme] body {
     transition: background-color var(--transition-duration) var(--transition-timing);
   }
 
-  /* Text roles */
   .text-main {
     color: var(--text-main);
   }
@@ -231,33 +239,16 @@ html, html body, html[data-theme], html[data-theme] body {
     color: var(--text-muted);
   }
 
-  /* Structural borders */
   .border-soft {
     border: 1px solid var(--border);
   }
 
-  /* Button foundation */
   .btn {
-    @apply inline-flex items-center justify-center
-         px-4 py-2
-         font-medium
-         rounded-xl
-         transition-all duration-200
-         select-none;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-200 select-none;
   }
 
-  /* Primary action button */
   .btn-primary {
-    @apply text-white
-         shadow-sm
-         hover:shadow-md
-         active:scale-[0.97]
-         focus:outline-none
-         focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Color handled via CSS variables */
-  .btn-primary {
+    @apply text-white shadow-sm hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
   }
 
@@ -271,6 +262,7 @@ html, html body, html[data-theme], html[data-theme] body {
     border: 1px solid var(--border);
     @apply p-6 shadow-sm transition-all duration-200;
   }
+
   .card:hover {
     @apply shadow-md;
   }
@@ -282,10 +274,7 @@ html, html body, html[data-theme], html[data-theme] body {
   .card-primary {
     @apply shadow-md;
   }
-}
 
-@layer utilities {
-  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
@@ -294,18 +283,18 @@ html, html body, html[data-theme], html[data-theme] body {
     animation: fadeUp 0.6s ease-out both;
   }
 
-  /* Stagger helpers */
   .delay-100 {
     animation-delay: 0.1s;
   }
+
   .delay-200 {
     animation-delay: 0.2s;
   }
+
   .delay-300 {
     animation-delay: 0.3s;
   }
 
-  /* Hover lift */
   .hover-lift {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -313,15 +302,16 @@ html, html body, html[data-theme], html[data-theme] body {
   .hover-lift:hover {
     transform: translateY(-2px);
   }
+}
 
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

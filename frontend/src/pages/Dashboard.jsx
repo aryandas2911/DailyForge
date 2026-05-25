@@ -1,3 +1,4 @@
+import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -229,6 +230,8 @@ export default function Dashboard() {
     <div
       className={`min-h-screen w-full max-w-[1440px] mx-auto px-6 py-8 space-y-8 animate-in transition-all duration-700`}
     >
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+      <OnboardingModal />
       {/* Header */}
       <header
         className={`animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-2xl gap-4 transition-all duration-700 ${
@@ -369,6 +372,7 @@ export default function Dashboard() {
                       disabled={
                         duplicatingRoutineId === routine._id
                       }
+                      disabled={duplicatingRoutineId === routine._id}
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"
                       className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
