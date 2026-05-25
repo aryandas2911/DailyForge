@@ -416,15 +416,7 @@ const Login = () => {
         {/* Error */}
         {error && (
           <div
-            className="
-              px-4 py-3
-              rounded-2xl
-              text-sm
-              border
-              bg-red-500/10
-              border-red-500/20
-              text-red-500
-            "
+            className="bg-red-50 border border-red-200 text-red-600 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800"
           >
             {error}
           </div>
