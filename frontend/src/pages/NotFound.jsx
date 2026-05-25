@@ -12,7 +12,7 @@ const NotFound = () => {
   };
 
   return (
-    <div className="surface-bg px-10 py-15 rounded-2xl w-full max-w-md flex flex-col items-center gap-6 text-center animate-in">
+    <div className="surface-bg px-10 py-16 rounded-2xl w-full max-w-md flex flex-col items-center gap-6 text-center animate-in">
 
       <h1 className="text-5xl font-bold text-main">404</h1>
 
