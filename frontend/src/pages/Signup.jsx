@@ -72,10 +72,10 @@ const Signup = () => {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((y - centerY) / centerY) * -3;
+    const rotateY = ((x - centerX) / centerX) * 3;
 
-    card.style.transition = "transform 0.1s ease-out";
+    card.style.transition = "transform 0.3s ease-out";
     card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
   };
 
@@ -83,7 +83,7 @@ const Signup = () => {
     const card = cardRef.current;
     if (!card) return;
 
-    card.style.transition = "transform 0.4s ease-out";
+    card.style.transition = "transform 0.3s ease-out";
     card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
   };
 
