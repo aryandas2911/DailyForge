@@ -29,8 +29,8 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
-    if (!title || !priority || !status || !dueDate) {
+   const { title, description, tags, priority, status, dueDate, subtasks } = req.body;
+     if (!title || !priority || !status || !dueDate) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
@@ -74,6 +74,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      subtasks: subtasks || [],
     });
 
     // save task in database

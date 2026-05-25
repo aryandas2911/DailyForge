@@ -74,6 +74,13 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
                 <span>Actual: {task.actualDuration}m</span>
               )}
 
+              {/* Subtasks progress */}
+                {task.subtasks && task.subtasks.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    ✓ {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
+                  </span>
+                )}
+                
               {/* Category Badges */}
               {task.tags && task.tags.length > 0 && (
                 <div className="flex gap-1.5 flex-wrap">

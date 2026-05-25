@@ -15,6 +15,8 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const [subtasks, setSubtasks] = useState([]);
+  const [subtaskInput, setSubtaskInput] = useState("");
 
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [customTagInput, setCustomTagInput] = useState("");
@@ -44,13 +46,14 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDueDate(
-        task.dueDate
-        ? new Date(task.dueDate)
-        .toLocaleString("sv-SE")
-        .replace(" ", "T")
-        .slice(0, 16)
-        : ""
-      );
+      task.dueDate
+      ? new Date(task.dueDate)
+      .toLocaleString("sv-SE")
+      .replace(" ", "T")
+      .slice(0, 16)
+      : ""
+    );
+    setSubtasks(task.subtasks || []); 
       /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
@@ -108,10 +111,11 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     onSubmit({
       title: title.trim(),
       description: description.trim(),
-      tags: tags,
+      tags,
       priority,
       status: task ? task.status : "Due",
       dueDate,
+      subtasks,
     });
   };
 
@@ -340,6 +344,62 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
              bg-transparent text-main"
   required
 />
+          </div>
+
+          {/* Subtasks */}
+          <div>
+            <label className="text-sm font-medium text-main">Subtasks</label>
+            
+            {/* Input row */}
+            <div className="flex gap-2 mt-1">
+              <input
+                type="text"
+                value={subtaskInput}
+                onChange={(e) => setSubtaskInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (subtaskInput.trim()) {
+                      setSubtasks([...subtasks, { title: subtaskInput.trim(), completed: false }]);
+                      setSubtaskInput("");
+                    }
+                  }
+                }}
+                placeholder="Add subtask and press Enter"
+                className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main text-sm focus:ring-(--primary) focus:border-(--primary)"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (subtaskInput.trim()) {
+                    setSubtasks([...subtasks, { title: subtaskInput.trim(), completed: false }]);
+                    setSubtaskInput("");
+                  }
+                }}
+                className="px-3 py-1 rounded-lg bg-(--primary) text-white text-sm"
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Subtask list */}
+            {subtasks.length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {subtasks.map((sub, index) => (
+                  <li key={index} className="flex items-center gap-2 text-sm text-main">
+                    <span className="flex-1">{sub.title}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSubtasks(subtasks.filter((_, i) => i !== index))}
+                      className="text-red-400 hover:text-red-600 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-xs text-muted mt-1">Break your task into smaller steps</p>
           </div>
 
           {/* Submit Button */}
