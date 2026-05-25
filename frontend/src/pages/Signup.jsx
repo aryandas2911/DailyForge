@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Captcha from "../components/Captcha.jsx";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -98,6 +99,7 @@ const Signup = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
@@ -107,6 +109,19 @@ const Signup = () => {
     setIsGoogleLoading(true);
     setErrorMessage("");
     try {
+      const res = await api.post("/auth/signup", {
+        name,
+        email,
+        password,
+        captchaToken,
+      });
+      console.log("Signup success: ", res.data);
+
+      // get user details
+      const me = await api.get("/auth/me");
+      setUser(me.data.user);
+
+      // redirect to dashboard
       localStorage.removeItem("token");
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
@@ -472,6 +487,18 @@ const Signup = () => {
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
+        </div>
+        {errors.confirmPassword && (
+          <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
+        )}
+        <Captcha onVerify={setCaptchaToken} />
+      </div>
+
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+        </div>
+      )}
 
           {/* Footer */}
           <p className="text-center text-sm text-muted">

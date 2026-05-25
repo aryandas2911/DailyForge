@@ -4,7 +4,13 @@ import gsap from "gsap";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
-import { auth, googleProvider } from "../utils/firebase";
+import Captcha from "../components/Captcha.jsx";
+
+import {
+  auth,
+  googleProvider,
+} from "../utils/firebase";
+
 import { signInWithPopup } from "firebase/auth";
 
 // Colored Google SVG Icon
@@ -69,7 +75,36 @@ const Login = () => {
     card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
   };
 
-  // Google Login popup-based handler
+  // Auth State
+  const [email, setEmail] = useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  // useNavigate object
+
+  const [isGoogleLoading, setIsGoogleLoading] =
+    useState(false);
+
+  const [isSubmitLoading, setIsSubmitLoading] =
+    useState(false);
+
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const redirectPath =
+    location.state?.from || "/dashboard";
+
+  const { setUser } =
+    useContext(AuthContext);
+
+  // Google Login
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     setError("");
@@ -116,6 +151,7 @@ const Login = () => {
       const res = await api.post("/auth/login", {
         email,
         password,
+        captchaToken,
       });
       console.log("Login success: ", res.data);
 
@@ -264,6 +300,19 @@ const Login = () => {
               dark:bg-slate-900/40 dark:text-slate-200 dark:hover:bg-slate-800/60
               disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
             "
+          />
+        </div>
+        <Captcha onVerify={setCaptchaToken} />
+      </div>
+      {error && (
+        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
+          {error}
+
+        {/* Password */}
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-main"
           >
             {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
             {isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}
