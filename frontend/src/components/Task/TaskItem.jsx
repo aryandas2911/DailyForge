@@ -1,4 +1,4 @@
-import { Check, Trash2, Pencil, Calendar } from "lucide-react";
+import { Check, Trash2, Pencil, Calendar, Clock } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
@@ -72,6 +72,15 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               {isCompleted && task.actualDuration != null && (
                 
                 <span>Actual: {task.actualDuration}m</span>
+              )}
+
+              {task.estimatedTime && (
+                <span className="flex items-center gap-1">
+                  <Clock size={12} />
+                  {task.estimatedTime >= 60
+                    ? `${Math.floor(task.estimatedTime / 60)}h ${task.estimatedTime % 60 > 0 ? `${task.estimatedTime % 60}m` : ""}`
+                    : `${task.estimatedTime}m`}
+                </span>
               )}
 
               {/* Category Badges */}
