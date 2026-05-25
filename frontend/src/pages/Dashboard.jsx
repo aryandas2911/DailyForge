@@ -4,11 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
-
-
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -189,6 +188,11 @@ const handleDuplicateRoutine = async () => {
           />
         </div>
       </section>
+
+      {/* Contribution Heatmap */}
+      <div className="w-full animate-in delay-200">
+        <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+      </div>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
