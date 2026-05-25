@@ -196,7 +196,7 @@ const handleLogoutClick = () => {
 
 
 
-            {!token ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
@@ -318,7 +318,7 @@ const handleLogoutClick = () => {
               <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
 
 
-                {!token ? (
+                {!user ? (
                   <>
                     <Link
                       to="/login"
