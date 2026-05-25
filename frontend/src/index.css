@@ -1,58 +1,198 @@
 @import "tailwindcss";
 
+/* Default theme - will be overridden by data-theme attribute */
 :root {
-  /* App background (outer layout) */
-  --bg: #d0f6e3;
-
-  /* Surfaces: cards, modals, panels */
-  --surface: #ffffff;
-
-  /* Primary action color (CTAs) */
-  --primary: #4eb7b3;
-
-  /* Hover / active feedback */
-  --primary-hover: #6dd5c7;
-
-  /* Accents: highlights, tags, blocks */
-  --accent: #98e1d7;
-
-  /* Main readable text */
-  --text-main: #3b8ea0;
-
-  /* Secondary / low-priority text */
-  --text-muted: #4eb7b3;
-
-  /* Soft separators and outlines */
-  --border: #98e1d7;
+  /* Smooth transition for theme changes */
+  --transition-duration: 0.8s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Consistent rounding across UI */
   --radius: 0.75rem;
 }
 
-.dark {
-  /* App background (outer layout) - deep premium slate dark blue-gray */
+/* Morning Theme (5am-12pm) - Soft blue, sunrise-inspired */
+:root[data-theme="morning"] {
+  /* App background */
+  --bg: #f0f7fd;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #ffffff;
+
+  /* Primary action color */
+  --primary: #3b82f6;
+
+  /* Hover / active feedback */
+  --primary-hover: #2563eb;
+
+  /* Accents */
+  --accent: #bfdbfe;
+
+  /* Main readable text */
+  --text-main: #1e40af;
+
+  /* Secondary text */
+  --text-muted: #0284c7;
+
+  /* Borders */
+  --border: #dbeafe;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #f0f7fd 0%, #e0f2fe 50%, #f0f9ff 100%);
+}
+
+/* Afternoon Theme (12pm-5pm) - Bright, productivity-focused */
+:root[data-theme="afternoon"] {
+  /* App background */
+  --bg: #fefce8;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #ffffff;
+
+  /* Primary action color */
+  --primary: #f59e0b;
+
+  /* Hover / active feedback */
+  --primary-hover: #d97706;
+
+  /* Accents */
+  --accent: #fde68a;
+
+  /* Main readable text */
+  --text-main: #a16207;
+
+  /* Secondary text */
+  --text-muted: #d97706;
+
+  /* Borders */
+  --border: #fef3c7;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fef08a 100%);
+}
+
+/* Evening Theme (5pm-9pm) - Warm, relaxing tones */
+:root[data-theme="evening"] {
+  /* App background */
+  --bg: #faf5f0;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #fff7ed;
+
+  /* Primary action color */
+  --primary: #ea580c;
+
+  /* Hover / active feedback */
+  --primary-hover: #c2410c;
+
+  /* Accents */
+  --accent: #fed7aa;
+
+  /* Main readable text */
+  --text-main: #7c2d12;
+
+  /* Secondary text */
+  --text-muted: #b45309;
+
+  /* Borders */
+  --border: #fbddd6;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #faf5f0 0%, #fee2e2 50%, #fed7aa 100%);
+}
+
+/* Night Theme (9pm-5am) - Deep dark focus mode */
+:root[data-theme="night"] {
+  /* App background */
   --bg: #0f172a;
 
-  /* Surfaces: cards, modals, panels - charcoal slate */
+  /* Surfaces: cards, modals, panels */
   --surface: #1e293b;
 
-  /* Primary action color (CTAs) - vibrant teal */
+  /* Primary action color */
+  --primary: #06b6d4;
+
+  /* Hover / active feedback */
+  --primary-hover: #0891b2;
+
+  /* Accents */
+  --accent: #164e63;
+
+  /* Main readable text */
+  --text-main: #f0f9ff;
+
+  /* Secondary text */
+  --text-muted: #94a3b8;
+
+  /* Borders */
+  --border: #334155;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #0f172a 0%, #111827 50%, #0f172a 100%);
+}
+
+/* Light override (manual toggle) */
+:root[data-theme="light"] {
+  /* App background */
+  --bg: #d0f6e3;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #ffffff;
+
+  /* Primary action color */
+  --primary: #4eb7b3;
+
+  /* Hover / active feedback */
+  --primary-hover: #6dd5c7;
+
+  /* Accents */
+  --accent: #98e1d7;
+
+  /* Main readable text */
+  --text-main: #3b8ea0;
+
+  /* Secondary text */
+  --text-muted: #4eb7b3;
+
+  /* Borders */
+  --border: #98e1d7;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #d0f6e3 0%, #b3f0d6 50%, #d0f6e3 100%);
+}
+
+/* Dark override (manual toggle) */
+:root[data-theme="dark"] {
+  /* App background */
+  --bg: #0f172a;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #1e293b;
+
+  /* Primary action color */
   --primary: #4eb7b3;
 
   /* Hover / active feedback */
   --primary-hover: #5ec7c3;
 
-  /* Accents: highlights, tags, blocks */
+  /* Accents */
   --accent: #1e2e30;
 
-  /* Main readable text - crisp slate-off-white */
+  /* Main readable text */
   --text-main: #f8fafc;
 
-  /* Secondary / low-priority text */
+  /* Secondary text */
   --text-muted: #94a3b8;
 
-  /* Soft separators and outlines */
+  /* Borders */
   --border: #334155;
+
+  /* Background gradient */
+  --gradient: linear-gradient(135deg, #0f172a 0%, #111827 50%, #0f172a 100%);
+}
+
+html, body {
+  transition: background-color var(--transition-duration) var(--transition-timing),
+    color var(--transition-duration) var(--transition-timing);
 }
 
 html.dark, html.dark body {
@@ -61,15 +201,25 @@ html.dark, html.dark body {
   color-scheme: dark;
 }
 
-/* Utility Classes */
+/* Enhanced CSS variables usage with transitions */
+html, html body, html[data-theme], html[data-theme] body {
+  background-color: var(--bg);
+  background-image: var(--gradient);
+  color: var(--text-main);
+}
+
 @layer utilities {
   /* Layout backgrounds */
   .app-bg {
     background-color: var(--bg);
+    background-image: var(--gradient);
+    transition: background-color var(--transition-duration) var(--transition-timing),
+      background-image var(--transition-duration) var(--transition-timing);
   }
 
   .surface-bg {
     background-color: var(--surface);
+    transition: background-color var(--transition-duration) var(--transition-timing);
   }
 
   /* Text roles */
@@ -119,7 +269,7 @@ html.dark, html.dark body {
     background-color: var(--surface);
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    @apply p-6 shadow-sm transition-shadow duration-200;
+    @apply p-6 shadow-sm transition-all duration-200;
   }
   .card:hover {
     @apply shadow-md;

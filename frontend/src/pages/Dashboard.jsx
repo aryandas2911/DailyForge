@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { ThemeContext } from "../context/ThemeContext";
 import {
   CheckCircle2,
   Calendar,
@@ -22,6 +23,7 @@ import { DAYS_OF_WEEK } from "../utils/constants";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
+  const { theme: currentTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const [savedRoutines, setSavedRoutines] = useState([]);
@@ -43,33 +45,7 @@ export default function Dashboard() {
 
   const hour = today.getHours();
 
-  let currentTheme = "";
-
-  if (hour >= 5 && hour < 12) {
-    currentTheme = "morning";
-  } else if (hour >= 12 && hour < 17) {
-    currentTheme = "afternoon";
-  } else if (hour >= 17 && hour < 21) {
-    currentTheme = "evening";
-  } else {
-    currentTheme = "night";
-  }
-
-  const themeStyles = {
-    morning:
-      "bg-gradient-to-br from-sky-100 via-blue-50 to-white text-gray-900",
-
-    afternoon:
-      "bg-gradient-to-br from-yellow-50 via-orange-50 to-white text-gray-900",
-
-    evening:
-      "bg-gradient-to-br from-orange-900 via-amber-800 to-slate-900 text-white",
-
-    night:
-      "bg-gradient-to-br from-[#0f172a] via-[#111827] to-black text-cyan-50",
-  };
-
-  // Quotes
+  // Quotes by theme
   const quotesByTheme = {
     morning: [
       "Win the morning, win the day.",
@@ -89,6 +65,16 @@ export default function Dashboard() {
     night: [
       "Late-night focus builds greatness.",
       "Discipline beats motivation.",
+    ],
+
+    light: [
+      "Stay productive and focused.",
+      "You've got this!",
+    ],
+
+    dark: [
+      "In darkness, clarity shines.",
+      "Focus on what matters.",
     ],
   };
 
@@ -241,12 +227,12 @@ export default function Dashboard() {
 
   return (
     <div
-      className={`min-h-screen w-full max-w-[1440px] mx-auto px-6 py-8 space-y-8 animate-in transition-all duration-700 ${themeStyles[currentTheme]}`}
+      className={`min-h-screen w-full max-w-[1440px] mx-auto px-6 py-8 space-y-8 animate-in transition-all duration-700`}
     >
       {/* Header */}
       <header
         className={`animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-2xl gap-4 transition-all duration-700 ${
-          currentTheme === "night"
+          currentTheme === "night" || currentTheme === "dark"
             ? "bg-slate-900/60 backdrop-blur-md border border-cyan-500/10"
             : "bg-white/70 backdrop-blur-md border border-white/40"
         }`}
@@ -364,7 +350,7 @@ export default function Dashboard() {
                   key={routine._id}
                   onClick={() => navigate("/routine-builder")}
                   className={`border-l-4 border-primary rounded-xl p-4 shadow-sm transition-all duration-300 animate-in cursor-pointer hover-lift hover:shadow-xl hover:scale-[1.02] ${
-                    currentTheme === "night"
+                    currentTheme === "night" || currentTheme === "dark"
                       ? "bg-slate-800/70 hover:bg-slate-800"
                       : "bg-white/80 hover:bg-white"
                   }`}
