@@ -16,6 +16,8 @@
     "clsx": "^2.1.1",
     "firebase": "^12.13.0",
     "framer-motion": "^12.38.0",
+    "html-to-image": "^1.11.13",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

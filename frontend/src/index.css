@@ -1,37 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
 * {
   font-family: 'Outfit', sans-serif;
 }
+
 :root {
-  --bg: #dbf6ee;
-
-  --surface: linear-gradient(
-    145deg,
-    rgba(110, 224, 198, 0.52) 0%,
-    rgba(240, 255, 250, 0.36) 50%,
-    rgba(70, 220, 177, 0.28) 100%
-  );
-
-  --surface-border: rgba(198, 246, 220, 0.72);
-  --surface-shadow: 0 8px 40px rgba(13, 61, 82, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.20);
-
-  --primary: #2da89f;
-  --primary-hover: #1f9188;
-
-  --accent: #7dd8cf;
-
-  --text-main: #0d3d52;
-  --text-muted: #476070;
-
-  --border: rgba(45, 168, 159, 0.18);
-
-  --radius: 1rem;
+  --bg: #d0f6e3;
+  --surface: #ffffff;
+  --primary: #4eb7b3;
+  --primary-hover: #6dd5c7;
+  --accent: #98e1d7;
+  --text-main: #3b8ea0;
+  --text-muted: #4eb7b3;
+  --border: #98e1d7;
+  --radius: 0.75rem;
 }
 
 .dark {
@@ -72,31 +55,14 @@ body,
 
 html.dark,
 html.dark body {
+  background-color: var(--bg);
+  color: var(--text-main);
   color-scheme: dark;
 }
 
 @layer utilities {
-
   .app-bg {
     background-color: var(--bg);
-  }
-
-  .bg-auth-light {
-    background:
-      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(45, 168, 159, 0.28), transparent),
-      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(14, 165, 233, 0.20), transparent),
-      radial-gradient(ellipse 50% 35% at 85% 5%, rgba(139, 92, 246, 0.13), transparent),
-      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(125, 216, 207, 0.10), transparent),
-      linear-gradient(160deg, #d4f7ec 0%, #eafff8 28%, #dcf4ff 58%, #e8faf3 100%);
-  }
-
-  .bg-auth-dark {
-    background:
-      radial-gradient(ellipse 70% 45% at 5% 0%, rgba(61, 189, 184, 0.20), transparent),
-      radial-gradient(ellipse 55% 40% at 95% 100%, rgba(37, 99, 235, 0.16), transparent),
-      radial-gradient(ellipse 45% 35% at 80% 2%, rgba(124, 58, 237, 0.13), transparent),
-      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(15, 30, 55, 0.40), transparent),
-      linear-gradient(150deg, #010408 0%, #080e1a 30%, #0c1322 65%, #040810 100%);
   }
 
   .surface-bg {
@@ -158,12 +124,7 @@ html.dark body {
   }
 
   .btn {
-    @apply inline-flex items-center justify-center
-           px-4 py-2
-           font-medium
-           rounded-xl
-           transition-all duration-200
-           select-none;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-200 select-none;
   }
 
   .btn-primary {
@@ -171,14 +132,6 @@ html.dark body {
            active:scale-[0.97] focus:outline-none
            focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
-
-    @apply text-white
-           shadow-sm
-           hover:shadow-md
-           active:scale-[0.97]
-           focus:outline-none
-           focus:ring-2
-           focus:ring-offset-2;
   }
   .btn-primary:hover { background-color: var(--primary-hover); }
 
@@ -442,31 +395,20 @@ html.dark body {
     @apply shadow-md;
   }
 
-  .input-focus {
-    @apply outline-none transition-all duration-200;
+  .card-muted {
+    @apply bg-white/80;
   }
 
-  .input-focus:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(45, 168, 159, 0.16);
-  }
-
-  .hover-lift {
-    transition:
-      transform 0.22s ease,
-      box-shadow 0.22s ease;
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-2px);
+  .card-primary {
+    @apply shadow-md;
   }
 
   .animate-in {
-    animation: fadeUp 0.45s ease-out both;
+    animation: fadeUp 0.4s ease-out both;
   }
 
   .animate-in-slow {
-    animation: fadeUp 0.7s ease-out both;
+    animation: fadeUp 0.6s ease-out both;
   }
 
   .delay-100 {
@@ -481,15 +423,23 @@ html.dark body {
     animation-delay: 0.3s;
   }
 
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
 
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
