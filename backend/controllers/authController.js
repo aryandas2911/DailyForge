@@ -54,8 +54,16 @@ const getValidationErrorResponse = (error) => {
 export const signup = async (req, res) => {
   try {
     // fetch values from request
-    const { name, email, password } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
     const normalizedEmail = normalizeEmail(email);
+
+    if (!confirmPassword) {
+      return res.status(400).json({ message: 'Confirm password is required' });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
 
     // check user exists or not
     const checkExisting = normalizedEmail
