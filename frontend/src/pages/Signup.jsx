@@ -153,7 +153,12 @@ const Signup = () => {
     setIsLoading(true);
     try {
       localStorage.removeItem("token");
-      await api.post("/auth/signup", { name, email, password });
+      await api.post("/auth/signup", {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
       const me = await api.get("/auth/me");
       setUser(me.data.user);
       navigate("/dashboard");
