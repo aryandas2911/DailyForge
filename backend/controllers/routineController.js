@@ -2,6 +2,48 @@ import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import { checkOverlap } from "../utils/routineUtils.js";
 
+const DAYS_OF_WEEK = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+// Helper to validate and format routine items
+const validateAndFormatItems = (items) => {
+  if (!Array.isArray(items)) {
+    return { valid: false, message: "Routine items must be a valid array" };
+  }
+
+  const formatted = [];
+  for (const item of items) {
+    if (!item.taskId) {
+      return { valid: false, message: "Each task must have a taskId" };
+    }
+    if (!item.day || !DAYS_OF_WEEK.includes(item.day)) {
+      return { valid: false, message: `Invalid or missing day: ${item.day || "undefined"}` };
+    }
+    if (typeof item.startTime !== "number" || isNaN(item.startTime) || item.startTime < 0 || item.startTime > 1440) {
+      return { valid: false, message: `Invalid startTime for task on ${item.day}. Must be a valid offset in minutes from midnight (0-1440).` };
+    }
+    if (typeof item.duration !== "number" || isNaN(item.duration) || item.duration < 10) {
+      return { valid: false, message: `Invalid duration for task on ${item.day}. Must be a valid number of at least 10 minutes.` };
+    }
+
+    const endTime = item.startTime + item.duration;
+    formatted.push({
+      day: item.day,
+      startTime: item.startTime,
+      endTime: endTime,
+    });
+  }
+
+  return { valid: true, formatted };
+};
+
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
@@ -16,7 +58,7 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name || !items || !Array.isArray(items) || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
@@ -30,25 +72,16 @@ export const createRoutine = async (req, res) => {
       });
     }
 
-    // calculate endtime for each task
-    const formatted = [];
-    for (const item of items) {
-
-      // check duration greater than 10 mins
-      if (!item.duration || item.duration < 10) {
-        return res.status(400).json({
-          success: false,
-          message: "Each task duration must be at least 10 minutes",
-        });
-      }
-
-      const endTime = item.startTime + item.duration;
-      formatted.push({
-        day: item.day,
-        startTime: item.startTime,
-        endTime: endTime,
+    // validate and format items
+    const validationResult = validateAndFormatItems(items);
+    if (!validationResult.valid) {
+      return res.status(400).json({
+        success: false,
+        message: validationResult.message,
       });
     }
+
+    const { formatted } = validationResult;
 
     // group tasks by day
     const dayGroups = {};
@@ -250,24 +283,16 @@ export const updateRoutine = async (req, res) => {
     const routineId = req.params.id;
 
     if (updates.items) {
-      // calculate endtime for each task
-      const formatted = [];
-      for (const item of updates.items) {
-        // check duration greater than 10 mins
-        if (!item.duration || item.duration < 10) {
-          return res.status(400).json({
-            success: false,
-            message: "Each task duration must be at least 10 minutes",
-          });
-        }
-
-        const endTime = item.startTime + item.duration;
-        formatted.push({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: endTime,
+      // validate and format items
+      const validationResult = validateAndFormatItems(updates.items);
+      if (!validationResult.valid) {
+        return res.status(400).json({
+          success: false,
+          message: validationResult.message,
         });
       }
+
+      const { formatted } = validationResult;
 
       // group tasks by day
       const dayGroups = {};

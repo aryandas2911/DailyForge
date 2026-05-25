@@ -62,3 +62,37 @@ export function isValidEmail(email) {
 export function isValidRoutineName(name) {
   return Boolean(name && name.trim());
 }
+
+/**
+ * Checks if a new task overlaps with any existing scheduled tasks.
+ *
+ * @param {Object} newTask - The task attempting to be scheduled.
+ * @param {string} newTask.day - The scheduled day.
+ * @param {number} newTask.startTime - Start time in minutes since midnight.
+ * @param {number} newTask.duration - Duration of the task in minutes.
+ * @param {string} [newTask.taskId] - The ID of the task (to exclude self-checks when moving).
+ * @param {Array<Object>} scheduledTasks - The current list of scheduled tasks.
+ * @returns {Object|null} The conflicting task object if an overlap is found, or null if safe.
+ */
+export function checkTaskOverlap(newTask, scheduledTasks) {
+  const newDuration = newTask.duration || 60;
+  const newStart = newTask.startTime;
+  const newEnd = newStart + newDuration;
+
+  const conflict = scheduledTasks.find((task) => {
+    // Only compare tasks on the same day, excluding the task itself (if moving/rescheduling)
+    if (task.day !== newTask.day || task.taskId === newTask.taskId) {
+      return false;
+    }
+
+    const taskDuration = task.duration || 60;
+    const taskStart = task.startTime;
+    const taskEnd = taskStart + taskDuration;
+
+    // Mathematical overlap condition: Start A < End B && Start B < End A
+    return newStart < taskEnd && taskStart < newEnd;
+  });
+
+  return conflict || null;
+}
+
