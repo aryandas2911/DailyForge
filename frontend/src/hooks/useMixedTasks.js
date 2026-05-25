@@ -46,9 +46,18 @@ const useMixedTasks = (updateDbTask) => {
       // Handle routine task locally
       let result;
       setRoutineTasks((prev) => {
-        const updated = prev.map((task) =>
-          task._id === id ? { ...task, ...updates } : task
-        );
+        const updated = prev.map((task) => {
+          if (task._id === id) {
+            const finalUpdates = { ...updates };
+            if (updates.status === "Completed") {
+              finalUpdates.completedAt = new Date().toISOString();
+            } else if (updates.status === "Due") {
+              finalUpdates.completedAt = null;
+            }
+            return { ...task, ...finalUpdates };
+          }
+          return task;
+        });
         // Persist to localStorage (wrap in try/catch for safety)
         try {
           localStorage.setItem("activeRoutineTasks", JSON.stringify(updated));
