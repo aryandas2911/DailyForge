@@ -128,13 +128,14 @@ export const login = async (req, res) => {
     }
 
     // generate jwt token
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-    );
-
-    return res.status(200).json({ message: "Login successful", token });
+    // check JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not set in environment variables");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '24h',
+    });
 
   } catch (error) {
     // error handling
