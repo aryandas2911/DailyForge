@@ -285,7 +285,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                 {customTags.map((ct) => (
                   <div
                     key={ct}
-                    className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+                    className="px-3 py-1 rounded-full bg-[var(--border)] text-main flex items-center gap-2"
                   >
                     <span className="text-xs font-medium">{ct}</span>
                     <button
