@@ -88,18 +88,18 @@ const Login = () => {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((y - centerY) / centerY) * -3;
+    const rotateY = ((x - centerX) / centerX) * 3;
 
-    card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    card.style.transition = "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.005)`;
   };
 
   const handleMouseLeave = () => {
     const card = cardRef.current;
     if (!card) return;
 
-    card.style.transition = "transform 0.4s ease-out";
+    card.style.transition = "transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
     card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
   };
 
@@ -165,8 +165,8 @@ const Login = () => {
 
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to log in with Google."
+        err.message ||
+        "Failed to log in with Google."
       );
     } finally {
       setIsGoogleLoading(false);
@@ -182,7 +182,7 @@ const Login = () => {
     setError("");
 
     try {
-      
+
 
       await api.post("/auth/login", {
         email,
@@ -201,7 +201,7 @@ const Login = () => {
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Invalid email or password."
+        "Invalid email or password."
       );
     } finally {
       setIsSubmitLoading(false);
@@ -227,7 +227,7 @@ const Login = () => {
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
+
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
@@ -244,9 +244,9 @@ const Login = () => {
           transform-gpu
         "
       >
-      <form
-        onSubmit={handleSubmit}
-        className="
+        <form
+          onSubmit={handleSubmit}
+          className="
           surface-bg
           animate-in
           w-full
@@ -260,28 +260,28 @@ const Login = () => {
           border-white/10
           shadow-[0_20px_60px_rgba(0,0,0,0.7)]
         "
-      >
-        {/* Heading */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight text-main">
-            Welcome Back
-          </h1>
+        >
+          {/* Heading */}
+          <div className="text-center space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-main">
+              Welcome Back
+            </h1>
 
-          <p className="text-sm text-muted">
-            Login to continue your
-            experience
-          </p>
-        </div>
+            <p className="text-sm text-muted">
+              Login to continue your
+              experience
+            </p>
+          </div>
 
-        {/* Google */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={
-            isGoogleLoading ||
-            isSubmitLoading
-          }
-          className="
+          {/* Google */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={
+              isGoogleLoading ||
+              isSubmitLoading
+            }
+            className="
             flex items-center justify-center
             w-full
             px-4 py-3
@@ -298,48 +298,48 @@ const Login = () => {
             disabled:opacity-50
             cursor-pointer
           "
-        >
-          {isGoogleLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <GoogleIcon />
-          )}
-
-          {isGoogleLoading
-            ? "Connecting..."
-            : "Continue with Google"}
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center">
-          <div className="flex-1 h-px bg-white/20"></div>
-
-          <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
-            OR
-          </span>
-
-          <div className="flex-1 h-px bg-white/20"></div>
-        </div>
-
-        {/* Email */}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="email"
-            className="text-sm font-medium text-main"
           >
-            Email
-          </label>
+            {isGoogleLoading ? (
+              <LoadingSpinner />
+            ) : (
+              <GoogleIcon />
+            )}
 
-          <input
-            type="email"
-            id="email"
-            placeholder="user@email.com"
-            required
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            className="
+            {isGoogleLoading
+              ? "Connecting..."
+              : "Continue with Google"}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center">
+            <div className="flex-1 h-px bg-white/20"></div>
+
+            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
+              OR
+            </span>
+
+            <div className="flex-1 h-px bg-white/20"></div>
+          </div>
+
+          {/* Email */}
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium text-main"
+            >
+              Email
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              placeholder="user@email.com"
+              required
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              className="
               input-modern
               w-full
               px-4
@@ -347,35 +347,35 @@ const Login = () => {
               rounded-2xl
               text-sm
             "
-          />
-        </div>
+            />
+          </div>
 
-        {/* Password */}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="password"
-            className="text-sm font-medium text-main"
-          >
-            Password
-          </label>
+          {/* Password */}
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium text-main"
+            >
+              Password
+            </label>
 
-          <div className="relative">
-            <input
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
-              id="password"
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="
+            <div className="relative">
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                id="password"
+                placeholder="••••••••"
+                required
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+                className="
                 input-modern
                 w-full
                 px-4
@@ -384,16 +384,16 @@ const Login = () => {
                 rounded-2xl
                 text-sm
               "
-            />
+              />
 
-            <button
-              type="button"
-              onClick={() =>
-                setShowPassword(
-                  !showPassword
-                )
-              }
-              className="
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
+                className="
                 absolute
                 right-4
                 top-1/2
@@ -403,20 +403,20 @@ const Login = () => {
                 transition-colors
                 cursor-pointer
               "
-            >
-              {showPassword ? (
-                <Eye size={18} />
-              ) : (
-                <EyeOff size={18} />
-              )}
-            </button>
+              >
+                {showPassword ? (
+                  <Eye size={18} />
+                ) : (
+                  <EyeOff size={18} />
+                )}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div
-            className="
+          {/* Error */}
+          {error && (
+            <div
+              className="
               px-4 py-3
               rounded-2xl
               text-sm
@@ -425,19 +425,19 @@ const Login = () => {
               border-red-500/20
               text-red-500
             "
-          >
-            {error}
-          </div>
-        )}
+            >
+              {error}
+            </div>
+          )}
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={
-            isGoogleLoading ||
-            isSubmitLoading
-          }
-          className="
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={
+              isGoogleLoading ||
+              isSubmitLoading
+            }
+            className="
             btn btn-primary
             w-full
             py-3
@@ -445,28 +445,28 @@ const Login = () => {
             cursor-pointer
             disabled:opacity-50
           "
-        >
-          {isSubmitLoading
-            ? "Logging in..."
-            : "Login"}
-        </button>
+          >
+            {isSubmitLoading
+              ? "Logging in..."
+              : "Login"}
+          </button>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-muted">
-          Don&apos;t have an
-          account?{" "}
-          <Link
-            to="/signup"
-            className="
+          {/* Footer */}
+          <p className="text-center text-sm text-muted">
+            Don&apos;t have an
+            account?{" "}
+            <Link
+              to="/signup"
+              className="
               text-main
               font-semibold
               hover:underline
             "
-          >
-            Sign up
-          </Link>
-        </p>
-      </form>
+            >
+              Sign up
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
