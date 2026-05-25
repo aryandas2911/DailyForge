@@ -87,9 +87,15 @@ Most people don't fail to plan — they fail to stick to a plan. DailyForge make
 - Overlap detection prevents conflicting task placement on the same day
 
 ### 📊 Dashboard
+- **Interactive Contribution Heatmap**: A premium, GitHub-style 371-day productivity calendar that tracks consistency with stunning teal and glowing mint aesthetics.
+  - **4-Level Visual Scale**: Cell intensities map to completed counts (1 task $\rightarrow$ low, 2 tasks $\rightarrow$ medium, 3+ tasks $\rightarrow$ perfect glowing mint).
+  - **Streak & Productivity Tracking**: Real-time calculations of current streaks, longest streaks, total productive days, and average day-wise completion rate.
+  - **Completing Date-Matching**: Tracks contributions using the actual task completion timestamp (`completedAt`), fully timezone-robust to your local browser.
+  - **Micro-Animations & Smart Tooltips**: Staggered cell entry animations and edge-aware floating tooltips that slide horizontally to prevent bounding box clipping.
+  - **Upcoming Days Protection**: Future dates automatically render as hidden, transparent slots until they arrive.
 - View all saved routines at a glance
 - Quick access to edit or delete any routine
-- Summary stats for your weekly schedule
+- Summary stats for your weekly schedule and completion progress
 
 ### ♻️ Routine Templates
 - Save any routine as a reusable template
@@ -110,6 +116,7 @@ Most people don't fail to plan — they fail to stick to a plan. DailyForge make
 | React Router DOM v7 | Client-side routing |
 | Lucide React | Icon library |
 | Context API | Global auth state management |
+| Firebase Client | Google Sign-In authentication integration |
 
 ### Backend
 | Technology | Purpose |
@@ -120,6 +127,7 @@ Most people don't fail to plan — they fail to stick to a plan. DailyForge make
 | Mongoose v9 | ODM for MongoDB |
 | JSON Web Token (JWT) | Stateless authentication |
 | Bcrypt | Password hashing |
+| Firebase token verification | RS256 Google ID token signature verification |
 | dotenv | Environment variable management |
 | Nodemon | Dev server with hot-reload |
 
@@ -298,6 +306,7 @@ Copy the provided `.env.example` to a new file named `.env`.
 | **Glitchy Drag-and-Drop** | DOM-altering browser extensions. | Test the application in an **Incognito window**. |
 
 ---
+
 
 ## 🌐 Google Authentication Setup
 
