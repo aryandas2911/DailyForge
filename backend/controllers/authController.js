@@ -1,11 +1,11 @@
 import User from '../src/models/User.js';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
 
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 const AUTH_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000;
+const normalizeEmail = (email) => email?.trim().toLowerCase();
 
 const getJwtSecret = (res) => {
   if (!process.env.JWT_SECRET) {
@@ -33,40 +33,43 @@ const getAuthCookieOptions = () => {
   return cookieOptions;
 };
 
+const getValidationErrorResponse = (error) => {
+  if (error?.code === 11000) {
+    return { status: 409, message: 'User already exists' };
+  }
+
+  if (error?.name === 'ValidationError') {
+    return {
+      status: 400,
+      message: Object.values(error.errors)
+        .map(({ message }) => message)
+        .join(', '),
+    };
+  }
+
+  return null;
+};
+
 // sign up function
 export const signup = async (req, res) => {
   try {
     // fetch values from request
     const { name, email, password } = req.body;
-
-    if (!name || name.trim().length < 2) {
-      return res
-        .status(400)
-        .json({ message: 'Name must be at least 2 characters long' });
-    }
-
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!password || !passwordRegex.test(password)) {
-      return res.status(400).json({
-        message:
-          'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character',
-      });
-    }
+    const normalizedEmail = normalizeEmail(email);
 
     // check user exists or not
-    const checkExisting = await User.findOne({ email });
+    const checkExisting = normalizedEmail
+      ? await User.findOne({ email: normalizedEmail })
+      : null;
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
 
-    // hashing the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // create new user document
     const newUser = new User({
       name,
-      email,
-      password: hashedPassword,
+      email: normalizedEmail,
+      password,
     });
 
     // save the new user in database
@@ -91,6 +94,13 @@ export const signup = async (req, res) => {
         user: { _id: newUser._id, name: newUser.name, email: newUser.email },
       });
   } catch (error) {
+    const validationError = getValidationErrorResponse(error);
+    if (validationError) {
+      return res
+        .status(validationError.status)
+        .json({ message: validationError.message });
+    }
+
     // error handling
     console.error('Signup error:', error);
     return res.status(500).json({ message: 'Server error during signup' });
@@ -102,22 +112,25 @@ export const login = async (req, res) => {
   try {
     // fetch user data from request
     const { email, password } = req.body;
+    const normalizedEmail = normalizeEmail(email);
 
     // check if email and password exist in request
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res
         .status(400)
         .json({ message: 'Email and password are required' });
     }
 
     // check if user exists or not
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail }).select(
+      '+password'
+    );
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
 
-    // check password using bcrypt
-    const passwordCheck = await bcrypt.compare(password, user.password);
+    // check password using model helper
+    const passwordCheck = await user.comparePassword(password);
     if (!passwordCheck) {
       return res.status(401).json({ message: 'Password does not match' });
     }
@@ -176,8 +189,8 @@ export const updateProfile = async (req, res) => {
     // fetch values from request body
     const { name, currentPassword, newPassword } = req.body;
 
-    // fetch current user
-    const user = await User.findById(req.userId);
+    // fetch current user and include password for verification
+    const user = await User.findById(req.userId).select('+password');
 
     // check user exists or not
     if (!user) {
@@ -195,10 +208,7 @@ export const updateProfile = async (req, res) => {
     // update password if provided
     if (currentPassword && newPassword) {
       // compare current password
-      const passwordCheck = await bcrypt.compare(
-        currentPassword,
-        user.password
-      );
+      const passwordCheck = await user.comparePassword(currentPassword);
 
       // check password matches or not
       if (!passwordCheck) {
@@ -208,11 +218,8 @@ export const updateProfile = async (req, res) => {
         });
       }
 
-      // hash new password
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // update password
-      user.password = hashedPassword;
+      // Let the schema pre-save hook hash the new password.
+      user.password = newPassword;
     }
 
     // save updated user
@@ -228,6 +235,14 @@ export const updateProfile = async (req, res) => {
       },
     });
   } catch (error) {
+    const validationError = getValidationErrorResponse(error);
+    if (validationError) {
+      return res.status(validationError.status).json({
+        success: false,
+        message: validationError.message,
+      });
+    }
+
     // error handling
     console.log('Profile update error:', error);
 
@@ -265,29 +280,33 @@ export const googleLogin = async (req, res) => {
     }
 
     const { email, name } = decodedToken;
-    if (!email) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
       return res.status(400).json({ message: 'Email is missing from the Google identity token' });
     }
 
     // Check if user already exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      // Create new user for Google registration
-      // Generate a secure, random password to satisfy mongoose model validation constraints
-      const randomPassword = crypto.randomBytes(32).toString('hex');
-      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      // Generate a password that satisfies the schema rules for
+      // users created via Google authentication.
+      const randomPassword = `GoogleAuth1!${crypto.randomBytes(16).toString(
+        'hex'
+      )}`;
 
       user = new User({
-        name: name || email.split('@')[0],
-        email,
-        password: hashedPassword,
+        name: name || normalizedEmail.split('@')[0],
+        email: normalizedEmail,
+        password: randomPassword,
       });
 
       await user.save();
-      console.log(`[GOOGLE AUTH] Created new user profile for: ${email}`);
+      console.log(
+        `[GOOGLE AUTH] Created new user profile for: ${normalizedEmail}`
+      );
     } else {
-      console.log(`[GOOGLE AUTH] Logged in existing user: ${email}`);
+      console.log(`[GOOGLE AUTH] Logged in existing user: ${normalizedEmail}`);
     }
 
     // Generate JWT token (matches standard custom auth format)
@@ -314,6 +333,13 @@ export const googleLogin = async (req, res) => {
         },
       });
   } catch (error) {
+    const validationError = getValidationErrorResponse(error);
+    if (validationError) {
+      return res
+        .status(validationError.status)
+        .json({ message: validationError.message });
+    }
+
     console.error('[GOOGLE AUTH] Controller error:', error);
     return res.status(500).json({ message: 'Server error during Google authentication' });
   }
