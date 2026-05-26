@@ -25,6 +25,22 @@ const LoadingSpinner = () => (
 const Login = () => {
   const cardRef = useRef(null);
 
+  // two states for inputs
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+
+  // useNavigate object
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectPath = location.state?.from || "/dashboard";
+
+  // useContext for auth
+  const { setUser } = useContext(AuthContext);
+
   const handleMouseMove = (e) => {
     const card = cardRef.current;
     if (!card) return;
@@ -79,6 +95,7 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
+    // prevents page from refreshing
     e.preventDefault();
     setIsSubmitLoading(true);
     setError("");
