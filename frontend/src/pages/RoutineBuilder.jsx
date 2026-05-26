@@ -4,6 +4,7 @@ import {
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -13,7 +14,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, GripVertical } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
@@ -53,9 +54,17 @@ export default function RoutineBuilder() {
 
   const normalizeDay = (day) => String(day || "").trim().toLowerCase();
 
-  // Configure sensors for drag-and-drop (mouse + keyboard)
+  // Configure sensors for drag-and-drop (mouse + touch + keyboard).
+  // TouchSensor: 250 ms hold before drag activates, tolerates 8 px movement so
+  // normal page scroll doesn't accidentally start a drag on mobile.
+  // PointerSensor: 5 px distance threshold prevents jitter on desktop.
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 8 },
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -332,11 +341,12 @@ export default function RoutineBuilder() {
           </div>
         )}
 
-        {/* Drag Overlay */}
+        {/* Drag Overlay – shown while dragging on desktop and mobile */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
-              {activeTask.title}
+            <div className="flex items-center gap-2 rounded-xl bg-[#4eb7b3] text-white px-3 py-2 shadow-2xl border border-[#3b8ea0] cursor-grabbing max-w-[200px]">
+              <GripVertical size={14} className="shrink-0 opacity-70" />
+              <span className="text-sm font-medium truncate">{activeTask.title}</span>
             </div>
           ) : null}
         </DragOverlay>

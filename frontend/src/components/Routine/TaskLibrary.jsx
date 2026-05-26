@@ -29,7 +29,8 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border border-soft/50 bg-[#f8fafc]/30 dark:bg-slate-800/40 p-3
+      className="group flex items-center gap-3 rounded-xl border border-soft/50 bg-[#f8fafc]/30 dark:bg-slate-800/40
+                 min-h-[52px] p-3 touch-none
                  cursor-grab active:cursor-grabbing
                  hover:bg-white dark:hover:bg-slate-850 hover:shadow-md transition duration-200 hover-lift"
       role="button"

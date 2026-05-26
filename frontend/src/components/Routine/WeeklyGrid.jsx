@@ -46,7 +46,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
   return (
     <div
       ref={setNodeRef}
-      className={`h-full min-h-[3rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
+      className={`h-full min-h-[3.5rem] sm:min-h-[3rem] p-1.5 flex flex-col gap-1 touch-none transition duration-200 ${
         isOver 
           ? "bg-cyan-500/10 dark:bg-cyan-500/20" 
           : "bg-white/40 dark:bg-slate-800/20 hover:bg-white/60 dark:hover:bg-slate-800/30"
