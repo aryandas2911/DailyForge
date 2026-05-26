@@ -235,18 +235,15 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
 
-            {/* Logo Section with Hover Animation */}
-            <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
-              <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
-              >
-                <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
-              </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
-                DailyForge
-              </span>
+            {/* Logo Section */}
+            <Link to={user ? "/dashboard" : "/login"} className="flex items-center focus:outline-none">
+              <motion.img
+                src="/logo.svg"
+                alt="DailyForge"
+                className="h-10 w-auto"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+              />
             </Link>
 
             {/* Desktop Navigation */}
