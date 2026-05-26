@@ -84,11 +84,9 @@ export default function Dashboard() {
   const weeklyCompletionPercent = weekTasks.length
     ? Math.round((completedThisWeek / weekTasks.length) * 100)
     : 0;
-
   const upcomingTasks = tasks
-    .filter((task) => task.status !== "Completed")
-    .slice(0, 2);
-
+   .filter((task) => task.status !== "Completed")
+   .slice(0, 2);
   // Fetch routines
   const fetchRoutines = async () => {
     try {
@@ -239,7 +237,9 @@ const handleDuplicateRoutine = async () => {
         <div className="flex-1 animate-in delay-200">
           <StatCard
             label="This Week"
+
             value={`${weeklyCompletionPercent}%`}
+
             subtitle="Completion"
             icon={<Calendar size={20} />}
           />
