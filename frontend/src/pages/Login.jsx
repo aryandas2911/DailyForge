@@ -62,7 +62,6 @@ const Login = () => {
     card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
   };
 
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

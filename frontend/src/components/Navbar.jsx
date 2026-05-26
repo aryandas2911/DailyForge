@@ -367,35 +367,6 @@ const Navbar = () => {
           </div>
         </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
-              aria-label="Toggle menu"
-              aria-expanded={isOpen}
-              aria-controls="mobile-navigation-menu"
-            >
-              <div className="px-4 pt-2 pb-6 space-y-1">
-                {user && navLinks.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    onClick={() => setIsOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
-                        isActive
-                          ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
-                      )
-                    }
-                  >
-                    <link.icon size={18} />
-                    {link.name}
-                  </NavLink>
-                ))}
-
       {/* Mobile Navigation Dropdown */}
       <AnimatePresence>
         {isOpen && (
