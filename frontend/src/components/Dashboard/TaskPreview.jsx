@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 
 export default function TaskPreview({ tasks , updateTask}) {
@@ -35,19 +36,19 @@ export default function TaskPreview({ tasks , updateTask}) {
         <div className="space-y-3">
           {tasks.map((task) => {
 
-              {/*Calculate remaining time */}
               const remainingTime = new Date(task.dueDate) - now;
+              const isOverdue = remainingTime <= 0;
 
-              const hours = Math.floor(
+              const hours = isOverdue ? 0 : Math.floor(
                 remainingTime / (1000 * 60 * 60)
               );
 
-              const minutes = Math.floor(
+              const minutes = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60 * 60)) /
                   (1000 * 60)
               );
 
-              const seconds = Math.floor(
+              const seconds = isOverdue ? 0 : Math.floor(
                 (remainingTime % (1000 * 60)) / 1000
               );
 
@@ -102,9 +103,9 @@ export default function TaskPreview({ tasks , updateTask}) {
                   {/*Disply Remaining Time */}
                   {task.dueDate && (
                     <span className="text-[11px] text-red-500 font-medium">
-                      {remainingTime > 0
-                        ? `${hours}h ${minutes}m ${seconds}s left`
-                        : "Overdue"}
+                      {isOverdue 
+                        ? "Overdue"
+                        : `${hours}h ${minutes}m ${seconds}s left`}
                     </span>
                   )}
 
@@ -122,9 +123,9 @@ export default function TaskPreview({ tasks , updateTask}) {
       <div className="mt-4 text-sm text-primary">
         <button
           onClick={() => navigate("/tasks")}
-          className="hover:underline cursor-pointer"
+          className="group mt-3 flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
         >
-          View All Tasks →
+          View All Tasks <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
         </button>
       </div>
     </div>
