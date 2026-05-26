@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer, TrendingUp, User } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { clsx } from "clsx";
@@ -141,7 +141,7 @@ const handleLogoutClick = () => {
         <div className="flex justify-between items-center h-16">
 
           {/* Logo Section with Hover Animation */}
-          <Link to={token ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+          <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
             <motion.div
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -224,7 +224,7 @@ const handleLogoutClick = () => {
                 </Link>
 
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
                 >
                   <LogOut size={16} />
@@ -315,7 +315,7 @@ const handleLogoutClick = () => {
 
 
 
-              <div className={cn("flex flex-col gap-2", token ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
+              <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
 
 
                 {!user ? (
@@ -345,7 +345,7 @@ const handleLogoutClick = () => {
                       Focus Mode
                     </Link>
                     <button
-                      onClick={handleLogout}
+                      onClick={handleLogoutClick}
                       className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
                     >
                       <LogOut size={18} />
