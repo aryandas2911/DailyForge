@@ -258,11 +258,15 @@ export const googleLogin = async (req, res) => {
     try {
       decodedToken = await verifyFirebaseIdToken(idToken);
     } catch (verifyError) {
-      return res.status(401).json({ 
-        message: 'Invalid or expired Firebase token', 
-        error: verifyError.message 
-      });
-    }
+  const isConfigError = verifyError.message.includes("not configured");
+
+  return res.status(isConfigError ? 500 : 401).json({
+    message: isConfigError
+      ? "Google authentication is not configured on the server"
+      : "Invalid or expired Firebase token",
+    error: verifyError.message,
+  });
+}
 
     const { email, name } = decodedToken;
     if (!email) {

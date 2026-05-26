@@ -61,24 +61,11 @@ export async function verifyFirebaseIdToken(token) {
   const projectId = process.env.FIREBASE_PROJECT_ID;
 
   // Graceful fallback for local development if Project ID is not configured
-  if (!projectId) {
-    console.warn(
-      "[FIREBASE AUTH] Warning: FIREBASE_PROJECT_ID is not configured in backend environment. " +
-      "Falling back to permissive decode mode (for local testing only)."
-    );
-    const decoded = jwt.decode(token);
-    if (!decoded) {
-      throw new Error("Invalid Firebase ID token format");
-    }
-    
-    // Perform standard client-side expiration checks
-    const now = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < now) {
-      throw new Error("Firebase ID token has expired");
-    }
-    return decoded;
-  }
-
+if (!projectId) {
+  throw new Error(
+    "Firebase authentication is not configured. Please set FIREBASE_PROJECT_ID in backend environment variables."
+  );
+}
   try {
     // 1. Decode token to retrieve JWT header containing 'kid' (Key ID)
     const decodedToken = jwt.decode(token, { complete: true });
