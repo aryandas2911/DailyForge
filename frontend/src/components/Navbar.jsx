@@ -315,55 +315,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {!user ? (
-              <>
-                <NavLink
-  to="/login"
-  end
-  className={({ isActive }) =>
-    cn(
-      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
-      isActive
-        ? "border-[#3b8ea0] text-[#3b8ea0] bg-[#d0f6e3]"
-        : "border-transparent text-[#4eb7b3] hover:bg-[#d0f6e3]/50"
-    )
-  }
->
-  Login
-</NavLink>
-<NavLink
-  to="/signup"
-  end
-  className={({ isActive }) =>
-    cn(
-      "text-sm font-medium transition-colors px-4 py-2 rounded-xl border-2",
-      isActive
-        ? "border-[#3b8ea0] text-white bg-[#3b8ea0]"
-        : "border-[#4eb7b3] text-[#4eb7b3] bg-transparent hover:bg-[#d0f6e3]/50"
-    )
-  }
->
-  Signup
-</NavLink>
-              </>
-            ) : (
-              <button 
-                onClick={handleLogoutClick} 
-                className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={isOpen ? "close" : "open"}
-                    initial={{ opacity: 0, rotate: -90 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    exit={{ opacity: 0, rotate: 90 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {isOpen ? <X size={24} /> : <Menu size={24} />}
-                  </motion.div>
-                </AnimatePresence>
-              </button>
-            </div>
           </div>
         </div>
 

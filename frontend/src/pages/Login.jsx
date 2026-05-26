@@ -32,6 +32,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [tempUserId, setTempUserId] = useState(null);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -61,19 +63,6 @@ const Login = () => {
     card.style.transition = "transform 0.4s ease-out";
     card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
   };
-
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
-  const [totpCode, setTotpCode] = useState("");
-  const [tempUserId, setTempUserId] = useState(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const redirectPath = location.state?.from || "/dashboard";
-  const { setUser } = useContext(AuthContext);
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
