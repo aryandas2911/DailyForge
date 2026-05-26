@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 import html2canvas from "html2canvas";
+import IntelligenceDashboard from "../components/IntelligenceDashboard";
 
 export default function Analytics() {
   const navigate = useNavigate();
@@ -266,6 +267,11 @@ export default function Analytics() {
           </button>
         </div>
       </header>
+
+      {/* Intelligence Dashboard Section */}
+      <section className="w-full animate-in delay-75">
+        <IntelligenceDashboard />
+      </section>
 
       {/* Grid of Key Metrics */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
