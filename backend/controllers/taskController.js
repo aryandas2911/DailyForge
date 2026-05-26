@@ -74,6 +74,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      completedAt: status === "Completed" ? new Date() : null,
     });
 
     // save task in database
@@ -157,6 +158,13 @@ export const updateTask = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Title must be 50 characters or less" });
+    }
+
+    // Auto-manage completedAt timestamp based on status change
+    if (updates.status === "Completed") {
+      updates.completedAt = new Date();
+    } else if (updates.status === "Due") {
+      updates.completedAt = null;
     }
 
     // fetch task from database and update
