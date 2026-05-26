@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="200" viewBox="0 0 480 200">
+<defs>
+  <linearGradient id="anvilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" style="stop-color:#c8d8e0"/>
+    <stop offset="100%" style="stop-color:#8aaab8"/>
+  </linearGradient>
+  <linearGradient id="baseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" style="stop-color:#4eb7b3"/>
+    <stop offset="100%" style="stop-color:#3b8ea0"/>
+  </linearGradient>
+  <linearGradient id="hammerHead" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" style="stop-color:#e8a050"/>
+    <stop offset="100%" style="stop-color:#d4752a"/>
+  </linearGradient>
+  <linearGradient id="hammerHandle" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#a0856a"/>
+    <stop offset="100%" style="stop-color:#c4a882"/>
+  </linearGradient>
+</defs>
+
+<!-- ANVIL BASE (teal) -->
+<rect x="30" y="152" width="130" height="22" rx="5" fill="url(#baseGrad)"/>
+<!-- Anvil body -->
+<rect x="40" y="118" width="110" height="38" rx="4" fill="url(#anvilGrad)"/>
+<!-- Anvil top face -->
+<rect x="36" y="110" width="118" height="12" rx="3" fill="#dce8ee"/>
+<!-- Anvil horn -->
+<polygon points="40,124 14,132 17,138 40,135" fill="#b0c8d4"/>
+<ellipse cx="14" cy="135" rx="4" ry="4" fill="#9ab8c4"/>
+
+<!-- HAMMER HANDLE -->
+<rect x="118" y="38" width="11" height="64" rx="4" fill="url(#hammerHandle)" transform="rotate(-35, 123, 70)"/>
+<!-- HAMMER HEAD -->
+<rect x="90" y="30" width="44" height="26" rx="7" fill="url(#hammerHead)" transform="rotate(-35, 112, 43)"/>
+<rect x="92" y="32" width="16" height="22" rx="4" fill="#f0b878" opacity="0.45" transform="rotate(-35, 100, 43)"/>
+
+<!-- SPARKS -->
+<line x1="122" y1="110" x2="92" y2="82" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+<line x1="122" y1="110" x2="80" y2="96" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+<line x1="122" y1="110" x2="82" y2="114" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="122" y1="110" x2="96" y2="72" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+<line x1="122" y1="110" x2="110" y2="68" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="122" y1="110" x2="74" y2="106" stroke="#fde68a" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="92" cy="82" r="3" fill="#fbbf24"/>
+<circle cx="80" cy="96" r="2.5" fill="#fde68a"/>
+<circle cx="82" cy="114" r="2" fill="#fbbf24"/>
+<circle cx="96" cy="72" r="3" fill="#f97316"/>
+<circle cx="110" cy="68" r="2.5" fill="#fbbf24"/>
+<circle cx="74" cy="106" r="2" fill="#fde68a"/>
+<circle cx="100" cy="78" r="1.5" fill="#fbbf24" opacity="0.7"/>
+<circle cx="86" cy="90" r="1.5" fill="#f97316" opacity="0.6"/>
+<circle cx="114" cy="74" r="1.5" fill="#fde68a" opacity="0.7"/>
+
+<!-- WORDMARK -->
+<text x="178" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="#1e3a45">Daily</text>
+<text x="178" y="162" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="#4eb7b3">Forge</text>
+</svg>
