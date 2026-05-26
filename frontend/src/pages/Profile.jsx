@@ -10,19 +10,16 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
   // update name handler
   const handleNameUpdate = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await api.patch('/auth/profile', {
-        name,
-      });
-
-      // update user in context
+      const res = await api.patch('/auth/profile', { name });
       setUser(res.data.user);
-
       alert(res.data.message);
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update name');
@@ -32,16 +29,21 @@ const Profile = () => {
   // update password handler
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
+    setPasswordError('');
+
+    if (!passwordRegex.test(newPassword)) {
+      setPasswordError(
+        'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character'
+      );
+      return;
+    }
 
     try {
       const res = await api.patch('/auth/profile', {
         currentPassword,
         newPassword,
       });
-
       alert(res.data.message);
-
-      // clear password fields
       setCurrentPassword('');
       setNewPassword('');
     } catch (error) {
@@ -223,6 +225,7 @@ const Profile = () => {
               input-focus hover-lift
             "
               />
+            {passwordError && <span className="text-red-500 text-xs">{passwordError}</span>}
             </div>
 
             <button
