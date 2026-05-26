@@ -15,7 +15,12 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
   max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  message: "Too many requests, please try again later",
+  message: {
+  success: false,
+  error: "Too many signup attempts. Please wait a few minutes before trying again.",
+},
+standardHeaders: true,
+legacyHeaders: false,
 });
 
 // router object for auth
