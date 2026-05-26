@@ -1,5 +1,6 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -15,12 +16,69 @@ import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
+import PageTransition from "./components/PageTransition.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
     {children}
   </div>
 );
+
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
+        <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><Dashboard /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><Tasks /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/routine-builder"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><RoutineBuilder /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><Profile /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><Analytics /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
 
 const App = () => {
   return (
@@ -66,11 +124,11 @@ const App = () => {
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AnimatedRoutes />
       </main>
       <Footer />
       <ScrollToTop />
     </BrowserRouter>
-    
   );
 };
 

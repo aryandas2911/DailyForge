@@ -38,6 +38,10 @@ const taskSchema = mongoose.Schema(
       type: Number,
       default: null,
     },
+    completedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
