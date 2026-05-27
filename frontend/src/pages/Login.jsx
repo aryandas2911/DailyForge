@@ -71,6 +71,10 @@ const Login = () => {
 
   // Google Login popup-based handler
   const handleGoogleLogin = async () => {
+    if (!auth || !googleProvider) {
+      setError("Google Sign-In is not configured. Please check your environment variables.");
+      return;
+    }
     setIsGoogleLoading(true);
     setError("");
     try {
@@ -96,6 +100,8 @@ const Login = () => {
       // Handle user cancellation gracefully without noise
       if (err.code === "auth/popup-closed-by-user") {
         setError("Sign-in popup closed before completion. Please try again.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError("This domain is not authorized for Google Sign-In. Please add it to your Firebase Console.");
       } else {
         setError(err.response?.data?.message || err.message || "Failed to log in with Google.");
       }
@@ -197,7 +203,7 @@ const Login = () => {
       // handle error
       console.log("Login failed");
       console.log(error.response?.data || error.message);
-      setError(error.response?.data?.message || "Invalid email or password.");
+      setError(error.userMessage || error.response?.data?.message || "Invalid email or password.");
       setIsSubmitLoading(false);
     }
   };

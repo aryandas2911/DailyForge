@@ -14,23 +14,33 @@ let app = null;
 let auth = null;
 let googleProvider = null;
 
-// Only initialize Firebase if an API key is provided
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your_firebase_api_key") {
-  // Initialize Firebase
-  app = initializeApp(firebaseConfig);
+// Only initialize Firebase if an API key is provided and isn't a placeholder
+export const isFirebaseConfigured =
+  firebaseConfig.apiKey &&
+  firebaseConfig.apiKey !== "" &&
+  firebaseConfig.apiKey !== "your_firebase_api_key" &&
+  !firebaseConfig.apiKey.includes("fake-key");
 
-  // Initialize Firebase Auth and Google Provider
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
+if (isFirebaseConfigured) {
+  try {
+    // Initialize Firebase
+    app = initializeApp(firebaseConfig);
 
-  // Request profile and email scopes (standard for Google Sign-In)
-  googleProvider.addScope("profile");
-  googleProvider.addScope("email");
+    // Initialize Firebase Auth and Google Provider
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
 
-  // Force account selection screen
-  googleProvider.setCustomParameters({
-    prompt: "select_account",
-  });
+    // Request profile and email scopes (standard for Google Sign-In)
+    googleProvider.addScope("profile");
+    googleProvider.addScope("email");
+
+    // Force account selection screen
+    googleProvider.setCustomParameters({
+      prompt: "select_account",
+    });
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
 }
 
 export { auth, googleProvider };
