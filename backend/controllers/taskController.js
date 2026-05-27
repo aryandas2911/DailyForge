@@ -9,14 +9,6 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Create task function
 export const createTask = async (req, res) => {
   try {
-    // check if user is logged in or not
-    const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
-    }
 
     // check for validation errors
     const errors = validationResult(req);
@@ -48,6 +40,8 @@ export const createTask = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid due date" });
     }
+
+    const userId = req.userId;
 
     const dateStart = new Date(dueDateValue);
     dateStart.setUTCHours(0, 0, 0, 0);
@@ -82,7 +76,8 @@ export const createTask = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Task added successfully", newTask });
+      .json({
+        message: "Task added successfully", newTask });
   } catch (error) {
     // error handling
     console.log("Error creating task", error);
@@ -97,12 +92,6 @@ export const getTasks = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
-    }
 
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
@@ -173,6 +162,7 @@ export const updateTask = async (req, res) => {
       { $set: updates },
       { new: true, runValidators: true }
     );
+    
     if (!updatedTask) {
       return res.status(404).json({
         message: "Task not found",
@@ -194,7 +184,7 @@ export const updateTask = async (req, res) => {
 // delete task function
 export const deleteTask = async (req, res) => {
   try {
-    // check if user is logged in or not
+    // fetch task details to be deleted
     const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
@@ -217,6 +207,7 @@ export const deleteTask = async (req, res) => {
       _id: taskId,
       userId: userId,
     });
+
     if (!deleteTask) {
       return res.status(404).json({
         message: "Task not found",
@@ -239,12 +230,6 @@ export const bulkDeleteTasks = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
 
     // fetch array of task IDs 
     const { ids } = req.body;
