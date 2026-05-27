@@ -336,11 +336,7 @@ const Login = () => {
             </div>
           </div>
           
-          {error && (
-            <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm text-red-500">
-              {error}
-            </div>
-          )}
+          <FormError message={error} />
           
           <button
             ref={buttonRef}
@@ -362,24 +358,7 @@ const Login = () => {
           </p>
         </form>
       </div>
-      <FormError message={error} />
-      <button
-        type="submit"
-        className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
-      >
-        Login
-      </button>
 
-      <p className="text-center text-sm text-muted">
-        Don't have an account?{" "}
-        <Link
-          to="/signup"
-          className="text-main font-medium cursor-pointer hover:underline transition-colors"
-        >
-          Sign up
-        </Link>
-      </p>
-    </form>
     </div>
   );
 };

@@ -191,33 +191,7 @@ const Signup = () => {
       {/* Glow blobs */}
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
-      <FormError message={errorMessage} />
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="name" className="text-sm font-medium text-main">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-          placeholder="Full Name"
-          required
-          className={`
-            w-full px-3 py-2.5
-            text-sm
-            surface-bg
-            rounded-sm
-            shadow-xs
-            input-focus hover-lift
-            ${errors.name ? "border-red-500" : "border-soft"}
-          `}
-        />
-        {errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}
-      </div>
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
       
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
@@ -310,21 +284,7 @@ const Signup = () => {
           </div>
 
           {/* Error */}
-          {errorMessage && (
-            <div
-              className="
-                px-4 py-3
-                rounded-2xl
-                text-sm
-                border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
-              "
-            >
-              {errorMessage}
-            </div>
-          )}
+          <FormError message={errorMessage} />
 
           {/* Name */}
           <div className="flex flex-col gap-2">
@@ -500,13 +460,7 @@ const Signup = () => {
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
-        </div>
-        {errors.confirmPassword && (
-          <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
-        )}
-      </div>
 
-      <FormError message={error} />
 
           {/* Footer */}
           <p className="text-center text-sm text-muted">
