@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -335,11 +336,7 @@ const Login = () => {
             </div>
           </div>
           
-          {error && (
-            <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm text-red-500">
-              {error}
-            </div>
-          )}
+          <FormError message={error} />
           
           <button
             ref={buttonRef}
@@ -361,6 +358,7 @@ const Login = () => {
           </p>
         </form>
       </div>
+
     </div>
   );
 };
