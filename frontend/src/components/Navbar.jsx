@@ -240,18 +240,18 @@ const Navbar = () => {
               <motion.div
                 whileHover={{ rotate: 180 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
               >
-                <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
+                <span className="text-white font-bold text-lg sm:text-xl leading-none tracking-tighter">D</span>
               </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+              <span className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
                 DailyForge
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             {user && (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
                 {navLinks.map((link) => (
                   <NavLink
                     key={link.name}
@@ -273,7 +273,7 @@ const Navbar = () => {
             )}
 
             {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4">
               {/* Premium Dark Mode Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 15 }}
@@ -316,7 +316,7 @@ const Navbar = () => {
             </div>
 
             {/* Mobile Menu Toggle Button */}
-            <div className="md:hidden flex items-center">
+            <div className="lg:hidden flex items-center">
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
@@ -349,7 +349,7 @@ const Navbar = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+              className="lg:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
             >
               <div className="px-4 pt-2 pb-6 space-y-1">
                 {user && navLinks.map((link) => (
