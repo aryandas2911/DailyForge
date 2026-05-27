@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 
 const Signup = () => {
   // three states for inputs
@@ -104,11 +105,7 @@ const Signup = () => {
         <h1 className="text-3xl font-bold text-main">Signup</h1>
       </div>
 
-      {errorMessage && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-          {errorMessage}
-        </div>
-      )}
+      <FormError message={errorMessage} />
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="text-sm font-medium text-main">
@@ -235,11 +232,7 @@ const Signup = () => {
         )}
       </div>
 
-      {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      <FormError message={error} />
 
       <button
         type="submit"

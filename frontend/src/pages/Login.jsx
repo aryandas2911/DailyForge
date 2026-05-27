@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 
 
 const Login = () => {
@@ -124,11 +125,7 @@ const Login = () => {
           </button>
         </div>
       </div>
-      {error && (
-        <div className="px-3 py-2.5 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      <FormError message={error} />
       <button
         type="submit"
         className="btn btn-primary cursor-pointer w-full mt-2 hover-lift"
