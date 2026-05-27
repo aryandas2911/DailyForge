@@ -33,6 +33,9 @@ routineRouter.get("/", authMiddleware, asyncHandler(getRoutines));
 // Route for duplicating routine
 routineRouter.post("/:id/duplicate", authMiddleware, duplicateRoutine);
 
+// Route for duplicating routine
+routineRouter.post("/:id/duplicate", authMiddleware, duplicateRoutine);
+
 // Route for updating routine
 routineRouter.put("/:id", authMiddleware, validateObjectId, asyncHandler(updateRoutine));
 

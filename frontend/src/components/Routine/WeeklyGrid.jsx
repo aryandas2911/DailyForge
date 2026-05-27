@@ -23,6 +23,13 @@ const generateTimeSlots = () => {
   return slots;
 };
 
+const priorityColor = {
+  High: "bg-red-500",
+  Medium: "bg-yellow-500",
+  Low: "bg-green-500",
+};
+
+
 const TIME_SLOTS = generateTimeSlots();
 
 const normalizeDay = (day) => String(day || "").trim().toLowerCase();
@@ -57,7 +64,9 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
       {tasks.map((task) => (
         <div
           key={task.taskId}
-          className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#4eb7b3] text-white text-[10px] sm:text-xs font-medium px-2 py-1 shadow-sm hover:bg-[#3b8ea0] transition-all animate-in"
+          className={`absolute inset-1 rounded-lg ${priorityColor[task.priority] || "bg-blue-500"}
+                     text-white text-xs font-medium
+                     flex items-center justify-center shadow animate-in`}
         >
           <span className="truncate pr-3 leading-tight">{task.title}</span>
           <button

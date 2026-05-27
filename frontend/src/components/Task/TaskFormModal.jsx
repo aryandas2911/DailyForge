@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { AlertCircle, X } from "lucide-react";
+import useTasks from "../../hooks/useTasks";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
 
 const priorities = ["Low", "Medium", "High"];
@@ -9,12 +10,17 @@ const DESCRIPTION_WARNING_LENGTH = 450;
 const TITLE_MAX_LENGTH = 30;
 const TITLE_WARNING_LENGTH = 25;
 
+  
 export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, onError }) {
+  const titleInputRef = useRef(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
+  const [titleCollisionError, setTitleCollisionError] = useState("");
+  const { tasks } = useTasks();
+
 
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [customTagInput, setCustomTagInput] = useState("");
@@ -56,6 +62,31 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     onError?.("");
   }, [task, onError]);
 
+  //to focus cursor on the title input field when new task is created
+  useEffect(() => {
+    titleInputRef.current?.focus();
+  }, []);
+
+  //check for duplicate title and error message
+  const validateTitle = () => {
+    if (!title.trim()) {
+      setTitleCollisionError("");
+      return false;
+    }
+
+    const isTitleUsed = tasks.some(
+      (existingTask) =>
+        existingTask._id !== task?._id &&
+        existingTask.title.trim().toLowerCase() === title.trim().toLowerCase()
+    );
+
+    setTitleCollisionError(
+      isTitleUsed ? "A task with this title already exists." : ""
+    );
+
+    return isTitleUsed;
+  };
+
   /* ---------------- body scroll lock ---------------- */
   useEffect(() => {
     const scrollY = window.scrollY;
@@ -92,6 +123,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
 
     onError?.("");
 
+
     if (!title.trim()) return onError?.("Title is required");
     if (title.trim().length > TITLE_MAX_LENGTH) return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
@@ -105,14 +137,20 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       return alert("Due date cannot be more than 1 year in the future");
     }
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      tags: tags,
-      priority,
-      status: task ? task.status : "Due",
-      dueDate,
-    });
+    
+    if (validateTitle()) {
+      return;
+    }
+
+
+   onSubmit({
+  title: title.trim(),
+  description: description.trim(),
+  tags,
+  priority,
+  status: task ? task.status : "Due",
+  dueDate,
+});
   };
 
   const toggleTag = (tagName) => {
@@ -189,16 +227,30 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           <div>
             <label className="text-sm font-medium text-main">Title</label>
             <input
+              ref={titleInputRef}
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setTitleCollisionError("");
+              }}
+              onBlur={validateTitle}
+              className={`w-full mt-1 p-2 border rounded-lg focus:ring-(--primary) focus:border-(--primary) ${
+                titleCollisionError
+                  ? "border-red-400 bg-red-50 text-red-900 focus:ring-red-100 focus:border-red-500 dark:border-red-500 dark:bg-red-950/30 dark:text-red-200 dark:focus:ring-red-900/50 dark:focus:border-red-400"
+
+                  : "border-soft"
+              }`}
               placeholder="Task title"
               maxLength={TITLE_MAX_LENGTH}
               required
             />
+             {titleCollisionError && (
+              <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-300">
+                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                <p>{titleCollisionError}</p>
+              </div>
+            )}
             <p
               className={`text-sm mt-1 text-right ${
                 title.length >= TITLE_MAX_LENGTH
@@ -226,6 +278,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               maxLength={DESCRIPTION_MAX_LENGTH}
             />
             <p
+
               className={`text-sm mt-1 text-right ${
                 description.length >= DESCRIPTION_MAX_LENGTH
                   ? "text-red-500"

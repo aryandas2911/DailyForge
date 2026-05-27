@@ -121,6 +121,7 @@ export default function RoutineBuilder() {
         day: selectedDay,
         startTime: task.startTime,
         duration: task.duration,
+        priority: task.priority
       }));
 
     try {
@@ -179,7 +180,14 @@ export default function RoutineBuilder() {
 
     setScheduledTasks((prev) => [
       ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      { taskId: task._id, title: task.title, day, startTime, duration: 60 },
+      {
+        taskId: task._id,
+        title: task.title,
+        day,
+        startTime,
+        duration: 60,
+        priority: task.priority
+      },
     ]);
   };
 
