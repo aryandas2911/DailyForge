@@ -8,6 +8,8 @@ import {
   updateProfile,
   logout,
   googleLogin,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/authController.js";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
@@ -29,6 +31,12 @@ authRouter.post("/login", authLimiter, login);
 
 // Route for Google login
 authRouter.post("/google", authLimiter, googleLogin);
+
+// Route for forgot password
+authRouter.post("/forgot-password", forgotPassword);
+
+// Route for reset password
+authRouter.post("/reset-password/:token", resetPassword);
 
 // Route for get user (me)
 authRouter.get('/me', authMiddleware, getUser);
