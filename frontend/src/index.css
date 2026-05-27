@@ -66,15 +66,7 @@ html.dark body {
     @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-200 select-none;
   }
 
-<<<<<<< HEAD
-=======
   /* Primary action button */
-  .btn-primary {
-    @apply text-white shadow-sm hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-
-  /* Color handled via CSS variables */
->>>>>>> 0c97eaf (resolve ci check)
   .btn-primary {
     @apply text-white shadow-sm hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
@@ -113,8 +105,8 @@ html.dark body {
   .text-glow {
     text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
   }
-}
 
+  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
