@@ -13,7 +13,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Trash2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
@@ -23,7 +23,14 @@ export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scheduledTasks, setScheduledTasks] = useState([]);
+  const [scheduledTasks, setScheduledTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("draftScheduledTasks");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
@@ -78,6 +85,10 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("draftScheduledTasks", JSON.stringify(scheduledTasks));
+  }, [scheduledTasks]);
 
   useEffect(() => {
 
@@ -211,13 +222,26 @@ export default function RoutineBuilder() {
               <p className="mt-1 text-muted">Design your week</p>
             </div>
           </div>
-          <button
-            onClick={exportToImage}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
-          >
-            <Download size={16} />
-            Export as PNG
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm("Are you sure you want to clear the grid?")) {
+                  setScheduledTasks([]);
+                }
+              }}
+              className="btn btn-muted flex items-center gap-2 cursor-pointer hover-lift"
+            >
+              <Trash2 size={16} />
+              Clear Grid
+            </button>
+            <button
+              onClick={exportToImage}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
+            >
+              <Download size={16} />
+              Export as PNG
+            </button>
+          </div>
         </header>
 
         {/* Main Layout */}
