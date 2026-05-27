@@ -66,6 +66,7 @@ html.dark body {
     @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-xl transition-all duration-200 select-none;
   }
 
+  /* Primary action button */
   .btn-primary {
     @apply text-white shadow-sm hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: var(--primary);
@@ -94,6 +95,18 @@ html.dark body {
     @apply shadow-md;
   }
 
+  /* Contribution Heatmap Styles */
+  .grid-cols-53 {
+    grid-template-columns: repeat(53, minmax(0, 1fr));
+  }
+  .grid-rows-7 {
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+  }
+  .text-glow {
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+
+  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
@@ -115,7 +128,9 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .hover-lift:hover {
