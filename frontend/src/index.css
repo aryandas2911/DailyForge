@@ -94,6 +94,18 @@ html.dark body {
     @apply shadow-md;
   }
 
+  /* Contribution Heatmap Styles */
+  .grid-cols-53 {
+    grid-template-columns: repeat(53, minmax(0, 1fr));
+  }
+  .grid-rows-7 {
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+  }
+  .text-glow {
+    text-shadow: 0 0 8px rgba(16,185,129,0.4);
+  }
+
+  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
