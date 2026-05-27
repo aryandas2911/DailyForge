@@ -2,6 +2,7 @@ import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
+import mongoose from "mongoose";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -28,20 +29,19 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const {
-  title,
-  description,
-  tags,
-  priority,
-  status = "Due",
-  dueDate,
-} = req.body;
-    if (!title || !priority || !dueDate) {
+    const { title, description, tags, priority, status, dueDate } = req.body;
+    if (!title || !priority || !status || !dueDate) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter all the details" });
     }
-    
+
+    if (title.trim().length > 50) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Title must be 50 characters or less" });
+    }
+
     const dueDateValue = new Date(dueDate);
     if (Number.isNaN(dueDateValue.getTime())) {
       return res
@@ -74,6 +74,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      completedAt: status === "Completed" ? new Date() : null,
     });
 
     // save task in database
@@ -130,6 +131,15 @@ export const updateTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
+    const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
+
     // check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -142,7 +152,20 @@ export const updateTask = async (req, res) => {
 
     // fetch update task details
     const updates = req.body;
-    const taskId = req.params.id;
+
+    // validate title length if title is being updated
+    if (updates.title && updates.title.trim().length > 50) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Title must be 50 characters or less" });
+    }
+
+    // Auto-manage completedAt timestamp based on status change
+    if (updates.status === "Completed") {
+      updates.completedAt = new Date();
+    } else if (updates.status === "Due") {
+      updates.completedAt = null;
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
@@ -180,8 +203,14 @@ export const deleteTask = async (req, res) => {
         .json({ success: false, message: "Unauthorized, token invalid" });
     }
 
-    // fetch task id
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
 
     // fetch task to be deleted from database
     const deleteTask = await Task.findOneAndDelete({
