@@ -336,10 +336,19 @@ const Login = () => {
               >
                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
-            </div>
           </div>
-          
-          {error && (
+         </div>
+
+<div className="flex justify-end -mt-2">
+  <Link
+    to="/forgot-password"
+    className="text-sm text-main hover:underline font-medium"
+  >
+    Forgot Password?
+  </Link>
+</div>
+
+{error && (
             <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm text-red-500">
               {error}
             </div>

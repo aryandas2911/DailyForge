@@ -16,6 +16,8 @@ import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import PageTransition from "./components/PageTransition.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
@@ -32,23 +34,11 @@ const AnimatedRoutes = () => {
         <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
         <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
+       <Route path="/forgot-password" element={<AuthLayout><ForgotPassword /></AuthLayout>}/>
+        <Route path="/reset-password/:token" element={<AuthLayout><ResetPassword /></AuthLayout>} />
         <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoutes>
-              <PageTransition><Dashboard /></PageTransition>
-            </ProtectedRoutes>
-          }
-        />
-        <Route
-          path="/tasks"
-          element={
-            <ProtectedRoutes>
-              <PageTransition><Tasks /></PageTransition>
-            </ProtectedRoutes>
-          }
-        />
+        <Route path="/dashboard"   element={<ProtectedRoutes><PageTransition><Dashboard /></PageTransition> </ProtectedRoutes>} />
+        <Route path="/tasks"element={<ProtectedRoutes>  <PageTransition><Tasks /></PageTransition> </ProtectedRoutes>} />
         <Route
           path="/routine-builder"
           element={
