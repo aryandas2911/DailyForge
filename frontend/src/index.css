@@ -104,8 +104,8 @@ html.dark body {
   .text-glow {
     text-shadow: 0 0 8px rgba(16,185,129,0.4);
   }
-}
 
+  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
