@@ -74,6 +74,7 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      completedAt: status === "Completed" ? new Date() : null,
     });
 
     // save task in database
