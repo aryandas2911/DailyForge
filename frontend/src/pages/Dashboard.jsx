@@ -8,6 +8,13 @@ import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
+import {
+  StatCardSkeleton,
+  HeatmapSkeleton,
+  DashboardTasksSkeleton,
+  TaskPreviewSkeleton,
+  RoutineListSkeleton,
+} from "../components/Dashboard/SkeletonLoader";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -24,7 +31,7 @@ export default function Dashboard() {
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
-  const { tasks, updateTask: updateDbTask } = useTasks();
+  const { tasks, loadingTasks, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [profileImage, setProfileImage] = useState(() => {
@@ -229,44 +236,64 @@ const handleDuplicateRoutine = async () => {
       {/* Stats Row */}
       <section className="flex flex-col lg:flex-row gap-6 w-full">
         <div className="flex-1 animate-in delay-100">
-          <StatCard
-            label="Today"
-            value={`${completedToday} / ${totalToday}`}
-            subtitle="Tasks done"
-            icon={<CheckCircle2 size={20} />}
-          />
+          {loadingTasks ? (
+            <StatCardSkeleton />
+          ) : (
+            <StatCard
+              label="Today"
+              value={`${completedToday} / ${totalToday}`}
+              subtitle="Tasks done"
+              icon={<CheckCircle2 size={20} />}
+            />
+          )}
         </div>
         <div className="flex-1 animate-in delay-200">
-          <StatCard
-            label="This Week"
-            value={`${weeklyCompletionPercent}%`}
-            subtitle="Completion"
-            icon={<Calendar size={20} />}
-          />
+          {loadingTasks ? (
+            <StatCardSkeleton />
+          ) : (
+            <StatCard
+              label="This Week"
+              value={`${weeklyCompletionPercent}%`}
+              subtitle="Completion"
+              icon={<Calendar size={20} />}
+            />
+          )}
         </div>
       </section>
 
       {/* Contribution Heatmap */}
       <div className="w-full animate-in delay-200">
-        <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+        {loadingTasks ? (
+          <HeatmapSkeleton />
+        ) : (
+          <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+        )}
       </div>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
-        <DashboardTasks
-            tasks={[...tasks, ...routineTasks]}
-            updateTask={updateTask}
-        />
+        {loadingTasks ? (
+          <DashboardTasksSkeleton />
+        ) : (
+          <DashboardTasks
+              tasks={[...tasks, ...routineTasks]}
+              updateTask={updateTask}
+          />
+        )}
       </div>
 
       {/* Bottom Row: TaskPreview + Routines */}
       <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
         {/* Upcoming Tasks */}
         <div className="flex-1 animate-in delay-300">
-          <TaskPreview
-            tasks={upcomingTasks}
-            updateTask={updateTask}
-          />
+          {loadingTasks ? (
+            <TaskPreviewSkeleton />
+          ) : (
+            <TaskPreview
+              tasks={upcomingTasks}
+              updateTask={updateTask}
+            />
+          )}
         </div>
 
         {/* Saved Routines */}
@@ -297,7 +324,7 @@ const handleDuplicateRoutine = async () => {
           </div>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <RoutineListSkeleton />
           ) : savedRoutines.length === 0 ? (
             <p className="text-sm text-muted text-center mt-10">
               No routines saved yet

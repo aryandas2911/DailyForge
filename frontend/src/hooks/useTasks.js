@@ -3,14 +3,18 @@ import api from "../api/axios";
 
 const useTasks = () => {
   const [tasks, setTasks] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(true);
 
   // fetch tasks from database
   const getTasks = async () => {
     try {
+      setLoadingTasks(true);
       const tasks = await api.get("/tasks");
       setTasks(tasks.data.tasks);
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to load tasks");
+    } finally {
+      setLoadingTasks(false);
     }
   };
 
@@ -80,6 +84,7 @@ const useTasks = () => {
   // return reusable functions
   return {
     tasks,
+    loadingTasks,
     addTask,
     updateTask,
     deleteTask,
