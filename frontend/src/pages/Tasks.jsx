@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
-import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
+import { TAGS } from "../utils/tagUtils";
 import EmptyState from "../components/EmptyState";
 
 export default function Tasks() {
@@ -15,14 +15,18 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [durationModalTask, setDurationModalTask] = useState(null);
+  const [actualDuration, setActualDuration] = useState("");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
@@ -30,11 +34,14 @@ export default function Tasks() {
     await bulkDelete(selectedIds);
     setSelectedIds([]);
   };
+
   const handleBulkEdit = async () => {
     if (!bulkPriority && !bulkDueDate) return;
+
     const updates = {};
     if (bulkPriority) updates.priority = bulkPriority;
     if (bulkDueDate) updates.dueDate = bulkDueDate;
+
     await bulkUpdate(selectedIds, updates);
     setSelectedIds([]);
     setBulkPriority("");
@@ -42,57 +49,53 @@ export default function Tasks() {
     setShowBulkEdit(false);
   };
 
-  const [durationModalTask, setDurationModalTask] = useState(null);
-  const [actualDuration, setActualDuration] = useState("");
-
- /** --- Handlers --- */
-const handleToggle = async (task) => {
-  try {
-    if (task.status !== "Completed") {
-      // Open modal to enter actual duration
-      setDurationModalTask(task);
-      setActualDuration("");
-    } else {
-      // Mark back to Due
-      await updateTask(task._id, {
-        status: "Due",
-        actualDuration: null,
-      });
+  const handleToggle = async (task) => {
+    try {
+      if (task.status !== "Completed") {
+        setDurationModalTask(task);
+        setActualDuration("");
+      } else {
+        await updateTask(task._id, {
+          status: "Due",
+          actualDuration: null,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update task:", error);
     }
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+  };
 
-const handleActualDurationSubmit = async () => {
-  const durationValue = Number(actualDuration);
+  const handleActualDurationSubmit = async () => {
+    const durationValue = Number(actualDuration);
 
-  if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
-    return;
-  }
+    if (Number.isNaN(durationValue) || durationValue <= 0) {
+      alert("Please enter a valid duration in minutes");
+      return;
+    }
 
-  try {
-    await updateTask(durationModalTask._id, {
-      status: "Completed",
-      actualDuration: durationValue,
-    });
+    try {
+      await updateTask(durationModalTask._id, {
+        status: "Completed",
+        actualDuration: durationValue,
+      });
 
-    setDurationModalTask(null);
-    setActualDuration("");
-  } catch (error) {
-    console.error("Failed to update task:", error);
-  }
-};
+      setDurationModalTask(null);
+      setActualDuration("");
+    } catch (error) {
+      console.error("Failed to update task:", error);
+    }
+  };
 
   const handleSubmit = async (data) => {
     setTaskError("");
+
     try {
       if (editingTask) {
         await updateTask(editingTask._id, data);
       } else {
         await addTask({ ...data, status: "Due" });
       }
+
       setEditingTask(null);
       setIsModalOpen(false);
     } catch (err) {
@@ -104,20 +107,47 @@ const handleActualDurationSubmit = async () => {
   const toggleCategoryFilter = (categoryName) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryName)
-        ? prev.filter((cat) => cat !== categoryName)
+        ? prev.filter((category) => category !== categoryName)
         : [...prev, categoryName]
     );
   };
 
-  const filteredTasks =
-    selectedCategories.length === 0
-      ? tasks
-      : tasks.filter(
-          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
-        );
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setSelectedCategories([]);
+  };
+
+  const filteredTasks = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    return tasks.filter((task) => {
+      const title = String(task.title ?? "").toLowerCase();
+      const matchesSearch =
+        !normalizedSearchTerm || title.includes(normalizedSearchTerm);
+
+      const matchesCategory =
+        selectedCategories.length === 0 ||
+        (Array.isArray(task.tags) &&
+          task.tags.some((tag) => selectedCategories.includes(tag)));
+
+      const isCompleted = task.status === "Completed";
+      const matchesStatus =
+        statusFilter === "all"
+          ? true
+          : statusFilter === "completed"
+            ? isCompleted
+            : !isCompleted;
+
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [searchTerm, selectedCategories, statusFilter, tasks]);
+
+  const hasActiveFilters =
+    searchTerm.trim().length > 0 || statusFilter !== "all" || selectedCategories.length > 0;
 
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
+  const completedTasks = filteredTasks.filter((task) => task.status === "Completed").length;
   const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const now = new Date();
@@ -129,20 +159,19 @@ const handleActualDurationSubmit = async () => {
     const due = new Date(task.dueDate);
     return due >= now && due <= threeDaysFromNow;
   });
-//changed logic
-  const nextTask = filteredTasks
-  .filter((task) => task.dueDate && task.status !== "Completed")
-  .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+
+  const nextTask = [...filteredTasks]
+    .filter((task) => task.dueDate && task.status !== "Completed")
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   const highPriorityCount = filteredTasks.filter(
-    (t) => t.priority === "High" && t.status !== "Completed"
+    (task) => task.priority === "High" && task.status !== "Completed"
   ).length;
   const isOverloaded = highPriorityCount >= 3;
 
   return (
     <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
-        {/* Header */}
         <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
           <div className="flex items-center gap-4">
             <button
@@ -176,6 +205,7 @@ const handleActualDurationSubmit = async () => {
                 </button>
               </div>
             )}
+
             <button
               onClick={() => {
                 setEditingTask(null);
@@ -188,55 +218,55 @@ const handleActualDurationSubmit = async () => {
             </button>
           </div>
         </div>
-        {showBulkEdit && selectedIds.length > 0 && (
-        <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Priority</label>
-            <select
-              value={bulkPriority}
-              onChange={(e) => setBulkPriority(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
-            >
-              <option value="">-- Select --</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-main">Set Due Date</label>
-            <input
-              type="datetime-local"
-              value={bulkDueDate}
-              onChange={(e) => setBulkDueDate(e.target.value)}
-              className="p-2 border border-soft rounded-lg bg-transparent text-main"
-            />
-          </div>
-          <button
-            onClick={handleBulkEdit}
-            disabled={!bulkPriority && !bulkDueDate}
-            className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Apply to {selectedIds.length} Tasks
-          </button>
-          <button
-            onClick={() => setShowBulkEdit(false)}
-            className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
 
-        {/* Category Filter */}
+        {showBulkEdit && selectedIds.length > 0 && (
+          <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Priority</label>
+              <select
+                value={bulkPriority}
+                onChange={(e) => setBulkPriority(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+              >
+                <option value="">-- Select --</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-main">Set Due Date</label>
+              <input
+                type="datetime-local"
+                value={bulkDueDate}
+                onChange={(e) => setBulkDueDate(e.target.value)}
+                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+              />
+            </div>
+            <button
+              onClick={handleBulkEdit}
+              disabled={!bulkPriority && !bulkDueDate}
+              className="btn btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Apply to {selectedIds.length} Tasks
+            </button>
+            <button
+              onClick={() => setShowBulkEdit(false)}
+              className="px-4 py-2 rounded-lg border border-soft text-muted hover:bg-gray-100 dark:hover:bg-slate-800"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <div className="animate-in delay-150">
-          <div className="card p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="card p-4 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
               <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
-              {selectedCategories.length > 0 && (
+              <h3 className="text-sm font-semibold text-main">Search & Filters</h3>
+              {hasActiveFilters && (
                 <button
-                  onClick={() => setSelectedCategories([])}
+                  onClick={clearFilters}
                   className="ml-auto text-xs text-primary hover:underline cursor-pointer"
                 >
                   Clear all
@@ -244,10 +274,55 @@ const handleActualDurationSubmit = async () => {
               )}
             </div>
 
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-main">Search by title</span>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search tasks"
+                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-main">Status</span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+                >
+                  <option value="all" className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
+                    All statuses
+                  </option>
+                  <option value="pending" className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
+                    Pending
+                  </option>
+                  <option value="completed" className="bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100">
+                    Completed
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-medium text-main">Category</span>
+              {selectedCategories.length > 0 && (
+                <button
+                  onClick={() => setSelectedCategories([])}
+                  className="text-xs text-primary hover:underline cursor-pointer"
+                >
+                  Clear category
+                </button>
+              )}
+            </div>
+
             <div className="flex flex-wrap gap-2">
-              {["Homework", "Routine", "Creative", "Other"].map((tagName) => {
+              {TAGS.map((tagName) => {
                 const isSelected = selectedCategories.includes(tagName);
                 const cat = getCategoryColor(tagName);
+
                 return (
                   <button
                     key={tagName}
@@ -266,14 +341,17 @@ const handleActualDurationSubmit = async () => {
                 );
               })}
             </div>
+
+            <p className="text-xs text-muted">
+              Showing {filteredTasks.length} of {tasks.length} tasks
+            </p>
           </div>
         </div>
 
-        {/* Task List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
-              filteredTasks
+              [...filteredTasks]
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
                   <TaskItem
@@ -281,8 +359,8 @@ const handleActualDurationSubmit = async () => {
                     task={task}
                     onToggleComplete={handleToggle}
                     onDelete={(id) => deleteTask(id)}
-                    onEdit={(task) => {
-                      setEditingTask(task);
+                    onEdit={(taskToEdit) => {
+                      setEditingTask(taskToEdit);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
@@ -290,6 +368,16 @@ const handleActualDurationSubmit = async () => {
                     onSelect={handleSelect}
                   />
                 ))
+            ) : tasks.length > 0 ? (
+              <div className="card p-8 shadow-sm text-center space-y-3">
+                <h3 className="text-lg font-semibold text-main">No matching tasks</h3>
+                <p className="text-sm text-muted">
+                  Try a different search term or clear the active filters.
+                </p>
+                <button onClick={clearFilters} className="btn btn-primary px-4 py-2">
+                  Clear filters
+                </button>
+              </div>
             ) : (
               <EmptyState
                 type="tasks"
@@ -301,7 +389,6 @@ const handleActualDurationSubmit = async () => {
             )}
           </div>
 
-          {/* Insights */}
           <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
             <div className="card p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-main mb-2">Completion</h3>
@@ -359,7 +446,6 @@ const handleActualDurationSubmit = async () => {
         </div>
       </div>
 
-      {/* Task Modal */}
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
@@ -375,14 +461,11 @@ const handleActualDurationSubmit = async () => {
 
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
-              Complete Task
-            </h2>
+          <div className="bg-(--surface) text-main rounded-2xl shadow-xl w-full max-w-sm p-6 border border-soft">
+            <h2 className="text-xl font-semibold text-main mb-2">Complete Task</h2>
 
             <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
+              How long did you actually take to complete "{durationModalTask.title}"?
             </p>
 
             <input
@@ -390,7 +473,7 @@ const handleActualDurationSubmit = async () => {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg"
+              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
               placeholder="Actual duration in minutes"
             />
 
@@ -400,15 +483,12 @@ const handleActualDurationSubmit = async () => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft"
+                className="px-4 py-2 rounded-lg border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800"
               >
                 Cancel
               </button>
 
-              <button
-                onClick={handleActualDurationSubmit}
-                className="btn btn-primary px-4 py-2"
-              >
+              <button onClick={handleActualDurationSubmit} className="btn btn-primary px-4 py-2">
                 Mark Completed
               </button>
             </div>
