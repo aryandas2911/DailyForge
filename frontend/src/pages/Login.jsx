@@ -75,20 +75,20 @@ const Login = () => {
     setError("");
     try {
       localStorage.removeItem("token");
-      
+
       // 1. Authenticate with Google
       const result = await signInWithPopup(auth, googleProvider);
-      
+
       // 2. Fetch JWT ID Token from Firebase User
       const idToken = await result.user.getIdToken();
-      
+
       // 3. Post Token to backend API
       const res = await api.post("/auth/google", { idToken });
       console.log("Google login success:", res.data);
-      
+
       // 4. Update the global auth state
       setUser(res.data.user);
-      
+
       // 5. Navigate to redirect location
       navigate(redirectPath, { replace: true });
     } catch (err) {
@@ -123,7 +123,7 @@ const Login = () => {
       if (buttonRef.current) {
         const btn = buttonRef.current;
         const rect = btn.getBoundingClientRect();
-        
+
         // Calculate center of the button
         const size = 10;
         const centerX = rect.left + rect.width / 2;
@@ -139,7 +139,7 @@ const Login = () => {
         overlay.style.borderRadius = "50%";
         overlay.style.zIndex = "9999";
         overlay.style.transformOrigin = "center center";
-        
+
         const textEl = document.createElement("div");
         textEl.innerText = "Logging in..";
         textEl.style.position = "fixed";
@@ -178,15 +178,15 @@ const Login = () => {
           duration: 0.8,
           ease: "power2.inOut",
         })
-        .to(textEl, {
-          opacity: 1,
-          duration: 0.3,
-          ease: "power2.out"
-        })
-        .to(textEl, {
-          opacity: 1,
-          duration: 1.5
-        });
+          .to(textEl, {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out"
+          })
+          .to(textEl, {
+            opacity: 1,
+            duration: 1.5
+          });
       } else {
         if (res.data.user) {
           setUser(res.data.user);
@@ -206,16 +206,16 @@ const Login = () => {
   return (
     <div
       className="
-        auth-page-bg
-        min-h-screen
-        w-full
-        flex
-        items-center
-        justify-center
-        px-6
-        py-10
-        overflow-hidden
-        relative
+         auth-page-bg
+  min-h-screen
+  w-full
+  flex
+  items-center
+  justify-center
+  px-6
+  pt-10
+  pb-24
+  relative
       "
     >
       {/* Glow blobs */}
@@ -229,12 +229,13 @@ const Login = () => {
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         className="
-          relative
-          z-10
-          w-full
-          max-w-md
-          will-change-transform
-          transform-gpu
+         relative
+  z-10
+  w-full
+  max-w-md
+  will-change-transform
+  transform-gpu
+  mb-10
         "
       >
         <form
@@ -243,7 +244,7 @@ const Login = () => {
             w-full
             flex flex-col gap-6 animate-in
             border border-white/10
-            shadow-[0_20px_60px_rgba(0,0,0,0.7)]
+            shadow-[0_25px_80px_rgba(0,0,0,0.8)]
           "
           onSubmit={handleSubmit}
         >
@@ -334,13 +335,13 @@ const Login = () => {
               </button>
             </div>
           </div>
-          
+
           {error && (
             <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm text-red-500">
               {error}
             </div>
           )}
-          
+
           <button
             ref={buttonRef}
             type="submit"
