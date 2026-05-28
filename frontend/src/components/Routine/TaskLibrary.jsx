@@ -59,7 +59,7 @@ function DraggableTask({ task }) {
 
 /* ---------------- Task Library ---------------- */
 export default function TaskLibrary({ tasks, onAddTask }) {
-  
+
   const [query, setQuery] = useState("");
 
   const filteredTasks = tasks?.filter((task) =>
@@ -92,12 +92,25 @@ export default function TaskLibrary({ tasks, onAddTask }) {
 
       {/* Task List */}
       <div className="flex-1 space-y-3 pr-1 overflow-y-auto max-h-[350px] md:max-h-[500px]">
-        {filteredTasks?.length ? (
+        {tasks?.length === 0 ? (
+          <EmptyState type="tasks" onAction={onAddTask} />
+        ) : filteredTasks?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <p className="text-sm text-muted mb-3">
+              No tasks found for this search.
+            </p>
+
+            <button
+              onClick={() => setQuery("")}
+              className="px-4 py-2 rounded-lg text-sm bg-[#d0f6e3] text-[#3b8ea0] hover:bg-[#bcefd8] transition"
+            >
+              Clear Search
+            </button>
+          </div>
+        ) : (
           filteredTasks.map((task) => (
             <DraggableTask key={task._id} task={task} />
           ))
-        ) : (
-          <EmptyState type="tasks" onAction={onAddTask} />
         )}
       </div>
 
