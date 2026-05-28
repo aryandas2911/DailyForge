@@ -8,6 +8,7 @@ import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
+import QuoteCard from "../components/Dashboard/QuoteCard";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -243,6 +244,9 @@ const handleDuplicateRoutine = async () => {
             subtitle="Completion"
             icon={<Calendar size={20} />}
           />
+        </div>
+        <div className="flex-1 animate-in delay-300">
+          <QuoteCard />
         </div>
       </section>
 
