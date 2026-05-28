@@ -192,17 +192,10 @@ const Login = () => {
           <FormError message={error} />
           
           <button
-            ref={buttonRef}
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
             className="btn btn-primary cursor-pointer w-full py-3 mt-1 hover-lift disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
           >
-          {error && (
-            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500">
-              {error}
-            </div>
-          )}
-          <button type="submit" disabled={isGoogleLoading || isSubmitLoading} className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50">
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
           <p className="text-center text-sm text-muted">
