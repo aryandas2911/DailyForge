@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter, Trash2, StickyNote, X } from "lucide-react";
+import { Plus, ArrowLeft, Filter, Trash2, StickyNote, X, Search } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
@@ -21,6 +21,8 @@ export default function Tasks() {
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
   const [showBulkEdit, setShowBulkEdit] = useState(false);
+  // State to hold the current task search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -110,12 +112,19 @@ export default function Tasks() {
     );
   };
 
-  const filteredTasks =
-    selectedCategories.length === 0
-      ? tasks
-      : tasks.filter(
-          (task) => task.tags && task.tags.some((tag) => selectedCategories.includes(tag))
-        );
+  // Filter tasks by both category tags and the text search query
+  const filteredTasks = tasks.filter((task) => {
+    const matchesCategory =
+      selectedCategories.length === 0 ||
+      (task.tags && task.tags.some((tag) => selectedCategories.includes(tag)));
+    
+    // Case-insensitive search match for task title
+    const matchesSearch =
+      searchQuery === "" ||
+      (task.title && task.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesCategory && matchesSearch;
+  });
 
   const totalTasks = filteredTasks.length;
   const completedTasks = filteredTasks.filter((t) => t.status === "Completed").length;
@@ -257,17 +266,42 @@ export default function Tasks() {
         {/* Category Filter */}
         <div className="animate-in delay-150">
           <div className="card p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter size={16} className="text-main" />
-              <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
-              {selectedCategories.length > 0 && (
-                <button
-                  onClick={() => setSelectedCategories([])}
-                  className="ml-auto text-xs text-primary hover:underline cursor-pointer"
-                >
-                  Clear all
-                </button>
-              )}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                <Filter size={16} className="text-main" />
+                <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
+                {selectedCategories.length > 0 && (
+                  <button
+                    onClick={() => setSelectedCategories([])}
+                    className="ml-auto text-xs text-primary hover:underline cursor-pointer"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+
+              {/* Task Search Input Field */}
+              <div className="relative w-full sm:w-64">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={16} className="text-muted" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-9 py-1.5 border border-soft rounded-lg bg-transparent text-sm text-main focus:outline-none focus:border-primary transition-colors"
+                />
+                {/* Clear search (X) button - visible only when there's text */}
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-main cursor-pointer"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
