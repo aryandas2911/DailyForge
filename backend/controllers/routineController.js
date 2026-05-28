@@ -248,7 +248,13 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const updates = req.body;
+    const { name, description, items } = req.body;
+
+const updates = {
+  ...(name && { name }),
+  ...(description && { description }),
+  ...(items && { items }),
+};
     const routineId = req.params.id;
 
     if (updates.items) {
