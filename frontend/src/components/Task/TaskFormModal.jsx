@@ -147,10 +147,10 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
   const customTags = tags.filter((t) => !TAGS.includes(t));
 
   return createPortal(
+    <div className="fixed inset-0 z-50">
     <div
-      className="fixed inset-0 z-50 overflow-y-auto
-                 flex flex-col items-center
-                 pt-40 pb-10 px-4
+      className="absolute inset-0 flex items-center justify-center 
+                 py-10 px-4
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
       onMouseDown={(e) => {
@@ -161,7 +161,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
     >
       <div
         className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6
-                   relative border border-soft animate-in delay-100"
+                   relative border border-soft animate-in delay-100 overflow-y-auto max-h-screen"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -351,6 +351,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
           </button>
         </form>
       </div>
+    </div>
     </div>,
     document.body
   );
