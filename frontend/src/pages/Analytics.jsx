@@ -314,6 +314,167 @@ export default function Analytics() {
         </div>
       </section>
 
+              {/* Adaptive Analytics Section */}
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full animate-in delay-150">
+
+          <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft border-l-4 border-l-red-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold">
+                  Burnout Score
+                </p>
+
+                <h3 className="text-3xl font-bold text-main mt-2">
+                  {stats.adaptiveAnalytics?.averageBurnoutScore || 0}%
+                </h3>
+
+                <p className="text-xs text-muted mt-1">
+                  Lower is healthier
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-red-500/10 text-red-500">
+                <Flame size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft border-l-4 border-l-emerald-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold">
+                  Consistency Score
+                </p>
+
+                <h3 className="text-3xl font-bold text-main mt-2">
+                  {stats.adaptiveAnalytics?.averageConsistencyScore || 0}%
+                </h3>
+
+                <p className="text-xs text-muted mt-1">
+                  Long-term stability indicator
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
+                <TrendingUp size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft border-l-4 border-l-amber-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold">
+                  Recovery Mode Users
+                </p>
+
+                <h3 className="text-3xl font-bold text-main mt-2">
+                  {stats.adaptiveAnalytics?.recoveryModeCount || 0}
+                </h3>
+
+                <p className="text-xs text-muted mt-1">
+                  Active recovery routines
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
+                <Calendar size={24} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft border-l-4 border-l-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted font-semibold">
+                  High Fatigue Alerts
+                </p>
+
+                <h3 className="text-3xl font-bold text-main mt-2">
+                  {stats.adaptiveAnalytics?.highFatigueCount || 0}
+                </h3>
+
+                <p className="text-xs text-muted mt-1">
+                  Burnout risk detected
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-purple-500/10 text-purple-500">
+                <Award size={24} />
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        {/* Smart Recovery Insight Banner */}
+      <div className="card bg-gradient-to-r from-[#4eb7b3]/10 to-[#3b8ea0]/10 border border-[#4eb7b3]/20 backdrop-blur-md">
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+          <div>
+            <h3 className="text-lg font-bold text-main">
+              Smart Recovery Insight
+            </h3>
+
+            <p className="text-sm text-muted mt-1">
+
+              {stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+                ? "High burnout patterns detected. Consider reducing workload and enabling recovery routines."
+                : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
+                ? "Excellent consistency detected. Maintain balance to avoid future burnout."
+                : "Steady progress improves long-term productivity sustainability."}
+
+            </p>
+          </div>
+
+                    <div
+              className={`px-4 py-2 rounded-full text-sm font-semibold w-fit
+              ${
+                stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+                  ? "bg-red-500/10 text-red-500"
+                  : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
+                  ? "bg-emerald-500/10 text-emerald-500"
+                  : "bg-blue-500/10 text-blue-500"
+              }`}
+            >
+
+              {stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+                ? "Burnout Risk"
+                : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
+                ? "Sustainable Progress"
+                : "Stable Routine"}
+
+            </div>
+
+        </div>
+      </div>
+
+          {/* Adaptive Recommendation Card */}
+          <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft">
+
+            <div className="flex flex-col gap-3">
+
+              <h3 className="text-lg font-bold text-main flex items-center gap-2">
+                <Award size={18} className="text-[#4eb7b3]" />
+                Adaptive Recommendation
+              </h3>
+
+              <p className="text-sm text-muted leading-relaxed">
+
+                {stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+                  ? "Your analytics suggest elevated burnout activity. Consider reducing routine intensity, shortening sessions, and enabling recovery mode for better long-term sustainability."
+
+                  : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
+                  ? "Your consistency patterns are strong and sustainable. Continue maintaining balanced productivity habits while allowing occasional recovery periods."
+
+                  : "Moderate productivity trends detected. Small consistent progress and flexible routines can improve long-term habit stability."}
+
+              </p>
+
+            </div>
+          </div>
+
       {/* Streaks & Leaderboard Row */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
         {/* Streak Tracker Card */}
