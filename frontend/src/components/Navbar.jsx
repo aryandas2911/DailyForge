@@ -270,7 +270,7 @@ isActive
 whileHover={{ scale: 1.1, rotate: 15 }}
 whileTap={{ scale: 0.9 }}
 onClick={handleThemeToggle}
-className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
+className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 cursor-pointer flex items-center justify-center mr-1"
 aria-label="Toggle dark mode"
 >
 {theme === "dark" ? (
@@ -298,7 +298,7 @@ Signup
 ) : (
 <button
 onClick={handleLogoutClick}
-className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
 >
 <LogOut size={16} />
 Logout
@@ -310,7 +310,7 @@ Logout
 <div className="md:hidden flex items-center">
 <button
 onClick={() => setIsOpen(!isOpen)}
-className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
+className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
 aria-label="Toggle menu"
 aria-expanded={isOpen}
 aria-controls="mobile-navigation-menu"
@@ -350,7 +350,7 @@ to={link.path}
 onClick={() => setIsOpen(false)}
 className={({ isActive }) =>
 cn(
-"px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
+"px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400",
 isActive
 ? "bg-[#d0f6e3] text-[#3b8ea0]"
 : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
