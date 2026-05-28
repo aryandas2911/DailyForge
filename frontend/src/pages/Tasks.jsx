@@ -380,7 +380,7 @@ const handleActualDurationSubmit = async () => {
               Complete Task
             </h2>
 
-            <p className="text-sm text-muted mb-4">
+            <p className="text-sm text-gray-700 dark:text-white mb-4">
               How long did you actually take to complete "
               {durationModalTask.title}"?
             </p>
@@ -393,7 +393,11 @@ const handleActualDurationSubmit = async () => {
               className="w-full p-2 border border-soft rounded-lg"
               placeholder="Actual duration in minutes"
             />
-
+            <textarea
+              placeholder="Add short completion note..."
+              className="w-full p-2 border border-soft rounded-lg mt-3"
+              rows="3"
+           />
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
