@@ -146,3 +146,14 @@ html.dark body {
     transform: translateY(0);
   }
 }
+
+/* Hide default browser password reveal icons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-reveal,
+input[type="password"]::-webkit-clear {
+  display: none;
+}
