@@ -1,6 +1,12 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
-import { checkOverlap } from "../utils/routineUtils.js";
+import {
+  checkOverlap,
+  calculateBurnoutScore,
+  calculateConsistencyScore,
+  detectFatigueLevel,
+  getAdaptiveDifficulty,
+} from "../utils/routineUtils.js";
 
 // Create routine function
 export const createRoutine = async (req, res) => {
@@ -78,12 +84,47 @@ const endTime = startTime + duration;
     }
 
     // create new routine document
+    const completedDays = items.length;
+
+    const missedDays = 0;
+
+    const burnoutScore = calculateBurnoutScore(
+     missedDays,
+     completedDays
+    );
+
+    const consistencyScore = calculateConsistencyScore(
+      completedDays,
+      missedDays
+    );
+
+    const fatigueLevel = detectFatigueLevel(
+      burnoutScore
+    );
+
+    const difficultyLevel = getAdaptiveDifficulty(
+      consistencyScore
+      );
+
     const newRoutine = new Routine({
-      userId,
-      name,
-      description,
-      items,
-    });
+     userId,
+     name,
+     description,
+     items,
+
+     adaptiveSettings: {
+     adaptiveEnabled: true,
+     difficultyLevel,
+     burnoutScore,
+     consistencyScore,
+     fatigueLevel,
+     recoveryMode: false,
+     recoveryDays: 0,
+     missedDaysCount: 0,
+     completedDaysCount: completedDays,
+     sustainabilityScore: 100,
+   },
+ });
 
     // save routine in collection
     await newRoutine.save();
