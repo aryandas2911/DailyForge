@@ -22,7 +22,7 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+ if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
@@ -48,7 +48,9 @@ export const createRoutine = async (req, res) => {
         });
       }
 
-      const endTime = item.startTime + item.duration;
+      const startTime = Number(item.startTime);
+const duration = Number(item.duration);
+const endTime = startTime + duration;
       formatted.push({
         day: item.day,
         startTime: item.startTime,
@@ -287,7 +289,13 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const updates = req.body;
+    const { name, description, items } = req.body;
+
+const updates = {
+  ...(name && { name }),
+  ...(description && { description }),
+  ...(items && { items }),
+};
     const routineId = req.params.id;
 
     if (updates.items) {
@@ -302,7 +310,9 @@ export const updateRoutine = async (req, res) => {
           });
         }
 
-        const endTime = item.startTime + item.duration;
+        const startTime = Number(item.startTime);
+        const duration = Number(item.duration);
+        const endTime = startTime + duration;
         formatted.push({
           day: item.day,
           startTime: item.startTime,
