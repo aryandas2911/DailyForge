@@ -34,11 +34,12 @@ const getJwtSecret = (res) => {
   return process.env.JWT_SECRET;
 };
 
+const isProduction = process.env.NODE_ENV === 'production';
 const getAuthCookieOptions = () => {
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
     maxAge: AUTH_COOKIE_MAX_AGE,
   };
