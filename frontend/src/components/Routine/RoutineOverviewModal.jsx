@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { MoreVertical, Trash2, X, Calendar, Layers, Clock, RefreshCw } from "lucide-react";
-import { syncRoutineToGoogleCalendar } from "../../utils/googleCalendar";
+import { MoreVertical, Trash2, X, Calendar, Layers, Clock } from "lucide-react";
 
 export default function RoutineOverviewModal({
   routine,
@@ -12,9 +11,6 @@ export default function RoutineOverviewModal({
   handleDeleteRoutine,
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState(null);
-  const [syncError, setSyncError] = useState(null);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -22,71 +18,6 @@ export default function RoutineOverviewModal({
       document.body.style.overflow = "auto";
     };
   }, []);
-
-  const handleGoogleSync = async (e) => {
-    e.stopPropagation();
-    setShowMenu(false);
-    setIsSyncing(true);
-    setSyncMessage("Connecting to Google Calendar...");
-    setSyncError(null);
-
-    try {
-      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1041806379102-jn9riq5d68n26dvvumkmqs21tp7kp5t5.apps.googleusercontent.com";
-
-      if (!window.google) {
-        throw new Error("Google Identity Services script failed to load. Please refresh the page.");
-      }
-
-      const client = window.google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: "https://www.googleapis.com/auth/calendar.events",
-        callback: async (response) => {
-          if (response.error) {
-            console.error("Google Auth response error:", response);
-            setSyncError(response.error_description || `Google Authentication error: ${response.error}`);
-            setIsSyncing(false);
-            return;
-          }
-
-          const accessToken = response.access_token;
-          if (!accessToken) {
-            setSyncError("Failed to obtain a valid access token.");
-            setIsSyncing(false);
-            return;
-          }
-
-          setSyncMessage("Syncing tasks to Google Calendar...");
-          try {
-            const { syncedEvents, errors } = await syncRoutineToGoogleCalendar(
-              routine,
-              tasks,
-              accessToken
-            );
-
-            if (errors.length > 0) {
-              console.warn("Some tasks failed to sync:", errors);
-              setSyncError(`Synced ${syncedEvents.length} tasks, but ${errors.length} failed.`);
-            } else {
-              setSyncMessage(`Successfully synced ${syncedEvents.length} tasks to your Google Calendar!`);
-              setTimeout(() => {
-                setSyncMessage(null);
-              }, 6000);
-            }
-          } catch (err) {
-            setSyncError(err.message || "Failed to sync tasks.");
-          } finally {
-            setIsSyncing(false);
-          }
-        },
-      });
-
-      client.requestAccessToken();
-    } catch (err) {
-      console.error("Google Sync initialization error:", err);
-      setSyncError(err.message || "Failed to initialize Google integration.");
-      setIsSyncing(false);
-    }
-  };
 
   const tasksByDay = routine.items.reduce((acc, item) => {
     if (!acc[item.day]) acc[item.day] = [];
@@ -115,24 +46,6 @@ export default function RoutineOverviewModal({
               </p>
             )}
 
-            {/* Syncing status banners */}
-            {isSyncing && (
-              <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 text-xs font-semibold mt-3 animate-pulse">
-                <RefreshCw size={12} className="animate-spin" />
-                {syncMessage}
-              </div>
-            )}
-            {!isSyncing && syncMessage && (
-              <div className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-3">
-                ✓ {syncMessage}
-              </div>
-            )}
-            {syncError && (
-              <div className="text-red-500 dark:text-red-400 text-xs font-semibold mt-3">
-                ⚠ {syncError}
-              </div>
-            )}
-
             <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold">
               <span className="flex items-center gap-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/40 px-3 py-1 text-cyan-600 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-800/40">
                 <Layers size={12} />
@@ -159,16 +72,7 @@ export default function RoutineOverviewModal({
             </button>
 
             {showMenu && (
-              <div className="absolute top-12 right-10 w-52 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
-                <button
-                  onClick={handleGoogleSync}
-                  disabled={isSyncing}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
-                >
-                  <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
-                  Sync to Google Calendar
-                </button>
-                <div className="h-px bg-soft/20 w-full" />
+              <div className="absolute top-12 right-10 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

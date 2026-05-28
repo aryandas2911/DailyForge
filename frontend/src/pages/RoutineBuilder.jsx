@@ -124,11 +124,19 @@ export default function RoutineBuilder() {
       }));
 
     try {
-      await api.post("/routines", {
+      const res = await api.post("/routines", {
         name: routineName,
         description,
         items,
       });
+
+      const createdRoutine = res.data.routine || res.data.routines?.[0];
+      if (createdRoutine) {
+        setSavedRoutines((prevRoutines) => [
+          createdRoutine,
+          ...prevRoutines.filter((routine) => routine._id !== createdRoutine._id),
+        ]);
+      }
 
       setIsSaveModalOpen(false);
       setRoutineName("");
