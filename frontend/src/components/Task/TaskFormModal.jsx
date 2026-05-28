@@ -154,9 +154,6 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                  py-10 px-4
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
       aria-modal="true"
       role="dialog"
     >
