@@ -4,11 +4,11 @@ import { AuthContext } from "../context/AuthContext.jsx";
 
 const NotFound = () => {
   const navigate = useNavigate();
-  const { token } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   // navigate back to Dashboard/ Login if unauthenticated
   const handleGoHome = () => {
-    navigate(token ? "/dashboard" : "/login");
+    navigate(user ? "/dashboard" : "/login");
   };
 
   return (
@@ -28,7 +28,7 @@ const NotFound = () => {
         onClick={handleGoHome}
         className="btn btn-primary hover-lift cursor-pointer"
       >
-        {token ? "Go to Dashboard" : "Go to Login"}
+        {user ? "Go to Dashboard" : "Go to Login"}
       </button>
     </div>
   );
