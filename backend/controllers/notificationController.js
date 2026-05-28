@@ -1,4 +1,4 @@
-import webpush from "web-push";
+
 import User from "../src/models/User.js";
 
 export const getVapidKey = (req, res) => {
@@ -8,7 +8,7 @@ export const getVapidKey = (req, res) => {
       return res.status(500).json({ success: false, message: "VAPID public key not configured" });
     }
     return res.status(200).json({ success: true, publicKey });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ success: false, message: "Error fetching VAPID key" });
   }
 };

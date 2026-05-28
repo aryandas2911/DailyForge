@@ -4,7 +4,7 @@ import api from '../api/axios';
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
+    .replace(/-/g, '+')
     .replace(/_/g, '/');
 
   const rawData = window.atob(base64);
@@ -22,6 +22,7 @@ export const usePushNotifications = () => {
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsSupported(true);
       setPermission(Notification.permission);
     }

@@ -1,3 +1,4 @@
+/* eslint-env serviceworker */
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
   
@@ -14,6 +15,6 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow("/dashboard")
+    self.clients.openWindow("/dashboard")
   );
 });
