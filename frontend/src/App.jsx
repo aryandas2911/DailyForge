@@ -84,7 +84,53 @@ const App = () => {
     <BrowserRouter>
       <Navbar />
       <main className="app-bg min-h-screen pt-15 flex flex-col">
-        <AnimatedRoutes />
+        <Routes>
+          <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
+          <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoutes>
+                <Dashboard />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoutes>
+                <Tasks />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/routine-builder"
+            element={
+              <ProtectedRoutes>
+                <RoutineBuilder />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoutes>
+                <Profile />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoutes>
+                <Analytics />
+              </ProtectedRoutes>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
       <Footer />
       <ScrollToTop />
