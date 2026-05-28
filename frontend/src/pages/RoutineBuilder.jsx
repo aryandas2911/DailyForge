@@ -13,7 +13,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Sparkles } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
@@ -48,6 +48,84 @@ export default function RoutineBuilder() {
     } catch (error) {
       console.error("Export failed:", error);
       alert("Failed to export routine as image.");
+    }
+  };
+
+  const handleAutoSchedule = () => {
+    const unscheduled = tasks.filter(
+      (task) => !scheduledTasks.some((st) => String(st.taskId) === String(task._id))
+    );
+
+    if (unscheduled.length === 0) {
+      alert("All tasks are already scheduled!");
+      return;
+    }
+
+    const priorityWeight = { High: 3, Medium: 2, Low: 1 };
+    const sortedTasks = [...unscheduled].sort((a, b) => {
+      const priorityDiff = (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
+      if (priorityDiff !== 0) return priorityDiff;
+      const durA = a.actualDuration || 60;
+      const durB = b.actualDuration || 60;
+      return durB - durA;
+    });
+
+    const days = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+
+    const generateTimeSlots = () => {
+      const slots = [];
+      let hour = 6;
+      while (hour <= 22) {
+        slots.push(hour * 60);
+        hour++;
+      }
+      return slots;
+    };
+    const timeSlots = generateTimeSlots();
+
+    const newScheduled = [...scheduledTasks];
+    let scheduledCount = 0;
+
+    for (const task of sortedTasks) {
+      let placed = false;
+      for (const day of days) {
+        for (const startTime of timeSlots) {
+          const isOccupied = newScheduled.some(
+            (st) =>
+              st.day === day &&
+              st.startTime === startTime
+          );
+
+          if (!isOccupied) {
+            newScheduled.push({
+              taskId: task._id,
+              title: task.title,
+              day,
+              startTime,
+              duration: 60,
+            });
+            placed = true;
+            scheduledCount++;
+            break;
+          }
+        }
+        if (placed) break;
+      }
+    }
+
+    if (scheduledCount > 0) {
+      setScheduledTasks(newScheduled);
+      alert(`Auto-scheduled ${scheduledCount} tasks into available gaps!`);
+    } else {
+      alert("No available time slots found to schedule tasks.");
     }
   };
 
@@ -211,13 +289,23 @@ export default function RoutineBuilder() {
               <p className="mt-1 text-muted">Design your week</p>
             </div>
           </div>
-          <button
-            onClick={exportToImage}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
-          >
-            <Download size={16} />
-            Export as PNG
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={handleAutoSchedule}
+              className="btn btn-muted flex items-center gap-2 cursor-pointer hover-lift shadow-sm"
+              title="Automatically schedule tasks into available free gaps"
+            >
+              <Sparkles size={16} className="text-[#3b8ea0] animate-pulse" />
+              Auto-Schedule
+            </button>
+            <button
+              onClick={exportToImage}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift shadow-sm"
+            >
+              <Download size={16} />
+              Export as PNG
+            </button>
+          </div>
         </header>
 
         {/* Main Layout */}
