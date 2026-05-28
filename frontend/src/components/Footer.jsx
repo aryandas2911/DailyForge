@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, MessageSquare, BookOpen, Heart } from 'lucide-react';
+import { Github, MessageSquare, BookOpen, Heart, Mail } from 'lucide-react';
 
 export default function Footer() {
   const githubBase = "https://github.com/aryandas2911/DailyForge";
@@ -7,10 +7,10 @@ export default function Footer() {
     { label: "Dashboard", path: "/dashboard" },
     { label: "Tasks", path: "/tasks" },
     { label: "Routine Builder", path: "/routine-builder" },
+    { label: "Contact", path: "/contact" },
   ];
 
   return (
-    // Changed to a deep dark shade of your theme's green for better contrast
     <footer className="bg-[#0f2926] text-white mt-16 border-t border-[#4eb7b3]/30">
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
         
@@ -23,7 +23,6 @@ export default function Footer() {
               <h2 className="text-3xl font-extrabold tracking-tight text-white">
                 DailyForge<span className="text-[#6dd5c7]">.</span>
               </h2>
-              {/* Subtle underline using your primary hover color */}
               <div className="h-1 w-10 bg-[#4eb7b3] mt-2 rounded-full"></div>
             </div>
 
@@ -85,6 +84,11 @@ export default function Footer() {
                 <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
                   <BookOpen size={14} /> Contributing
                 </a>
+              </li>
+              <li>
+                <Link to="/contact" className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
+                  <Mail size={14} /> Contact Us
+                </Link>
               </li>
             </ul>
           </div>
