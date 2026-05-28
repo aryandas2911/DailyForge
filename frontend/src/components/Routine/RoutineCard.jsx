@@ -123,13 +123,18 @@ export default function RoutineCard({
     localStorage.getItem("activeRoutineIds") || "[]"
   );
 
-  localStorage.setItem(
-    "activeRoutineIds",
-    JSON.stringify([
+  const updatedIds = [
       ...existingRoutineIds,
       routine._id
-    ])
-   );
+  ];
+
+  localStorage.setItem(
+    "activeRoutineIds",
+    JSON.stringify(updatedIds)
+  );
+
+  // Sync with backend for push notifications
+  api.post("/notifications/active-routines", { activeRoutineIds: updatedIds }).catch(console.error);
 
   const formattedTasks = routine.items.map((item) => {
 
@@ -203,6 +208,9 @@ export default function RoutineCard({
       "activeRoutineIds",
       JSON.stringify(updatedRoutineIds)
     );
+
+    // Sync with backend for push notifications
+    api.post("/notifications/active-routines", { activeRoutineIds: updatedRoutineIds }).catch(console.error);
   };
 
   const handleDeleteRoutine = async () => {

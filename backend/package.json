@@ -24,7 +24,9 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.2.0",
     "mongoose": "^9.0.0",
-    "nodemon": "^3.1.11"
+    "node-cron": "^4.2.1",
+    "nodemon": "^3.1.11",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
