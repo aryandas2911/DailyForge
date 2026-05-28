@@ -218,6 +218,144 @@ export const getAnalytics = async (req, res) => {
       }
     });
 
+    // --- Weekly Productivity Dashboard Statistics (Issue #783) ---
+    const activeIdsStr = req.query.activeRoutines || "";
+    const activeIds = activeIdsStr ? activeIdsStr.split(",") : [];
+
+    const activeRoutines = routines.filter((r) => activeIds.includes(r._id.toString()));
+    const routinesToUse = activeRoutines.length > 0 ? activeRoutines : routines;
+
+    let totalScheduledDurationMinutes = 0;
+    const dayRoutinesDistribution = {
+      Monday: { hours: 0, count: 0 },
+      Tuesday: { hours: 0, count: 0 },
+      Wednesday: { hours: 0, count: 0 },
+      Thursday: { hours: 0, count: 0 },
+      Friday: { hours: 0, count: 0 },
+      Saturday: { hours: 0, count: 0 },
+      Sunday: { hours: 0, count: 0 },
+    };
+
+    routinesToUse.forEach((r) => {
+      if (r.items) {
+        r.items.forEach((item) => {
+          totalScheduledDurationMinutes += item.duration;
+          if (dayRoutinesDistribution[item.day]) {
+            dayRoutinesDistribution[item.day].hours += item.duration / 60;
+            dayRoutinesDistribution[item.day].count += 1;
+          }
+        });
+      }
+    });
+
+    const totalScheduledHours = parseFloat((totalScheduledDurationMinutes / 60).toFixed(1));
+
+    const startOfCurrentWeek = new Date();
+    startOfCurrentWeek.setDate(startOfCurrentWeek.getDate() - (startOfCurrentWeek.getDay() || 7) + 1);
+    startOfCurrentWeek.setHours(0, 0, 0, 0);
+
+    const dailyActivity = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((dayName, idx) => {
+      const dayHours = dayRoutinesDistribution[dayName].hours;
+      
+      const targetDayDate = new Date(startOfCurrentWeek);
+      targetDayDate.setDate(startOfCurrentWeek.getDate() + idx);
+      const targetDayStr = formatDateString(targetDayDate);
+
+      const standardTasksCount = tasks.filter((t) => formatDateString(t.dueDate) === targetDayStr).length;
+      const routineTasksCount = dayRoutinesDistribution[dayName].count;
+
+      return {
+        day: dayName,
+        label: dayName.slice(0, 3),
+        hours: parseFloat(dayHours.toFixed(1)),
+        tasksCount: standardTasksCount + routineTasksCount,
+      };
+    });
+
+    let mostProductiveDay = "None yet";
+    let maxWorkload = 0;
+    dailyActivity.forEach((dayData) => {
+      const workload = dayData.hours * 2 + dayData.tasksCount;
+      if (workload > maxWorkload) {
+        maxWorkload = workload;
+        mostProductiveDay = dayData.day;
+      }
+    });
+
+    const categoryMapping = {
+      Study: ["study", "learning", "homework", "school", "education", "class"],
+      Fitness: ["fitness", "health", "gym", "workout", "sport", "sports"],
+      Work: ["work", "job", "office", "finance", "business"],
+      Personal: ["personal", "life", "shopping", "family", "home", "creative"],
+    };
+
+    const categoryDistribution = {
+      Study: 0,
+      Fitness: 0,
+      Work: 0,
+      Personal: 0,
+      Others: 0,
+    };
+
+    tasks.forEach((task) => {
+      let categorized = false;
+      if (task.tags && task.tags.length > 0) {
+        for (const tag of task.tags) {
+          const lowerTag = tag.toLowerCase().trim();
+          for (const [catName, keywords] of Object.entries(categoryMapping)) {
+            if (keywords.some((kw) => lowerTag.includes(kw))) {
+              categoryDistribution[catName]++;
+              categorized = true;
+              break;
+            }
+          }
+          if (categorized) break;
+        }
+      }
+      if (!categorized) {
+        categoryDistribution.Others++;
+      }
+    });
+
+    const totalCategorizedTasks = tasks.length;
+    const categoryStatsData = Object.entries(categoryDistribution).map(([category, count]) => ({
+      category,
+      count,
+      percentage: totalCategorizedTasks > 0 ? Math.round((count / totalCategorizedTasks) * 100) : 0,
+    }));
+
+    let totalItemsCount = 0;
+    let sumDurations = 0;
+    let longestRoutineName = "None";
+    let longestRoutineDuration = 0;
+
+    routines.forEach((r) => {
+      let routineDur = 0;
+      if (r.items) {
+        totalItemsCount += r.items.length;
+        r.items.forEach((item) => {
+          sumDurations += item.duration;
+          routineDur += item.duration;
+        });
+      }
+      if (routineDur > longestRoutineDuration) {
+        longestRoutineDuration = routineDur;
+        longestRoutineName = r.name;
+      }
+    });
+
+    const avgTaskDuration = totalItemsCount > 0 ? Math.round(sumDurations / totalItemsCount) : 0;
+    const totalWeeklyPlannedHours = parseFloat((sumDurations / 60).toFixed(1));
+
+    const routineStats = {
+      avgTaskDuration,
+      longestRoutine: {
+        name: longestRoutineName,
+        durationHours: parseFloat((longestRoutineDuration / 60).toFixed(1)),
+      },
+      totalWeeklyPlannedHours,
+    };
+
     return res.status(200).json({
       success: true,
       stats: {
@@ -240,6 +378,17 @@ export const getAnalytics = async (req, res) => {
         priorityStats,
         mostFrequentTasks,
         routineDayDistribution,
+        weeklyProductivity: {
+          overview: {
+            totalScheduledHours,
+            totalTasksAdded: totalTasks,
+            activeRoutinesCount: activeRoutines.length || totalRoutines,
+            mostProductiveDay,
+          },
+          categoryDistribution: categoryStatsData,
+          dailyActivity,
+          routineStats,
+        },
       },
     });
   } catch (error) {

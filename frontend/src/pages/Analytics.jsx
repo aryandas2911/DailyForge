@@ -24,11 +24,15 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [activeTab, setActiveTab] = useState("tasks"); // "tasks" or "routines"
+  const [hoveredWeeklyBar, setHoveredWeeklyBar] = useState(null);
+  const [hoveredProdPoint, setHoveredProdPoint] = useState(null);
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/analytics");
+      const activeIds = JSON.parse(localStorage.getItem("activeRoutineIds") || "[]");
+      const res = await api.get(`/analytics?activeRoutines=${activeIds.join(",")}`);
       if (res.data.success) {
         setStats(res.data.stats);
       } else {
@@ -78,6 +82,23 @@ export default function Analytics() {
     stats.priorityStats.forEach((prio) => {
       rows.push([prio.priority, prio.total, prio.completed, `${prio.rate}%`]);
     });
+
+    // Append Weekly Routine details if present
+    if (stats.weeklyProductivity) {
+      rows.push([]);
+      rows.push(["Weekly Productivity Metrics", "Value", "Details"]);
+      rows.push(["Total Scheduled Hours", `${stats.weeklyProductivity.overview.totalScheduledHours} hours`, "Routine workload"]);
+      rows.push(["Active Routines Count", stats.weeklyProductivity.overview.activeRoutinesCount, "Number of activated routines"]);
+      rows.push(["Most Productive Day", stats.weeklyProductivity.overview.mostProductiveDay, "Day with highest scheduled workload"]);
+      rows.push(["Average Task Duration", `${stats.weeklyProductivity.routineStats.avgTaskDuration} mins`, "Mean routine task duration"]);
+      rows.push(["Longest Routine", `${stats.weeklyProductivity.routineStats.longestRoutine.name} (${stats.weeklyProductivity.routineStats.longestRoutine.durationHours} hours)`, "Longest planned routine"]);
+      
+      rows.push([]);
+      rows.push(["Category (Weekly)", "Count", "Percentage"]);
+      stats.weeklyProductivity.categoryDistribution.forEach((cat) => {
+        rows.push([cat.category, cat.count, `${cat.percentage}%`]);
+      });
+    }
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
@@ -196,7 +217,6 @@ export default function Analytics() {
       color: prioColors[prio.priority],
     };
   });
-
   // 3. Daily Bar Chart Calculations
   const maxDailyValue = Math.max(
     ...stats.dailyProgress.map((d) => Math.max(d.total, d.completed, 1))
@@ -221,6 +241,42 @@ export default function Analytics() {
   const trendAreaD = trendPoints.length
     ? `${trendPathD} L ${trendPoints[trendPoints.length - 1].x} 200 L ${trendPoints[0].x} 200 Z`
     : "";
+
+  // 5. Weekly Productivity Dashboard Calculations (Issue #783)
+  const weeklyProductivity = stats.weeklyProductivity || {
+    overview: { totalScheduledHours: 0, totalTasksAdded: 0, activeRoutinesCount: 0, mostProductiveDay: "None yet" },
+    categoryDistribution: [],
+    dailyActivity: [],
+    routineStats: { avgTaskDuration: 0, longestRoutine: { name: "None", durationHours: 0 }, totalWeeklyPlannedHours: 0 }
+  };
+
+  const weeklyColors = [
+    "#3b82f6", // Blue (Study)
+    "#10b981", // Emerald (Fitness)
+    "#f59e0b", // Amber (Work)
+    "#ec4899", // Pink (Personal)
+    "#6b7280", // Gray (Others)
+  ];
+
+  let weeklyCatCumulative = 0;
+  const weeklyDonutSegments = weeklyProductivity.categoryDistribution.map((cat, idx) => {
+    const totalCount = weeklyProductivity.categoryDistribution.reduce((sum, c) => sum + c.count, 0);
+    const percentage = totalCount > 0 ? cat.count / totalCount : 0;
+    const strokeDash = percentage * 314.159;
+    const strokeOffset = 314.159 - strokeDash + weeklyCatCumulative;
+    weeklyCatCumulative -= strokeDash;
+    return {
+      ...cat,
+      percentage: Math.round(percentage * 100),
+      strokeDash,
+      strokeOffset,
+      color: weeklyColors[idx % weeklyColors.length],
+    };
+  });
+
+  const maxWeeklyHours = Math.max(...weeklyProductivity.dailyActivity.map(d => d.hours), 1);
+  const maxWeeklyTasks = Math.max(...weeklyProductivity.dailyActivity.map(d => d.tasksCount), 1);
+  const maxGraphValue = Math.max(maxWeeklyHours, maxWeeklyTasks, 1);
 
   return (
     <div
@@ -267,422 +323,702 @@ export default function Analytics() {
         </div>
       </header>
 
-      {/* Grid of Key Metrics */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
-            <BookOpen size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Total Tasks</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.totalTasks}</h3>
-            <p className="text-xs text-muted/70">{stats.summary.dueTasksCount} still pending</p>
-          </div>
-        </div>
+      {/* Tabs */}
+      <div className="flex border-b border-soft gap-4 pb-1">
+        <button
+          onClick={() => setActiveTab("tasks")}
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+            activeTab === "tasks"
+              ? "border-[#3b8ea0] text-[#3b8ea0]"
+              : "border-transparent text-muted hover:text-main"
+          }`}
+        >
+          Tasks & Streak Insights
+        </button>
+        <button
+          onClick={() => setActiveTab("routines")}
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+            activeTab === "routines"
+              ? "border-[#3b8ea0] text-[#3b8ea0]"
+              : "border-transparent text-muted hover:text-main"
+          }`}
+        >
+          Weekly Routine Insights
+        </button>
+      </div>
 
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-emerald-500">
-          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
-            <CheckCircle2 size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Completed</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.completedTasksCount}</h3>
-            <p className="text-xs text-muted/70">Tasks finished successfully</p>
-          </div>
-        </div>
-
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-purple-500">
-          <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
-            <TrendingUp size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Completion Rate</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.overallCompletionRate}%</h3>
-            <p className="text-xs text-muted/70">Overall task efficiency</p>
-          </div>
-        </div>
-
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-amber-500">
-          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
-            <Calendar size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Saved Routines</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.totalRoutines}</h3>
-            <p className="text-xs text-muted/70">{stats.summary.totalRoutineTasksCount} scheduled items</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Streaks & Leaderboard Row */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
-        {/* Streak Tracker Card */}
-        <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-6 z-10 relative">
-            <div className="relative flex-shrink-0 animate-bounce">
-              <div className="absolute inset-0 bg-amber-500/40 rounded-full blur-xl scale-120"></div>
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-red-500 flex items-center justify-center shadow-lg">
-                <Flame size={38} className="text-white fill-white/20" />
+      {activeTab === "tasks" ? (
+        <>
+          {/* Grid of Key Metrics */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+              <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                <BookOpen size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Total Tasks</p>
+                <h3 className="text-2xl font-bold text-main">{stats.summary.totalTasks}</h3>
+                <p className="text-xs text-muted/70">{stats.summary.dueTasksCount} still pending</p>
               </div>
             </div>
 
-            <div className="text-center sm:text-left space-y-2">
-              <h3 className="text-xl font-bold text-main flex items-center justify-center sm:justify-start gap-2">
-                Consistency Streak
-              </h3>
-              <p className="text-sm text-muted">
-                Complete at least one task daily to fuel your productivity streak!
-              </p>
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-emerald-500">
+              <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                <CheckCircle2 size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Completed</p>
+                <h3 className="text-2xl font-bold text-main">{stats.summary.completedTasksCount}</h3>
+                <p className="text-xs text-muted/70">Tasks finished successfully</p>
+              </div>
+            </div>
+
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-purple-500">
+              <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Completion Rate</p>
+                <h3 className="text-2xl font-bold text-main">{stats.summary.overallCompletionRate}%</h3>
+                <p className="text-xs text-muted/70">Overall task efficiency</p>
+              </div>
+            </div>
+
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-amber-500">
+              <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
+                <Calendar size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Saved Routines</p>
+                <h3 className="text-2xl font-bold text-main">{stats.summary.totalRoutines}</h3>
+                <p className="text-xs text-muted/70">{stats.summary.totalRoutineTasksCount} scheduled items</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Streaks & Leaderboard Row */}
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
+            {/* Streak Tracker Card */}
+            <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
               
-              <div className="flex justify-center sm:justify-start items-center gap-8 pt-2">
-                <div className="text-center">
-                  <span className="text-3xl font-extrabold bg-gradient-to-r from-amber-500 to-red-500 bg-clip-text text-transparent">
-                    {stats.streaks.currentStreak}
-                  </span>
-                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Current Streak</p>
+              <div className="flex flex-col sm:flex-row items-center gap-6 z-10 relative">
+                <div className="relative flex-shrink-0 animate-bounce">
+                  <div className="absolute inset-0 bg-amber-500/40 rounded-full blur-xl scale-120"></div>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-red-500 flex items-center justify-center shadow-lg">
+                    <Flame size={38} className="text-white fill-white/20" />
+                  </div>
                 </div>
-                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
-                <div className="text-center">
-                  <span className="text-3xl font-extrabold text-main">
-                    {stats.streaks.bestStreak}
-                  </span>
-                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Best Record</p>
+
+                <div className="text-center sm:text-left space-y-2">
+                  <h3 className="text-xl font-bold text-main flex items-center justify-center sm:justify-start gap-2">
+                    Consistency Streak
+                  </h3>
+                  <p className="text-sm text-muted">
+                    Complete at least one task daily to fuel your productivity streak!
+                  </p>
+                  
+                  <div className="flex justify-center sm:justify-start items-center gap-8 pt-2">
+                    <div className="text-center">
+                      <span className="text-3xl font-extrabold bg-gradient-to-r from-amber-500 to-red-500 bg-clip-text text-transparent">
+                        {stats.streaks.currentStreak}
+                      </span>
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Current Streak</p>
+                    </div>
+                    <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
+                    <div className="text-center">
+                      <span className="text-3xl font-extrabold text-main">
+                        {stats.streaks.bestStreak}
+                      </span>
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Best Record</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Leaderboard - Most Completed Tasks */}
-        <div className="col-span-12 lg:col-span-5 card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-main mb-3 flex items-center gap-2">
-              <Award size={18} className="text-amber-500" />
-              Most Completed Tasks
-            </h3>
-            {stats.mostFrequentTasks.length === 0 ? (
-              <p className="text-sm text-muted text-center py-6 italic">No completed tasks yet.</p>
-            ) : (
-              <ul className="space-y-3">
-                {stats.mostFrequentTasks.map((task, idx) => (
-                  <li
-                    key={idx}
-                    className="flex justify-between items-center bg-slate-100/50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-soft/30 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm font-medium text-main truncate max-w-[180px] sm:max-w-[260px]">
-                        {task.title}
-                      </span>
-                    </div>
-                    <span className="text-xs bg-primary/20 text-[#3b8ea0] px-2 py-0.5 rounded-full font-semibold">
-                      {task.count}x
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      </section>
+            {/* Leaderboard - Most Completed Tasks */}
+            <div className="col-span-12 lg:col-span-5 card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-main mb-3 flex items-center gap-2">
+                  <Award size={18} className="text-amber-500" />
+                  Most Completed Tasks
+                </h3>
+                {stats.mostFrequentTasks.length === 0 ? (
+                  <p className="text-sm text-muted text-center py-6 italic">No completed tasks yet.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {stats.mostFrequentTasks.map((task, idx) => (
+                      <li
+                        key={idx}
+                        className="flex justify-between items-center bg-slate-100/50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-soft/30 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          <span className="text-sm font-medium text-main truncate max-w-[180px] sm:max-w-[260px]">
+                            {task.title}
+                          </span>
+                        </div>
+                        <span className="text-xs bg-primary/20 text-[#3b8ea0] px-2 py-0.5 rounded-full font-semibold">
+                          {task.count}x
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </section>
 
-      {/* SVG Analytics Charts (Daily Bar & Weekly Trend Line) */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-300">
-        {/* Daily Progress Bar Chart */}
-        <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft relative">
-          <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-blue-500" />
-            Daily Tasks Status (Last 7 Days)
-          </h3>
-          
-          <div className="w-full flex justify-center py-2">
-            <svg viewBox="0 0 400 240" className="w-full max-w-[450px]">
-              {/* Grid Lines */}
-              {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
-                const y = 200 - p * 160;
-                return (
-                  <g key={idx}>
-                    <line x1="30" y1={y} x2="380" y2={y} stroke="#e2e8f0" strokeDasharray="4" strokeWidth="0.5" className="dark:stroke-slate-800" />
-                    <text x="5" y={y + 4} fontSize="8" className="fill-slate-400 font-medium">
-                      {Math.round(p * maxDailyValue)}
-                    </text>
-                  </g>
-                );
-              })}
+          {/* SVG Analytics Charts (Daily Bar & Weekly Trend Line) */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-300">
+            {/* Daily Progress Bar Chart */}
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft relative">
+              <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
+                <Clock size={18} className="text-blue-500" />
+                Daily Tasks Status (Last 7 Days)
+              </h3>
+              
+              <div className="w-full flex justify-center py-2">
+                <svg viewBox="0 0 400 240" className="w-full max-w-[450px]">
+                  {/* Grid Lines */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
+                    const y = 200 - p * 160;
+                    return (
+                      <g key={idx}>
+                        <line x1="30" y1={y} x2="380" y2={y} stroke="#e2e8f0" strokeDasharray="4" strokeWidth="0.5" className="dark:stroke-slate-800" />
+                        <text x="5" y={y + 4} fontSize="8" className="fill-slate-400 font-medium">
+                          {Math.round(p * maxDailyValue)}
+                        </text>
+                      </g>
+                    );
+                  })}
 
-              {/* Draw Bars */}
-              {stats.dailyProgress.map((day, idx) => {
-                const spacing = 50;
-                const baseX = 30 + idx * spacing + 10;
-                const totalBarHeight = (day.total / maxDailyValue) * 160;
-                const completedBarHeight = (day.completed / maxDailyValue) * 160;
+                  {/* Draw Bars */}
+                  {stats.dailyProgress.map((day, idx) => {
+                    const spacing = 50;
+                    const baseX = 30 + idx * spacing + 10;
+                    const totalBarHeight = (day.total / maxDailyValue) * 160;
+                    const completedBarHeight = (day.completed / maxDailyValue) * 160;
 
-                const totalY = 200 - totalBarHeight;
-                const completedY = 200 - completedBarHeight;
+                    const totalY = 200 - totalBarHeight;
+                    const completedY = 200 - completedBarHeight;
 
-                return (
-                  <g
-                    key={idx}
-                    onMouseEnter={() => setHoveredBar(idx)}
-                    onMouseLeave={() => setHoveredBar(null)}
-                    className="cursor-pointer"
-                  >
-                    {/* Background hover bar highlight */}
-                    {hoveredBar === idx && (
-                      <rect x={baseX - 4} y="20" width="28" height="190" fill="#4eb7b3/10" rx="4" opacity="0.1" />
-                    )}
+                    return (
+                      <g
+                        key={idx}
+                        onMouseEnter={() => setHoveredBar(idx)}
+                        onMouseLeave={() => setHoveredBar(null)}
+                        className="cursor-pointer"
+                      >
+                        {/* Background hover bar highlight */}
+                        {hoveredBar === idx && (
+                          <rect x={baseX - 4} y="20" width="28" height="190" fill="#4eb7b3/10" rx="4" opacity="0.1" />
+                        )}
 
-                    {/* Total Tasks Bar */}
-                    <rect
-                      x={baseX}
-                      y={totalY}
-                      width="8"
-                      height={totalBarHeight}
-                      fill="#e2e8f0"
-                      className="dark:fill-slate-700 transition-all duration-300"
-                      rx="2"
+                        {/* Total Tasks Bar */}
+                        <rect
+                          x={baseX}
+                          y={totalY}
+                          width="8"
+                          height={totalBarHeight}
+                          fill="#e2e8f0"
+                          className="dark:fill-slate-700 transition-all duration-300"
+                          rx="2"
+                        />
+
+                        {/* Completed Tasks Bar */}
+                        <rect
+                          x={baseX + 10}
+                          y={completedY}
+                          width="8"
+                          height={completedBarHeight}
+                          fill="#10b981"
+                          className="transition-all duration-300"
+                          rx="2"
+                        />
+
+                        {/* X Axis labels */}
+                        <text x={baseX + 9} y="215" textAnchor="middle" fontSize="9" className="fill-slate-500 font-semibold dark:fill-slate-400">
+                          {day.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Tooltip Overlay */}
+                  {hoveredBar !== null && (
+                    <g transform={`translate(${30 + hoveredBar * 50 + 20}, ${20})`}>
+                      <rect x="-45" y="-5" width="90" height="26" fill="#1e293b" rx="6" className="shadow-lg" />
+                      <text x="0" y="6" textAnchor="middle" fill="#ffffff" fontSize="7" fontWeight="bold">
+                        Completed: {stats.dailyProgress[hoveredBar].completed}
+                      </text>
+                      <text x="0" y="16" textAnchor="middle" fill="#94a3b8" fontSize="7">
+                        Total Due: {stats.dailyProgress[hoveredBar].total}
+                      </text>
+                    </g>
+                  )}
+                </svg>
+              </div>
+
+              <div className="flex justify-center gap-4 text-xs font-semibold pt-2">
+                <div className="flex items-center gap-1.5 text-muted">
+                  <span className="w-3.5 h-3.5 bg-slate-300 dark:bg-slate-700 rounded-sm"></span>
+                  Due Tasks
+                </div>
+                <div className="flex items-center gap-1.5 text-muted">
+                  <span className="w-3.5 h-3.5 bg-emerald-500 rounded-sm"></span>
+                  Completed Tasks
+                </div>
+              </div>
+            </div>
+
+            {/* Weekly Trend Line Chart */}
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft">
+              <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
+                <TrendingUp size={18} className="text-purple-500" />
+                Weekly Completion Rate Trend
+              </h3>
+
+              <div className="w-full flex justify-center py-2">
+                <svg viewBox="0 0 400 240" className="w-full max-w-[450px]">
+                  {/* Grid Lines */}
+                  {[0, 25, 50, 75, 100].map((rate, idx) => {
+                    const y = 200 - (rate / 100) * 150;
+                    return (
+                      <g key={idx}>
+                        <line x1="30" y1={y} x2="380" y2={y} stroke="#e2e8f0" strokeDasharray="4" strokeWidth="0.5" className="dark:stroke-slate-800" />
+                        <text x="5" y={y + 3} fontSize="8" className="fill-slate-400 font-medium">
+                          {rate}%
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Area Gradient under curve */}
+                  <defs>
+                    <linearGradient id="trend-gradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+
+                  {trendAreaD && (
+                    <path d={trendAreaD} fill="url(#trend-gradient)" className="transition-all duration-500" />
+                  )}
+
+                  {/* Trend Path Line */}
+                  {trendPathD && (
+                    <path
+                      d={trendPathD}
+                      fill="none"
+                      stroke="#8b5cf6"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-all duration-500 animate-pulse"
                     />
+                  )}
 
-                    {/* Completed Tasks Bar */}
-                    <rect
-                      x={baseX + 10}
-                      y={completedY}
-                      width="8"
-                      height={completedBarHeight}
-                      fill="#10b981"
-                      className="transition-all duration-300"
-                      rx="2"
+                  {/* Trend Interactive Points */}
+                  {trendPoints.map((pt, idx) => (
+                    <g
+                      key={idx}
+                      onMouseEnter={() => setHoveredPoint(idx)}
+                      onMouseLeave={() => setHoveredPoint(null)}
+                      className="cursor-pointer"
+                    >
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={hoveredPoint === idx ? "6" : "4"}
+                        fill="#ffffff"
+                        stroke="#8b5cf6"
+                        strokeWidth="2.5"
+                        className="transition-all duration-200"
+                      />
+                      <text x={pt.x} y="215" textAnchor="middle" fontSize="9" className="fill-slate-500 font-semibold dark:fill-slate-400">
+                        {pt.label}
+                      </text>
+                    </g>
+                  ))}
+
+                  {/* Tooltip Overlay */}
+                  {hoveredPoint !== null && (
+                    <g transform={`translate(${trendPoints[hoveredPoint].x}, ${trendPoints[hoveredPoint].y - 32})`}>
+                      <rect x="-35" y="-5" width="70" height="18" fill="#1e293b" rx="5" />
+                      <text x="0" y="7" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
+                        Rate: {trendPoints[hoveredPoint].rate}%
+                      </text>
+                    </g>
+                  )}
+                </svg>
+              </div>
+
+              <p className="text-[10px] text-center text-muted italic">
+                Visualizes task completion percentage rates across previous rolling weeks.
+              </p>
+            </div>
+          </section>
+
+          {/* Donut Charts (Category Breakdown & Priority Distribution) */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-300">
+            {/* Category Breakdown Donut */}
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col md:flex-row items-center justify-around gap-6">
+              <div className="text-center md:text-left w-full md:w-auto">
+                <h3 className="text-base font-semibold text-main mb-1 flex items-center justify-center md:justify-start gap-2">
+                  <Tag size={18} className="text-[#3b8ea0]" />
+                  Tasks by Category
+                </h3>
+                <p className="text-xs text-muted mb-4">Completed ratios grouped by tags.</p>
+
+                <ul className="space-y-1.5 text-xs text-muted font-medium">
+                  {donutCatSegments.map((seg, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }}></span>
+                      <span className="font-semibold text-main">{seg.category}</span>
+                      <span>({seg.completed}/{seg.total})</span>
+                      <span className="text-slate-400">{seg.percentage}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Donut Render */}
+              <div className="relative w-40 h-40">
+                <svg viewBox="0 0 120 120" className="w-full h-full transform -rotate-90">
+                  <circle cx="60" cy="60" r="50" fill="transparent" stroke="#e2e8f0" strokeWidth="12" className="dark:stroke-slate-800" />
+                  {donutCatSegments.map((seg, idx) => (
+                    <circle
+                      key={idx}
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="transparent"
+                      stroke={seg.color}
+                      strokeWidth="12"
+                      strokeDasharray={`${seg.strokeDash} 314.159`}
+                      strokeDashoffset={seg.strokeOffset}
+                      strokeLinecap="round"
+                      className="transition-all duration-500"
                     />
-
-                    {/* X Axis labels */}
-                    <text x={baseX + 9} y="215" textAnchor="middle" fontSize="9" className="fill-slate-500 font-semibold dark:fill-slate-400">
-                      {day.label}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Tooltip Overlay */}
-              {hoveredBar !== null && (
-                <g transform={`translate(${30 + hoveredBar * 50 + 20}, ${20})`}>
-                  <rect x="-45" y="-5" width="90" height="26" fill="#1e293b" rx="6" className="shadow-lg" />
-                  <text x="0" y="6" textAnchor="middle" fill="#ffffff" fontSize="7" fontWeight="bold">
-                    Completed: {stats.dailyProgress[hoveredBar].completed}
-                  </text>
-                  <text x="0" y="16" textAnchor="middle" fill="#94a3b8" fontSize="7">
-                    Total Due: {stats.dailyProgress[hoveredBar].total}
-                  </text>
-                </g>
-              )}
-            </svg>
-          </div>
-
-          <div className="flex justify-center gap-4 text-xs font-semibold pt-2">
-            <div className="flex items-center gap-1.5 text-muted">
-              <span className="w-3 h-3 bg-slate-300 dark:bg-slate-700 rounded-sm"></span>
-              Due Tasks
+                  ))}
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg font-bold text-main">
+                    {stats.categoryStats.reduce((sum, c) => sum + c.completed, 0)}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Done</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-muted">
-              <span className="w-3 h-3 bg-emerald-500 rounded-sm"></span>
-              Completed Tasks
+
+            {/* Priority Breakdown Donut */}
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col md:flex-row items-center justify-around gap-6">
+              <div className="text-center md:text-left w-full md:w-auto">
+                <h3 className="text-base font-semibold text-main mb-1 flex items-center justify-center md:justify-start gap-2">
+                  <Briefcase size={18} className="text-amber-500" />
+                  Priority Distribution
+                </h3>
+                <p className="text-xs text-muted mb-4">Volume distribution of tasks by importance.</p>
+
+                <ul className="space-y-1.5 text-xs text-muted font-medium">
+                  {donutPrioSegments.map((seg, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }}></span>
+                      <span className="font-semibold text-main">{seg.priority}</span>
+                      <span>({seg.completed}/{seg.total})</span>
+                      <span className="text-slate-400">{seg.percentage}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Donut Render */}
+              <div className="relative w-40 h-40">
+                <svg viewBox="0 0 120 120" className="w-full h-full transform -rotate-90">
+                  <circle cx="60" cy="60" r="50" fill="transparent" stroke="#e2e8f0" strokeWidth="12" className="dark:stroke-slate-800" />
+                  {donutPrioSegments.map((seg, idx) => (
+                    <circle
+                      key={idx}
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="transparent"
+                      stroke={seg.color}
+                      strokeWidth="12"
+                      strokeDasharray={`${seg.strokeDash} 314.159`}
+                      strokeDashoffset={seg.strokeOffset}
+                      strokeLinecap="round"
+                      className="transition-all duration-500"
+                    />
+                  ))}
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg font-bold text-main">
+                    {stats.priorityStats.reduce((sum, p) => sum + p.total, 0)}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Total</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Weekly Trend Line Chart */}
-        <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft">
-          <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-purple-500" />
-            Weekly Completion Rate Trend
-          </h3>
-
-          <div className="w-full flex justify-center py-2">
-            <svg viewBox="0 0 400 240" className="w-full max-w-[450px]">
-              {/* Grid Lines */}
-              {[0, 25, 50, 75, 100].map((rate, idx) => {
-                const y = 200 - (rate / 100) * 150;
-                return (
-                  <g key={idx}>
-                    <line x1="30" y1={y} x2="380" y2={y} stroke="#e2e8f0" strokeDasharray="4" strokeWidth="0.5" className="dark:stroke-slate-800" />
-                    <text x="5" y={y + 3} fontSize="8" className="fill-slate-400 font-medium">
-                      {rate}%
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Area Gradient under curve */}
-              <defs>
-                <linearGradient id="trend-gradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-
-              {trendAreaD && (
-                <path d={trendAreaD} fill="url(#trend-gradient)" className="transition-all duration-500" />
-              )}
-
-              {/* Trend Path Line */}
-              {trendPathD && (
-                <path
-                  d={trendPathD}
-                  fill="none"
-                  stroke="#8b5cf6"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-all duration-500 animate-pulse"
-                />
-              )}
-
-              {/* Trend Interactive Points */}
-              {trendPoints.map((pt, idx) => (
-                <g
-                  key={idx}
-                  onMouseEnter={() => setHoveredPoint(idx)}
-                  onMouseLeave={() => setHoveredPoint(null)}
-                  className="cursor-pointer"
-                >
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={hoveredPoint === idx ? "6" : "4"}
-                    fill="#ffffff"
-                    stroke="#8b5cf6"
-                    strokeWidth="2.5"
-                    className="transition-all duration-200"
-                  />
-                  <text x={pt.x} y="215" textAnchor="middle" fontSize="9" className="fill-slate-500 font-semibold dark:fill-slate-400">
-                    {pt.label}
-                  </text>
-                </g>
-              ))}
-
-              {/* Tooltip Overlay */}
-              {hoveredPoint !== null && (
-                <g transform={`translate(${trendPoints[hoveredPoint].x}, ${trendPoints[hoveredPoint].y - 32})`}>
-                  <rect x="-35" y="-5" width="70" height="18" fill="#1e293b" rx="5" />
-                  <text x="0" y="7" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
-                    Rate: {trendPoints[hoveredPoint].rate}%
-                  </text>
-                </g>
-              )}
-            </svg>
-          </div>
-
-          <p className="text-[10px] text-center text-muted italic">
-            Visualizes task completion percentage rates across previous rolling weeks.
-          </p>
-        </div>
-      </section>
-
-      {/* Donut Charts (Category Breakdown & Priority Distribution) */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-300">
-        {/* Category Breakdown Donut */}
-        <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col md:flex-row items-center justify-around gap-6">
-          <div className="text-center md:text-left w-full md:w-auto">
-            <h3 className="text-base font-semibold text-main mb-1 flex items-center justify-center md:justify-start gap-2">
-              <Tag size={18} className="text-[#3b8ea0]" />
-              Tasks by Category
-            </h3>
-            <p className="text-xs text-muted mb-4">Completed ratios grouped by tags.</p>
-
-            <ul className="space-y-1.5 text-xs text-muted font-medium">
-              {donutCatSegments.map((seg, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }}></span>
-                  <span className="font-semibold text-main">{seg.category}</span>
-                  <span>({seg.completed}/{seg.total})</span>
-                  <span className="text-slate-400">{seg.percentage}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Donut Render */}
-          <div className="relative w-40 h-40">
-            <svg viewBox="0 0 120 120" className="w-full h-full transform -rotate-90">
-              <circle cx="60" cy="60" r="50" fill="transparent" stroke="#e2e8f0" strokeWidth="12" className="dark:stroke-slate-800" />
-              {donutCatSegments.map((seg, idx) => (
-                <circle
-                  key={idx}
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="transparent"
-                  stroke={seg.color}
-                  strokeWidth="12"
-                  strokeDasharray={`${seg.strokeDash} 314.159`}
-                  strokeDashoffset={seg.strokeOffset}
-                  strokeLinecap="round"
-                  className="transition-all duration-500"
-                />
-              ))}
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg font-bold text-main">
-                {stats.categoryStats.reduce((sum, c) => sum + c.completed, 0)}
-              </span>
-              <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Done</span>
+          </section>
+        </>
+      ) : (
+        /* ================= Weekly Routine Insights Tab ================= */
+        <div className="space-y-6 sm:space-y-8 animate-in">
+          {/* Grid of Key Metrics for Weekly Productivity */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+            {/* Total Scheduled Hours */}
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+              <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                <Clock size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Scheduled Hours</p>
+                <h3 className="text-2xl font-bold text-main">{weeklyProductivity.overview.totalScheduledHours}h</h3>
+                <p className="text-xs text-muted/70">Planned workload this week</p>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Priority Breakdown Donut */}
-        <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col md:flex-row items-center justify-around gap-6">
-          <div className="text-center md:text-left w-full md:w-auto">
-            <h3 className="text-base font-semibold text-main mb-1 flex items-center justify-center md:justify-start gap-2">
-              <Briefcase size={18} className="text-amber-500" />
-              Priority Distribution
-            </h3>
-            <p className="text-xs text-muted mb-4">Volume distribution of tasks by importance.</p>
-
-            <ul className="space-y-1.5 text-xs text-muted font-medium">
-              {donutPrioSegments.map((seg, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }}></span>
-                  <span className="font-semibold text-main">{seg.priority}</span>
-                  <span>({seg.completed}/{seg.total})</span>
-                  <span className="text-slate-400">{seg.percentage}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Donut Render */}
-          <div className="relative w-40 h-40">
-            <svg viewBox="0 0 120 120" className="w-full h-full transform -rotate-90">
-              <circle cx="60" cy="60" r="50" fill="transparent" stroke="#e2e8f0" strokeWidth="12" className="dark:stroke-slate-800" />
-              {donutPrioSegments.map((seg, idx) => (
-                <circle
-                  key={idx}
-                  cx="60"
-                  cy="60"
-                  r="50"
-                  fill="transparent"
-                  stroke={seg.color}
-                  strokeWidth="12"
-                  strokeDasharray={`${seg.strokeDash} 314.159`}
-                  strokeDashoffset={seg.strokeOffset}
-                  strokeLinecap="round"
-                  className="transition-all duration-500"
-                />
-              ))}
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg font-bold text-main">
-                {stats.priorityStats.reduce((sum, p) => sum + p.total, 0)}
-              </span>
-              <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Total</span>
+            {/* Total Tasks Added */}
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-emerald-500">
+              <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
+                <BookOpen size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Total Tasks Added</p>
+                <h3 className="text-2xl font-bold text-main">{weeklyProductivity.overview.totalTasksAdded}</h3>
+                <p className="text-xs text-muted/70">Tasks under management</p>
+              </div>
             </div>
-          </div>
+
+            {/* Active Routines */}
+            <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-purple-500">
+              <div className="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
+                <Calendar size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Active Routines</p>
+                <h3 className="text-2xl font-bold text-main">{weeklyProductivity.overview.activeRoutinesCount}</h3>
+                <p className="text-xs text-muted/70">Currently active plans</p>
+              </div>
+            </div>
+
+            {/* Most Productive Day */}
+            <div className="card flex items-center gap-4 bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border-l-4 border-l-amber-500 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300">
+              <div className="p-3 bg-amber-500/15 text-amber-500 rounded-xl animate-bounce">
+                <Flame size={24} className="fill-amber-500/20" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Peak Day</p>
+                <h3 className="text-2xl font-bold text-main">{weeklyProductivity.overview.mostProductiveDay}</h3>
+                <p className="text-xs text-muted/70">Highest scheduled workload</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Daily Activity Graph & Donut Row */}
+          <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+            {/* Daily Activity Graph (Hours Scheduled vs Tasks count) */}
+            <div className="col-span-12 lg:col-span-7 card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft relative">
+              <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
+                <TrendingUp size={18} className="text-blue-500" />
+                Daily Activity & Planned Hours
+              </h3>
+              
+              <div className="w-full flex justify-center py-2">
+                <svg viewBox="0 0 500 240" className="w-full max-w-[480px]">
+                  {/* Grid Lines */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
+                    const y = 200 - p * 160;
+                    return (
+                      <g key={idx}>
+                        <line x1="40" y1={y} x2="480" y2={y} stroke="#e2e8f0" strokeDasharray="4" strokeWidth="0.5" className="dark:stroke-slate-800" />
+                        <text x="5" y={y + 4} fontSize="8" className="fill-slate-400 font-medium">
+                          {Math.round(p * maxGraphValue)}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Draw side-by-side bars for Hours and Tasks */}
+                  {weeklyProductivity.dailyActivity.map((day, idx) => {
+                    const spacing = 60;
+                    const baseX = 40 + idx * spacing + 10;
+                    const hoursHeight = (day.hours / maxGraphValue) * 160;
+                    const tasksHeight = (day.tasksCount / maxGraphValue) * 160;
+
+                    const hoursY = 200 - hoursHeight;
+                    const tasksY = 200 - tasksHeight;
+
+                    return (
+                      <g
+                        key={idx}
+                        onMouseEnter={() => setHoveredWeeklyBar(idx)}
+                        onMouseLeave={() => setHoveredWeeklyBar(null)}
+                        className="cursor-pointer"
+                      >
+                        {/* Background hover bar highlight */}
+                        {hoveredWeeklyBar === idx && (
+                          <rect x={baseX - 4} y="20" width="38" height="190" fill="#4eb7b3/10" rx="4" opacity="0.1" />
+                        )}
+
+                        {/* Scheduled Hours Bar */}
+                        <rect
+                          x={baseX}
+                          y={hoursY}
+                          width="12"
+                          height={hoursHeight}
+                          fill="#3b82f6"
+                          className="transition-all duration-300"
+                          rx="3"
+                        />
+
+                        {/* Tasks count Bar */}
+                        <rect
+                          x={baseX + 16}
+                          y={tasksY}
+                          width="12"
+                          height={tasksHeight}
+                          fill="#10b981"
+                          className="transition-all duration-300"
+                          rx="3"
+                        />
+
+                        {/* X Axis labels */}
+                        <text x={baseX + 14} y="218" textAnchor="middle" fontSize="9" className="fill-slate-500 font-semibold dark:fill-slate-400">
+                          {day.label}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Tooltip Overlay */}
+                  {hoveredWeeklyBar !== null && (
+                    <g transform={`translate(${40 + hoveredWeeklyBar * 60 + 20}, ${20})`}>
+                      <rect x="-55" y="-5" width="110" height="26" fill="#1e293b" rx="6" className="shadow-lg" />
+                      <text x="0" y="6" textAnchor="middle" fill="#ffffff" fontSize="7" fontWeight="bold">
+                        Hours: {weeklyProductivity.dailyActivity[hoveredWeeklyBar].hours}h
+                      </text>
+                      <text x="0" y="16" textAnchor="middle" fill="#94a3b8" fontSize="7">
+                        Tasks count: {weeklyProductivity.dailyActivity[hoveredWeeklyBar].tasksCount}
+                      </text>
+                    </g>
+                  )}
+                </svg>
+              </div>
+
+              <div className="flex justify-center gap-6 text-xs font-semibold pt-2">
+                <div className="flex items-center gap-1.5 text-muted">
+                  <span className="w-3.5 h-3.5 bg-blue-500 rounded-sm"></span>
+                  Hours Scheduled
+                </div>
+                <div className="flex items-center gap-1.5 text-muted">
+                  <span className="w-3.5 h-3.5 bg-emerald-500 rounded-sm"></span>
+                  Number of Tasks
+                </div>
+              </div>
+            </div>
+
+            {/* Category Breakdown Pie Donut */}
+            <div className="col-span-12 lg:col-span-5 card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col md:flex-row items-center justify-around gap-6">
+              <div className="text-center md:text-left w-full md:w-auto">
+                <h3 className="text-base font-semibold text-main mb-1 flex items-center justify-center md:justify-start gap-2">
+                  <Tag size={18} className="text-[#3b8ea0]" />
+                  Tasks by Category
+                </h3>
+                <p className="text-xs text-muted mb-4">Task distribution across routine and standard tasks.</p>
+
+                <ul className="space-y-1.5 text-xs text-muted font-medium">
+                  {weeklyDonutSegments.map((seg, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: seg.color }}></span>
+                      <span className="font-semibold text-main">{seg.category}</span>
+                      <span>({seg.count} tasks)</span>
+                      <span className="text-slate-400">{seg.percentage}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Donut Render */}
+              <div className="relative w-40 h-40">
+                <svg viewBox="0 0 120 120" className="w-full h-full transform -rotate-90">
+                  <circle cx="60" cy="60" r="50" fill="transparent" stroke="#e2e8f0" strokeWidth="12" className="dark:stroke-slate-800" />
+                  {weeklyDonutSegments.map((seg, idx) => (
+                    <circle
+                      key={idx}
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      fill="transparent"
+                      stroke={seg.color}
+                      strokeWidth="12"
+                      strokeDasharray={`${seg.strokeDash} 314.159`}
+                      strokeDashoffset={seg.strokeOffset}
+                      strokeLinecap="round"
+                      className="transition-all duration-500"
+                    />
+                  ))}
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg font-bold text-main">
+                    {weeklyProductivity.categoryDistribution.reduce((sum, c) => sum + c.count, 0)}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Total Tasks</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Routine Statistics widget */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col justify-between p-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-blue-500 mb-2">
+                  <Clock size={20} />
+                  <h4 className="font-bold text-main">Average Task Duration</h4>
+                </div>
+                <p className="text-3xl font-extrabold text-main">
+                  {weeklyProductivity.routineStats.avgTaskDuration} <span className="text-sm font-semibold text-muted">mins</span>
+                </p>
+                <p className="text-xs text-muted">Average duration planned per scheduled routine task.</p>
+              </div>
+            </div>
+
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col justify-between p-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-purple-500 mb-2">
+                  <Calendar size={20} />
+                  <h4 className="font-bold text-main">Longest Routine</h4>
+                </div>
+                <p className="text-3xl font-extrabold text-main truncate max-w-[240px]">
+                  {weeklyProductivity.routineStats.longestRoutine.name}
+                </p>
+                <p className="text-xs text-muted">
+                  Planned workload: <strong>{weeklyProductivity.routineStats.longestRoutine.durationHours} hours</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft flex flex-col justify-between p-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-emerald-500 mb-2">
+                  <TrendingUp size={20} />
+                  <h4 className="font-bold text-main">Total Planned Workload</h4>
+                </div>
+                <p className="text-3xl font-extrabold text-main">
+                  {weeklyProductivity.routineStats.totalWeeklyPlannedHours} <span className="text-sm font-semibold text-muted">hours</span>
+                </p>
+                <p className="text-xs text-muted">Total workload planned across all constructed routines.</p>
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
+      )}
     </div>
   );
 }
