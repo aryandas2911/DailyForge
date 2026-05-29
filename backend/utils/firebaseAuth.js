@@ -58,7 +58,14 @@ async function fetchGooglePublicKeys() {
  * @returns {Promise<object>} The verified token payload containing email, name, picture, etc.
  */
 export async function verifyFirebaseIdToken(token) {
+  if (!token || typeof token !== "string") {
+    throw new Error("Firebase ID token must be a non-empty string");
+  }
+
   const projectId = process.env.FIREBASE_PROJECT_ID;
+  const allowUnverified =
+    process.env.FIREBASE_AUTH_ALLOW_UNVERIFIED === "true" &&
+    process.env.NODE_ENV !== "production";
 
   // Graceful fallback for local development if Project ID is not configured
 if (!projectId) {
@@ -66,6 +73,30 @@ if (!projectId) {
     "Firebase authentication is not configured. Please set FIREBASE_PROJECT_ID in backend environment variables."
   );
 }
+  // Fail closed by default. Allow an explicit insecure dev-mode override only when opted in.
+  if (!projectId) {
+    if (!allowUnverified) {
+      throw new Error(
+        "FIREBASE_PROJECT_ID is not configured. Refusing to accept unverified Firebase ID tokens."
+      );
+    }
+
+    console.warn(
+      "[FIREBASE AUTH] Insecure dev-mode enabled: accepting UNVERIFIED Firebase ID tokens " +
+        "(set FIREBASE_AUTH_ALLOW_UNVERIFIED=false in production)."
+    );
+
+    const decoded = jwt.decode(token);
+    if (!decoded) throw new Error("Invalid Firebase ID token format");
+
+    const now = Math.floor(Date.now() / 1000);
+    if (decoded.exp && decoded.exp < now) {
+      throw new Error("Firebase ID token has expired");
+    }
+
+    return decoded;
+  }
+
   try {
     // 1. Decode token to retrieve JWT header containing 'kid' (Key ID)
     const decodedToken = jwt.decode(token, { complete: true });
@@ -104,14 +135,14 @@ if (!projectId) {
     return verified;
   } catch (error) {
     console.error("[FIREBASE AUTH] Token verification failed:", error.message);
-    
-    // Developer fallback in case of transient local network issues or incomplete setups
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[FIREBASE AUTH] Permissive Dev Fallback: Decoding token without signature verification.");
+
+    // Optional insecure dev fallback (explicit opt-in only)
+    if (allowUnverified) {
+      console.warn(
+        "[FIREBASE AUTH] Insecure dev-mode enabled: returning decoded token without signature verification."
+      );
       const decoded = jwt.decode(token);
-      if (decoded) {
-        return decoded;
-      }
+      if (decoded) return decoded;
     }
     throw error;
   }
