@@ -142,6 +142,7 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
+      setScheduledTasks([]);
       alert("Routine saved successfully");
       await fetchRoutines();
     } catch (err) {
@@ -219,13 +220,22 @@ export default function RoutineBuilder() {
               <p className="mt-1 text-muted">Design your week</p>
             </div>
           </div>
-          <button
-            onClick={exportToImage}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
-          >
-            <Download size={16} />
-            Export as PNG
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setScheduledTasks([])}
+              disabled={scheduledTasks.length === 0}
+              className="btn btn-muted cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Clear Grid
+            </button>
+            <button
+              onClick={exportToImage}
+              className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
+            >
+              <Download size={16} />
+              Export as PNG
+            </button>
+          </div>
         </header>
 
         {/* Main Layout */}
