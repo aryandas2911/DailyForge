@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -187,12 +188,14 @@ const Login = () => {
               </button>
             </div>
           </div>
-          {error && (
-            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500">
-              {error}
-            </div>
-          )}
-          <button type="submit" disabled={isGoogleLoading || isSubmitLoading} className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50">
+          
+          <FormError message={error} />
+          
+          <button
+            type="submit"
+            disabled={isGoogleLoading || isSubmitLoading}
+            className="btn btn-primary cursor-pointer w-full py-3 mt-1 hover-lift disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
+          >
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
           <p className="text-center text-sm text-muted">
@@ -201,6 +204,7 @@ const Login = () => {
           </p>
         </form>
       </div>
+
     </div>
   );
 };

@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
 * {
   font-family: 'Outfit', sans-serif;
 }
@@ -88,6 +94,18 @@ html.dark body {
     @apply shadow-md;
   }
 
+  /* Contribution Heatmap Styles */
+  .grid-cols-53 {
+    grid-template-columns: repeat(53, minmax(0, 1fr));
+  }
+  .grid-rows-7 {
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+  }
+  .text-glow {
+    text-shadow: 0 0 8px rgba(16,185,129,0.4);
+  }
+
+  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
@@ -127,4 +145,15 @@ html.dark body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Hide default browser password reveal icons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-reveal,
+input[type="password"]::-webkit-clear {
+  display: none;
 }
