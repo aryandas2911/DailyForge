@@ -5,6 +5,7 @@ import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
+import FormError from "../components/common/FormError";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
@@ -208,11 +209,7 @@ cursor-pointer
               </button>
             </div>
           </div>
-          {error && (
-            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500">
-              {error}
-            </div>
-          )}
+          <FormError error={error} />
           <button type="submit" disabled={isGoogleLoading || isSubmitLoading} className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50">
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
