@@ -1,5 +1,5 @@
+
 import express from "express";
-import dotenv from "dotenv";
 import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -10,6 +10,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 
 // dotenv config
+
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
 const PORT = process.env.PORT;
 

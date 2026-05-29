@@ -13,6 +13,8 @@ import {
   googleLogin,
 } from '../controllers/authController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
+ 
+import {forgot,verifyOtp,setNewPasnpsword} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -45,4 +47,15 @@ router.post('/setup-2fa', authMiddleware, twoFALimiter, setup2FA);
 router.post('/verify-2fa', authMiddleware, twoFALimiter, verify2FA);
 router.post('/disable-2fa', authMiddleware, twoFALimiter, disable2FA);
 
+
+
+// Route for forgot password
+router.post('/forgot',forgot)
+router.post("/verify-otp",verifyOtp);
+router.put("/change-password",setNewPassword)
+
+
+
 export { router as authRouter };
+
+
