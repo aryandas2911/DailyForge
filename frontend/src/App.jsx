@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 
 const AuthLayout = ({ children }) => (
@@ -25,7 +26,7 @@ const AuthLayout = ({ children }) => (
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
@@ -37,7 +38,9 @@ const AnimatedRoutes = () => {
           path="/dashboard"
           element={
             <ProtectedRoutes>
-              <PageTransition><Dashboard /></PageTransition>
+              <ErrorBoundary>
+                <PageTransition><Dashboard /></PageTransition>
+              </ErrorBoundary>
             </ProtectedRoutes>
           }
         />
@@ -45,7 +48,9 @@ const AnimatedRoutes = () => {
           path="/tasks"
           element={
             <ProtectedRoutes>
-              <PageTransition><Tasks /></PageTransition>
+              <ErrorBoundary>
+                <PageTransition><Tasks /></PageTransition>
+              </ErrorBoundary>
             </ProtectedRoutes>
           }
         />
@@ -53,7 +58,9 @@ const AnimatedRoutes = () => {
           path="/routine-builder"
           element={
             <ProtectedRoutes>
-              <PageTransition><RoutineBuilder /></PageTransition>
+              <ErrorBoundary>
+                <PageTransition><RoutineBuilder /></PageTransition>
+              </ErrorBoundary>
             </ProtectedRoutes>
           }
         />
