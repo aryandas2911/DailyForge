@@ -109,7 +109,7 @@ const Signup = () => {
     try {
       localStorage.removeItem("token");
       if (!auth || !googleProvider) {
-  setError("Google login is not configured. Please add Firebase environment variables.");
+  setErrorMessage("Google login is not configured. Please add Firebase environment variables.");
   setIsGoogleLoading(false);
   return;
 }
