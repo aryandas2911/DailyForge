@@ -529,7 +529,7 @@ export default function Tasks() {
 
       {/* Duration Modal */}
       {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <h2 className="text-xl font-semibold mb-2 text-black/90">
               Complete Task
