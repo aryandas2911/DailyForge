@@ -1,0 +1,58 @@
+name: Unassign Stale Contributors
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight UTC
+  workflow_dispatch: # Allows running manually
+
+permissions:
+  issues: write
+
+jobs:
+  unassign-stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unassign stale issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const daysLimit = 3;
+            const msLimit = daysLimit * 24 * 60 * 60 * 1000;
+            const now = new Date();
+
+            console.log(`Checking for issues assigned more than ${daysLimit} days ago with no activity...`);
+
+            // Fetch open assigned issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              assignee: '*'
+            });
+
+            for (const issue of issues.data) {
+              if (issue.pull_request) continue; // Skip PRs
+
+              const lastUpdated = new Date(issue.updated_at);
+              const elapsed = now - lastUpdated;
+
+              if (elapsed > msLimit) {
+                console.log(`Unassigning issue #${issue.number} due to inactivity.`);
+                
+                // Comment on the issue to inform the contributor
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `Hi @${issue.assignees.map(a => a.login).join(', @')}, this issue has been unassigned due to no activity/updates for ${daysLimit} days. This keeps the repository active and open for other GSSoC contributors! Feel free to request it again if you are ready to submit a PR soon.`
+                });
+
+                // Unassign
+                await github.rest.issues.removeAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  assignees: issue.assignees.map(a => a.login)
+                });
+              }
+            }
