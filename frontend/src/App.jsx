@@ -27,10 +27,10 @@ const App = () => {
       <Navbar />
       <main className="app-bg min-h-screen pt-15 flex flex-col">
         <Routes>
-          <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-          <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
-          <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+          <Route path="/about" element={<AuthLayout><About /></AuthLayout>} />
           <Route
             path="/dashboard"
             element={
@@ -77,7 +77,7 @@ const App = () => {
       <Footer />
       <ScrollToTop />
     </BrowserRouter>
-    
+
   );
 };
 
