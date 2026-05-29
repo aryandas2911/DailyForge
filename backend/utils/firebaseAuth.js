@@ -58,24 +58,36 @@ async function fetchGooglePublicKeys() {
  * @returns {Promise<object>} The verified token payload containing email, name, picture, etc.
  */
 export async function verifyFirebaseIdToken(token) {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
+  if (!token || typeof token !== "string") {
+    throw new Error("Firebase ID token must be a non-empty string");
+  }
 
-  // Graceful fallback for local development if Project ID is not configured
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const allowUnverified =
+    process.env.FIREBASE_AUTH_ALLOW_UNVERIFIED === "true" &&
+    process.env.NODE_ENV !== "production";
+
+  // Fail closed by default. Allow an explicit insecure dev-mode override only when opted in.
   if (!projectId) {
-    console.warn(
-      "[FIREBASE AUTH] Warning: FIREBASE_PROJECT_ID is not configured in backend environment. " +
-      "Falling back to permissive decode mode (for local testing only)."
-    );
-    const decoded = jwt.decode(token);
-    if (!decoded) {
-      throw new Error("Invalid Firebase ID token format");
+    if (!allowUnverified) {
+      throw new Error(
+        "FIREBASE_PROJECT_ID is not configured. Refusing to accept unverified Firebase ID tokens."
+      );
     }
-    
-    // Perform standard client-side expiration checks
+
+    console.warn(
+      "[FIREBASE AUTH] Insecure dev-mode enabled: accepting UNVERIFIED Firebase ID tokens " +
+        "(set FIREBASE_AUTH_ALLOW_UNVERIFIED=false in production)."
+    );
+
+    const decoded = jwt.decode(token);
+    if (!decoded) throw new Error("Invalid Firebase ID token format");
+
     const now = Math.floor(Date.now() / 1000);
     if (decoded.exp && decoded.exp < now) {
       throw new Error("Firebase ID token has expired");
     }
+
     return decoded;
   }
 
@@ -117,14 +129,14 @@ export async function verifyFirebaseIdToken(token) {
     return verified;
   } catch (error) {
     console.error("[FIREBASE AUTH] Token verification failed:", error.message);
-    
-    // Developer fallback in case of transient local network issues or incomplete setups
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[FIREBASE AUTH] Permissive Dev Fallback: Decoding token without signature verification.");
+
+    // Optional insecure dev fallback (explicit opt-in only)
+    if (allowUnverified) {
+      console.warn(
+        "[FIREBASE AUTH] Insecure dev-mode enabled: returning decoded token without signature verification."
+      );
       const decoded = jwt.decode(token);
-      if (decoded) {
-        return decoded;
-      }
+      if (decoded) return decoded;
     }
     throw error;
   }
