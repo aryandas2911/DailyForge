@@ -120,7 +120,7 @@ export async function verifyFirebaseIdToken(token) {
     if (verified.aud !== projectId) {
       throw new Error(`Invalid token audience (project ID): ${verified.aud}`);
     }
-    
+
     const now = Math.floor(Date.now() / 1000);
     if (verified.exp && verified.exp < now) {
       throw new Error("Firebase ID token has expired");
