@@ -4,8 +4,10 @@ import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 
-const escapeRegex = (text) =>
-  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const DEFAULT_TASK_PAGE = 1;
+const DEFAULT_TASK_LIMIT = 10;
+const MIN_TASK_LIMIT = 1;
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -39,6 +41,13 @@ export const createTask = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Please enter all the details",
+      });
+    }
+
+    if (title.trim().length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be 50 characters or less",
       });
     }
 
@@ -119,22 +128,32 @@ export const getTasks = async (req, res) => {
       });
     }
 
-    // fetch tasks from database
-    const tasks = await Task.find({ userId }).sort({
-      createdAt: -1,
-    });
+    const page = Math.max(
+      Number.parseInt(req.query.page, 10) || DEFAULT_TASK_PAGE,
+      DEFAULT_TASK_PAGE
+    );
+    const limit = Math.max(
+      Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
+      MIN_TASK_LIMIT
+    );
+    const skip = (page - 1) * limit;
+    const taskQuery = { userId };
 
-    // FIXED: empty tasks should return success response
-    if (tasks.length === 0) {
-      return res.status(200).json({
-        success: true,
-        tasks: [],
-      });
-    }
+    // fetch paginated tasks from database
+    const [tasks, totalTasks] = await Promise.all([
+      Task.find(taskQuery).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Task.countDocuments(taskQuery),
+    ]);
+
+    const totalPages = Math.ceil(totalTasks / limit);
 
     return res.status(200).json({
       success: true,
       tasks,
+      totalTasks,
+      totalPages,
+      currentPage: page,
+      limit,
     });
   } catch (error) {
     console.log("Error fetching tasks", error);
@@ -252,12 +271,12 @@ export const deleteTask = async (req, res) => {
     }
 
     // fetch task to be deleted from database
-    const deleteTask = await Task.findOneAndDelete({
+    const deletedTask = await Task.findOneAndDelete({
       _id: taskId,
       userId,
     });
 
-    if (!deleteTask) {
+    if (!deletedTask) {
       return res.status(404).json({
         message: "Task not found",
       });
@@ -323,7 +342,7 @@ export const bulkDeleteTasks = async (req, res) => {
       message: "Tasks deleted successfully",
     });
   } catch (error) {
-    //error handling
+    // error handling
     console.log("Error bulk deleting tasks", error);
 
     return res.status(500).json({
