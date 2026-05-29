@@ -1,5 +1,4 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Save } from "lucide-react";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -80,7 +79,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef }) {
+export default function WeeklyGrid({ scheduledTasks, onDeleteTask, innerRef }) {
   return (
     <div className="card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in" ref={innerRef}>
       <h2 className="text-lg font-semibold text-main mb-4 px-6.5 pt-3">Weekly Schedule</h2>
@@ -91,20 +90,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
           gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))",
         }}
       >
-        {/* ===== Save Buttons Row ===== */}
-        <div /> {/* empty time column */}
-        {DAYS.map((day) => (
-          <div key={`save-${day}`} className="flex justify-center pb-2">
-            <button
-              onClick={() => onSaveDay(day)}
-              title={`Save ${day} Routine`}
-              className="flex items-center justify-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 px-2.5 py-1 text-[9px] sm:text-xs font-semibold cursor-pointer hover:bg-cyan-100 dark:hover:bg-cyan-900/50 hover:shadow-sm transition-all duration-200 hover-lift"
-            >
-              <Save size={10} className="sm:w-3 sm:h-3" />
-              <span className="hidden sm:inline">Save</span>
-            </button>
-          </div>
-        ))}
+
         {/* ===== Day Headers ===== */}
         <div className="border-b border-soft/30" />
         {DAYS.map((day) => (
