@@ -233,25 +233,25 @@ const Navbar = () => {
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center justify-between gap-3 sm:gap-4 h-16 md:h-18 flex-nowrap">
 
             {/* Logo Section with Hover Animation */}
-            <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+            <Link to={user ? "/dashboard" : "/login"} className="flex min-w-0 shrink-0 items-center gap-2 group focus:outline-none">
               <motion.div
                 whileHover={{ rotate: 180 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm shrink-0"
               >
                 <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
               </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+              <span className="min-w-0 whitespace-nowrap text-[clamp(1.15rem,2vw,1.5rem)] sm:text-[clamp(1.35rem,2.3vw,1.75rem)] font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
                 DailyForge
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             {user && (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2 shrink-0">
                 {navLinks.map((link) => (
                   <NavLink
                     key={link.name}
@@ -273,7 +273,7 @@ const Navbar = () => {
             )}
 
             {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4 shrink-0">
               {/* Premium Dark Mode Toggle */}
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 15 }}
@@ -315,6 +315,35 @@ const Navbar = () => {
               )}
             </div>
 
+            {/* Mobile controls */}
+            <div className="flex lg:hidden items-center gap-2 shrink-0">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleThemeToggle}
+                className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center"
+                aria-label="Toggle dark mode"
+              >
+                {theme === "dark" ? (
+                  <Sun size={18} className="text-yellow-400 fill-yellow-400" />
+                ) : (
+                  <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
+                )}
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen((open) => !open)}
+                className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center"
+                aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={isOpen}
+                aria-controls="mobile-navigation-menu"
+              >
+                {isOpen ? <X size={20} /> : <Menu size={20} />}
+              </motion.button>
+            </div>
+
           </div>
         </div>
 
@@ -327,7 +356,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+            className="lg:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {user && navLinks.map((link) => (
