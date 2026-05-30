@@ -10,8 +10,9 @@ export default function Footer() {
   ];
 
   return (
-    // Changed to a deep dark shade of your theme's green for better contrast
-    <footer className="bg-[#0f2926] text-white mt-16 border-t border-[#4eb7b3]/30">
+  // Updated to match the application's dark blue/cyan theme for better visual consistency
+    <footer className="bg-slate-900 text-white mt-16 border-t border-[#4eb7b3]/20">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent"></div>
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
         
         {/* Main Grid */}
