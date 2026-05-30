@@ -29,8 +29,7 @@ if (!token && authHeader?.startsWith('Bearer ')) {
 
   try {
     // verify token using jwt key
-    console.log("AUTH HEADER:", req.headers.authorization);
-console.log("TOKEN:", token);
+
 
     const verify = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: [JWT_ALGORITHM],
