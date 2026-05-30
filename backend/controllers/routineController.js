@@ -1,6 +1,12 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
-import { checkOverlap } from "../utils/routineUtils.js";
+import {
+  checkOverlap,
+  calculateBurnoutScore,
+  calculateConsistencyScore,
+  detectFatigueLevel,
+  getAdaptiveDifficulty,
+} from "../utils/routineUtils.js";
 
 const validateRoutineItems = (items, res) => {
   if (!Array.isArray(items) || items.length === 0) {
@@ -22,11 +28,13 @@ const validateRoutineItems = (items, res) => {
       return false;
     }
 
-    const endTime = item.startTime + item.duration;
+    const startTime = Number(item.startTime);
+    const duration = Number(item.duration);
+    const endTime = startTime + duration;
     formatted.push({
       day: item.day,
-      startTime: item.startTime,
-      endTime: endTime,
+      startTime,
+      endTime,
     });
   }
 
@@ -109,11 +117,38 @@ export const createRoutine = async (req, res) => {
     }
 
     // create new routine document
+    const completedDays = items.length;
+
+    const missedDays = 0;
+
+    const burnoutScore = calculateBurnoutScore(missedDays, completedDays);
+
+    const consistencyScore = calculateConsistencyScore(
+      completedDays,
+      missedDays
+    );
+
+    const fatigueLevel = detectFatigueLevel(burnoutScore);
+
+    const difficultyLevel = getAdaptiveDifficulty(consistencyScore);
+
     const newRoutine = new Routine({
       userId,
       name,
       description,
       items,
+      adaptiveSettings: {
+        adaptiveEnabled: true,
+        difficultyLevel,
+        burnoutScore,
+        consistencyScore,
+        fatigueLevel,
+        recoveryMode: false,
+        recoveryDays: 0,
+        missedDaysCount: 0,
+        completedDaysCount: completedDays,
+        sustainabilityScore: 100,
+      },
     });
 
     // save routine in collection
@@ -279,7 +314,13 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const updates = req.body;
+    const { name, description, items } = req.body;
+
+    const updates = {
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(items && { items }),
+    };
     const routineId = req.params.id;
 
     if (Object.prototype.hasOwnProperty.call(updates, "items")) {
