@@ -79,7 +79,7 @@ const Login = () => {
 
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
-      const res = await api.post("/auth/google", { idToken });
+      const res = await api.post("/auth/google-login", { idToken });
       setUser(res.data.user);
       navigate(redirectPath, { replace: true });
     } catch (err) {
@@ -101,7 +101,7 @@ const Login = () => {
         setTempUserId(res.data.tempUserId);
         return;
       }
-      const me = await api.get("/auth/me");
+      const me = await api.get("/auth/user");
       setUser(me.data.user);
       navigate(redirectPath, { replace: true });
     } catch (error) {
@@ -115,8 +115,8 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      await api.post("/auth/login/2fa", { tempUserId, token: totpCode });
-      const me = await api.get("/auth/me");
+      await api.post("/auth/login-2fa", { tempUserId, token: totpCode });
+      const me = await api.get("/auth/user");
       setUser(me.data.user);
       navigate(redirectPath, { replace: true });
     } catch (error) {

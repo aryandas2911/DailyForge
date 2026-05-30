@@ -296,16 +296,6 @@ Copy the provided `.env.example` to a new file named `.env`.
 
 ---
 
-## 🛠️ Troubleshooting
-
-| Issue | Common Cause | Quick Fix |
-| :--- | :--- | :--- |
-| **CORS Errors** | `FRONTEND_URL` mismatch in backend `.env`. | Match it to your local frontend URL exactly (e.g., `http://localhost:5173`). Restart server. |
-| **Database Failures** | Incorrect credentials or IP restriction. | Replace `<password>` with your database user password. Whitelist `0.0.0.0/0` in Atlas Network Access. |
-| **Dependency Conflicts** | React 19 / Tailwind v4 version strictness. | Run `npm install --legacy-peer-deps` in both directories. |
-| **Glitchy Drag-and-Drop** | DOM-altering browser extensions. | Test the application in an **Incognito window**. |
-
----
 
 
 ## 🌐 Google Authentication Setup
