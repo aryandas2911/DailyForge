@@ -25,7 +25,6 @@ const LoadingSpinner = () => (
 const Login = () => {
   const cardRef = useRef(null);
 
-  // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -35,12 +34,10 @@ const Login = () => {
   const [totpCode, setTotpCode] = useState("");
   const [tempUserId, setTempUserId] = useState(null);
 
-  // useNavigate object
   const navigate = useNavigate();
   const location = useLocation();
   const redirectPath = location.state?.from || "/dashboard";
 
-  // useContext for auth
   const { setUser } = useContext(AuthContext);
 
   const handleMouseMove = (e) => {
@@ -51,10 +48,10 @@ const Login = () => {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((y - centerY) / centerY) * -6;
+    const rotateY = ((x - centerX) / centerX) * 6;
     card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
   };
 
   const handleMouseLeave = () => {
@@ -83,7 +80,6 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
     setIsSubmitLoading(true);
     setError("");
@@ -116,21 +112,39 @@ const Login = () => {
     }
   };
 
+  // Navbar components mirrored from screenshot
+  const Navbar = () => (
+    <div className="absolute top-0 left-0 w-full flex items-center justify-between px-12 py-6 z-50">
+      <div className="flex items-center gap-2">
+        <div className="bg-[#4fbcae] text-white font-black rounded-lg w-8 h-8 flex items-center justify-center text-lg shadow-sm">D</div>
+        <span className="text-xl font-bold text-[#2a7e74] tracking-tight">DailyForge</span>
+      </div>
+      <div className="flex items-center gap-6">
+        <button className="p-2.5 rounded-xl border border-[#4fbcae]/20 text-[#2a7e74] bg-white/40 hover:bg-white/60 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 17.657l.707.707M6.343 6.343l.707-.707M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+          </svg>
+        </button>
+        <Link to="/login" className="text-[#2a7e74] font-semibold hover:text-[#1e5c54] transition-colors">Login</Link>
+        <Link to="/signup" className="bg-[#4fbcae] text-white px-5 py-2.5 rounded-xl font-semibold shadow-md hover:bg-[#3ea89a] transition-all transform hover:-translate-y-[1px]">Signup</Link>
+      </div>
+    </div>
+  );
+
   if (tempUserId) {
     return (
-      <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative">
-        <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-        <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
+      <div className="bg-gradient-to-tr from-[#d2f3ee] via-[#e6f9f6] to-[#dff0ff] min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative font-sans">
+        <Navbar />
         <form
           onSubmit={handle2FASubmit}
-          className="surface-bg animate-in w-full max-w-md rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)]"
+          className="bg-white/95 backdrop-blur-md w-full max-w-md rounded-[32px] px-10 py-12 flex flex-col gap-6 border border-white/40 shadow-[0_25px_50px_-12px_rgba(42,126,116,0.15)] z-10"
         >
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">Two-Factor Auth</h1>
-            <p className="text-sm text-muted">Enter the code from your authenticator app</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#2a7e74]">Two-Factor Auth</h1>
+            <p className="text-sm text-slate-500 font-medium">Enter the code from your authenticator app</p>
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="totp" className="text-sm font-medium text-main">TOTP Code</label>
+            <label htmlFor="totp" className="text-sm font-semibold text-[#2a7e74]">TOTP Code</label>
             <input
               type="text"
               id="totp"
@@ -138,15 +152,15 @@ const Login = () => {
               required
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
-              className="input-modern w-full px-4 py-3 rounded-2xl text-sm"
+              className="w-full px-4 py-3.5 rounded-2xl text-sm border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4fbcae]/30 focus:border-[#4fbcae] transition-all text-slate-800"
             />
           </div>
           {error && (
-            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500">
+            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-600 font-medium">
               {error}
             </div>
           )}
-          <button type="submit" className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer">
+          <button type="submit" className="w-full py-3.5 rounded-2xl bg-[#4fbcae] hover:bg-[#3ea89a] text-white font-bold shadow-lg shadow-[#4fbcae]/20 transition-all active:scale-[0.99] cursor-pointer">
             Verify
           </button>
         </form>
@@ -155,49 +169,89 @@ const Login = () => {
   }
 
   return (
-    <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative">
-      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
-      <div ref={cardRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative z-10 w-full max-w-md will-change-transform transform-gpu">
-        <form onSubmit={handleSubmit} className="surface-bg animate-in w-full rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">Welcome Back</h1>
-            <p className="text-sm text-muted">Login to continue your experience</p>
+    <div className="bg-gradient-to-tr from-[#c4f1ea] via-[#e3f7f4] to-[#dbeeff] min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative font-sans">
+      <Navbar />
+      
+      {/* Dynamic Background Blurs */}
+      <div className="absolute top-[-10%] left-[-5%] w-[45vw] h-[45vw] rounded-full bg-teal-300/20 blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full bg-sky-300/20 blur-3xl pointer-events-none"></div>
+
+      <div ref={cardRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative z-10 w-full max-w-[440px] will-change-transform transform-gpu">
+        <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-md w-full rounded-[32px] px-10 py-12 flex flex-col gap-6 border border-white/60 shadow-[0_30px_70px_-15px_rgba(42,126,116,0.18)]">
+          
+          <div className="text-center space-y-1.5">
+            <h1 className="text-[32px] font-extrabold tracking-tight text-[#2a7e74]">Welcome Back</h1>
+            <p className="text-sm font-medium text-teal-600/80">Login to continue your experience</p>
           </div>
-          <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="flex items-center justify-center w-full px-4 py-3 rounded-2xl border border-soft bg-white/70 dark:bg-slate-900/50 text-slate-700 dark:text-slate-100 font-medium transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md disabled:opacity-50 cursor-pointer">
+
+          <button 
+            type="button" 
+            onClick={handleGoogleLogin} 
+            disabled={isGoogleLoading || isSubmitLoading} 
+            className="flex items-center justify-center w-full px-4 py-3.5 rounded-2xl border border-slate-200/80 bg-slate-100/70 hover:bg-slate-200/60 text-slate-600 font-semibold transition-all duration-200 transform active:scale-[0.99] disabled:opacity-50 cursor-pointer text-sm"
+          >
             {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
             {isGoogleLoading ? "Connecting..." : "Continue with Google"}
           </button>
-          <div className="flex items-center">
-            <div className="flex-1 h-px bg-white/20"></div>
-            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">OR</span>
-            <div className="flex-1 h-px bg-white/20"></div>
+
+          <div className="flex items-center my-1">
+            <div className="flex-1 h-px bg-slate-200/80"></div>
+            <span className="px-4 text-[11px] font-bold tracking-[0.25em] uppercase text-teal-700/50">OR</span>
+            <div className="flex-1 h-px bg-slate-200/80"></div>
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
-            <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm" />
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-[13px] font-bold text-[#2a7e74] tracking-wide">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="user@email.com" 
+              required 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              className="w-full px-4 py-3.5 rounded-2xl text-sm border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4fbcae]/20 focus:border-[#4fbcae] transition-all text-slate-800 placeholder-slate-400" 
+            />
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-sm font-medium text-main">Password</label>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-[13px] font-bold text-[#2a7e74] tracking-wide">Password</label>
             <div className="relative">
-              <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                id="password" 
+                placeholder="••••••••" 
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full px-4 py-3.5 pr-12 rounded-2xl text-sm border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#4fbcae]/20 focus:border-[#4fbcae] transition-all text-slate-800 placeholder-slate-400" 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#2a7e74] transition-colors cursor-pointer"
+              >
                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
           </div>
+
           {error && (
-            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500">
+            <div className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-600 font-medium">
               {error}
             </div>
           )}
-          <button type="submit" disabled={isGoogleLoading || isSubmitLoading} className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50">
+
+          <button 
+            type="submit" 
+            disabled={isGoogleLoading || isSubmitLoading} 
+            className="w-full py-3.5 rounded-2xl bg-[#4fbcae] hover:bg-[#3ea89a] text-white font-bold shadow-lg shadow-[#4fbcae]/25 transition-all transform active:scale-[0.99] disabled:opacity-50 cursor-pointer mt-2 text-sm tracking-wide"
+          >
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
-          <p className="text-center text-sm text-muted">
+
+          <p className="text-center text-sm text-slate-500 font-medium mt-1">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" className="text-main font-semibold hover:underline">Sign up</Link>
+            <Link to="/signup" className="text-[#4fbcae] font-bold hover:text-[#2a7e74] hover:underline transition-all">Sign up</Link>
           </p>
         </form>
       </div>
