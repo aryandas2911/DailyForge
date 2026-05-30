@@ -14,6 +14,8 @@ let app = null;
 let auth = null;
 let googleProvider = null;
 
+console.log("API KEY:", firebaseConfig.apiKey);
+console.log("PROJECT ID:", firebaseConfig.projectId);
 // Only initialize Firebase if an API key is provided
 if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your_firebase_api_key") {
   // Initialize Firebase

@@ -361,6 +361,7 @@ export const googleLogin = async (req, res) => {
     try {
       decodedToken = await verifyFirebaseIdToken(idToken);
     } catch (verifyError) {
+        console.error("VERIFY ERROR:", verifyError);
       return res.status(401).json({
         message: 'Invalid or expired Firebase token',
         error: verifyError.message,
