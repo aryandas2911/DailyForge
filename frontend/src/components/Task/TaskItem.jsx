@@ -66,7 +66,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               {task.dueDate && (
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {new Date(task.dueDate).toLocaleDateString()} {new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
               {isCompleted && task.actualDuration != null && (

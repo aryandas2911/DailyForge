@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Plus, ArrowRight, CheckCircle2, Clock } from "lucide-react";
 
 
 export default function DashboardTasks({ tasks, updateTask }) {
@@ -92,6 +92,13 @@ export default function DashboardTasks({ tasks, updateTask }) {
                   >
                     {task.priority}
                   </span>
+
+                  {task.dueDate && (
+                    <span className="text-[11px] text-muted flex items-center gap-1">
+                      <Clock size={10} />
+                      {new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
 
                   {task.status === "Completed" && (
                     <span className="text-[11px] text-muted">Completed</span>
