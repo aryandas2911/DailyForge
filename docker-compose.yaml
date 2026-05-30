@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+
+  mongo:
+    image: mongo:7-jammy
+    container_name: dailyforge_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS:-changeme}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-dailyforge}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dailyforge_backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASS:-changeme}@mongo:27017/${MONGO_DB:-dailyforge}?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey_changeme_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CLIENT_ORIGIN: http://localhost:5173
+    ports:
+      - "5000:5000"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5000
+    container_name: dailyforge_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "5173:80"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mongo_data:
+
+networks:
+  internal:
+    driver: bridge
