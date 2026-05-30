@@ -126,8 +126,12 @@ export const login = async (req, res) => {
     if (user.twoFactorEnabled) {
       return res.status(200).json({ requires2FA: true, tempUserId: user._id });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
+    const jwtSecret = getJwtSecret(res);
+    if (!jwtSecret) return;
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+      algorithm: JWT_ALGORITHM,
     });
 
     return res

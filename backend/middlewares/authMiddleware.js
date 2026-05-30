@@ -3,8 +3,15 @@ import jwt from 'jsonwebtoken';
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
 export const authMiddleware = (req, res, next) => {
-  // access the token from cookies
-  const token = req.cookies?.token;
+  // access the token from cookies or Authorization header
+  let token = req.cookies?.token;
+  if (!token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    }
+  }
+
   if (!token) {
     return res
       .status(401)

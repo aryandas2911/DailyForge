@@ -68,7 +68,6 @@ const Login = () => {
     setIsGoogleLoading(true);
     setError("");
     try {
-      localStorage.removeItem("token");
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await api.post("/auth/google", { idToken });

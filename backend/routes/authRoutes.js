@@ -31,18 +31,24 @@ const twoFALimiter = rateLimit({
 router.post('/signup', signup);
 router.post('/login', login);
 router.post('/google-login', googleLogin);
+router.post('/google', googleLogin); // compatibility path
 
 // 2FA login completion (rate limited — protects TOTP brute-force)
 router.post('/login-2fa', twoFALimiter, loginWith2FA);
+router.post('/login/2fa', twoFALimiter, loginWith2FA); // compatibility path
 
 // Protected routes (require valid JWT)
 router.get('/user', authMiddleware, getUser);
+router.get('/me', authMiddleware, getUser); // compatibility path
 router.put('/update-profile', authMiddleware, updateProfile);
 router.post('/logout', authMiddleware, logout);
 
 // 2FA management routes (protected + rate limited)
 router.post('/setup-2fa', authMiddleware, twoFALimiter, setup2FA);
+router.post('/2fa/setup', authMiddleware, twoFALimiter, setup2FA); // compatibility path
 router.post('/verify-2fa', authMiddleware, twoFALimiter, verify2FA);
+router.post('/2fa/verify', authMiddleware, twoFALimiter, verify2FA); // compatibility path
 router.post('/disable-2fa', authMiddleware, twoFALimiter, disable2FA);
+router.post('/2fa/disable', authMiddleware, twoFALimiter, disable2FA); // compatibility path
 
 export { router as authRouter };

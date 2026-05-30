@@ -107,7 +107,6 @@ const Signup = () => {
     setIsGoogleLoading(true);
     setErrorMessage("");
     try {
-      localStorage.removeItem("token");
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await api.post("/auth/google", { idToken });
@@ -152,7 +151,6 @@ const Signup = () => {
     if (!validate()) return;
     setIsLoading(true);
     try {
-      localStorage.removeItem("token");
       await api.post("/auth/signup", { name, email, password });
       const me = await api.get("/auth/me");
       setUser(me.data.user);
