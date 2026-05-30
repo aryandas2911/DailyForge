@@ -127,11 +127,13 @@ const handleDuplicateRoutine = async () => {
       { targetDay: duplicateTargetDay }
     );
 
+    const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
     // Optimistic UI update
-    if (res.data.routine) {
+    if (duplicatedRoutine) {
       setSavedRoutines((prevRoutines) => [
-        res.data.routine,
-        ...prevRoutines,
+        duplicatedRoutine,
+        ...prevRoutines.filter((routine) => routine._id !== duplicatedRoutine._id),
       ]);
     } else {
       await fetchRoutines();
