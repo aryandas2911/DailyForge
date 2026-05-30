@@ -98,7 +98,7 @@ export default function TaskFormModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (submitLockRef.current) return;
+    if (submitLockRef.current||isSubmitting) return;
 
     onError?.("");
 
@@ -121,8 +121,8 @@ export default function TaskFormModal({
     }
 
     try {
-      submitLockRef.current = true;
       setIsSubmitting(true);
+      submitLockRef.current = true;      
       await Promise.resolve(
         onSubmit({
           title: title.trim(),
@@ -193,7 +193,7 @@ export default function TaskFormModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={isSubmitting||submitLockRef.current}
             className="absolute top-4 right-4 p-1 rounded-full text-main
                      hover:bg-gray-100 dark:hover:bg-slate-700"
             aria-label="Close modal"

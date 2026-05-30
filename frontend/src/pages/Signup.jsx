@@ -154,9 +154,10 @@ const Signup = () => {
     try {
       localStorage.removeItem("token");
       await api.post("/auth/signup", { name, email, password });
-      const me = await api.get("/auth/me");
+      const me = await api.get("/auth/user");
       setUser(me.data.user);
       navigate("/dashboard");
+      
     } catch (error) {
       if (error.response?.status === 409) {
         setErrorMessage("An account with this email already exists. Please try logging in instead.");
