@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import useTasks from "../hooks/useTasks";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
 import { clsx } from "clsx";
@@ -75,6 +76,8 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const { tasks } = useTasks();
+  const incompleteTasks = tasks.filter((t) => t.status !== "Completed").length;
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -206,7 +209,7 @@ const Navbar = () => {
   // Navigation Links configuration
  const navLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Tasks", path: "/tasks", icon: CheckSquare },
+  { name: "Tasks", path: "/tasks", icon: CheckSquare, badge: incompleteTasks },
   { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
   { name: "Analytics", path: "/analytics", icon: TrendingUp },
   { name: "Profile", path: "/profile", icon: User },
@@ -253,22 +256,27 @@ const Navbar = () => {
             {user && (
               <div className="hidden md:flex items-center gap-2">
                 {navLinks.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    className={({ isActive }) =>
-                      cn(
-                        "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
-                        isActive
-                          ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
-                      )
-                    }
-                  >
-                    <link.icon size={16} className={cn("transition-transform duration-200")} />
-                    {link.name}
-                  </NavLink>
-                ))}
+                        <NavLink
+                          key={link.name}
+                          to={link.path}
+                          className={({ isActive }) =>
+                            cn(
+                              "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                              isActive
+                                ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
+                                : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                            )
+                          }
+                        >
+                          <link.icon size={16} className={cn("transition-transform duration-200")} />
+                          {link.name}
+                          {link.badge > 0 && (
+                            <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full leading-none">
+                              {link.badge}
+                            </span>
+                          )}
+                        </NavLink>
+                      ))}
               </div>
             )}
 
@@ -331,23 +339,28 @@ const Navbar = () => {
           >
             <div className="px-4 pt-2 pb-6 space-y-1">
               {user && navLinks.map((link) => (
-                <NavLink
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
-                      isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
-                    )
-                  }
-                >
-                  <link.icon size={18} />
-                  {link.name}
-                </NavLink>
-              ))}
+                  <NavLink
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
+                        isActive
+                          ? "bg-[#d0f6e3] text-[#3b8ea0]"
+                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                      )
+                    }
+                  >
+                    <link.icon size={18} />
+                    {link.name}
+                    {link.badge > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full leading-none">
+                        {link.badge}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
 
                 <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
                   {!user ? (
