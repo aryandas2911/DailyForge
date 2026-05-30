@@ -165,7 +165,28 @@ const Login = () => {
             <h1 className="text-4xl font-bold tracking-tight text-main">Welcome Back</h1>
             <p className="text-sm text-muted">Login to continue your experience</p>
           </div>
-          <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="flex items-center justify-center w-full px-4 py-3 rounded-2xl border border-soft bg-white/70 dark:bg-slate-900/50 text-slate-700 dark:text-slate-100 font-medium transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md disabled:opacity-50 cursor-pointer">
+          <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="
+flex items-center justify-center
+w-full px-4 py-3
+rounded-2xl
+!bg-white
+!text-black
+!border
+!border-gray-300
+font-medium
+shadow-sm
+transition-all duration-200
+hover:bg-gray-50
+hover:border-gray-400
+hover:-translate-y-[1px]
+hover:shadow-md
+dark:bg-slate-900/50
+dark:border-slate-700
+dark:text-slate-100
+disabled:opacity-50
+cursor-pointer
+">
+
             {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
             {isGoogleLoading ? "Connecting..." : "Continue with Google"}
           </button>
