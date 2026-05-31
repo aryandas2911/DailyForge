@@ -17,6 +17,7 @@ import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
+import Forgot from "./pages/Forgot.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
@@ -95,7 +96,11 @@ const App = () => {
           <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
+             <Route path="/forgot" element={<PublicRoute><AuthLayout><Forgot/></AuthLayout></PublicRoute>}/>
           <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+       
+
+
           <Route
             path="/dashboard"
             element={

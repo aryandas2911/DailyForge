@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, Link, useLocation, NavLink } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -192,6 +192,11 @@ const Login = () => {
               {error}
             </div>
           )}
+
+
+          <NavLink to={"/forgot"} className="text-sm hover:text-cyan-500">Forgot Password ?</NavLink>
+
+
           <button type="submit" disabled={isGoogleLoading || isSubmitLoading} className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50">
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
