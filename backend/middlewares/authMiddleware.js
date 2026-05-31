@@ -4,7 +4,14 @@ const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
 export const authMiddleware = (req, res, next) => {
   // access the token from cookies
-  const token = req.cookies?.token;
+  let token = req.cookies?.token;
+
+const authHeader = req.headers.authorization;
+
+if (!token && authHeader?.startsWith('Bearer ')) {
+  token = authHeader.split(' ')[1];
+}
+
   if (!token) {
     return res
       .status(401)
@@ -22,6 +29,8 @@ export const authMiddleware = (req, res, next) => {
 
   try {
     // verify token using jwt key
+
+
     const verify = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: [JWT_ALGORITHM],
     });
