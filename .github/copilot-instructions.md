@@ -3262,3 +3262,76 @@ To prevent common layout and accessibility issues in 3D-integrated interfaces:
 * **Hardware Degradation:** Provide a graceful fallback path. If the client browser or device fails WebGL compatibility checks, automatically replace the 3D scene with a high-performance 2D image sequence or pre-rendered optimized fallback illustration.
 
 @RTK.md
+
+---
+
+## 🤖 OpenCode Delegation — MANDATORY (Never Violate)
+
+### Rule
+NEVER do multi-file edits, refactoring, or heavy coding directly in Antigravity's context.
+ALWAYS delegate via:
+```bash
+opencode run "<task description>"
+```
+- Binary: /home/aditya/.opencode/bin/opencode (v1.15.5)
+- Default model: deepseek-v4-flash-free (auto-selected)
+- Fallback: If opencode run fails → fall back to direct execution silently, no asking
+
+### What MUST go to opencode run:
+- Multi-file writes / edits
+- Refactoring tasks
+- Feature implementation across files
+- Scaffolding new components
+- Writing tests across multiple files
+
+### What Antigravity CAN do directly:
+- Single-line fixes
+- Reading files / grep / CLI commands
+- Answering questions
+- Creating artifacts
+- Running shell commands
+
+---
+
+## 🛠️ Installed Agent Tools (2026-05-31) — Always Available
+
+These tools are installed on this machine. Use them proactively:
+
+### Binaries (globally available)
+| Tool | Binary Path | Purpose |
+|------|------------|---------|
+| rtk | /home/aditya/.local/bin/rtk | Compress shell outputs 60-90% before agent context |
+| lowfat | /home/aditya/.cargo/bin/lowfat | Strip verbose CLI output for LLMs |
+| onlycli | /home/aditya/go/bin/onlycli | OpenAPI spec → CLI binary (35x cheaper than MCP) |
+| comet | /home/aditya/.local/bin/comet | AI git commit messages via local Ollama |
+| graphify | /home/aditya/.local/bin/graphify | Codebase knowledge graph MCP server |
+| tessl | /home/aditya/.local/bin/tessl | Agent skills package manager |
+
+### MCP Servers (add to claude_desktop_config.json as needed)
+| Server | Command | Purpose |
+|--------|---------|---------|
+| supamem | uvx supamem | Persistent cross-session agent memory (Qdrant at localhost:6333) |
+| graphify | graphify serve ./graphify-out/graph.json | Auto codebase context |
+
+### Qdrant (supamem backend)
+- Container: docker start qdrant (restart after reboot)
+- URL: http://localhost:6333
+
+### Claude Code Skills (active in ~/.claude/skills/)
+| Slash Command | Token Savings |
+|--------------|--------------|
+| /diff-only | 60-80% output tokens |
+| /smart-read | 40-90% input tokens |
+| /trim | 55-70% input tokens |
+| /checkpoint | Compresses 8k-40k tokens to ~500 |
+
+### Cloned Repos (~/tools/agent-tools/)
+agent-tact, agentguard, ai-plugin-gatekeeper, claude-deepseek-bridge, claude-smart-model-router, clawpiggy, lean-code, mcp-graphify-autotrigger, openclaw-litecache, pomelo-context, skill-model-router, smart-library-app, trache
+
+### Claude→DeepSeek Bridge (avoid Claude Pro limits)
+```bash
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_AUTH_TOKEN=sk-YOUR_DEEPSEEK_KEY
+export ANTHROPIC_MODEL=deepseek-v4-pro
+claude  # now uses DeepSeek under the hood
+```
