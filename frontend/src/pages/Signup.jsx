@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -190,6 +191,7 @@ const Signup = () => {
       {/* Glow blobs */}
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
+
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
       
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
@@ -282,21 +284,7 @@ const Signup = () => {
           </div>
 
           {/* Error */}
-          {errorMessage && (
-            <div
-              className="
-                px-4 py-3
-                rounded-2xl
-                text-sm
-                border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
-              "
-            >
-              {errorMessage}
-            </div>
-          )}
+          <FormError message={errorMessage} />
 
           {/* Name */}
           <div className="flex flex-col gap-2">
@@ -472,6 +460,7 @@ const Signup = () => {
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
+
 
           {/* Footer */}
           <p className="text-center text-sm text-muted">
