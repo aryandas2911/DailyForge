@@ -19,8 +19,8 @@ import { isSameDay } from "./dateUtils";
  */
 export function filterTasksByDate(tasks, targetDate = new Date()) {
   return tasks.filter((task) => {
-    const created = new Date(task.createdAt);
-    return isSameDay(targetDate, created);
+    const due = new Date(task.dueDate);
+    return isSameDay(targetDate, due);
   });
 }
 
