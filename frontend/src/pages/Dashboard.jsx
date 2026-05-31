@@ -128,7 +128,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRoutines();
   }, [token]);
-  }, []);
 
 const openDuplicateModal = (routine) => {
   setRoutineToDuplicate(routine);
@@ -151,11 +150,13 @@ const handleDuplicateRoutine = async () => {
       { targetDay: duplicateTargetDay }
     );
 
+    const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
     // Optimistic UI update
-    if (res.data.routine) {
+    if (duplicatedRoutine) {
       setSavedRoutines((prevRoutines) => [
-        res.data.routine,
-        ...prevRoutines,
+        duplicatedRoutine,
+        ...prevRoutines.filter((routine) => routine._id !== duplicatedRoutine._id),
       ]);
     } else {
       await fetchRoutines();
@@ -178,7 +179,7 @@ const handleDuplicateRoutine = async () => {
           {/* Left Section */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold text-main leading-tight">
-              {getGreeting()}, {user?.name}
+              {greeting}, {user?.name}
             </h1>
 
             <p className="text-sm italic text-primary">
