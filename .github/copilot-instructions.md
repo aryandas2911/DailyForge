@@ -26,11 +26,14 @@ All rules below are MANDATORY and apply to every task without exception.
 - Never call view_file or read_file on the same path twice in one session
 
 ### CLI-first (saves tokens vs reading whole files):
+- **Maximize Command-Line Output**: Always prefer shell/CLI tools over reading whole files. Never use `view_file` or `read_file` to search code or inspect logs when commands like `grep`, `tail`, `head`, or `find` can isolate the exact output. This keeps the prompt context small and saves tokens globally.
 - Finding something? → `grep -r "keyword" --include="*.ts" .` not read every file
 - Checking git state? → `git status` + `git diff` not read source files
 - Debugging? → `tail -50 logs/app.log` not open the whole log
 - Checking port? → `lsof -i :3000` not read server config
 - Running quality checks? → `make ci` (1 tool call) not lint+typecheck+test separately
+- Observability? → Run `codeburn status` or `codeburn optimize` to check context growth and apply recommended fixes (e.g., archiving unused custom agents/commands, setting BASH_MAX_OUTPUT_LENGTH=15000) to keep prompt overhead low.
+
 
 ### Use templates — don't write from scratch:
 - GitHub Actions CI → copy from `/home/aditya/bin/templates/github-actions/`
