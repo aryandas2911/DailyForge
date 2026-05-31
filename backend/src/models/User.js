@@ -2,44 +2,41 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+    name: { type: String, required: true},
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    streakFreezeCount: {
+      type: Number,
+      default: 2,
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-
-    // ─── Two-Factor Authentication ──────────────────────────────────────────
-    twoFactorEnabled: {
-      type: Boolean,
-      default: false,
-    },
-    // Encrypted (AES-256-CBC) base32 TOTP secret — stored as "iv:encryptedHex"
-    twoFactorSecret: {
-      type: String,
-      default: null,
-    },
-    // Temporary encrypted secret during setup — cleared after verification
-    twoFactorTempSecret: {
-      type: String,
-      default: null,
-    },
-    // bcrypt-hashed one-time backup codes (shown to user once on 2FA enable)
-    backupCodes: {
+    frozenDates: {
       type: [String],
       default: [],
     },
-    // ────────────────────────────────────────────────────────────────────────
+    lastRecoveryUsed: {
+      type: Date,
+      default: null,
+    },
+    recoveredStreaks: {
+      type: Number,
+      default: 0,
+    },
+    freezesUsed: {
+      type: Number,
+      default: 0,
+    },
+    longestProtectedStreak: {
+      type: Number,
+      default: 0,
+    },
+    lastFreezeReplenishDate: {
+      type: String,
+      default: null,
+    },
+    lastFreezeCheckDate: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

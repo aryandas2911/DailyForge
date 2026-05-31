@@ -8,6 +8,7 @@ import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import { startStreakScheduler } from "../utils/scheduler.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -30,6 +31,7 @@ app.use(
 );
 // Connect to MongoDB using mongoose
 connectDB();
+startStreakScheduler();
 
 // Middleware for parsing cookies and request body
 app.use(cookieParser());

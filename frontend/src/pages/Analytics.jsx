@@ -12,11 +12,44 @@ import {
   BookOpen,
   Tag,
   Clock,
-  Briefcase
+  Briefcase,
+  Snowflake
 } from "lucide-react";
 import api from "../api/axios";
 import html2canvas from "html2canvas";
 
+const RecoveryTimer = () => {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0); // Next midnight
+      const diffMs = midnight - now;
+
+      if (diffMs <= 0) {
+        setTimeLeft("Expired");
+        return;
+      }
+
+      const hrs = String(Math.floor((diffMs / (1000 * 60 * 60)) % 24)).padStart(2, "0");
+      const mins = String(Math.floor((diffMs / (1000 * 60)) % 60)).padStart(2, "0");
+      const secs = String(Math.floor((diffMs / 1000) % 60)).padStart(2, "0");
+      setTimeLeft(`${hrs}h ${mins}m ${secs}s`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className="font-mono bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-0.5 rounded text-xs font-semibold">
+      {timeLeft}
+    </span>
+  );
+};
 export default function Analytics() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -24,6 +57,25 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+  const [recovering, setRecovering] = useState(false);
+
+  const handleRecoverStreak = async () => {
+    try {
+      setRecovering(true);
+      const res = await api.post("/analytics/recover-streak");
+      if (res.data.success) {
+        alert("Streak successfully recovered!");
+        setShowRecoveryModal(false);
+        await fetchAnalytics();
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to recover streak");
+    } finally {
+      setRecovering(false);
+    }
+  };
 
   const fetchAnalytics = async () => {
     try {
@@ -478,7 +530,7 @@ export default function Analytics() {
       {/* Streaks & Leaderboard Row */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
         {/* Streak Tracker Card */}
-        <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md">
+        <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
           
           <div className="flex flex-col sm:flex-row items-center gap-6 z-10 relative">
@@ -489,27 +541,61 @@ export default function Analytics() {
               </div>
             </div>
 
-            <div className="text-center sm:text-left space-y-2">
-              <h3 className="text-xl font-bold text-main flex items-center justify-center sm:justify-start gap-2">
-                Consistency Streak
-              </h3>
+            <div className="text-center sm:text-left space-y-2 w-full">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h3 className="text-xl font-bold text-main flex items-center gap-2">
+                  Consistency Streak
+                </h3>
+                {stats.streaks.isEligibleForRecovery && (
+                  <button
+                    onClick={() => setShowRecoveryModal(true)}
+                    className="btn bg-red-500 hover:bg-red-600 text-white text-[10px] uppercase tracking-wider font-bold py-1 px-3 rounded-lg shadow-sm active:scale-95 transition-all cursor-pointer"
+                  >
+                    Recover Streak
+                  </button>
+                )}
+              </div>
               <p className="text-sm text-muted">
                 Complete at least one task daily to fuel your productivity streak!
               </p>
               
-              <div className="flex justify-center sm:justify-start items-center gap-8 pt-2">
-                <div className="text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-3">
+                <div className="text-center sm:text-left">
                   <span className="text-3xl font-extrabold bg-gradient-to-r from-amber-500 to-red-500 bg-clip-text text-transparent">
                     {stats.streaks.currentStreak}
                   </span>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Current Streak</p>
                 </div>
-                <div className="h-8 w-px bg-slate-300 dark:bg-slate-700"></div>
-                <div className="text-center">
+                <div className="text-center sm:text-left">
                   <span className="text-3xl font-extrabold text-main">
                     {stats.streaks.bestStreak}
                   </span>
                   <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Best Record</p>
+                </div>
+                <div className="text-center sm:text-left">
+                  <span className="text-3xl font-extrabold text-blue-500 flex items-center justify-center sm:justify-start gap-1">
+                    <Snowflake size={20} className="inline-block animate-pulse" />
+                    {stats.streaks.streakFreezeCount}
+                  </span>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Freezes Available</p>
+                </div>
+                <div className="text-center sm:text-left">
+                  <span className="text-2xl font-bold text-main">
+                    {stats.streaks.freezesUsed}
+                  </span>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Freezes Used</p>
+                </div>
+                <div className="text-center sm:text-left">
+                  <span className="text-2xl font-bold text-main">
+                    {stats.streaks.recoveredStreaks}
+                  </span>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Streaks Recovered</p>
+                </div>
+                <div className="text-center sm:text-left">
+                  <span className="text-2xl font-bold text-main">
+                    {stats.streaks.longestProtectedStreak}
+                  </span>
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted mt-1">Longest Protected</p>
                 </div>
               </div>
             </div>
@@ -844,6 +930,47 @@ export default function Analytics() {
           </div>
         </div>
       </section>
+      {showRecoveryModal && stats && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="card w-full max-w-sm border border-soft shadow-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl">
+            <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Snowflake size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-center text-main">
+              Confirm Streak Recovery
+            </h3>
+            <p className="mt-2 text-sm text-center text-muted">
+              Recovering your streak will consume <strong>1 streak freeze</strong>. You currently have <strong>{stats.streaks.streakFreezeCount}</strong> freezes left.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                className="btn btn-muted cursor-pointer"
+                onClick={() => setShowRecoveryModal(false)}
+                disabled={recovering}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary cursor-pointer flex items-center gap-2"
+                onClick={handleRecoverStreak}
+                disabled={recovering}
+              >
+                {recovering ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Recovering...
+                  </>
+                ) : (
+                  "Confirm Recovery"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

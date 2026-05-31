@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+import { checkAndApplyStreakFreezes } from '../utils/streakManager.js';
 
 // ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
@@ -303,7 +304,11 @@ export const getUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    return res.status(200).json({ success: true, user });
+    
+    // Apply streak freezes/replenishments on login/refresh session
+    await checkAndApplyStreakFreezes(user);
+    
+    return res.status(200).json({ success: true, user: user });
   } catch (_error) {
     return res.status(500).json({ message: 'Error fetching user data', success: false });
   }
