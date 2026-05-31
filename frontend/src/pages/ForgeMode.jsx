@@ -30,7 +30,6 @@ export default function ForgeMode() {
   const [customTaskTitle, setCustomTaskTitle] = useState("");
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [routinesList, setRoutinesList] = useState([]);
   const [routineTaskLoaded, setRoutineTaskLoaded] = useState(null);
   
   // Ambient audio state
@@ -60,7 +59,6 @@ export default function ForgeMode() {
         // Fetch routines to search for currently active routine task
         const routinesRes = await api.get("/routines");
         const fetchedRoutines = routinesRes.data.routines || [];
-        setRoutinesList(fetchedRoutines);
         
         // Auto-load scheduled task if active routine exists
         const activeIds = JSON.parse(localStorage.getItem("activeRoutineIds") || "[]");
@@ -120,6 +118,8 @@ export default function ForgeMode() {
     loadData();
   }, []);
 
+  const handleTimerCompleteRef = useRef(null);
+
   // Timer interval effect
   useEffect(() => {
     let intervalId = null;
@@ -129,7 +129,7 @@ export default function ForgeMode() {
       }, 1000);
     } else if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
-      handleTimerComplete();
+      if (handleTimerCompleteRef.current) handleTimerCompleteRef.current();
     }
     return () => clearInterval(intervalId);
   }, [isRunning, secondsLeft]);
@@ -146,13 +146,7 @@ export default function ForgeMode() {
     if (soundObj && soundObj.url) {
       const audio = new Audio(soundObj.url);
       audio.loop = true;
-      audio.volume = isMuted ? 0 : volume;
       audioRef.current = audio;
-      
-      // Attempt play (handling browser autoplays safely)
-      if (isRunning) {
-        audio.play().catch(err => console.log("Audio play deferred until user interaction", err));
-      }
     }
   }, [currentSound]);
 
@@ -165,14 +159,14 @@ export default function ForgeMode() {
         audioRef.current.pause();
       }
     }
-  }, [isRunning, sessionCompleted]);
+  }, [isRunning, sessionCompleted, currentSound]);
 
   // Sync volume adjustments
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
-  }, [volume, isMuted]);
+  }, [volume, isMuted, currentSound]);
 
   // Format MM:SS
   const formatTime = (secs) => {
@@ -203,25 +197,6 @@ export default function ForgeMode() {
         return "from-emerald-500/15 via-transparent to-transparent";
       default:
         return "from-teal-500/12 via-transparent to-transparent";
-    }
-  };
-
-  const getBorderGlowClass = () => {
-    if (!selectedTask) return "shadow-[0_0_40px_rgba(16,185,129,0.2)] border-emerald-500/30";
-    const tag = (selectedTask.tags && selectedTask.tags[0]) || "";
-    const priority = selectedTask.priority || "Medium";
-    
-    if (priority === "High") return "shadow-[0_0_45px_rgba(239,68,68,0.25)] border-rose-500/30 text-rose-400";
-    
-    switch (tag.toLowerCase()) {
-      case "homework":
-        return "shadow-[0_0_45px_rgba(59,130,246,0.25)] border-blue-500/30 text-blue-400";
-      case "creative":
-        return "shadow-[0_0_45px_rgba(168,85,247,0.25)] border-purple-500/30 text-purple-400";
-      case "routine":
-        return "shadow-[0_0_45px_rgba(16,185,129,0.25)] border-emerald-500/30 text-emerald-400";
-      default:
-        return "shadow-[0_0_45px_rgba(20,184,166,0.25)] border-teal-500/30 text-teal-400";
     }
   };
 
@@ -267,6 +242,10 @@ export default function ForgeMode() {
       }
     }
   };
+
+  useEffect(() => {
+    handleTimerCompleteRef.current = handleTimerComplete;
+  });
 
   // Start Confetti Particles
   const triggerSparks = () => {
