@@ -54,10 +54,8 @@ export default function TaskFormModal({
       setPriority(task.priority || "Low");
       if (task?.dueDate) {
         const dt = new Date(task.dueDate);
-
-        const datePart = dt.toISOString().slice(0, 10); // YYYY-MM-DD
-        const timePart = dt.toTimeString().slice(0, 5); // HH:MM
-
+        const datePart = dt.toISOString().slice(0, 10);
+        const timePart = dt.toTimeString().slice(0, 5);
         setDueDate(datePart);
         setDueTime(timePart);
       }
@@ -66,16 +64,13 @@ export default function TaskFormModal({
     onError?.("");
   }, [task, onError]);
 
-  /* ---------------- body scroll lock ---------------- */
   useEffect(() => {
     const scrollY = window.scrollY;
-
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.left = "0";
     document.body.style.right = "0";
     document.body.style.overflowY = "scroll";
-
     return () => {
       document.body.style.position = "";
       document.body.style.top = "";
@@ -90,9 +85,7 @@ export default function TaskFormModal({
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
     };
-
     document.addEventListener("keydown", handleKey);
-
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
@@ -141,7 +134,6 @@ export default function TaskFormModal({
 
   const toggleTag = (tagName) => {
     if (tagName === "Other") {
-      // toggle showing the custom input
       setShowOtherInput((s) => !s);
       return;
     }
@@ -155,7 +147,6 @@ export default function TaskFormModal({
   const addCustomTag = () => {
     const raw = customTagInput.trim();
     if (!raw) return;
-    // avoid duplicates (case-insensitive)
     const lower = raw.toLowerCase();
     const exists = tags.some((t) => t.toLowerCase() === lower);
     if (!exists) {
@@ -169,248 +160,224 @@ export default function TaskFormModal({
     setTags((prev) => prev.filter((t) => t !== tagName));
   };
 
-  // custom tags are tags that are not part of the predefined list (excluding "Other")
   const customTags = tags.filter((t) => !TAGS.includes(t));
 
   return createPortal(
-    <div className="fixed inset-0 z-50">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center py-10 px-4 bg-black/20 dark:bg-black/50 backdrop-blur-sm animate-in"
+      onClick={onClose}
+    >
       <div
-        className="absolute inset-0 flex items-center justify-center 
-                 py-10 px-4
-                 bg-black/20 dark:bg-black/50 backdrop-blur-sm
-                 animate-in"
-        onMouseDown={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-        aria-modal="true"
-        role="dialog"
+        className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6 relative border border-soft animate-in delay-100 overflow-y-auto max-h-screen"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="bg-(--surface) rounded-2xl shadow-xl w-full max-w-md p-6
-                   relative border border-soft animate-in delay-100 overflow-y-auto max-h-screen"
-          onMouseDown={(e) => e.stopPropagation()}
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="absolute top-4 right-4 p-1 rounded-full text-main hover:bg-gray-100 dark:hover:bg-slate-700"
+          aria-label="Close modal"
         >
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="absolute top-4 right-4 p-1 rounded-full text-main
-                     hover:bg-gray-100 dark:hover:bg-slate-700"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </button>
+          <X size={20} />
+        </button>
 
-          <h2 className="text-xl font-semibold text-main mb-4">
-            {task ? "Edit Task" : "New Task"}
-          </h2>
+        <h2 className="text-xl font-semibold text-main mb-4">
+          {task ? "Edit Task" : "New Task"}
+        </h2>
 
-          {errorMessage && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {errorMessage}
-            </div>
-          )}
+        {errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="text-sm font-medium text-main">Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
-                placeholder="Task title"
-                maxLength={TITLE_MAX_LENGTH}
-                required
-              />
-              <p
-                className={`text-sm mt-1 text-right ${
-                  title.length >= TITLE_MAX_LENGTH
-                    ? "text-red-500"
-                    : title.length >= TITLE_WARNING_LENGTH
-                      ? "text-yellow-500"
-                      : "text-muted"
-                }`}
-              >
-                {title.length}/{TITLE_MAX_LENGTH}
-              </p>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="text-sm font-medium text-main">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
-                placeholder="Optional task description"
-                rows={3}
-                maxLength={DESCRIPTION_MAX_LENGTH}
-              />
-              <p
-                className={`text-sm mt-1 text-right ${
-                  description.length >= DESCRIPTION_MAX_LENGTH
-                    ? "text-red-500"
-                    : description.length >= DESCRIPTION_WARNING_LENGTH
-                      ? "text-yellow-500"
-                      : "text-muted"
-                }`}
-              >
-                {description.length}/{DESCRIPTION_MAX_LENGTH}
-              </p>
-            </div>
-
-            {/* Tags (predefined + other) */}
-            <div>
-              <label className="text-sm font-medium text-main">Tags</label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {TAGS.map((tag) => {
-                  const isSelected = tags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => toggleTag(tag)}
-                      disabled={isSubmitting}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        isSelected
-                          ? "ring-2 ring-offset-1"
-                          : "opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Other input */}
-              {showOtherInput && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    type="text"
-                    value={customTagInput}
-                    onChange={(e) => setCustomTagInput(e.target.value)}
-                    disabled={isSubmitting}
-                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
-                    placeholder="Enter custom tag (e.g., 'Essay')"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCustomTag}
-                    disabled={isSubmitting}
-                    className="btn btn-primary px-3 py-1.5"
-                  >
-                    Add
-                  </button>
-                </div>
-              )}
-
-              {/* Show custom tags (non-predefined) */}
-              {customTags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {customTags.map((ct) => (
-                    <div
-                      key={ct}
-                      className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
-                    >
-                      <span className="text-xs font-medium">{ct}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeTag(ct)}
-                        disabled={isSubmitting}
-                        className="text-xs text-red-500 px-1"
-                        aria-label={`Remove tag ${ct}`}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <p className="text-xs text-muted mt-1">
-                Select one or more tags or choose Other to add a custom tag
-              </p>
-            </div>
-
-            {/* Priority */}
-            <div>
-              <label className="text-sm font-medium text-main">Priority</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main dark:bg-slate-800"
-                required
-              >
-                {priorities.map((p) => (
-                  <option key={p} value={p} className="dark:bg-slate-800">
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Due Date */}
-            <div>
-              <label className="text-sm font-medium text-main">Due Date</label>
-              <input
-                type="date"
-                value={dueDate}
-                min={task ? undefined : todayStr}
-                max={maxDateStr}
-                onChange={(e) => setDueDate(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
-                required
-              />
-            </div>
-
-            {/* Due Time */}
-            <div>
-              <label className="text-sm font-medium text-main">Due Time</label>
-              <input
-                type="time"
-                value={dueTime}
-                onChange={(e) => setDueTime(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="text-sm font-medium text-main">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               disabled={isSubmitting}
-              className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              placeholder="Task title"
+              maxLength={TITLE_MAX_LENGTH}
+              required
+            />
+            <p
+              className={`text-sm mt-1 text-right ${
+                title.length >= TITLE_MAX_LENGTH
+                  ? "text-red-500"
+                  : title.length >= TITLE_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
+              }`}
             >
-              {isSubmitting
-                ? task
-                  ? "Updating..."
-                  : "Adding..."
-                : task
-                  ? "Update Task"
-                  : "Add Task"}
-            </button>
-          </form>
-        </div>
+              {title.length}/{TITLE_MAX_LENGTH}
+            </p>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="text-sm font-medium text-main">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              placeholder="Optional task description"
+              rows={3}
+              maxLength={DESCRIPTION_MAX_LENGTH}
+            />
+            <p
+              className={`text-sm mt-1 text-right ${
+                description.length >= DESCRIPTION_MAX_LENGTH
+                  ? "text-red-500"
+                  : description.length >= DESCRIPTION_WARNING_LENGTH
+                    ? "text-yellow-500"
+                    : "text-muted"
+              }`}
+            >
+              {description.length}/{DESCRIPTION_MAX_LENGTH}
+            </p>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="text-sm font-medium text-main">Tags</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {TAGS.map((tag) => {
+                const isSelected = tags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    disabled={isSubmitting}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      isSelected
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+
+            {showOtherInput && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={customTagInput}
+                  onChange={(e) => setCustomTagInput(e.target.value)}
+                  disabled={isSubmitting}
+                  className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
+                  placeholder="Enter custom tag (e.g., 'Essay')"
+                />
+                <button
+                  type="button"
+                  onClick={addCustomTag}
+                  disabled={isSubmitting}
+                  className="btn btn-primary px-3 py-1.5"
+                >
+                  Add
+                </button>
+              </div>
+            )}
+
+            {customTags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {customTags.map((ct) => (
+                  <div
+                    key={ct}
+                    className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+                  >
+                    <span className="text-xs font-medium">{ct}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeTag(ct)}
+                      disabled={isSubmitting}
+                      className="text-xs text-red-500 px-1"
+                      aria-label={`Remove tag ${ct}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-muted mt-1">
+              Select one or more tags or choose Other to add a custom tag
+            </p>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="text-sm font-medium text-main">Priority</label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main dark:bg-slate-800"
+              required
+            >
+              {priorities.map((p) => (
+                <option key={p} value={p} className="dark:bg-slate-800">
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Due Date */}
+          <div>
+            <label className="text-sm font-medium text-main">Due Date</label>
+            <input
+              type="date"
+              value={dueDate}
+              min={task ? undefined : todayStr}
+              max={maxDateStr}
+              onChange={(e) => setDueDate(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              required
+            />
+          </div>
+
+          {/* Due Time */}
+          <div>
+            <label className="text-sm font-medium text-main">Due Time</label>
+            <input
+              type="time"
+              value={dueTime}
+              onChange={(e) => setDueTime(e.target.value)}
+              disabled={isSubmitting}
+              className="w-full mt-1 p-2 border border-soft rounded-lg focus:ring-(--primary) focus:border-(--primary) bg-transparent text-main"
+              required
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isSubmitting
+              ? task
+                ? "Updating..."
+                : "Adding..."
+              : task
+                ? "Update Task"
+                : "Add Task"}
+          </button>
+        </form>
       </div>
     </div>,
     document.body,
