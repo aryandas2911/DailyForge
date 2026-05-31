@@ -1,6 +1,4 @@
 import { Check, Trash2, Pencil, Calendar } from "lucide-react";
-import { useState } from "react";
-import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
 
 const priorityStyles = {
@@ -9,14 +7,9 @@ const priorityStyles = {
   High: "border-red-500 bg-red-50 dark:bg-red-950/20",
 };
 
-export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelect }) {
+export default function TaskItem({ task, onToggleComplete, onDelete, isSelected, onSelect, onEdit}) {
   const isCompleted = task.status === "Completed";
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleEditSubmit = (updatedTask) => {
-    onUpdate(task._id, updatedTask);
-    setIsEditModalOpen(false);
-  };
 
   return (
     <>
@@ -101,7 +94,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           <div className="flex items-center gap-3">
             {/* Edit Button */}
             <button
-              onClick={() => setIsEditModalOpen(true)}
+              onClick={() => onEdit(task)}
               className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
             >
               <Pencil size={18} className="text-main" />
@@ -117,15 +110,6 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           </div>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {isEditModalOpen && (
-        <TaskFormModal
-          task={task}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleEditSubmit}
-        />
-      )}
     </>
   );
 }
