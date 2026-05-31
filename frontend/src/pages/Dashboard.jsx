@@ -2,7 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, Bell } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -11,12 +11,14 @@ import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
+import { usePushNotifications } from "../hooks/usePushNotifications.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { isSupported, permission, subscribeToPush } = usePushNotifications();
 
   const [savedRoutines, setSavedRoutines] = useState([]);
   const [loadingRoutines, setLoadingRoutines] = useState(false);
@@ -185,6 +187,15 @@ const handleDuplicateRoutine = async () => {
             />
 
             <LiveClock />
+
+            {isSupported && permission !== "granted" && (
+              <button
+                onClick={subscribeToPush}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#3b8ea0]/10 text-[#3b8ea0] dark:bg-[#4eb7b3]/10 dark:text-[#4eb7b3] text-xs font-semibold hover:bg-[#3b8ea0]/20 dark:hover:bg-[#4eb7b3]/20 transition cursor-pointer mt-1"
+              >
+                <Bell size={14} /> Enable Reminders
+              </button>
+            )}
 
           </div>
 

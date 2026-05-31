@@ -8,6 +8,8 @@ import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import notificationRoutes from "../routes/notificationRoutes.js";
+import { initCronJobs } from "../utils/cronJobs.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -46,6 +48,12 @@ app.use("/api/routines", routineRouter);
 
 // Router for accessing analytics routes
 app.use("/api/analytics", analyticsRouter);
+
+// Router for accessing notification routes
+app.use("/api/notifications", notificationRoutes);
+
+// Initialize background jobs
+initCronJobs();
 
 app.get("/", (req, res) => {
   res.send("Server running");
