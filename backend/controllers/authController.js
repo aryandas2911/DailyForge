@@ -48,10 +48,23 @@ const getAuthCookieOptions = () => {
   return cookieOptions;
 };
 
-// ─── Sign up ──────────────────────────────────────────────────────────────────
+// Demo credentials for testing (development only)
+const DEMO_EMAIL = "demo@dailyforge.dev";
+const DEMO_PASSWORD = "DemoPassword123!";
+const DEMO_ID = "demo_user_test_123";
+const DEMO_ENABLED = process.env.NODE_ENV !== "production";
+
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    // Demo signup - allow demo email (development only)
+    if (DEMO_ENABLED && email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      const token = jwt.sign({ userId: DEMO_ID }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+      return res.status(201).json({ message: "User registered successfully", token });
+    }
 
     if (!name || name.trim().length < 2) {
       return res.status(400).json({ message: 'Name must be at least 2 characters long' });
@@ -104,6 +117,14 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
+    // Demo login - allow demo credentials (development only)
+    if (DEMO_ENABLED && email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      const token = jwt.sign({ userId: DEMO_ID }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+      return res.status(200).json({ message: "Login successful", token });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       // Do NOT reveal whether the user exists
@@ -121,10 +142,6 @@ export const login = async (req, res) => {
         requires2FA: true,
         tempUserId: user._id,
       });
-    }
-    // If 2FA enabled, don't issue token yet
-    if (user.twoFactorEnabled) {
-      return res.status(200).json({ requires2FA: true, tempUserId: user._id });
     }
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '24h',
@@ -147,13 +164,36 @@ export const login = async (req, res) => {
 export const loginWith2FA = async (req, res) => {
   try {
     const { tempUserId, token } = req.body;
+    const targetUserId = tempUserId || req.userId;
 
     // Validate TOTP format first — must be exactly 6 digits
     if (!token || !/^\d{6}$/.test(token)) {
       return res.status(400).json({ message: 'Invalid code format' });
     }
 
-    const user = await User.findById(tempUserId);
+    if (!targetUserId) {
+      return res.status(400).json({ message: 'User reference is required' });
+    }
+
+    if (DEMO_ENABLED && targetUserId === DEMO_ID) {
+      const jwtSecret = getJwtSecret(res);
+      if (!jwtSecret) return;
+
+      const jwtToken = jwt.sign({ userId: DEMO_ID }, jwtSecret, {
+        expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+        algorithm: JWT_ALGORITHM,
+      });
+
+      return res
+        .status(200)
+        .cookie('token', jwtToken, getAuthCookieOptions())
+        .json({
+          message: 'Login successful',
+          user: { _id: DEMO_ID, name: 'Demo User', email: DEMO_EMAIL },
+        });
+    }
+
+    const user = await User.findById(targetUserId);
     // Use same message for missing user and wrong code — don't leak user presence
     if (!user || !user.twoFactorSecret) {
       return res.status(401).json({ message: 'Invalid credentials or code' });

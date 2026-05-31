@@ -8,11 +8,24 @@ import {
   getAdaptiveDifficulty,
 } from "../utils/routineUtils.js";
 
+// Demo user ID for testing (development only)
+const DEMO_ID = "demo_user_test_123";
+const DEMO_ENABLED = process.env.NODE_ENV !== "production";
+
 // Create routine function
 export const createRoutine = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
+    // Demo mode - accept but don't save (development only)
+    if (DEMO_ENABLED && userId === DEMO_ID) {
+      return res.status(200).json({
+        success: true,
+        message: "Routine added successfully (demo mode - not saved)",
+      });
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res
@@ -150,6 +163,12 @@ export const getRoutines = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
+    // Demo mode - return empty array (development only)
+    if (DEMO_ENABLED && userId === DEMO_ID) {
+      return res.status(200).json({ success: true, routines: [] });
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res

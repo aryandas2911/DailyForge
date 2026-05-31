@@ -9,11 +9,34 @@ const DEFAULT_TASK_PAGE = 1;
 const DEFAULT_TASK_LIMIT = 10;
 const MIN_TASK_LIMIT = 1;
 
+// Demo user ID for testing (development only)
+const DEMO_ID = "demo_user_test_123";
+const DEMO_ENABLED = process.env.NODE_ENV !== "production";
+
 // Create task function
 export const createTask = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
+    // Demo mode - create mock task without saving (development only)
+    if (DEMO_ENABLED && userId === DEMO_ID) {
+      const { title, description, tags, priority, status, dueDate } = req.body;
+      return res.status(201).json({
+        message: "Task added successfully (demo mode - not saved)",
+        newTask: {
+          _id: "demo_" + Date.now(),
+          userId,
+          title,
+          description,
+          tags,
+          priority,
+          status,
+          dueDate,
+        },
+      });
+    }
+
     const user = await User.findById(userId);
 
     if (!user) {
@@ -119,6 +142,12 @@ export const getTasks = async (req, res) => {
   try {
     // check if user is logged in or not
     const userId = req.userId;
+
+    // Demo mode - return empty array (development only)
+    if (DEMO_ENABLED && userId === DEMO_ID) {
+      return res.status(200).json({ success: true, tasks: [] });
+    }
+
     const user = await User.findById(userId);
 
     if (!user) {
