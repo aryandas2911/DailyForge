@@ -14,7 +14,7 @@ import {
 } from '../controllers/authController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
  
-import {forgot,verifyOtp,setNewPasnpsword} from "../controllers/authController.js";
+import {forgot,verifyOtp,setNewPassword} from "../controllers/authController.js";
 
 const router = express.Router();
 

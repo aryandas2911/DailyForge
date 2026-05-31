@@ -1,6 +1,6 @@
-import Routine from "../src/models/Routine.js";
-import Task from "../src/models/Task.js";
-import User from "../src/models/User.js";
+import Routine from "../models/Routine.js";
+import Task from "../models/Task.js";
+import User from "../models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 

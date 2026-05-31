@@ -1,6 +1,6 @@
-import Task from "../src/models/Task.js";
-import Routine from "../src/models/Routine.js";
-import User from "../src/models/User.js";
+import Task from "../models/Task.js";
+import Routine from "../models/Routine.js";
+import User from "../models/User.js";
 
 // Helper to format Date to YYYY-MM-DD in user's timezone/local
 const formatDateString = (date) => {

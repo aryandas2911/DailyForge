@@ -46,10 +46,4 @@ const userSchema = new mongoose.Schema(
 
 const User = mongoose.model('User', userSchema);
 
-<<<<<<< HEAD
 export default User;
-=======
-
-
-export default userModel;
->>>>>>> 48e54be (forgot password functionality added at backend)

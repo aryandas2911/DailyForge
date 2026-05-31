@@ -1,12 +1,12 @@
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import User from '../src/models/User.js';
-import OtpModel from "../src/models/auth.js"
+import User from '../models/User.js';
+import OtpModel from "../models/auth.js"
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
-import otpModel from '../src/models/auth.js';
+import otpModel from '../models/auth.js';
 import transporter from "../config/mail.js"
 
 

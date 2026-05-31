@@ -1,4 +1,4 @@
-
+import dotenv from "dotenv"
 import express from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
@@ -8,14 +8,19 @@ import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import transporter from "../config/mail.js";
 
 // dotenv config
 
-dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+dotenv.config( {path: path.resolve(import.meta.dirname, "../.env")} );
 const PORT = process.env.PORT;
 
 // Initialize express     
 const app = express();
+
+// console.log("MAIL USER:", process.env.EMAIL_USER);
+
+// console.log("Pass USER:", process.env.EMAIL_PASSWORD);
 
 
 app.use(
