@@ -88,12 +88,17 @@ const Login = () => {
     setIsSubmitLoading(true);
     setError("");
     try {
-      const res = await api.post("/auth/login", { email, password });
-      if (res.data.requires2FA) {
-        setTempUserId(res.data.tempUserId);
-        return;
-      }
-      const me = await api.get("/auth/user");
+      
+
+      await api.post("api/auth/login", {
+        email,
+        password,
+      });
+
+      const me = await api.get(
+        "api/auth/me"
+      );
+
       setUser(me.data.user);
       navigate(redirectPath, { replace: true });
     } catch (error) {
