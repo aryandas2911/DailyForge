@@ -3261,3 +3261,4 @@ To prevent common layout and accessibility issues in 3D-integrated interfaces:
 * **Progressive Loading:** Always implement a custom preloader/loading spinner while WebGL assets compile or download. Use progressive loader skeletons or lower-detail fallback graphics.
 * **Hardware Degradation:** Provide a graceful fallback path. If the client browser or device fails WebGL compatibility checks, automatically replace the 3D scene with a high-performance 2D image sequence or pre-rendered optimized fallback illustration.
 
+@RTK.md
