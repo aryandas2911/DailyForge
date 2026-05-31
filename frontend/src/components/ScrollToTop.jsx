@@ -6,8 +6,8 @@ const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  // Hide the button on login and root pages
-  const isLoginPage = location.pathname === "/login" || location.pathname === "/";
+  // Hide the button on login, root, and forge/focus mode pages
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/" || location.pathname === "/forge" || location.pathname === "/focus";
 
   // Toggle visibility based on scroll position
   const toggleVisibility = () => {

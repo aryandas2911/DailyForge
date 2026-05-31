@@ -17,6 +17,8 @@ import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
+import ForgeMode from "./pages/ForgeMode.jsx";
+
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
@@ -80,8 +82,25 @@ const AnimatedRoutes = () => {
             </ProtectedRoutes>
           }
         />
+        <Route
+          path="/forge"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
     </AnimatePresence>
   );
 };
@@ -133,6 +152,22 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <Analytics />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/forge"
+            element={
+              <ProtectedRoutes>
+                <ForgeMode />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/focus"
+            element={
+              <ProtectedRoutes>
+                <ForgeMode />
               </ProtectedRoutes>
             }
           />
