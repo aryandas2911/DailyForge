@@ -33,6 +33,8 @@ All rules below are MANDATORY and apply to every task without exception.
 - Checking port? → `lsof -i :3000` not read server config
 - Running quality checks? → `make ci` (1 tool call) not lint+typecheck+test separately
 - Observability? → Run `codeburn status` or `codeburn optimize` to check context growth and apply recommended fixes (e.g., archiving unused custom agents/commands, setting BASH_MAX_OUTPUT_LENGTH=15000) to keep prompt overhead low.
+- **OpenCode CLI Delegation**: Instead of consuming parent agent (Antigravity) tokens for heavy files editing, refactoring, or multi-file coding tasks, delegate the task by running `opencode run "<message>"` (using models like `github-copilot/claude-sonnet-4.6` or `github-models/deepseek/deepseek-r1`). This shifts the token usage to the user's OpenCode environment credits. If OpenCode runs out of limits or fails, the agent must immediately fall back to direct execution in its own context to complete the task without interruption.
+
 
 
 ### Use templates — don't write from scratch:
