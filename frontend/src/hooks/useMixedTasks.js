@@ -2,28 +2,53 @@ import { useEffect, useState } from "react";
 
 /**
  * Custom hook to handle updates for both DB-backed tasks and routine-generated tasks.
- * 
+ *
  * Routine tasks have synthetic IDs prefixed with "routine-" and are stored in localStorage only.
  * DB tasks have valid MongoDB ObjectIds and use the API.
- * 
+ *
  * @param {Function} updateDbTask API-backed task updater from useTasks
  * @returns {Object} { updateTask, routineTasks, setRoutineTasks }
  */
 const useMixedTasks = (updateDbTask) => {
   const [routineTasks, setRoutineTasks] = useState(() => {
     const stored = localStorage.getItem("activeRoutineTasks");
-    return stored ? JSON.parse(stored) : [];
+
+    if (!stored) return [];
+
+    try {
+      return JSON.parse(stored);
+    } catch (error) {
+      console.error(
+        "Corrupted routine tasks found in localStorage. Resetting...",
+        error
+      );
+      localStorage.removeItem("activeRoutineTasks");
+      return [];
+    }
   });
 
   useEffect(() => {
     const syncRoutineTasks = (event) => {
-      if (event?.type === "activeRoutineTasksUpdated" && Array.isArray(event?.detail)) {
+      if (
+        event?.type === "activeRoutineTasksUpdated" &&
+        Array.isArray(event?.detail)
+      ) {
         setRoutineTasks(event.detail);
         return;
       }
 
       const stored = localStorage.getItem("activeRoutineTasks");
-      setRoutineTasks(stored ? JSON.parse(stored) : []);
+
+      try {
+        setRoutineTasks(stored ? JSON.parse(stored) : []);
+      } catch (error) {
+        console.error(
+          "Corrupted routine tasks found in localStorage. Resetting...",
+          error
+        );
+        localStorage.removeItem("activeRoutineTasks");
+        setRoutineTasks([]);
+      }
     };
 
     window.addEventListener("storage", syncRoutineTasks);
