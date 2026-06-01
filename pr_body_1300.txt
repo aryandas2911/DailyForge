@@ -1,0 +1,25 @@
+## Description
+Resolves #1300.
+
+This PR adds a modern, animated Loading Spinner to the Dashboard. Previously, the workspace area would remain blank while tasks were being fetched from the backend API, making the application appear frozen. This PR introduces a visual loading state to improve the UX during API fetches.
+
+## Related Issue
+Closes #1300
+
+## Changes Made
+- **New Component:** Created `frontend/src/components/common/LoadingSpinner.jsx` using `lucide-react` icons and Tailwind CSS for animation.
+- **Hook Update:** Updated `frontend/src/hooks/useTasks.js` to track and return a `loading` state during the fetch operation.
+- **Dashboard Update:** Updated `frontend/src/pages/Dashboard.jsx` to conditionally render the `<LoadingSpinner />` while tasks are fetching, hiding the main widgets until data is ready.
+
+## Screenshots (if applicable)
+N/A
+
+## Checklist
+- [x] Code runs locally
+- [x] Followed project structure
+- [x] No console errors
+- [x] Properly tested changes
+- [x] Linked the issue
+
+## Notes for Reviewers
+The spinner is integrated seamlessly with the existing UI and centered on the screen while loading.

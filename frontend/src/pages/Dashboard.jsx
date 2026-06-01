@@ -2,13 +2,14 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
+import { LogOut, ArrowRight, CheckCircle2, RotateCw, Calendar, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
+import RoutineList from "../components/Routine/RoutineList";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -419,46 +420,14 @@ const handleDuplicateRoutine = async () => {
 
           {loadingRoutines ? (
             <p className="text-sm text-muted">Loading routines…</p>
-          ) : savedRoutines.length === 0 ? (
-            <p className="text-sm text-muted text-center mt-10">
-              No routines saved yet
-            </p>
           ) : (
-            <ul className="space-y-3">
-              {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-main">{routine.name}</p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDuplicateModal(routine);
-                      }}
-                      disabled={duplicatingRoutineId === routine._id}
-                      aria-label={`Duplicate ${routine.name}`}
-                      title="Duplicate routine"
-                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-                    >
-                      <Copy size={16} />
-                    </button>
-                  </div>
-                  {routine.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
-                      {routine.description}
-                    </p>
-                  )}
-                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
-                    {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <RoutineList
+              routines={savedRoutines}
+              setRoutines={setSavedRoutines}
+              fetchRoutines={fetchRoutines}
+              onNavigate={(routine) => navigate("/routine-builder")}
+              onDuplicate={(routine) => openDuplicateModal(routine)}
+            />
           )}
         </div>
       </section>
