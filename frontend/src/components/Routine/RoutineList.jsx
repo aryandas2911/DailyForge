@@ -87,6 +87,7 @@ export default function RoutineList({
                         <div 
                           {...provided.dragHandleProps} 
                           className="absolute top-2 right-2 p-1.5 text-muted hover:text-main cursor-grab active:cursor-grabbing z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 dark:bg-slate-800/80 rounded-md shadow-sm"
+                          aria-label="Drag to reorder routine"
                         >
                           <GripVertical size={16} />
                         </div>
@@ -103,6 +104,7 @@ export default function RoutineList({
                               {...provided.dragHandleProps} 
                               className="text-muted hover:text-main cursor-grab active:cursor-grabbing p-1 -ml-2"
                               onClick={(e) => e.stopPropagation()}
+                              aria-label="Drag to reorder routine"
                             >
                               <GripVertical size={16} />
                             </div>
