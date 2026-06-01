@@ -1,13 +1,13 @@
+import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
-
-
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import { getGreeting } from "../utils/getGreeting.js";
@@ -28,6 +28,13 @@ export default function Dashboard() {
 
   const { tasks, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
+  const [profileImage, setProfileImage] = useState(() => {
+  return (
+    localStorage.getItem("profileImage") ||
+    "https://i.pravatar.cc/100"
+  );
+});
 
   const today = new Date();
  
@@ -122,11 +129,13 @@ const handleDuplicateRoutine = async () => {
       { targetDay: duplicateTargetDay }
     );
 
+    const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
     // Optimistic UI update
-    if (res.data.routine) {
+    if (duplicatedRoutine) {
       setSavedRoutines((prevRoutines) => [
-        res.data.routine,
-        ...prevRoutines,
+        duplicatedRoutine,
+        ...prevRoutines.filter((routine) => routine._id !== duplicatedRoutine._id),
       ]);
     } else {
       await fetchRoutines();
@@ -142,6 +151,7 @@ const handleDuplicateRoutine = async () => {
 };
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+      <OnboardingModal />
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
          {/* Display time */}
@@ -200,6 +210,11 @@ const handleDuplicateRoutine = async () => {
           />
         </div>
       </section>
+
+      {/* Contribution Heatmap */}
+      <div className="w-full animate-in delay-200">
+        <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+      </div>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
@@ -264,7 +279,10 @@ const handleDuplicateRoutine = async () => {
                     <p className="font-medium text-main">{routine.name}</p>
                     <button
                       type="button"
-                      onClick={() => openDuplicateModal(routine)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
                       disabled={duplicatingRoutineId === routine._id}
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"
