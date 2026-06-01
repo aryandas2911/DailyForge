@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
+import { SocketContext } from "../context/SocketContext";
 import {
   DndContext,
   DragOverlay,
@@ -82,6 +83,14 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  const { routineUpdateTick } = useContext(SocketContext) || {};
+
+  useEffect(() => {
+    if (routineUpdateTick > 0) {
+      fetchRoutines();
+    }
+  }, [routineUpdateTick]);
 
   useEffect(() => {
 

@@ -26,6 +26,7 @@
     "mongoose": "^9.0.0",
     "nodemon": "^3.1.11",
     "qrcode": "^1.5.4",
+    "socket.io": "^4.8.3",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@ import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
+import { getIO } from "../utils/socket.js";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DEFAULT_TASK_PAGE = 1;
@@ -98,6 +99,9 @@ export const createTask = async (req, res) => {
 
     // save task in database
     await newTask.save();
+
+    // emit event to user's room
+    getIO().to(userId.toString()).emit("task-update");
 
     return res.status(201).json({
       message: "Task added successfully",
@@ -232,6 +236,9 @@ export const updateTask = async (req, res) => {
       });
     }
 
+    // emit event to user's room
+    getIO().to(userId.toString()).emit("task-update");
+
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
@@ -282,6 +289,9 @@ export const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    // emit event to user's room
+    getIO().to(userId.toString()).emit("task-update");
 
     return res.status(200).json({
       message: "Task deleted successfully",
@@ -337,6 +347,9 @@ export const bulkDeleteTasks = async (req, res) => {
         },
       }
     );
+
+    // emit event to user's room
+    getIO().to(userId.toString()).emit("task-update");
 
     return res.status(200).json({
       success: true,
