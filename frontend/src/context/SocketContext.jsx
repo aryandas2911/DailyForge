@@ -27,6 +27,10 @@ export const SocketProvider = ({ children }) => {
       socketInstance.emit("join-user-room", user._id);
     });
 
+    socketInstance.on("connect_error", (err) => {
+      console.error("Socket connection error:", err.message);
+    });
+
     socketInstance.on("task-update", () => {
       setTaskUpdateTick((prev) => prev + 1);
     });
