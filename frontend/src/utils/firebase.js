@@ -10,20 +10,28 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app = null;
+let auth = null;
+let googleProvider = null;
 
-// Initialize Firebase Auth and Google Provider
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+// Only initialize Firebase if an API key is provided
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your_firebase_api_key") {
+  // Initialize Firebase
+  app = initializeApp(firebaseConfig);
 
-// Request profile and email scopes (standard for Google Sign-In)
-googleProvider.addScope("profile");
-googleProvider.addScope("email");
+  // Initialize Firebase Auth and Google Provider
+  auth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
 
-// Force account selection screen
-googleProvider.setCustomParameters({
-  prompt: "select_account",
-});
+  // Request profile and email scopes (standard for Google Sign-In)
+  googleProvider.addScope("profile");
+  googleProvider.addScope("email");
 
+  // Force account selection screen
+  googleProvider.setCustomParameters({
+    prompt: "select_account",
+  });
+}
+
+export { auth, googleProvider };
 export default app;

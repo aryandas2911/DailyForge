@@ -1,13 +1,13 @@
+import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
-
-
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -26,6 +26,13 @@ export default function Dashboard() {
 
   const { tasks, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
+  const [profileImage, setProfileImage] = useState(() => {
+  return (
+    localStorage.getItem("profileImage") ||
+    "https://i.pravatar.cc/100"
+  );
+});
 
   const today = new Date();
  
@@ -120,11 +127,13 @@ const handleDuplicateRoutine = async () => {
       { targetDay: duplicateTargetDay }
     );
 
+    const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
     // Optimistic UI update
-    if (res.data.routine) {
+    if (duplicatedRoutine) {
       setSavedRoutines((prevRoutines) => [
-        res.data.routine,
-        ...prevRoutines,
+        duplicatedRoutine,
+        ...prevRoutines.filter((routine) => routine._id !== duplicatedRoutine._id),
       ]);
     } else {
       await fetchRoutines();
@@ -140,33 +149,84 @@ const handleDuplicateRoutine = async () => {
 };
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+      <OnboardingModal />
       {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-4">
-        {/* Display time */}
-       <div className="w-full">
-  <h1 className="text-2xl font-semibold text-main leading-tight">
-    {getGreeting()}, {user?.name}
-  </h1>
+      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
 
-  <p className="text-sm italic text-primary mt-2">
-    "{quote}"
-  </p>
+          {/* Left Section */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold text-main leading-tight">
+              {getGreeting()}, {user?.name}
+            </h1>
 
-  <div className="flex justify-between items-center mt-1 w-full">
-    <p className="text-sm text-muted">
-      {new Date()
-        .toLocaleDateString("en-US", {
-          weekday: "long",
-          day: "2-digit",
-          month: "short",
-        })
-        .replace(",", " ·")}
-    </p>
+            <p className="text-sm italic text-primary">
+              "{quote}"
+            </p>
 
-    <LiveClock />
-  </div>
-</div>
-      </header>
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
+          </div>
+
+          {/* Right Section */}
+          <div className="flex flex-col items-center gap-2 self-end lg:self-auto">
+            
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
+              onClick={() => setShowProfilePreview(true)}
+            />
+
+            <LiveClock />
+
+          </div>
+
+        </header>
+        {showProfilePreview && (
+          <div
+            className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50 px-4"
+            onClick={() => setShowProfilePreview(false)}
+          >
+            <div
+              className="flex flex-col items-center gap-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={profileImage}
+                alt="Profile Preview"
+                className="w-72 h-72 rounded-full object-cover border-4 border-white shadow-2xl"
+              />
+
+              <label className="px-4 py-2 bg-white text-black rounded-lg cursor-pointer hover:bg-gray-200 transition text-sm font-medium">
+                Change Profile Picture
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+
+                    if (file) {
+                      const imageUrl = URL.createObjectURL(file);
+
+                      setProfileImage(imageUrl);
+
+                      localStorage.setItem("profileImage", imageUrl);
+                    }
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+        )}
 
       {/* Stats Row */}
       <section className="flex flex-col lg:flex-row gap-6 w-full">
@@ -187,6 +247,11 @@ const handleDuplicateRoutine = async () => {
           />
         </div>
       </section>
+
+      {/* Contribution Heatmap */}
+      <div className="w-full animate-in delay-200">
+        <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+      </div>
 
       {/* Today's Tasks */}
       <div className="w-full animate-in delay-200">
@@ -251,7 +316,10 @@ const handleDuplicateRoutine = async () => {
                     <p className="font-medium text-main">{routine.name}</p>
                     <button
                       type="button"
-                      onClick={() => openDuplicateModal(routine)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
                       disabled={duplicatingRoutineId === routine._id}
                       aria-label={`Duplicate ${routine.name}`}
                       title="Duplicate routine"
