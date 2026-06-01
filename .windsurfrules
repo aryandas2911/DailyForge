@@ -1,9 +1,42 @@
 # Agent Configuration — Aditya's Workspace
 
-This file mirrors the workspace-level Gemini instructions at /home/aditya/Desktop/Projects/GEMINI.md so VS Code Copilot uses the same memory and workflow rules.
-
 This file is automatically read by Antigravity at the start of every session.
 All rules below are MANDATORY and apply to every task without exception.
+
+---
+
+## 🚨 MANDATORY SESSION START — DO THIS BEFORE ANYTHING ELSE
+
+**THIS IS NOT OPTIONAL. Skipping this is a rule violation.**
+
+Run this as your VERY FIRST action in every single conversation, no exceptions:
+
+```bash
+/home/aditya/bin/session-start.sh
+```
+
+This script reads memory, checks services, and loads environment context.
+You MUST NOT respond to the user's first message until this has run.
+
+### Why this exists:
+- Prevents hallucination by grounding the agent in verified real state
+- Ensures memory-bank knowledge is loaded before any decisions
+- Catches drifted services (PM2 restarts, ports, etc.) immediately
+
+### Hallucination Prevention Rules:
+- **NEVER state something as fact without verifying it with a CLI command first**
+- If unsure → run a command to check → then state the result
+- Never say "the server is running" without `curl`-ing the health endpoint
+- Never say "the file exists" without `ls` confirming it
+- Never say "it's installed" without `which` or `--version` confirming it
+
+### OpenCode Delegation — MANDATORY:
+- **Heavy tasks (multi-file edits, refactoring, new features, repo analysis) → delegate to OpenCode:**
+  ```bash
+  opencode run "your detailed instruction here"
+  ```
+- Only use Antigravity tokens for: coordination, quick status checks, 1-line fixes, reporting back to user
+- If OpenCode fails or hits limits → fall back to direct execution, never stop work
 
 ---
 
