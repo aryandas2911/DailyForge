@@ -69,6 +69,21 @@ html.dark body {
     background-color: var(--primary-hover);
   }
 
+  .scroll-to-top-btn {
+    @apply p-3 rounded-full text-white shadow-lg transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none;
+    background-color: var(--primary);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+  }
+
+  .scroll-to-top-btn:hover {
+    background-color: var(--primary-hover);
+  }
+
+  .scroll-to-top-btn:focus-visible {
+    outline: 2px solid var(--primary-hover);
+    outline-offset: 2px;
+  }
+
   .card {
     background-color: var(--surface);
     border-radius: var(--radius);
