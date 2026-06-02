@@ -90,7 +90,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
-      <main className="pp-bg min-h-screen pt-15 flex flex-col bg-white text-black transition-colors duration-300 dark:bg-gray-900 dark:text-white">
+      <main className="app-bg min-h-screen pt-15 flex flex-col text-main transition-colors duration-300">
         <Routes>
           <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />

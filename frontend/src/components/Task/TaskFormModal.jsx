@@ -47,7 +47,6 @@ export default function TaskFormModal({
 
   useEffect(() => {
     if (task) {
-      /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
@@ -61,7 +60,6 @@ export default function TaskFormModal({
         setDueDate(datePart);
         setDueTime(timePart);
       }
-      /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
   }, [task, onError]);
