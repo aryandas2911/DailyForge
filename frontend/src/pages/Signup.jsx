@@ -104,6 +104,10 @@ const Signup = () => {
 
   // Google Login
   const handleGoogleLogin = async () => {
+    if (!auth || !googleProvider) {
+      setErrorMessage("Google Sign-In is not fully configured. Please provide a valid Firebase API Key in your frontend/.env file.");
+      return;
+    }
     setIsGoogleLoading(true);
     setErrorMessage("");
     try {
@@ -117,6 +121,8 @@ const Signup = () => {
       console.error(err);
       if (err.code === "auth/popup-closed-by-user") {
         setErrorMessage("Sign-in popup closed before completion. Please try again.");
+      } else if (err.code === "auth/unauthorized-domain") {
+        setErrorMessage("This domain is not authorized for Google Sign-In. Please add it to your Firebase Console.");
       } else {
         setErrorMessage(
           err.response?.data?.message ||
@@ -162,7 +168,8 @@ const Signup = () => {
         setErrorMessage("An account with this email already exists. Please try logging in instead.");
       } else {
         setErrorMessage(
-          error.response?.data?.message ||
+          error.userMessage ||
+            error.response?.data?.message ||
             error.message ||
             "Signup failed. Please try again."
         );

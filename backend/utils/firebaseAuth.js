@@ -84,7 +84,8 @@ export async function verifyFirebaseIdToken(token) {
     if (!decoded) throw new Error("Invalid Firebase ID token format");
 
     const now = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < now) {
+    const clockSkewLeeway = 300; // 5 minutes in seconds
+    if (decoded.exp && decoded.exp < (now - clockSkewLeeway)) {
       throw new Error("Firebase ID token has expired");
     }
 
@@ -111,18 +112,26 @@ export async function verifyFirebaseIdToken(token) {
     }
 
     // 3. Verify RS256 signature and check standard claims
-    const verified = jwt.verify(token, certificate, { algorithms: ["RS256"] });
+    // We use jwt.verify which handles expiration, but we'll add leeway in step 4
+    const verified = jwt.verify(token, certificate, { 
+      algorithms: ["RS256"],
+      ignoreExpiration: false 
+    });
 
     // 4. Validate claims matching Firebase specifications
     if (verified.iss !== `https://securetoken.google.com/${projectId}`) {
+      console.error(`[FIREBASE AUTH] Issuer mismatch. Expected: https://securetoken.google.com/${projectId}, Got: ${verified.iss}`);
       throw new Error(`Invalid token issuer: ${verified.iss}`);
     }
     if (verified.aud !== projectId) {
+      console.error(`[FIREBASE AUTH] Audience mismatch. Expected: ${projectId}, Got: ${verified.aud}`);
       throw new Error(`Invalid token audience (project ID): ${verified.aud}`);
     }
     
     const now = Math.floor(Date.now() / 1000);
-    if (verified.exp && verified.exp < now) {
+    const clockSkewLeeway = 300; // 5 minutes leeway
+    if (verified.exp && verified.exp < (now - clockSkewLeeway)) {
+      console.error(`[FIREBASE AUTH] Token expired. Exp: ${verified.exp}, Now: ${now}`);
       throw new Error("Firebase ID token has expired");
     }
 

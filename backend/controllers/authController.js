@@ -28,7 +28,9 @@ const AUTH_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000;
 
 const getJwtSecret = (res) => {
   if (!process.env.JWT_SECRET) {
-    res.status(500).json({ message: 'Authentication service is misconfigured' });
+    res
+      .status(500)
+      .json({ message: "Authentication service is misconfigured" });
     return null;
   }
   return process.env.JWT_SECRET;
@@ -61,13 +63,13 @@ export const signup = async (req, res) => {
     if (!password || !passwordRegex.test(password)) {
       return res.status(400).json({
         message:
-          'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character',
+          "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character",
       });
     }
 
     const checkExisting = await User.findOne({ email });
     if (checkExisting) {
-      return res.status(409).json({ message: 'User already exists' });
+      return res.status(409).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -84,9 +86,9 @@ export const signup = async (req, res) => {
 
     return res
       .status(201)
-      .cookie('token', token, getAuthCookieOptions())
+      .cookie("token", token, getAuthCookieOptions())
       .json({
-        message: 'User registered successfully',
+        message: "User registered successfully",
         user: { _id: newUser._id, name: newUser.name, email: newUser.email },
       });
   } catch (_error) {
@@ -132,9 +134,9 @@ export const login = async (req, res) => {
 
     return res
       .status(200)
-      .cookie('token', token, getAuthCookieOptions())
+      .cookie("token", token, getAuthCookieOptions())
       .json({
-        message: 'Login successful',
+        message: "Login successful",
         user: { _id: user._id, name: user.name, email: user.email },
       });
   } catch (_error) {
@@ -344,8 +346,8 @@ export const updateProfile = async (req, res) => {
 
 // ─── Logout ───────────────────────────────────────────────────────────────────
 export const logout = (req, res) => {
-  res.clearCookie('token', getAuthCookieOptions());
-  return res.status(200).json({ message: 'Logout successful' });
+  res.clearCookie("token", getAuthCookieOptions());
+  return res.status(200).json({ message: "Logout successful" });
 };
 
 // ─── Google Login ─────────────────────────────────────────────────────────────
@@ -354,7 +356,7 @@ export const googleLogin = async (req, res) => {
     const { idToken } = req.body;
 
     if (!idToken) {
-      return res.status(400).json({ message: 'Firebase ID Token is required' });
+      return res.status(400).json({ message: "Firebase ID Token is required" });
     }
 
     let decodedToken;
@@ -369,7 +371,9 @@ export const googleLogin = async (req, res) => {
 
     const { email, name } = decodedToken;
     if (!email) {
-      return res.status(400).json({ message: 'Email is missing from the Google identity token' });
+      return res
+        .status(400)
+        .json({ message: "Email is missing from the Google identity token" });
     }
 
     let user = await User.findOne({ email });
@@ -378,7 +382,7 @@ export const googleLogin = async (req, res) => {
       const randomPassword = crypto.randomBytes(32).toString('hex');
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
       user = new User({
-        name: name || email.split('@')[0],
+        name: name || email.split("@")[0],
         email,
         password: hashedPassword,
       });
@@ -391,14 +395,14 @@ export const googleLogin = async (req, res) => {
     const jwtSecret = getJwtSecret(res);
     if (!jwtSecret) return;
 
-    const token = jwt.sign({ userId: user._id }, jwtSecret, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    const token = jwt.sign({ userId: user._id.toString() }, jwtSecret, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "24h",
       algorithm: JWT_ALGORITHM,
     });
 
     return res
       .status(200)
-      .cookie('token', token, getAuthCookieOptions())
+      .cookie("token", token, getAuthCookieOptions())
       .json({
         message: 'Google sign-in successful',
         user: { _id: user._id, name: user.name, email: user.email },

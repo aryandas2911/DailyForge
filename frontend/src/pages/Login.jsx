@@ -65,6 +65,10 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
+    if (!auth || !googleProvider) {
+      setError("Google Sign-In is not configured. Please check your environment variables.");
+      return;
+    }
     setIsGoogleLoading(true);
     setError("");
     try {
