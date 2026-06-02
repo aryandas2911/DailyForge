@@ -59,7 +59,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={onConfirm}
+              onClick={(e) => onConfirm(e)}
               className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
             >
               <LogOut size={15} />
@@ -97,7 +97,7 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
-const handleLogoutClick = () => {
+  const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
   // Close menu on outside click
@@ -183,6 +183,55 @@ const handleLogoutClick = () => {
     const isDark = theme === "dark";
     // Background color of the TARGET theme
     const targetColor = isDark ? "#ffffff" : "#0f172a"; 
+    const overlay = document.createElement("div");
+    overlay.id = "theme-transition-overlay";
+    overlay.style.position = "fixed";
+    overlay.style.backgroundColor = targetColor;
+    overlay.style.borderRadius = "50%";
+    overlay.style.zIndex = "9999"; 
+    overlay.style.pointerEvents = "none";
+    
+    const size = 10;
+    overlay.style.width = `${size}px`;
+    overlay.style.height = `${size}px`;
+    overlay.style.top = `${clientY - size / 2}px`;
+    overlay.style.left = `${clientX - size / 2}px`;
+    overlay.style.transformOrigin = "center center";
+    
+    document.body.appendChild(overlay);
+
+    const maxDistX = Math.max(clientX, window.innerWidth - clientX);
+    const maxDistY = Math.max(clientY, window.innerHeight - clientY);
+    const maxRadius = Math.sqrt(maxDistX * maxDistX + maxDistY * maxDistY);
+    const scale = (maxRadius * 2) / size;
+
+    gsap.to(overlay, {
+      scale: scale,
+      duration: 0.6,
+      ease: "power2.inOut",
+      onComplete: () => {
+        toggleTheme();
+        
+        setTimeout(() => {
+          gsap.to(overlay, {
+            opacity: 0,
+            duration: 0.3,
+            onComplete: () => overlay.remove()
+          });
+        }, 50);
+      }
+    });
+  };
+
+  const handleThemeToggle = (e) => {
+    if (document.getElementById("theme-transition-overlay")) return;
+
+    const { clientX, clientY } = e;
+    const isDark = theme === "dark";
+    
+    // Background color of the TARGET theme
+    const targetColor = isDark ? "#ffffff" : "#0f172a"; 
+
     const overlay = document.createElement("div");
     overlay.id = "theme-transition-overlay";
     overlay.style.position = "fixed";
@@ -310,20 +359,20 @@ const handleLogoutClick = () => {
               </motion.button>
 
               {!user ? (
-                  <>
-                    <Link
-                      to="/login"
-                      className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
-                    >
-                      Signup
-                    </Link>
-                  </>
+                <>
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="btn btn-primary text-sm shadow-md hover:shadow-lg transition-all"
+                  >
+                    Signup
+                  </Link>
+                </>
               ) : (
                 <button
                   onClick={handleLogoutClick}
@@ -335,31 +384,8 @@ const handleLogoutClick = () => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle Button */}
-            <div className="md:hidden flex items-center">
-              <button
-                ref={toggleRef}
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-xl text-[#3b8ea0] hover:bg-[#d0f6e3] transition-colors focus:outline-none"
-                aria-label="Toggle menu"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={isOpen ? "close" : "open"}
-                    initial={{ opacity: 0, rotate: -90 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    exit={{ opacity: 0, rotate: 90 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {isOpen ? <X size={22} /> : <Menu size={22} />}
-                  </motion.div>
-                </AnimatePresence>
-              </button>
-            </div>
-
           </div>
         </div>
-    </motion.nav>
 
     {/* Mobile Navigation Dropdown with Backdrop Overlay - OUTSIDE nav transform context */}
     <AnimatePresence>
@@ -378,6 +404,7 @@ const handleLogoutClick = () => {
           {/* Mobile Menu Dropdown */}
           <motion.div
             ref={menuRef}
+            id="mobile-navigation-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -403,29 +430,6 @@ const handleLogoutClick = () => {
                   {link.name}
                 </NavLink>
               ))}
-
-              {/* Premium Mobile Dark Mode Toggle */}
-              <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
-                <span className="text-sm font-medium text-main">Theme Mode</span>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={toggleTheme}
-                  className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
-                  aria-label="Toggle dark mode"
-                >
-                  {theme === "dark" ? (
-                    <>
-                      <Sun size={16} className="text-yellow-400 fill-yellow-400" />
-                      <span className="text-xs text-yellow-400 font-semibold uppercase tracking-wider">Light</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon size={16} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
-                      <span className="text-xs text-[#3b8ea0] font-semibold uppercase tracking-wider">Dark</span>
-                    </>
-                  )}
-                </motion.button>
-              </div>
 
                 <div className={cn("flex flex-col gap-2", user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2")}>
                   {!user ? (
@@ -459,9 +463,9 @@ const handleLogoutClick = () => {
                 </div>
               </div>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </motion.nav>
     </>
   );
 };
