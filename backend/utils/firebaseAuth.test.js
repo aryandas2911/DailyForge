@@ -46,7 +46,6 @@ test("verifyFirebaseIdToken fails closed when FIREBASE_PROJECT_ID is missing", a
     }
   );
 });
-
 test("verifyFirebaseIdToken allows unverified decode only with explicit dev opt-in", async () => {
   const token = makeFakeJwt({
     exp: Math.floor(Date.now() / 1000) + 3600,
@@ -85,4 +84,3 @@ test("verifyFirebaseIdToken never allows unverified decode in production", async
     }
   );
 });
-

@@ -173,7 +173,7 @@ export default function TaskFormModal({
   return createPortal(
     <div className="fixed inset-0 z-50">
       <div
-        className="absolute inset-0 flex items-center justify-center 
+        className="absolute inset-0 flex items-center justify-center
                  py-10 px-4
                  bg-black/20 dark:bg-black/50 backdrop-blur-sm
                  animate-in"
