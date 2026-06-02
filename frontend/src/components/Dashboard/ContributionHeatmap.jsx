@@ -91,7 +91,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
   };
 
   return (
-    <div ref={cardRef} className="card w-full border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
+    <div ref={cardRef} className="card w-full border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl px-4 py-6 sm:px-6 lg:p-6 shadow-xl space-y-6 relative overflow-hidden transition-all duration-300">
       
       {/* Background radial soft light for aesthetic premium look */}
       <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#14b8a6]/5 rounded-full blur-[100px] pointer-events-none" />
@@ -185,81 +185,81 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       </AnimatePresence>
       
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-5 z-10 relative">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-3 sm:pb-5 z-10 relative">
+        <div className="w-full">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
               <Activity size={18} />
             </span>
-            <h2 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-800 dark:text-slate-100 uppercase tracking-wide">
               Productivity Contribution
             </h2>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 uppercase tracking-wider">
               Live Tracker
             </span>
           </div>
-          <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mt-1">
+          <p className="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-400 mt-1">
             Tracking real routines & task completions from your live daily workflow.
           </p>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 z-10 relative">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 z-10 relative">
         
         {/* Current Streak */}
-        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
-          <div className="p-3 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform duration-200">
-            <Flame size={20} className="animate-pulse" />
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-2 sm:p-3 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform duration-200 shrink-0">
+            <Flame size={18} className="animate-pulse" />
           </div>
-          <div>
-            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Current Streak</p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Current Streak</p>
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.currentStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
+            <p className="text-[8px] sm:text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
           </div>
         </div>
 
         {/* Longest Streak */}
-        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
-          <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition-transform duration-200">
-            <Trophy size={20} />
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-2 sm:p-3 rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition-transform duration-200 shrink-0">
+            <Trophy size={18} />
           </div>
-          <div>
-            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Longest Streak</p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Longest Streak</p>
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.longestStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Your peak productivity</p>
+            <p className="text-[8px] sm:text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Your peak productivity</p>
           </div>
         </div>
 
         {/* Total Productive Days */}
-        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
-          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-200">
-            <CheckSquare size={20} />
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-2 sm:p-3 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-200 shrink-0">
+            <CheckSquare size={18} />
           </div>
-          <div>
-            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Productive Days</p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Productive Days</p>
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.totalProductiveDays} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Days with active completions</p>
+            <p className="text-[8px] sm:text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Days with active completions</p>
           </div>
         </div>
 
         {/* Yearly Productivity Average */}
-        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
-          <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform duration-200">
-            <Percent size={20} />
+        <div className="bg-white/60 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/60 p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 transition-all hover:border-[#14b8a6]/30 group hover-lift shadow-xs dark:shadow-none">
+          <div className="p-2 sm:p-3 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform duration-200 shrink-0">
+            <Percent size={18} />
           </div>
-          <div>
-            <p className="text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Day-wise Completion</p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] sm:text-[10px] uppercase font-extrabold tracking-wider text-slate-700 dark:text-slate-400">Day-wise Completion</p>
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.yearlyPercentage}%
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
+            <p className="text-[8px] sm:text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
           </div>
         </div>
       </div>
@@ -269,14 +269,14 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
         
         {/* Loaded Heatmap Display */}
         <div 
-          className="w-full bg-white/70 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/50 rounded-xl p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
+          className="w-full bg-white/70 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/50 rounded-xl p-3 sm:p-4 lg:p-5 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent relative"
           ref={gridContainerRef}
         >
           {/* Inner Wrapper containing relative position for absolute elements */}
           <div className="min-w-[760px] pb-2 relative">
 
               {/* Grid Header Month Labels */}
-              <div className="grid grid-cols-[30px_1fr] gap-1 text-[10px] font-extrabold text-slate-700 dark:text-slate-400 mb-2.5 h-4 select-none relative">
+              <div className="grid grid-cols-[30px_1fr] gap-1 text-[8px] sm:text-[10px] font-extrabold text-slate-700 dark:text-slate-400 mb-2 sm:mb-2.5 h-3 sm:h-4 select-none relative">
                 <div /> {/* spacing for weekday column */}
                 <div className="grid grid-cols-53 gap-[3.5px] relative">
                   {monthLabels.map((lbl, idx) => (
@@ -295,7 +295,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               <div className="grid grid-cols-[30px_1fr] gap-1 items-start">
                 
                 {/* Weekday Column */}
-                <div className="grid grid-rows-7 h-[112px] gap-[3.5px] items-center text-[9px] font-extrabold text-slate-800/90 dark:text-slate-400 uppercase select-none pt-0.5">
+                <div className="grid grid-rows-7 h-[112px] gap-[3.5px] items-center text-[7px] sm:text-[9px] font-extrabold text-slate-800/90 dark:text-slate-400 uppercase select-none pt-0.5">
                   <span aria-hidden="true" className="h-3 text-right pr-1"></span>
                   <span className="h-3 text-right pr-1">Mon</span>
                   <span aria-hidden="true" className="h-3 text-right pr-1"></span>
@@ -381,15 +381,15 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
       </div>
 
       {/* Grid Legend & Instructions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs font-bold text-slate-700 dark:text-slate-400 border-t border-slate-300 dark:border-slate-800/80 pt-4 z-10 relative">
-        <div className="flex items-center gap-1">
-          <HelpCircle size={13} className="text-slate-700 dark:text-slate-500" />
-          <span>Hover / Focus cells for details. Hover legend intensities to filter.</span>
+      <div className="flex flex-col gap-3 sm:gap-4 text-xs font-bold text-slate-700 dark:text-slate-400 border-t border-slate-300 dark:border-slate-800/80 pt-3 sm:pt-4 z-10 relative">
+        <div className="flex items-start sm:items-center gap-1 text-[10px] sm:text-xs">
+          <HelpCircle size={13} className="text-slate-700 dark:text-slate-500 shrink-0 mt-0.5 sm:mt-0" />
+          <span className="leading-relaxed">Hover / Focus cells for details. Hover legend intensities to filter.</span>
         </div>
         
         {/* Interactive Legend Scale */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">Less</span>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <span className="text-[9px] sm:text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">Less</span>
           <div className="flex gap-[3.5px] items-center">
             {[0, 1, 2, 3].map((score) => {
               const details = getProductivityColorDetails(score);
@@ -413,7 +413,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               );
             })}
           </div>
-          <span className="text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">More</span>
+          <span className="text-[9px] sm:text-[10px] text-slate-700 dark:text-slate-500 font-extrabold uppercase select-none">More</span>
         </div>
       </div>
 
