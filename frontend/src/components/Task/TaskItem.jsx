@@ -26,7 +26,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           w-full rounded-xl border-l-4
           ${priorityStyles[task.priority]}
           ${isCompleted ? "opacity-70" : ""}
-          shadow-sm hover:shadow-md transition
+          shadow-sm hover:shadow-md transition dark:border-gray-700 dark:text-white
         `}
       >
         <div className="flex items-center gap-6 px-6 py-6">
@@ -44,7 +44,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
               w-8 h-8 rounded-md flex items-center justify-center
               border-soft shrink-0 cursor-pointer
               transition-transform duration-150
-              ${isCompleted ? "bg-(--primary) text-white" : "bg-white dark:bg-slate-800"}
+              ${isCompleted ? "bg-(--primary) text-white" : "bg-white dark:bg-slate-800 dark:text-white"}
             `}
           >
             {isCompleted && <Check size={18} />}
@@ -54,7 +54,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           <div className="flex-1">
             <p
               className={`text-lg font-semibold ${
-                isCompleted ? "line-through text-muted" : "text-main"
+                isCompleted ? "line-through text-muted dark:text-gray-300" : "text-main"
               }`}
             >
               {task.title}
@@ -102,7 +102,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             {/* Edit Button */}
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer"
+              className="p-2 rounded-lg hover:bg-white/80 dark:hover:bg-slate-700 transition cursor-pointer"
             >
               <Pencil size={18} className="text-main" />
             </button>
@@ -110,7 +110,7 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
             {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
             <button
               onClick={()=> onDelete(task._id)}
-              className="p-2 rounded-lg hover:bg-red-100 transition cursor-pointer"
+              className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition cursor-pointer"
             >
               <Trash2 size={18} className="text-red-500" />
             </button>
