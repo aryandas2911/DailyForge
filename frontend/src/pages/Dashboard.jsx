@@ -238,7 +238,7 @@ const handleDuplicateRoutine = async () => {
             icon={<CheckCircle2 size={20} />}
           />
         </div>
-        <div className="flex-1 animate-in delay-200">
+        <div className="flex-1 animate-in delay-200 transition-none">
           <StatCard
             label="This Week"
             value={`${weeklyCompletionPercent}%`}
@@ -290,7 +290,7 @@ const handleDuplicateRoutine = async () => {
               </button>                                                           
             </div>                                                               
             <button
-              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
+              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-80 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
@@ -310,7 +310,7 @@ const handleDuplicateRoutine = async () => {
                 <li
                   key={routine._id}
                   onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-medium text-main">{routine.name}</p>
