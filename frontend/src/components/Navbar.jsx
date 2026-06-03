@@ -195,13 +195,14 @@ onComplete: () => overlay.remove()
 };
 
 // Navigation Links configuration
+// Navigation Links configuration
 const navLinks = [
-{ name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-{ name: "Tasks", path: "/tasks", icon: CheckSquare },
-{ name: "Routine Builder", path: "/routine-builder", icon: Calendar },
-{ name: "Analytics", path: "/analytics", icon: TrendingUp },
-{ name: "Profile", path: "/profile", icon: User },
-];
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "Tasks", path: "/tasks", icon: CheckSquare },
+    { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
+    { name: "Analytics", path: "/analytics", icon: TrendingUp },
+    { name: "Profile", path: "/profile", icon: User },
+  ];
 
 return (
 <>
