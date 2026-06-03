@@ -8,6 +8,7 @@ import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import ThemeToggle from "./ThemeToggle";
 
 // Utility for merging tailwind classes safely
 function cn(...inputs) {
@@ -262,7 +263,7 @@ const Navbar = () => {
                         "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
                         isActive
                           ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0] dark:text-gray-300 dark:hover:bg-gray-800"
                       )
                     }
                   >
@@ -294,7 +295,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                    className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
                   >
                     Login
                   </Link>

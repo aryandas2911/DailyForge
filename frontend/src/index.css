@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   font-family: 'Outfit', sans-serif;
 }
@@ -81,7 +83,7 @@ html.dark body {
   }
 
   .card-muted {
-    @apply bg-white/80;
+    @apply bg-white/80 dark:bg-gray-800/80;
   }
 
   .card-primary {
@@ -122,9 +124,15 @@ html.dark body {
     opacity: 0;
     transform: translateY(12px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
+* {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+  }
