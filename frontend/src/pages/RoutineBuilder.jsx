@@ -318,7 +318,7 @@ export default function RoutineBuilder() {
                 placeholder="Add a description (optional)"
                 rows="3"
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
-                           focus:ring-primary bg-transparent text-main resize-none"
+                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white resize-none"
               />
 
               <div className="flex justify-end gap-3">
