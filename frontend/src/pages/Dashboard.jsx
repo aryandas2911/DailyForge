@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
+import Modal from "../components/ui/Modal";
+import Skeleton from "../components/ui/Skeleton";
 
 
 import StatCard from "../components/Dashboard/StatCard";
@@ -209,7 +211,7 @@ const handleDuplicateRoutine = async () => {
         </div>
 
         {/* Saved Routines */}
-        <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
+        <div className="card flex-1 animate-in delay-300 flex flex-col max-h-[420px] min-h-[320px] overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
@@ -236,7 +238,15 @@ const handleDuplicateRoutine = async () => {
           </div>
 
           {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
+            <div className="space-y-3">
+              {[1, 2].map((n) => (
+                <div key={n} className="border border-[#98e1d7]/20 dark:border-slate-800 rounded-xl p-4 bg-white/40 dark:bg-slate-800/40 shadow-xs flex flex-col gap-2 animate-pulse-subtle">
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-3.5 w-1/2 mt-1" />
+                  <Skeleton className="h-2.5 w-1/3 mt-2" />
+                </div>
+              ))}
+            </div>
           ) : savedRoutines.length === 0 ? (
             <p className="text-sm text-muted text-center mt-10">
               No routines saved yet
@@ -281,51 +291,49 @@ const handleDuplicateRoutine = async () => {
         </div>
       </section>
 
-      {routineToDuplicate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="card card-primary w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-main">
-              Duplicate Routine
-            </h3>
-            <p className="mt-1 text-sm text-muted">
-              Choose the day for "{routineToDuplicate.name} (Copy)".
-            </p>
+      <Modal
+        isOpen={!!routineToDuplicate}
+        onClose={closeDuplicateModal}
+        title="Duplicate Routine"
+        size="sm"
+      >
+        <p className="mt-1 text-sm text-muted">
+          Choose the day for "{routineToDuplicate?.name} (Copy)".
+        </p>
 
-            <label className="mt-4 block text-sm font-medium text-main">
-              Copy to
-            </label>
-            <select
-              value={duplicateTargetDay}
-              onChange={(e) => setDuplicateTargetDay(e.target.value)}
-              className="mt-2 w-full rounded-lg border-soft bg-transparent px-3 py-2 text-sm text-main focus:outline-none"
-            >
-              {DAYS_OF_WEEK.map((day) => (
-                <option key={day} value={day}>
-                  {day}
-                </option>
-              ))}
-            </select>
+        <label className="mt-4 block text-sm font-medium text-main">
+          Copy to
+        </label>
+        <select
+          value={duplicateTargetDay}
+          onChange={(e) => setDuplicateTargetDay(e.target.value)}
+          className="mt-2 w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-sm text-main dark:bg-slate-800 focus:outline-none"
+        >
+          {DAYS_OF_WEEK.map((day) => (
+            <option key={day} value={day} className="dark:bg-slate-900">
+              {day}
+            </option>
+          ))}
+        </select>
 
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                type="button"
-                className="btn btn-muted"
-                onClick={closeDuplicateModal}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary cursor-pointer"
-                onClick={handleDuplicateRoutine}
-                disabled={duplicatingRoutineId === routineToDuplicate._id}
-              >
-                Duplicate
-              </button>
-            </div>
-          </div>
+        <div className="mt-5 flex justify-end gap-3">
+          <button
+            type="button"
+            className="flex-1 py-2.5 rounded-xl border border-[#98e1d7]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            onClick={closeDuplicateModal}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="flex-1 py-2.5 rounded-xl bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+            onClick={handleDuplicateRoutine}
+            disabled={duplicatingRoutineId === routineToDuplicate?._id}
+          >
+            {duplicatingRoutineId === routineToDuplicate?._id ? "Duplicating..." : "Duplicate"}
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

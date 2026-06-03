@@ -7,6 +7,8 @@ import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import Modal from "../components/ui/Modal";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Tasks() {
   const navigate = useNavigate();
@@ -273,23 +275,33 @@ const handleActualDurationSubmit = async () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
-              filteredTasks
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                .map((task) => (
-                  <TaskItem
-                    key={task._id}
-                    task={task}
-                    onToggleComplete={handleToggle}
-                    onDelete={(id) => deleteTask(id)}
-                    onEdit={(task) => {
-                      setEditingTask(task);
-                      setIsModalOpen(true);
-                    }}
-                    onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}
-                    onSelect={handleSelect}
-                  />
-                ))
+              <AnimatePresence initial={false}>
+                {filteredTasks
+                  .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                  .map((task) => (
+                    <motion.div
+                      layout
+                      key={task._id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                    >
+                      <TaskItem
+                        task={task}
+                        onToggleComplete={handleToggle}
+                        onDelete={(id) => deleteTask(id)}
+                        onEdit={(task) => {
+                          setEditingTask(task);
+                          setIsModalOpen(true);
+                        }}
+                        onUpdate={updateTask}
+                        isSelected={selectedIds.includes(task._id)}
+                        onSelect={handleSelect}
+                      />
+                    </motion.div>
+                  ))}
+              </AnimatePresence>
             ) : (
               <EmptyState
                 type="tasks"
@@ -373,48 +385,49 @@ const handleActualDurationSubmit = async () => {
         />
       )}
 
-      {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold text-main mb-2">
-              Complete Task
-            </h2>
+      <Modal
+        isOpen={!!durationModalTask}
+        onClose={() => {
+          setDurationModalTask(null);
+          setActualDuration("");
+        }}
+        title="Complete Task"
+        size="sm"
+      >
+        <p className="text-sm text-muted mb-4">
+          How long did you actually take to complete "<strong>{durationModalTask?.title}</strong>"?
+        </p>
 
-            <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
-            </p>
+        <input
+          type="number"
+          min="1"
+          value={actualDuration}
+          onChange={(e) => setActualDuration(e.target.value)}
+          className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 focus:outline-none"
+          placeholder="Actual duration in minutes"
+        />
 
-            <input
-              type="number"
-              min="1"
-              value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg"
-              placeholder="Actual duration in minutes"
-            />
+        <div className="flex justify-end gap-3 mt-5">
+          <button
+            type="button"
+            onClick={() => {
+              setDurationModalTask(null);
+              setActualDuration("");
+            }}
+            className="flex-1 py-2.5 rounded-xl border border-[#98e1d7]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
 
-            <div className="flex justify-end gap-3 mt-5">
-              <button
-                onClick={() => {
-                  setDurationModalTask(null);
-                  setActualDuration("");
-                }}
-                className="px-4 py-2 rounded-lg border border-soft"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleActualDurationSubmit}
-                className="btn btn-primary px-4 py-2"
-              >
-                Mark Completed
-              </button>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={handleActualDurationSubmit}
+            className="flex-1 py-2.5 rounded-xl bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+          >
+            Mark Completed
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
