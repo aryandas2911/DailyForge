@@ -56,7 +56,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
     >
       {tasks.map((task) => (
         <div
-          key={task.taskId}
+          key={`${task.day}-${task.startTime}-${task.taskId}`}
           className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#4eb7b3] text-white text-[10px] sm:text-xs font-medium px-2 py-1 shadow-sm hover:bg-[#3b8ea0] transition-all animate-in"
         >
           <span className="truncate pr-3 leading-tight">{task.title}</span>

@@ -321,7 +321,7 @@ export default function RoutineCard({
                       ).padStart(2, "0");
 
                       return (
-                        <li key={task.taskId} className="text-xs text-muted flex items-center gap-1.5 truncate">
+                        <li key={`${task.taskId}-${task.startTime}`} className="text-xs text-muted flex items-center gap-1.5 truncate">
                           <span className="font-semibold text-main/80 shrink-0">{hours}:{minutes}</span>
                           <span className="text-main/50 shrink-0">•</span>
                           <span className="truncate">{task.title}</span>
