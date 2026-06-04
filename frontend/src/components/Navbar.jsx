@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp, Flame } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
@@ -210,6 +210,7 @@ const Navbar = () => {
   { name: "Tasks", path: "/tasks", icon: CheckSquare },
   { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
   { name: "Analytics", path: "/analytics", icon: TrendingUp },
+  { name: "Focus Mode", path: "/focus", icon: Flame },
   { name: "Profile", path: "/profile", icon: User },
 ];
 

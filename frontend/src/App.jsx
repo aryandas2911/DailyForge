@@ -14,6 +14,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
+import FocusMode from './pages/FocusMode.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
@@ -133,6 +134,14 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <Analytics />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/focus"
+            element={
+              <ProtectedRoutes>
+                <FocusMode />
               </ProtectedRoutes>
             }
           />
