@@ -201,7 +201,7 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details
-    const updates = req.body;
+    const { userId: _ignored, _id: __ignored, ...updates } = req.body;
 
     // validate title length if title is being updated
     if (updates.title && updates.title.trim().length > 50) {
