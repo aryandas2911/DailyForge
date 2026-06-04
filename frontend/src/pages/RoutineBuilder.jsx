@@ -18,6 +18,8 @@ import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import NLRoutineInput from "../components/AI/nlRoutineInput";
+import SmartSchedulingSuggestions from "../components/AI/smartSchedulingSuggestions";
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -33,6 +35,24 @@ export default function RoutineBuilder() {
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
   const gridRef = useRef(null);
+  // Handle AI-generated routine — pre-populate the weekly grid
+  const handleNLRoutineGenerated = (routine) => {
+    if (!routine?.items?.length) return;
+    const newItems = routine.items.map((item, idx) => ({
+      _id: `ai-${Date.now()}-${idx}`,
+      title: item.title,
+      priority: item.priority || "Medium",
+      tags: item.tags || [],
+      day: item.day,
+      startTime: item.startTime,
+      duration: item.duration,
+      status: "Due",
+      isAiGenerated: true,
+    }));
+    setScheduledTasks((prev) => [...prev, ...newItems]);
+    setRoutineName(routine.name || "AI Routine");
+    setDescription(routine.description || "");
+  };
 
   const exportToImage = async () => {
     if (!gridRef.current) return;
@@ -230,7 +250,7 @@ export default function RoutineBuilder() {
 
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
-          <aside className="col-span-12 md:col-span-3">
+          <aside className="col-span-12 md:col-span-3 flex flex-col gap-4">
             {/*
              * TaskLibrary's "Add Task" button opens the modal directly
              * (user is already at the top section of the page, no scroll needed).
@@ -239,8 +259,8 @@ export default function RoutineBuilder() {
             <TaskLibrary
               tasks={tasks}
               onAddTask={openModal}
-            />
-          </aside>
+          />
+        </aside>
 
           <section className="col-span-12 md:col-span-9">
             <WeeklyGrid

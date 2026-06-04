@@ -13,6 +13,8 @@ import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
+import OverloadWarningBanner from "../components/AI/overloadWarningBanner";
+import AdaptiveNudge from "../components/AI/adaptiveNudge";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -150,6 +152,11 @@ const handleDuplicateRoutine = async () => {
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       <OnboardingModal />
+
+      {/* AI Banners */}
+      <OverloadWarningBanner />
+      <AdaptiveNudge />
+
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
 
