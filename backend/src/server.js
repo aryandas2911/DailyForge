@@ -8,6 +8,7 @@ import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import { aiRouter } from "../routes/aiRoutes.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -46,6 +47,8 @@ app.use("/api/routines", routineRouter);
 
 // Router for accessing analytics routes
 app.use("/api/analytics", analyticsRouter);
+// Router for accessing AI features
+app.use("/api/ai", aiRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios";
 import html2canvas from "html2canvas";
+import AiCoachPanel from "../components/AI/aiCoachPanel";
 
 export default function Analytics() {
   const navigate = useNavigate();
@@ -842,7 +843,12 @@ export default function Analytics() {
               <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Total</span>
             </div>
           </div>
-        </div>
+       </div>
+      </section>
+
+      {/* AI Routine Coach */}
+      <section className="animate-in delay-200">
+        <AiCoachPanel />
       </section>
     </div>
   );

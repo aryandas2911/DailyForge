@@ -1,10 +1,36 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
+import { useAISettings } from '../context/AISettingsContext';
+import { Sparkles, Lock, Bot, Clock, Bell, Wand2, Flame } from 'lucide-react';
 
 const Profile = () => {
+  const Toggle = ({ checked, onChange, disabled }) => (
+  <button
+    onClick={() => !disabled && onChange(!checked)}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+      disabled ? 'opacity-40 cursor-not-allowed' : ''
+    } ${checked ? 'bg-[#4eb7b3]' : 'bg-gray-300 dark:bg-gray-600'}`}
+    aria-checked={checked}
+    role="switch"
+  >
+    <span
+      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+        checked ? 'translate-x-6' : 'translate-x-1'
+      }`}
+    />
+  </button>
+);
   // auth context
   const { user, setUser } = useContext(AuthContext);
+  const {
+    isPro, setIsPro,
+    aiCoachEnabled, setAiCoachEnabled,
+    schedulingEnabled, setSchedulingEnabled,
+    nudgesEnabled, setNudgesEnabled,
+    nlRoutineEnabled, setNlRoutineEnabled,
+    overloadEnabled, setOverloadEnabled,
+  } = useAISettings();
 
   // states
   const [name, setName] = useState(user?.name || '');
@@ -236,6 +262,50 @@ const Profile = () => {
               Update Password
             </button>
           </form>
+       </div>
+
+        {/* AI Settings */}
+        <div className="flex flex-col gap-5 border-soft rounded-2xl p-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#4eb7b3]" />
+            <h2 className="text-lg font-semibold text-main">AI Settings</h2>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 border-soft rounded-xl p-4 bg-gradient-to-r from-[#4eb7b3]/5 to-transparent">
+            <div className="flex items-center gap-3">
+              <Lock className="w-4 h-4 text-[#4eb7b3]" />
+              <div>
+                <p className="text-sm font-semibold text-main">Pro Plan</p>
+                <p className="text-xs text-muted">Enables all AI-powered features below</p>
+              </div>
+            </div>
+            <Toggle checked={isPro} onChange={setIsPro} />
+          </div>
+
+          {[
+            { icon: Bot, label: 'AI Routine Coach', desc: 'Weekly summary with pattern analysis & suggestions', val: aiCoachEnabled, set: setAiCoachEnabled },
+            { icon: Clock, label: 'Smart Scheduling', desc: 'Optimal time slot recommendations based on history', val: schedulingEnabled, set: setSchedulingEnabled },
+            { icon: Bell, label: 'Adaptive Nudges', desc: 'Context-aware reminders by time of day & streak health', val: nudgesEnabled, set: setNudgesEnabled },
+            { icon: Wand2, label: 'Natural Language Routine', desc: 'Generate routines from a goal description', val: nlRoutineEnabled, set: setNlRoutineEnabled },
+            { icon: Flame, label: 'Burnout & Overload Detection', desc: 'Flag unsustainable plans & suggest fallback routines', val: overloadEnabled, set: setOverloadEnabled },
+          ].map(({ icon: Icon, label, desc, val, set }) => (
+            <div key={label} className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Icon className="w-4 h-4 text-muted flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-main">{label}</p>
+                  <p className="text-xs text-muted">{desc}</p>
+                </div>
+              </div>
+              <Toggle checked={val} onChange={set} disabled={!isPro} />
+            </div>
+          ))}
+
+          {!isPro && (
+            <p className="text-xs text-muted text-center pt-1">
+              Enable <span className="text-[#4eb7b3] font-medium">Pro</span> above to activate AI features.
+            </p>
+          )}
         </div>
       </div>
     </div>
