@@ -2,7 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
+import { CheckCircle2, Calendar, ArrowRight, RotateCw, Copy } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
