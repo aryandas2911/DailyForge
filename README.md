@@ -289,8 +289,21 @@ JWT_SECRET=your_super_secret_key_here
 
 ### Frontend — `frontend/.env`
 
-Copy the provided `.env.example` to a new file named `.env`. 
+Copy the provided `.env.example` to a new file named `.env`.
 
+**Required Variables:**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_API_URL` | ✅ | Backend API URL (e.g., `http://localhost:5000/api`) |
+| `VITE_FIREBASE_API_KEY` | ✅ | Firebase API key from Firebase Console |
+| `VITE_FIREBASE_AUTH_DOMAIN` | ✅ | Firebase Auth domain |
+| `VITE_FIREBASE_PROJECT_ID` | ✅ | Firebase Project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | ✅ | Firebase Storage bucket |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | ✅ | Firebase Messaging Sender ID |
+| `VITE_FIREBASE_APP_ID` | ✅ | Firebase App ID |
+
+> Refer to the [Google Authentication Setup](#-google-authentication-setup) section for steps to obtain Firebase credentials from the Firebase Console.
 
 **Running locally?** Update `VITE_API_URL` in your local `.env` file to `http://localhost:5000/api/`.
 
