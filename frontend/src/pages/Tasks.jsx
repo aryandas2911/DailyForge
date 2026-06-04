@@ -3,14 +3,39 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
-import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
+import {
+  Plus,
+  ArrowLeft,
+  Filter,
+  Trash2,
+  StickyNote,
+  X,
+  Search,
+  Pencil,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { getCategoryColor } from "../utils/categoryUtils";
 import { TAGS } from "../utils/tagUtils";
 import EmptyState from "../components/EmptyState";
+import NotesWidget from "../components/Task/NotesWidget";
+
+const TASKS_PER_PAGE = 10;
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const { tasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate } = useTasks();
+  const {
+    tasks,
+    pagination,
+    page,
+    setPage,
+    addTask,
+    updateTask,
+    deleteTask,
+    bulkDelete,
+    bulkUpdate,
+  } = useTasks({ initialLimit: TASKS_PER_PAGE });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
@@ -18,6 +43,7 @@ export default function Tasks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
   const [showBulkEdit, setShowBulkEdit] = useState(false);
@@ -172,30 +198,34 @@ export default function Tasks() {
   return (
     <div className="min-h-screen app-bg px-6 lg:px-12 py-8 animate-in">
       <div className="max-w-[1200px] mx-auto space-y-8">
-        <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-6 flex-wrap animate-in delay-100 relative z-50">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-white dark:hover:bg-slate-800 cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted dark:text-gray-200 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-main tracking-tight">Tasks</h1>
+              <h1 className="text-3xl font-bold text-main tracking-tight">
+                Tasks
+              </h1>
               <p className="text-sm text-muted mt-1">
-                {completedTasks}/{totalTasks} completed · Stay consistent
+                {completedTasks}/{pageTasks} completed on this page &middot;{" "}
+                {totalTasks} total tasks
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
             {selectedIds.length > 0 && (
               <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={() => setShowBulkEdit((prev) => !prev)}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 transition cursor-pointer"
                 >
-                  ✏️ Edit Selected ({selectedIds.length})
+                  <Pencil size={16} /> Edit Selected ({selectedIds.length})
                 </button>
                 <button
                   onClick={handleBulkDelete}
@@ -207,6 +237,21 @@ export default function Tasks() {
             )}
 
             <button
+              onClick={() => setIsNotesOpen(!isNotesOpen)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${
+                isNotesOpen
+                  ? "bg-primary text-white border-transparent"
+                  : "bg-white dark:bg-slate-800 text-main border-soft hover:bg-gray-50 dark:hover:bg-slate-700"
+              }`}
+              style={isNotesOpen ? { backgroundColor: "var(--primary)" } : {}}
+            >
+              {isNotesOpen ? <X size={18} /> : <StickyNote size={18} />}
+              <span className="hidden sm:inline">
+                {isNotesOpen ? "Close Notes" : "Quick Notes"}
+              </span>
+            </button>
+
+            <button
               onClick={() => {
                 setEditingTask(null);
                 setIsModalOpen(true);
@@ -216,13 +261,23 @@ export default function Tasks() {
             >
               <Plus size={18} /> New Task
             </button>
+
+            {/* Notes Popover */}
+            {isNotesOpen && (
+              <div className="absolute top-full right-0 mt-3 z-50 w-80 md:w-96 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-4 border border-gray-100 dark:border-slate-800">
+                <NotesWidget />
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Bulk Edit Panel */}
         {showBulkEdit && selectedIds.length > 0 && (
           <div className="card p-4 shadow-sm flex flex-wrap gap-4 items-end animate-in">
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-main">Set Priority</label>
+              <label className="text-sm font-medium text-main">
+                Set Priority
+              </label>
               <select
                 value={bulkPriority}
                 onChange={(e) => setBulkPriority(e.target.value)}
@@ -235,12 +290,14 @@ export default function Tasks() {
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-main">Set Due Date</label>
+              <label className="text-sm font-medium text-main">
+                Set Due Date
+              </label>
               <input
                 type="datetime-local"
                 value={bulkDueDate}
                 onChange={(e) => setBulkDueDate(e.target.value)}
-                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
               />
             </div>
             <button
@@ -328,7 +385,9 @@ export default function Tasks() {
                     key={tagName}
                     onClick={() => toggleCategoryFilter(tagName)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected ? "ring-2 ring-offset-1" : "opacity-60 hover:opacity-100"
+                      isSelected
+                        ? "ring-2 ring-offset-1"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                     style={{
                       backgroundColor: cat.bgColor,
@@ -387,60 +446,118 @@ export default function Tasks() {
                 }}
               />
             )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <button
+                  onClick={() => setPage((currentPage) => currentPage - 1)}
+                  disabled={!hasPreviousPage}
+                  className="btn btn-muted flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
+
+                <p className="text-sm text-muted">
+                  Page {page} of {totalPages}
+                </p>
+
+                <button
+                  onClick={() => setPage((currentPage) => currentPage + 1)}
+                  disabled={!hasNextPage}
+                  className="btn btn-primary flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
 
+          {/* Insights Sidebar */}
           <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
-            <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">Completion</h3>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                {completionPercent > 0 && (
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                    style={{ width: `${completionPercent}%` }}
-                  />
+            {/* Unified Insights Card */}
+            <div className="card p-6 shadow-sm flex flex-col gap-6">
+              {/* Completion */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Completion
+                </h3>
+                <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  {completionPercent > 0 && (
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                      style={{ width: `${completionPercent}%` }}
+                    />
+                  )}
+                </div>
+                <p className="text-xs text-muted mt-1">
+                  {completedTasks} of {pageTasks} visible tasks done (
+                  {completionPercent}%)
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+              {/* Upcoming Deadlines */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Upcoming Deadlines
+                </h3>
+                {upcomingDeadlines.length ? (
+                  <ul className="space-y-2 text-sm">
+                    {upcomingDeadlines.slice(0, 3).map((task) => (
+                      <li
+                        key={task._id}
+                        className="flex items-center gap-2 text-main"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        {task.title}
+                      </li>
+                    ))}
+                  </ul>
+                ) : nextTask ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-main">
+                      {nextTask.title}
+                    </p>
+                    <p className="text-xs text-muted">
+                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted">No upcoming tasks</p>
                 )}
               </div>
-              <p className="text-xs text-muted mt-1">
-                {completedTasks} of {totalTasks} tasks done ({completionPercent}%)
-              </p>
-            </div>
 
-            <div className="card p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-main mb-2">Upcoming Deadlines</h3>
-              {upcomingDeadlines.length ? (
-                <ul className="space-y-2 text-sm">
-                  {upcomingDeadlines.slice(0, 3).map((task) => (
-                    <li key={task._id} className="flex items-center gap-2 text-main">
-                      <span className="w-2 h-2 rounded-full bg-red-500" />
-                      {task.title}
-                    </li>
-                  ))}
-                </ul>
-              ) : nextTask ? (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-main">{nextTask.title}</p>
-                  <p className="text-xs text-muted">
-                    Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+              {/* Divider */}
+              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+              {/* Priority Load */}
+              <div>
+                <h3 className="text-lg font-semibold text-main mb-2">
+                  Priority Load
+                </h3>
+                <div
+                  className={`rounded-lg p-4 ${
+                    isOverloaded
+                      ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
+                      : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                  }`}
+                >
+                  <p className="text-sm font-medium">
+                    {isOverloaded
+                      ? "Too many high-priority tasks"
+                      : "Priority load is healthy"}
+                  </p>
+                  <p className="text-xs mt-1 opacity-80">
+                    {isOverloaded
+                      ? "Consider rescheduling or delegating."
+                      : "You're pacing this well."}
                   </p>
                 </div>
-              ) : (
-                <p className="text-xs text-muted">No upcoming tasks 🎉</p>
-              )}
-            </div>
-
-            <div
-              className={`card p-4 ${
-                isOverloaded
-                  ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
-                  : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-              }`}
-            >
-              <p className="text-sm font-medium">
-                {isOverloaded ? "Too many high-priority tasks" : "Priority load is healthy"}
-              </p>
-              <p className="text-xs mt-1 opacity-80">
-                {isOverloaded ? "Consider rescheduling or delegating." : "You’re pacing this well."}
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -459,6 +576,7 @@ export default function Tasks() {
         />
       )}
 
+      {/* Duration Modal */}
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-(--surface) text-main rounded-2xl shadow-xl w-full max-w-sm p-6 border border-soft">
@@ -467,28 +585,28 @@ export default function Tasks() {
             <p className="text-sm text-muted mb-4">
               How long did you actually take to complete "{durationModalTask.title}"?
             </p>
-
             <input
               type="number"
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+              className="w-full p-2 border border-soft rounded-lg text-black"
               placeholder="Actual duration in minutes"
             />
-
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800"
+                className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
-
-              <button onClick={handleActualDurationSubmit} className="btn btn-primary px-4 py-2">
+              <button
+                onClick={handleActualDurationSubmit}
+                className="btn btn-primary px-4 py-2"
+              >
                 Mark Completed
               </button>
             </div>

@@ -29,9 +29,7 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border border-soft/50 bg-[#f8fafc]/30 dark:bg-slate-800/40 p-3
-                 cursor-grab active:cursor-grabbing
-                 hover:bg-white dark:hover:bg-slate-850 hover:shadow-md transition duration-200 hover-lift"
+      className="group flex items-center gap-3 rounded-xl border border-soft/50 dark:border-gray-700/60 bg-[#f8fafc]/30 dark:bg-slate-800/80 p-3 cursor-grab active:cursor-grabbing hover:bg-white dark:hover:bg-slate-850 hover:shadow-md transition duration-200 hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
@@ -50,7 +48,7 @@ function DraggableTask({ task }) {
       />
 
       {/* Title */}
-      <p className="flex-1 text-sm font-medium text-main truncate">
+      <p className="flex-1 text-sm font-medium text-main dark:text-white truncate">
         {task.title}
       </p>
     </div>
@@ -87,7 +85,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
         placeholder="Search tasks…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4eb7b3] bg-transparent text-main placeholder:text-muted"
+        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm bg-transparent text-main placeholder:text-muted dark:bg-slate-800 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]"
       />
 
       {/* Task List */}
