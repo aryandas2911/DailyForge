@@ -29,7 +29,11 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border border-soft/50 dark:border-gray-700/60 bg-[#f8fafc]/30 dark:bg-slate-800/80 p-3 cursor-grab active:cursor-grabbing hover:bg-white dark:hover:bg-slate-850 hover:shadow-md transition duration-200 hover-lift"
+      className="group flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60
+bg-slate-50/60 dark:bg-slate-800/60 p-3
+cursor-grab active:cursor-grabbing
+hover:bg-white dark:hover:bg-slate-700
+hover:shadow-md transition duration-200 hover-lift"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
@@ -48,7 +52,7 @@ function DraggableTask({ task }) {
       />
 
       {/* Title */}
-      <p className="flex-1 text-sm font-medium text-main dark:text-white truncate">
+      <p className="flex-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
         {task.title}
       </p>
     </div>
