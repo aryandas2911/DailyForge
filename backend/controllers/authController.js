@@ -57,6 +57,11 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: 'Name must be at least 2 characters long' });
     }
 
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!password || !passwordRegex.test(password)) {
       return res.status(400).json({
@@ -65,13 +70,13 @@ export const signup = async (req, res) => {
       });
     }
 
-    const checkExisting = await User.findOne({ email });
+    const checkExisting = await User.findOne({ email: normalizedEmail });
     if (checkExisting) {
       return res.status(409).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email: normalizedEmail, password: hashedPassword });
     await newUser.save();
 
     const jwtSecret = getJwtSecret(res);
@@ -104,7 +109,8 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       // Do NOT reveal whether the user exists
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -372,20 +378,21 @@ export const googleLogin = async (req, res) => {
       return res.status(400).json({ message: 'Email is missing from the Google identity token' });
     }
 
-    let user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       const randomPassword = crypto.randomBytes(32).toString('hex');
       const hashedPassword = await bcrypt.hash(randomPassword, 10);
       user = new User({
-        name: name || email.split('@')[0],
-        email,
+        name: name || normalizedEmail.split('@')[0],
+        email: normalizedEmail,
         password: hashedPassword,
       });
       await user.save();
-      console.log(`[GOOGLE AUTH] Created new user profile for: ${email}`);
+      console.log(`[GOOGLE AUTH] Created new user profile for: ${normalizedEmail}`);
     } else {
-      console.log(`[GOOGLE AUTH] Logged in existing user: ${email}`);
+      console.log(`[GOOGLE AUTH] Logged in existing user: ${normalizedEmail}`);
     }
 
     const jwtSecret = getJwtSecret(res);
