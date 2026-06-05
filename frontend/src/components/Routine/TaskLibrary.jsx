@@ -89,7 +89,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
         placeholder="Search tasks…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4eb7b3] bg-transparent text-main placeholder:text-muted"
+        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm bg-transparent text-main placeholder:text-muted dark:bg-slate-800 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]"
       />
 
       {/* Task List */}
