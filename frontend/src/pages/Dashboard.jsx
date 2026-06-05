@@ -7,6 +7,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
@@ -248,6 +249,14 @@ const handleDuplicateRoutine = async () => {
         </div>
       </section>
 
+      {/* Daily Reflection Summary - placed below StatCards and above Today's Tasks */}
+      <ReflectionSummary
+        completedToday={completedToday}
+        totalToday={totalToday}
+        weeklyCompletionPercent={weeklyCompletionPercent}
+        tasks={tasks}
+        upcomingTasks={upcomingTasks}
+      />
       {/* Contribution Heatmap */}
       <div className="w-full animate-in delay-200">
         <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />

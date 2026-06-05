@@ -343,7 +343,7 @@ export default function RoutineBuilder() {
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            <div className="rounded-xl bg-white dark:text-black p-3 shadow-xl border border-gray-200">
               {activeTask.title}
             </div>
           ) : null}
