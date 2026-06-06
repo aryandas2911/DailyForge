@@ -16,6 +16,8 @@ const PORT = process.env.PORT;
 // Initialize express     
 const app = express();
 
+// Required for correct req.ip behind Render / reverse proxies (used by rate limiting)
+app.set('trust proxy', 1);
 
 app.use(
   cors({
