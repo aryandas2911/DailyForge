@@ -26,7 +26,7 @@ const AuthProvider = ({ children }) => {
   // restore session on app load
   useEffect(() => {
     api
-      .get("/auth/me")
+      .get("/auth/user")
       .then((res) => {
         setUser(res.data.user);
       })
