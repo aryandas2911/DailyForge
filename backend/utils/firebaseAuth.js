@@ -17,7 +17,7 @@ async function fetchGooglePublicKeys() {
   }
 
   try {
-    const url = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken-system@system.gserviceaccount.com";
+    const url = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch Google public keys: ${response.statusText}`);
