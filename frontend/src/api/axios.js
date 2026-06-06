@@ -1,10 +1,27 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api/" : "https://dailyforge-backend.onrender.com/api/"),
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000, // updated 15s as default
   withCredentials: true,
+});
+
+axiosRetry(api, {
+  retries: 3,
+
+  retryDelay: (retryCount) => {
+    console.log(`Retry attempt ${retryCount}`);
+    return retryCount * 2000; // 2s, 4s, 6s
+  },
+
+  retryCondition: (error) => {
+    return (
+      axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+      (error.response && error.response.status >= 500)
+    );
+  },
 });
 
 // Handle response errors, including timeout
