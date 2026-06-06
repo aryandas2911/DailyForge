@@ -1,10 +1,16 @@
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
-import User from '../src/models/User.js';
+import User from '../models/User.js';
+import OtpModel from "../models/auth.js"
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { verifyFirebaseIdToken } from '../utils/firebaseAuth.js';
 import crypto from 'crypto';
+import otpModel from '../models/auth.js';
+import transporter from "../config/mail.js"
+
+
+
 
 // ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
@@ -343,7 +349,10 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// ─── Logout ───────────────────────────────────────────────────────────────────
+
+
+
+// logout function
 export const logout = (req, res) => {
   res.clearCookie('token', getAuthCookieOptions());
   return res.status(200).json({ message: 'Logout successful' });
@@ -409,3 +418,248 @@ export const googleLogin = async (req, res) => {
     return res.status(500).json({ message: 'Server error during Google authentication' });
   }
 };
+
+
+
+
+
+
+
+
+
+export const forgot = async (req, res) => {
+  const { email } = req.body;
+
+
+
+  
+
+  try {
+    if (!email) {
+      return res.status(400).json({
+        message: "Email cannot be empty",
+        success: false,
+      });
+    }
+
+    const isExist = await User.findOne({email});
+
+    if (isExist) {
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+      const hashedotp = await bcrypt.hash(otp, 10);
+
+     await otpModel.findOneAndDelete({email});
+
+
+      await otpModel.create({
+        email,
+       otp :  hashedotp
+      })
+
+
+    
+
+   
+      if(!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD){
+        console.log("Email credentials missing");
+
+        console.log("OTP:", otp);
+
+      return res.status(200).json({
+      message:  "OTP generated locally",
+         success: true,
+      });
+
+
+      }
+
+
+      
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "OTP for password reset",
+        text: `We received a request to reset your password. Your OTP is ${otp}. This OTP is valid for 5 minutes. If you did not request this, please ignore this email.`,
+      });
+    }
+
+
+
+    return res.status(200).json({
+      message: "If the account exists, an OTP has been sent.",
+      success: true,
+    });
+  } catch (err) {
+    console.log(err, "Error hai");
+
+    return res.status(500).json({
+      message: "Something went wrong",
+      success: false,
+      error : err
+    });
+  }
+};
+
+
+
+export const verifyOtp = async (req, res) => {
+  const { otp, email } = req.body;
+
+  try {
+    if (!otp || !email) {
+      return res.status(400).json({
+        message: "Otp and email both are required",
+        success: false,
+      });
+    }
+
+
+        if(otp.length>6 || otp.length<6){
+      return res.status(400).json({
+        message : "Otp length should be equal to 6",
+        success : falseUnAuthorized 
+      })
+    }
+
+
+    const otprecord = await OtpModel.findOne({email})
+
+    if (!otprecord) {
+      return res.status(400).json({
+        message: "Invalid Otp request",
+        success: false,
+      });
+    }
+
+    const otpCreatedTime = new Date(otprecord.createdAt).getTime();
+
+    if (otpCreatedTime + 5 * 60 * 1000 < Date.now()) {
+      return res.status(400).json({
+        message: "Otp has been expired",
+        success: false,
+      });
+    }
+
+    const isOtpVerified = await bcrypt.compare(otp, otprecord.otp);
+
+    if (!isOtpVerified)
+      return res.status(401).json({
+        message: "Otp is invalid",
+        success: false,
+      });
+
+    await OtpModel.findOneAndDelete({email});
+
+  const resetToken = jwt.sign(
+    {email : email},
+    process.env.JWT_RESET_PASSWORD,
+    {expiresIn : "5m"}
+
+  )      
+
+
+
+  res.cookie("resetToken",resetToken,{
+    httpOnly : true,
+    secure : false,
+    sameSite : "strict",
+    maxAge : 5 * 60 * 1000
+  })
+
+
+    return res.status(200).json({
+      message: "Otp verified successfully",
+      success: true,
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      message: "Something went wrong",
+      success: false,
+    });
+  }
+};
+
+
+
+export const setNewPassword = async (req,res)=>{
+
+  const { password } = req.body;
+  const resetToken = req?.cookies?.resetToken;
+
+  try{
+  if(!password){
+    return res.status(400).json({
+      message : "Password is required",
+      success : false
+    })
+   
+  }
+
+  if(!resetToken){
+    return res.status(401).json({
+      message : "UnAuthorized Access",
+      success : false
+    })
+
+  }
+
+
+
+  const verified = jwt.verify(resetToken,process.env.JWT_RESET_PASSWORD);
+
+
+
+
+  const user = await User.findOne({email : verified.email})
+
+   if(!user){
+    return res.status(400).json({
+      message : "User not found",
+      success : false
+    })
+  }
+
+
+  const compareOldNew = await bcrypt.compare(password,user.password);
+
+ 
+
+
+  if(compareOldNew){
+    return res.status(400).json({
+      message : "New Password cannot be same as Old Password",
+      success : false
+    })
+  }
+
+
+  const hashedpassword = await bcrypt.hash(password,10);
+
+
+  await User.findOneAndUpdate({email : verified.email},{ password : hashedpassword})
+
+
+  res.clearCookie("resetToken");
+
+
+  return res.status(200).json({
+    message : "Password reset Successfully",
+    success : true
+  })
+
+  
+}catch(err){
+
+
+  return res.status(500).json({
+    message : "Something went wrong",
+    success : false
+  })
+}
+}
+
+
+
+
