@@ -7,6 +7,7 @@ export default function Footer() {
     { label: "Dashboard", path: "/dashboard" },
     { label: "Tasks", path: "/tasks" },
     { label: "Routine Builder", path: "/routine-builder" },
+    { label: "About", path: "/about" },
   ];
 
   return (
