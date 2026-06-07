@@ -205,7 +205,7 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
             <div className="flex flex-wrap gap-2 mt-2">
               {tags.filter(t => !TAGS.includes(t)).map(ct => (
                 <span key={ct} className="px-2 py-0.5 bg-soft rounded text-xs text-main flex items-center gap-1">
-                  {ct} <X size={10} className="cursor-pointer text-red-500" onClick={() => setTags(tags.filter(x => x !== ct))} />
+                  {ct} <X size={14} className="cursor-pointer text-red-500" onClick={() => setTags(tags.filter(x => x !== ct))} />
                 </span>
               ))}
             </div>
