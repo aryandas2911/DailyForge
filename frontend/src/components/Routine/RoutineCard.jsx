@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Share2, Copy, Download, Loader2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
+import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
+
 
 export default function RoutineCard({
   routine,
@@ -15,8 +17,62 @@ export default function RoutineCard({
   const [showMenu, setShowMenu] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showOverlapError, setShowOverlapError] = useState(false);
+  const [toastTitle, setToastTitle] = useState("Routine Started");
+  const [toastDesc, setToastDesc] = useState("Tasks were added to today's workflow.");
+  const [isExporting, setIsExporting] = useState(false);
 
   const menuRef = useRef(null);
+
+  const triggerToast = (title, desc) => {
+    setToastTitle(title);
+    setToastDesc(desc);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  const handleCopyLink = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      triggerToast("Share Link Copied", "The public routine link was copied to clipboard.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy share link");
+    }
+  };
+
+  const handleCopySummary = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const summaryText = generateRoutineSummary(routine, tasks);
+      await navigator.clipboard.writeText(summaryText);
+      triggerToast("Summary Copied", "The routine summary text was copied to clipboard.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy routine summary");
+    }
+  };
+
+  const handleExportPDF = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      setIsExporting(true);
+      await exportRoutineToPDF(routine, tasks);
+      triggerToast("PDF Downloaded", "The routine PDF was generated and downloaded successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export routine as PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const isRoutineStarted =
   activeRoutine.some(
@@ -160,11 +216,7 @@ export default function RoutineCard({
     ])
   );
 
-  setShowToast(true);
-
-  setTimeout(() => {
-    setShowToast(false);
-  }, 3000);
+  triggerToast("Routine Started", "Tasks were added to today's workflow.");
 };
 
  
@@ -261,11 +313,11 @@ export default function RoutineCard({
 
               <div>
                 <p className="text-sm font-semibold text-main">
-                  Routine Started
+                  {toastTitle}
                 </p>
 
                 <p className="text-xs text-muted mt-1">
-                  Tasks were added to today's workflow.
+                  {toastDesc}
                 </p>
               </div>
 
@@ -275,6 +327,7 @@ export default function RoutineCard({
 
         </div>
       )}
+
 
       {/* Card */}
       <div
@@ -353,7 +406,30 @@ export default function RoutineCard({
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-1 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+            <div className="absolute right-0 mt-1 w-48 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+              <button
+                onClick={handleCopyLink}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+              >
+                <Share2 size={16} />
+                Copy Share Link
+              </button>
+              <button
+                onClick={handleCopySummary}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+              >
+                <Copy size={16} />
+                Copy Summary
+              </button>
+              <button
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
+              >
+                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                Export as PDF
+              </button>
+              <div className="border-t border-soft/20"></div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -366,6 +442,7 @@ export default function RoutineCard({
               </button>
             </div>
           )}
+
         </div>
       </div>
 
