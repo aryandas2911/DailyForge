@@ -139,7 +139,13 @@ export default function TaskFormModal({
 
   const toggleTag = (tagName) => {
     if (tagName === "Other") {
-      // toggle showing the custom input
+      // If "Other" is already in the tags array (added as a custom tag), remove it
+      if (tags.includes("Other")) {
+        setTags((prev) => prev.filter((t) => t !== "Other"));
+        setShowOtherInput(false);
+        return;
+      }
+      // Otherwise toggle showing the custom input
       setShowOtherInput((s) => !s);
       return;
     }
