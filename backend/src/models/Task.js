@@ -17,12 +17,11 @@ const taskSchema = mongoose.Schema(
       required: false,
       trim: true
     },
-    tags: {
-      type: [String],
-      required: false,
-      trim: true
-      default: [],
-    },
+    tags: [{
+      type: String,
+      trim: true,
+    }],
+    default: [],
     priority: {
       type: String,
       required: true,
