@@ -439,15 +439,16 @@ export const reorderRoutine = async (req, res) => {
       return res.status(400).json({ success: false, message: "routineIds array is required" });
     }
 
-    // Update orderIndex for each routine
-    const updatePromises = routineIds.map((id, index) =>
-      Routine.findOneAndUpdate(
-        { _id: id, userId },
-        { $set: { orderIndex: index } }
-      )
-    );
+    // Update orderIndex for each routine using bulkWrite
+    const bulkOps = routineIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id, userId },
+        update: { $set: { orderIndex: index } }
+      }
+    }));
 
-    await Promise.all(updatePromises);
+
+    await Routine.bulkWrite(bulkOps);
 
     return res.status(200).json({
       success: true,

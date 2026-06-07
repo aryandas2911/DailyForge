@@ -35,7 +35,8 @@ routineRouter.get("/", authMiddleware, asyncHandler(getRoutines));
 // Route for duplicating routine
 routineRouter.post("/:id/duplicate", authMiddleware, duplicateRoutine);
 
-// Route for reordering routines (must be before /:id to avoid conflict)
+// Route for reordering routine items (must be before /:id to avoid routing conflict)
+
 routineRouter.put("/reorder", authMiddleware, asyncHandler(reorderRoutine));
 
 // Route for updating routine

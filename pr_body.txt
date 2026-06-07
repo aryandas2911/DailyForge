@@ -15,7 +15,7 @@ This PR addresses the inconsistent validation error styling across the authentic
 
 
 
-## ? Checklist
+## Checklist
 - [x] Code runs locally
 - [x] Followed project structure
 - [x] No console errors

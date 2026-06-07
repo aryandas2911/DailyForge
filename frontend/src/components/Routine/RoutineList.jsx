@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Copy, GripVertical } from 'lucide-react';
-import api from '../../api/axios';
+import api from '../../api/axios.js';
 
 export default function RoutineList({ 
   routines, 
@@ -58,7 +58,7 @@ export default function RoutineList({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="routines-list" direction={isGrid ? "horizontal" : "vertical"}>
+      <Droppable droppableId="routines-list" direction="vertical">
         {(provided) => (
           <ul 
             className={containerClass}
@@ -77,10 +77,7 @@ export default function RoutineList({
                       shadow-sm hover:shadow-md transition-all duration-200 
                       ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary/50' : 'hover-lift hover:bg-white dark:hover:bg-slate-800'}
                     `}
-                    style={{
-                      ...provided.draggableProps.style,
-                      ...(isGrid && !snapshot.isDragging ? { transform: 'none' } : {})
-                    }}
+                    style={provided.draggableProps.style}
                   >
                     {renderItem ? (
                       <div className="relative group">
