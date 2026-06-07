@@ -18,6 +18,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     // prevents page from refreshing
     e.preventDefault();
+     setErrorMessage(""); // clear previous error
 
     // send request to server
     try {
