@@ -17,6 +17,78 @@ import {
 import api from "../api/axios";
 import html2canvas from "html2canvas";
 
+const demoStats = {
+  summary: {
+    totalTasks: 42,
+    completedTasksCount: 30,
+    dueTasksCount: 12,
+    overallCompletionRate: 71,
+    totalRoutines: 4,
+    totalRoutineTasksCount: 15,
+  },
+  streaks: {
+    currentStreak: 8,
+    bestStreak: 15,
+  },
+  dailyProgress: [
+    { date: "2026-06-01", label: "Mon", total: 6, completed: 4 },
+    { date: "2026-06-02", label: "Tue", total: 8, completed: 6 },
+    { date: "2026-06-03", label: "Wed", total: 5, completed: 5 },
+    { date: "2026-06-04", label: "Thu", total: 7, completed: 3 },
+    { date: "2026-06-05", label: "Fri", total: 9, completed: 7 },
+    { date: "2026-06-06", label: "Sat", total: 4, completed: 4 },
+    { date: "2026-06-07", label: "Sun", total: 5, completed: 1 },
+  ],
+  weeklyTrend: [
+    { label: "Wk -3", total: 35, completed: 25, rate: 71 },
+    { label: "Wk -2", total: 40, completed: 32, rate: 80 },
+    { label: "Wk -1", total: 38, completed: 26, rate: 68 },
+    { label: "Wk -0", total: 42, completed: 30, rate: 71 },
+  ],
+  monthlyProgress: [
+    { label: "Jan", total: 120, completed: 90, rate: 75 },
+    { label: "Feb", total: 110, completed: 85, rate: 77 },
+    { label: "Mar", total: 130, completed: 100, rate: 77 },
+    { label: "Apr", total: 115, completed: 80, rate: 70 },
+    { label: "May", total: 140, completed: 110, rate: 79 },
+    { label: "Jun", total: 42, completed: 30, rate: 71 },
+  ],
+  categoryStats: [
+    { category: "Work", total: 15, completed: 12, rate: 80 },
+    { category: "Personal", total: 10, completed: 7, rate: 70 },
+    { category: "Health", total: 6, completed: 5, rate: 83 },
+    { category: "Learning", total: 8, completed: 4, rate: 50 },
+    { category: "Finance", total: 3, completed: 2, rate: 67 },
+  ],
+  priorityStats: [
+    { priority: "High", total: 12, completed: 9, rate: 75 },
+    { priority: "Medium", total: 20, completed: 15, rate: 75 },
+    { priority: "Low", total: 10, completed: 6, rate: 60 },
+  ],
+  mostFrequentTasks: [
+    { title: "Review daily plan", count: 14 },
+    { title: "Team standup", count: 10 },
+    { title: "Exercise/Workout", count: 8 },
+    { title: "Read 10 pages", count: 7 },
+    { title: "Budget updates", count: 5 },
+  ],
+  routineDayDistribution: {
+    Monday: 2,
+    Tuesday: 3,
+    Wednesday: 2,
+    Thursday: 3,
+    Friday: 2,
+    Saturday: 1,
+    Sunday: 2,
+  },
+  adaptiveAnalytics: {
+    averageBurnoutScore: 35,
+    averageConsistencyScore: 78,
+    recoveryModeCount: 1,
+    highFatigueCount: 0,
+  },
+};
+
 export default function Analytics() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -24,28 +96,59 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (forceRetry = false) => {
     try {
-      setLoading(true);
+      if (forceRetry) {
+        setIsReconnecting(true);
+        setError("");
+      } else if (retryCount === 0) {
+        setLoading(true);
+        setError("");
+      }
+      
+      console.log(`[Analytics] Fetching data from API (Attempt: ${forceRetry ? 'manual retry' : retryCount + 1})...`);
       const res = await api.get("/analytics");
+      
       if (res.data.success) {
         setStats(res.data.stats);
+        setIsDemoMode(false);
+        setError("");
+        setRetryCount(0);
       } else {
-        setError("Failed to load analytics data");
+        throw new Error("Failed to load analytics: res.data.success is false");
       }
     } catch (err) {
-      console.error(err);
-      setError(
-        err.userMessage || "Error connecting to server. Please try again."
-      );
+      console.error("[Analytics API Error]:", err);
+      
+      if (!forceRetry && retryCount < 2) {
+        const nextAttempt = retryCount + 1;
+        setRetryCount(nextAttempt);
+        console.log(`[Analytics] Retrying connection in 3 seconds... (Attempt ${nextAttempt} of 2)`);
+        setTimeout(() => {
+          fetchAnalytics();
+        }, 3000);
+      } else {
+        console.warn("[Analytics] Unable to connect to server. Falling back to Demo Mode.");
+        setStats(demoStats);
+        setIsDemoMode(true);
+        setError(
+          err.userMessage || 
+          (err.response ? `Server Error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch'}` : "Error connecting to server. Please try again.")
+        );
+      }
     } finally {
       setLoading(false);
+      setIsReconnecting(false);
     }
   };
 
   useEffect(() => {
     fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // CSV Export Handler
@@ -121,25 +224,88 @@ export default function Analytics() {
     }
   };
 
-  if (loading) {
+  if (loading && retryCount === 0) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg gap-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm text-muted font-medium animate-pulse">
-          Analyzing routines and tasks…
-        </p>
+      <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-pulse">
+        {/* Header Skeleton */}
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 rounded-xl bg-white/50 dark:bg-slate-900/50 gap-4 border border-soft">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="w-10 h-10 rounded-lg bg-slate-300 dark:bg-slate-800"></div>
+            <div className="space-y-2 flex-1 md:flex-initial">
+              <div className="h-6 w-48 bg-slate-300 dark:bg-slate-800 rounded"></div>
+              <div className="h-4 w-72 bg-slate-200 dark:bg-slate-800/60 rounded"></div>
+            </div>
+          </div>
+          <div className="flex gap-3 w-full md:w-auto">
+            <div className="h-10 w-28 bg-slate-300 dark:bg-slate-800 rounded-lg flex-1 md:flex-none"></div>
+            <div className="h-10 w-28 bg-slate-300 dark:bg-slate-800 rounded-lg flex-1 md:flex-none"></div>
+          </div>
+        </header>
+
+        {/* Metrics Grid Skeleton */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-300 dark:bg-slate-800"></div>
+              <div className="space-y-2 flex-1">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800/60 rounded"></div>
+                <div className="h-6 w-12 bg-slate-300 dark:bg-slate-800 rounded"></div>
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800/40 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* Adaptive Analytics Section Skeleton */}
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 flex justify-between items-center">
+              <div className="space-y-2 flex-1">
+                <div className="h-3 w-24 bg-slate-200 dark:bg-slate-800/60 rounded"></div>
+                <div className="h-8 w-16 bg-slate-300 dark:bg-slate-800 rounded"></div>
+                <div className="h-3 w-20 bg-slate-200 dark:bg-slate-800/40 rounded"></div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-slate-300 dark:bg-slate-800"></div>
+            </div>
+          ))}
+        </section>
+
+        {/* Banner Skeleton */}
+        <div className="h-20 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-soft w-full"></div>
+
+        {/* Row 2 Skeleton */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+          <div className="col-span-12 lg:col-span-7 p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 h-48"></div>
+          <div className="col-span-12 lg:col-span-5 p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 h-48"></div>
+        </section>
+
+        {/* SVG Charts Skeleton */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+          <div className="p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 flex flex-col justify-between space-y-4 h-64">
+            <div className="h-5 w-48 bg-slate-300 dark:bg-slate-800 rounded"></div>
+            <div className="flex-1 bg-slate-200 dark:bg-slate-800/40 rounded-lg flex items-center justify-center">
+              <span className="text-xs text-slate-400 dark:text-slate-500 animate-pulse">Analyzing routines...</span>
+            </div>
+          </div>
+          <div className="p-6 rounded-xl border border-soft bg-white/50 dark:bg-slate-900/50 flex flex-col justify-between space-y-4 h-64">
+            <div className="h-5 w-48 bg-slate-300 dark:bg-slate-800 rounded"></div>
+            <div className="flex-1 bg-slate-200 dark:bg-slate-800/40 rounded-lg flex items-center justify-center">
+              <span className="text-xs text-slate-400 dark:text-slate-500 animate-pulse">Analyzing trends...</span>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
 
-  if (error) {
+  if (error && !isDemoMode) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg px-4">
         <div className="card max-w-md w-full text-center space-y-4 shadow-xl border-soft bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
           <Award size={48} className="text-red-500 mx-auto" />
           <h2 className="text-xl font-bold text-main">Something went wrong</h2>
           <p className="text-sm text-muted">{error}</p>
-          <button className="btn btn-primary w-full" onClick={fetchAnalytics}>
+          <button className="btn btn-primary w-full" onClick={() => fetchAnalytics(true)}>
             Try Again
           </button>
         </div>
@@ -233,15 +399,34 @@ export default function Analytics() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition cursor-pointer flex items-center justify-center"
             >
               <ArrowLeft size={16} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-main flex items-center gap-2">
-                Productivity Analytics
-              </h1>
-              <p className="text-sm text-muted">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-2xl font-bold text-main">
+                  Productivity Analytics
+                </h1>
+                {isDemoMode ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 select-none animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                    Demo Mode (Offline)
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 select-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Live
+                  </span>
+                )}
+                {isReconnecting && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20 select-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                    Syncing...
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-muted mt-1">
                 Insights and habit metrics tracking your consistency over time.
               </p>
             </div>
@@ -249,7 +434,51 @@ export default function Analytics() {
         </div>
 
         {/* Action Buttons Area */}
-        <div id="export-buttons-area" className="flex flex-wrap gap-3 w-full md:w-auto">
+        <div id="export-buttons-area" className="flex flex-wrap gap-3 w-full md:w-auto items-center">
+          {isDemoMode && (
+            <button
+              onClick={() => fetchAnalytics(true)}
+              disabled={isReconnecting}
+              className="flex-1 md:flex-none btn border border-amber-500/30 hover:bg-amber-500/10 text-amber-500 flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              <svg
+                className={`w-4 h-4 ${isReconnecting ? "animate-spin" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"
+                />
+              </svg>
+              Reconnect
+            </button>
+          )}
+
+          <button
+            onClick={() => fetchAnalytics(true)}
+            disabled={isReconnecting}
+            className="flex-1 md:flex-none btn border border-soft hover:bg-slate-100 dark:hover:bg-slate-800 text-muted flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            title="Refresh Analytics Data"
+          >
+            <svg
+              className={`w-4 h-4 ${isReconnecting ? "animate-spin" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"
+              />
+            </svg>
+            Refresh
+          </button>
           <button
             onClick={exportToCSV}
             className="flex-1 md:flex-none btn btn-primary flex items-center justify-center gap-2 shadow-sm cursor-pointer"
@@ -266,6 +495,27 @@ export default function Analytics() {
           </button>
         </div>
       </header>
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="card bg-gradient-to-r from-amber-500/10 to-red-500/10 border border-amber-500/20 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h4 className="font-bold text-amber-500 flex items-center gap-1.5">
+              <Award size={16} /> Offline Demonstration Mode
+            </h4>
+            <p className="text-xs text-muted mt-0.5">
+              Could not establish connection to the backend server. Showing offline/demo metrics so you can explore the dashboard.
+            </p>
+          </div>
+          <button
+            onClick={() => fetchAnalytics(true)}
+            disabled={isReconnecting}
+            className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border border-amber-500/30 font-semibold active:scale-95 transition-all disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+          >
+            {isReconnecting ? "Connecting..." : "Retry Connection"}
+          </button>
+        </div>
+      )}
 
       {/* Grid of Key Metrics */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
