@@ -10,16 +10,18 @@ const taskSchema = mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true
     },
     description: {
       type: String,
       required: false,
+      trim: true
     },
-    tags: {
-      type: [String],
-      required: false,
-      default: [],
-    },
+    tags: [{
+      type: String,
+      trim: true,
+    }],
+    default: [],
     priority: {
       type: String,
       required: true,
@@ -28,7 +30,7 @@ const taskSchema = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["Due", "Completed"],
+      enum: ["Due", "In Progress", "Completed"],
     },
     dueDate: {
       type: Date,
