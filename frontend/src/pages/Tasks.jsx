@@ -186,7 +186,7 @@ export default function Tasks() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-white dark:hover:bg-slate-800 cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted dark:text-gray-200 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
@@ -280,7 +280,7 @@ export default function Tasks() {
                 type="datetime-local"
                 value={bulkDueDate}
                 onChange={(e) => setBulkDueDate(e.target.value)}
-                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
               />
             </div>
             <button
@@ -529,7 +529,7 @@ export default function Tasks() {
 
       {/* Duration Modal */}
       {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <h2 className="text-xl font-semibold mb-2 text-black/90">
               Complete Task
