@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp } from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User,Sun, Moon, TrendingUp } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
@@ -284,10 +284,11 @@ const Navbar = () => {
                 aria-label="Toggle dark mode"
               >
                 {theme === "dark" ? (
-                  <Sun size={18} className="text-yellow-400 fill-yellow-400" />
+                 <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
                 ) : (
-                  <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
-                )}
+                 <Sun size={18} className="text-yellow-400 fill-yellow-400" />
+          )}
+
               </motion.button>
 
               {!user ? (

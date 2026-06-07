@@ -118,7 +118,7 @@ const Login = () => {
 
   if (tempUserId) {
     return (
-      <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative">
+      <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
         <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
         <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
         <form
@@ -155,7 +155,7 @@ const Login = () => {
   }
 
   return (
-    <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative">
+    <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
