@@ -13,7 +13,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
@@ -32,11 +32,13 @@ export default function RoutineBuilder() {
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const [isImageExporting, setIsImageExporting] = useState(false);
   const gridRef = useRef(null);
 
   const exportToImage = async () => {
     if (!gridRef.current) return;
     try {
+      setIsImageExporting(true);
       // html-to-image handles CSS variables and Google Fonts without CORS issues
       const url = await toPng(gridRef.current, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement("a");
@@ -48,6 +50,8 @@ export default function RoutineBuilder() {
     } catch (error) {
       console.error("Export failed:", error);
       alert("Failed to export routine as image.");
+    } finally {
+      setIsImageExporting(false);
     }
   };
 
@@ -221,10 +225,11 @@ export default function RoutineBuilder() {
           </div>
           <button
             onClick={exportToImage}
-            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
+            disabled={isImageExporting}
+            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift disabled:opacity-50"
           >
-            <Download size={16} />
-            Export as PNG
+            {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            {isImageExporting ? "Exporting..." : "Export as PNG"}
           </button>
         </header>
 
@@ -343,7 +348,7 @@ export default function RoutineBuilder() {
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            <div className="rounded-xl bg-white dark:text-black p-3 shadow-xl border border-gray-200">
               {activeTask.title}
             </div>
           ) : null}
