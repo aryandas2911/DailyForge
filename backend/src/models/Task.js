@@ -16,8 +16,9 @@ const taskSchema = mongoose.Schema(
       required: false,
     },
     tags: {
-      type: String,
+      type: [String],
       required: false,
+      default: [],
     },
     priority: {
       type: String,
@@ -27,14 +28,22 @@ const taskSchema = mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["Due", "Completed"],
+      enum: ["Due", "In Progress", "Completed"],
     },
     dueDate: {
       type: Date,
       required: true,
     },
+    actualDuration: {
+      type: Number,
+      default: null,
+    },
+    completedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Task model using schema

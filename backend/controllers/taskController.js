@@ -1,5 +1,13 @@
+import Routine from "../src/models/Routine.js";
 import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
+import { validationResult } from "express-validator";
+import mongoose from "mongoose";
+
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const DEFAULT_TASK_PAGE = 1;
+const DEFAULT_TASK_LIMIT = 10;
+const MIN_TASK_LIMIT = 1;
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -7,43 +15,102 @@ export const createTask = async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, user not logged in" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, user not logged in",
+      });
+    }
+
+    // check for validation errors
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
     }
 
     // fetch details for task from request body
     const { title, description, tags, priority, status, dueDate } = req.body;
-    if (!title || !priority || !status) {
-      res
-        .status(400)
-        .json({ success: false, message: "Please enter all the details" });
+
+    if (!title || !priority || !status || !dueDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter all the details",
+      });
+    }
+
+    if (title.trim().length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be 50 characters or less",
+      });
+    }
+
+    const dueDateValue = new Date(dueDate);
+
+    if (Number.isNaN(dueDateValue.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid due date",
+      });
+    }
+
+    const dateStart = new Date(dueDateValue);
+    dateStart.setUTCHours(0, 0, 0, 0);
+
+    const dateEnd = new Date(dateStart);
+    dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
+
+    const existingTask = await Task.findOne({
+      userId,
+      title: {
+        $regex: new RegExp(`^${escapeRegex(title.trim())}$`, "i"),
+      },
+      dueDate: {
+        $gte: dateStart,
+        $lt: dateEnd,
+      },
+    });
+
+    if (existingTask) {
+      return res.status(409).json({
+        success: false,
+        message: "A task with the same title and due date already exists",
+      });
     }
 
     // new task object
     const newTask = new Task({
-      userId: userId,
+      userId,
       title,
       description,
       tags,
       priority,
       status,
       dueDate,
+      completedAt: status === "Completed" ? new Date() : null,
     });
 
     // save task in database
     await newTask.save();
 
-    return res
-      .status(201)
-      .json({ message: "Task added successfully", newTask });
+    return res.status(201).json({
+      message: "Task added successfully",
+      newTask,
+    });
   } catch (error) {
     // error handling
     console.log("Error creating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error creating task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error creating task",
+    });
   }
 };
 
@@ -53,24 +120,48 @@ export const getTasks = async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
     }
 
-    // fetch tasks from database
-    const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
-    if (tasks.length == 0) {
-      res.status(400).json({ message: "User has no task", success: false });
-    }
-    return res.status(200).json({ success: true, tasks });
+    const page = Math.max(
+      Number.parseInt(req.query.page, 10) || DEFAULT_TASK_PAGE,
+      DEFAULT_TASK_PAGE
+    );
+    const limit = Math.max(
+      Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
+      MIN_TASK_LIMIT
+    );
+    const skip = (page - 1) * limit;
+    const taskQuery = { userId };
+
+    // fetch paginated tasks from database
+    const [tasks, totalTasks] = await Promise.all([
+      Task.find(taskQuery).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Task.countDocuments(taskQuery),
+    ]);
+
+    const totalPages = Math.ceil(totalTasks / limit);
+
+    return res.status(200).json({
+      success: true,
+      tasks,
+      totalTasks,
+      totalPages,
+      currentPage: page,
+      limit,
+    });
   } catch (error) {
-    // error handling
     console.log("Error fetching tasks", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error fetching tasks" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching tasks",
+    });
   }
 };
 
@@ -80,37 +171,78 @@ export const updateTask = async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
+
     if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
+    }
+
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
+    const taskId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
+
+    // check for validation errors
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        data: errors.array(),
+      });
     }
 
     // fetch update task details
     const updates = req.body;
-    const taskId = req.params.id;
+
+    // validate title length if title is being updated
+    if (updates.title && updates.title.trim().length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Title must be 50 characters or less",
+      });
+    }
+
+    // Auto-manage completedAt timestamp based on status change
+    if (updates.status === "Completed") {
+      updates.completedAt = new Date();
+    } else if (updates.status === "Due") {
+      updates.completedAt = null;
+    }
 
     // fetch task from database and update
     const updatedTask = await Task.findOneAndUpdate(
-      { _id: taskId, userId: userId },
+      { _id: taskId, userId },
       { $set: updates },
       { new: true, runValidators: true }
     );
+
     if (!updatedTask) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+
+    return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
     });
   } catch (error) {
     // error handling
     console.log("Error updating task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error updating task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error updating task",
+    });
   }
 };
 
@@ -120,33 +252,102 @@ export const deleteTask = async (req, res) => {
     // check if user is logged in or not
     const userId = req.userId;
     const user = await User.findById(userId);
+
     if (!user) {
-      res
-        .status(401)
-        .json({ success: false, message: "Unauthorized, token invalid" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized, token invalid",
+      });
     }
 
-    // fetch task id
+    // Validate that taskId is a valid MongoDB ObjectId before attempting cast
     const taskId = req.params.id;
 
+    if (!mongoose.Types.ObjectId.isValid(taskId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid task ID format",
+      });
+    }
+
     // fetch task to be deleted from database
-    const deleteTask = await Task.findOneAndDelete({
+    const deletedTask = await Task.findOneAndDelete({
       _id: taskId,
-      userId: userId,
+      userId,
     });
-    if (!deleteTask) {
-      res.status(404).json({
+
+    if (!deletedTask) {
+      return res.status(404).json({
         message: "Task not found",
       });
     }
-    res.status(200).json({
+
+    return res.status(200).json({
       message: "Task deleted successfully",
     });
   } catch (error) {
     // error handling
     console.log("Error deleting task", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error deleting task" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting task",
+    });
+  }
+};
+
+// bulk delete tasks function
+export const bulkDeleteTasks = async (req, res) => {
+  try {
+    // check if user is logged in or not
+    const userId = req.userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not logged in",
+      });
+    }
+
+    // fetch array of task IDs
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No task IDs provided",
+      });
+    }
+
+    // delete all matching tasks belonging to this user
+    await Task.deleteMany({
+      _id: { $in: ids },
+      userId,
+    });
+
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: { $in: ids },
+          },
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Tasks deleted successfully",
+    });
+  } catch (error) {
+    // error handling
+    console.log("Error bulk deleting tasks", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting tasks",
+    });
   }
 };
