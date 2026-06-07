@@ -31,6 +31,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "eslint": "^9.39.4",
-    "globals": "^17.6.0"
+    "globals": "^17.6.0",
+    "mongodb-memory-server": "^11.2.0"
   }
 }

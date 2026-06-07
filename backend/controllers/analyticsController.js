@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Task from "../src/models/Task.js";
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
@@ -282,10 +283,16 @@ export const getAnalytics = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error in getAnalytics controller", error);
+    console.error("[Backend Error] Error in getAnalytics controller:", {
+      message: error.message,
+      stack: error.stack,
+      userId: req.userId,
+      dbState: mongoose.connection.readyState
+    });
     return res.status(500).json({
       success: false,
       message: "Error fetching analytics data",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
