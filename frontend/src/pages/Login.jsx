@@ -142,14 +142,7 @@ const Login = () => {
               className="input-modern w-full px-4 py-3 rounded-2xl text-sm"
             />
           </div>
-          {error && (
-            <div 
-              className="px-4 py-3 rounded-2xl text-sm border bg-red-500/10 border-red-500/20 text-red-500"
-              aria-live="assertive"
-            >
-              {error}
-            </div>
-          )}
+          <FormError error={error} />
           <button type="submit" className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer">
             Verify
           </button>
