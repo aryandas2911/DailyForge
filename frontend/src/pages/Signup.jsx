@@ -153,9 +153,8 @@ const Signup = () => {
     setIsLoading(true);
     try {
       localStorage.removeItem("token");
-      await api.post("/auth/signup", { name, email, password });
-      const me = await api.get("/auth/user");
-      setUser(me.data.user);
+      const res = await api.post("/auth/signup", { name, email, password });
+      setUser(res.data.user);
       navigate("/dashboard");
     } catch (error) {
       if (error.response?.status === 409) {
