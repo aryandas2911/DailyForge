@@ -1,9 +1,12 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import PageTransition from "./components/PageTransition.jsx";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -24,104 +27,67 @@ const AuthLayout = ({ children }) => (
   </div>
 );
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
+        <Route path="/about" element={<AuthLayout><About /></AuthLayout>} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary>
+                <PageTransition><Dashboard /></PageTransition>
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary>
+                <PageTransition><Tasks /></PageTransition>
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+
+        <Route
+          path="/routine-builder"
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary>
+                <PageTransition><RoutineBuilder /></PageTransition>
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+
+        <Route path="/profile" element={<ProtectedRoutes><PageTransition><Profile /></PageTransition></ProtectedRoutes>} />
+        <Route path="/analytics" element={<ProtectedRoutes><PageTransition><Analytics /></PageTransition></ProtectedRoutes>} />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => {
   return (
     <BrowserRouter>
-      <div className="app-bg min-h-screen flex flex-col">
-        
+      <div className="app-bg min-h-screen flex flex-col text-main transition-colors duration-300">
         <Navbar />
 
         <main className="pt-[3.75rem] flex-grow flex flex-col">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <PublicRoute>
-                  <AuthLayout>
-                    <Login />
-                  </AuthLayout>
-                </PublicRoute>
-              }
-            />
-
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <AuthLayout>
-                    <Login />
-                  </AuthLayout>
-                </PublicRoute>
-              }
-            />
-
-            <Route
-              path="/signup"
-              element={
-                <PublicRoute>
-                  <AuthLayout>
-                    <Signup />
-                  </AuthLayout>
-                </PublicRoute>
-              }
-            />
-
-            <Route
-              path="/about"
-              element={
-                <AuthLayout>
-                  <About />
-                </AuthLayout>
-              }
-            />
-
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoutes>
-                  <Dashboard />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/tasks"
-              element={
-                <ProtectedRoutes>
-                  <Tasks />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/routine-builder"
-              element={
-                <ProtectedRoutes>
-                  <RoutineBuilder />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoutes>
-                  <Profile />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoutes>
-                  <Analytics />
-                </ProtectedRoutes>
-              }
-            />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AnimatedRoutes />
         </main>
 
         <Footer />
