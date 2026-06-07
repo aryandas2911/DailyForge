@@ -9,11 +9,6 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18]
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
