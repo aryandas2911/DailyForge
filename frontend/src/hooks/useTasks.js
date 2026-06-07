@@ -120,7 +120,7 @@ const useTasks = ({
     if (taskUpdateTick > 0) {
       getTasks(page);
     }
-  }, [taskUpdateTick]);
+  }, [taskUpdateTick, getTasks, page]);
 
   // return reusable functions
   return {

@@ -11,7 +11,10 @@ export const SocketProvider = ({ children }) => {
   const [routineUpdateTick, setRoutineUpdateTick] = useState(0);
 
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user?._id) {
+      setSocket(null);
+      return;
+    }
 
     const socketInstance = io(
       import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3000",
@@ -23,12 +26,16 @@ export const SocketProvider = ({ children }) => {
     setSocket(socketInstance);
 
     socketInstance.on("connect", () => {
-      console.log("Connected to socket server");
+      if (import.meta.env.DEV) {
+        console.log("Connected to socket server");
+      }
       socketInstance.emit("join-user-room", user._id);
     });
 
     socketInstance.on("connect_error", (err) => {
-      console.error("Socket connection error:", err.message);
+      if (import.meta.env.DEV) {
+        console.error("Socket connection error:", err.message);
+      }
     });
 
     socketInstance.on("task-update", () => {

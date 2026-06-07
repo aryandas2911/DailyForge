@@ -1,5 +1,5 @@
 import OnboardingModal from "../components/OnboardingModal";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { SocketContext } from "../context/SocketContext";
@@ -129,7 +129,7 @@ export default function Dashboard() {
     .slice(0, 2);
 
   // Fetch routines
-  const fetchRoutines = async () => {
+  const fetchRoutines = useCallback(async () => {
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
@@ -140,12 +140,13 @@ export default function Dashboard() {
     } finally {
       setLoadingRoutines(false);
     }
-  };
+  }, []);
+
   const { routineUpdateTick } = useContext(SocketContext) || {};
 
   useEffect(() => {
     fetchRoutines();
-  }, []);
+  }, [fetchRoutines]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -158,11 +159,12 @@ export default function Dashboard() {
     if (routineUpdateTick > 0) {
       fetchRoutines();
     }
-  }, [routineUpdateTick]);
-const openDuplicateModal = (routine) => {
-  setRoutineToDuplicate(routine);
-  setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
-};
+  }, [routineUpdateTick, fetchRoutines]);
+
+  const openDuplicateModal = (routine) => {
+    setRoutineToDuplicate(routine);
+    setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
+  };
 
 const closeDuplicateModal = () => {
   setRoutineToDuplicate(null);
