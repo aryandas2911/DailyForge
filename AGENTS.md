@@ -3373,3 +3373,51 @@ export ANTHROPIC_AUTH_TOKEN=sk-YOUR_DEEPSEEK_KEY
 export ANTHROPIC_MODEL=deepseek-v4-pro
 claude  # now uses DeepSeek under the hood
 ```
+
+---
+
+## 🛠️ Specialized Tool Matrix (Memory Bank)
+
+The agent MUST use the following tools when the specific context arises:
+
+### 1. Fastfetch
+- **When to use:** When dropped into a new server, container, or workspace and a fast, low-token snapshot of hardware (CPU, RAM, GPU, Disk) and OS is needed.
+- **Command:** `fastfetch --logo none` (Run without logo to save prompt context tokens).
+
+### 2. Terrastruct D2 (`d2`)
+- **When to use:** When generating System Architectures, Entity-Relationship Diagrams (ERDs), Sequence Diagrams, or Data Flows.
+- **Why:** Replaces manual image generation with pure, version-controllable text that compiles locally into high-quality SVGs/PNGs at zero cost.
+
+### 3. Z4nzu HackingTool (`hackingtool`)
+- **When to use:** When the user requests a deep security audit, penetration testing, or vulnerability scanning of an application or network.
+- **Why:** It aggregates all major InfoSec tools (SQLMap, Nmap, payloads, steganography) into a single automated CLI interface for streamlined pentesting.
+
+### 4. Feast Feature Store (`feast`)
+- **When to use:** When building production Machine Learning pipelines that require real-time feature serving or offline training data management.
+- **Why:** Centralizes ML features, prevents data leakage between training/serving, and acts as the bridge between raw data lakes and model inference.
+
+### 5. GitHub Starter Workflows (`actions/starter-workflows`)
+- **When to use:** When initializing CI/CD pipelines for a new repository.
+- **Why:** Instead of writing workflows from scratch, use these official templates to instantly scaffold robust deployment, testing, and security scanning pipelines.
+
+### 6. Trivy (`aquasecurity/trivy`)
+- **When to use:** When doing a static analysis security check on container images, file systems, and Git repositories.
+- **Why:** It instantly finds known vulnerabilities (CVEs), IaC misconfigurations, SBOM issues, and hardcoded secrets before deployment.
+
+### 7. Milvus (`milvus-io/milvus`)
+- **When to use:** When building Generative AI applications, RAG (Retrieval-Augmented Generation) pipelines, or massive-scale image/text similarity search engines.
+- **Why:** It is a highly scalable, purpose-built Vector Database capable of handling billions of high-dimensional embeddings far more efficiently than standard relational databases.
+
+### 8. TruffleHog (`trufflesecurity/trufflehog`)
+- **When to use:** Before committing/pushing code, and when auditing a repository's security.
+- **Why:** It scans Git repositories, files, and S3 buckets to find and explicitly verify leaked credentials and API keys by actively testing them against the provider.
+
+### 9. Dynamic Tool Prioritization Strategy (Performance First)
+- **The Rule:** The agent MUST prioritize tools based on performance, speed, and exact fit for the context, rather than blindly selecting a tool just because it is available.
+- **Decision Engine:**
+  - *Speed vs Detail:* If the task requires extreme speed, use lightweight tools (e.g., `fastfetch` over deep system audits, `rg` over `find`).
+  - *Native over Generic:* Prefer native specialized tools (e.g., `d2` for architecture) over generic text or AI-generated image generation.
+  - *Token Optimization:* Always select the tool that returns the exact data needed with the smallest text footprint (avoid heavy ASCII outputs when reading raw data is faster).
+  - *Continuous Re-evaluation:* As new tools are added, the agent autonomously drops older tools if a newer, higher-performance alternative fits the current scenario better.
+
+
