@@ -66,6 +66,7 @@
 ---
 
 
+
 This file is automatically read by Antigravity at the start of every session.
 All rules below are MANDATORY and apply to every task without exception.
 
@@ -3532,6 +3533,10 @@ The agent MUST use the following tools when the specific context arises:
 ### 13. Transparent Execution Protocol (Auto-Display)
 - **The Rule:** The user should never have to manually type commands to see the agent's work. For any background execution that takes longer than a few seconds, the agent MUST run it inside `tmux`, and then immediately pop open a physical terminal window on the user's monitor.
 - **The Execution:** The agent will use `export DISPLAY=:0` (or Wayland equivalent) and launch `wezterm start -- bash -c "tmux attach -t agent-tasks"` so the execution stream automatically appears on the user's screen.
+
+### 14. Global Error Logging & Self-Correction Protocol
+- **The Rule:** The agent is strictly forbidden from repeating the same mistake twice across any project. Whenever a command exits with an error code, a build crashes, or a bug is detected, the agent MUST autonomously diagnose it, fix it, and then log the error signature and the standard resolution pattern into `/home/aditya/Desktop/Projects/MEMORY/LESSONS_LEARNED.md`.
+- **The Execution:** Before writing code or fixing a bug in any project, the agent will implicitly cross-reference `LESSONS_LEARNED.md`. If the error is a known issue, the agent will instantly apply the standard fix without trial and error.
 
 
 
