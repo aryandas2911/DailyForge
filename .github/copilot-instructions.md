@@ -3429,15 +3429,44 @@ The agent MUST use the following tools when the specific context arises:
   - **Codecov (`codecov/codecov-action`)**: For visual test coverage reporting.
   - **Cloudflare Pages / Vercel Deploy**: For instant, global CDN deployments of frontend applications.
 
-### 11. Premium Terminal & CLI Stack
-- **The Rule:** The agent must always substitute legacy CLI tools with their modern, high-performance replacements when executing commands, diagnosing systems, or fetching outputs.
+### 11. Elite Developer Terminal Stack (Industry Standard)
+- **The Rule:** The agent must always substitute legacy CLI tools with their modern, Rust-based or high-performance replacements.
+- **The Stack Categories:**
+  - **Terminal & Shell Enhancements:** 
+    - `wezterm` (GPU-accelerated terminal emulator)
+    - `starship` (Modern, fast, cross-shell prompt)
+    - `atuin` (Intelligent, database-backed shell history manager)
+    - `zoxide` (Smart directory jumping replacing `cd`)
+    - `fzf` (Universal fuzzy finder)
+  - **File Management & Navigation:**
+    - `eza` (Modern replacement for `ls` with icons/git)
+    - `bat` (Modern replacement for `cat` with syntax highlighting)
+    - `fd` (Modern, fast replacement for `find`)
+    - `dust` (Modern, intuitive replacement for `du` storage analysis)
+  - **Search & Text Processing:**
+    - `rg` / `ripgrep` (Modern, insanely fast replacement for `grep`)
+  - **System Monitoring:**
+    - `btop` (Modern replacement for `htop` / `top`)
+  - **Git & Development Workflow:**
+    - `delta` (Syntax-highlighting pager for git diffs)
+  - **Benchmarking & Performance:**
+    - `hyperfine` (Precision command-line benchmarking)
+  - **Documentation & Markdown:**
+    - `glow` (Terminal-native Markdown viewer)
+
+### 12. Senior MLOps Pipeline Strategy
+- **The Rule:** The agent MUST treat ML projects as software engineering pipelines, never as just standalone training scripts.
 - **The Stack:**
-  - **Eza (`eza`) instead of `ls`:** For reading directory structures with icons, Git status, and advanced tree views.
-  - **Bat (`bat`) instead of `cat`:** For reading single files where syntax highlighting and line numbers improve parsing speed.
-  - **Zoxide (`z`) instead of `cd`:** For smarter, predictive directory navigation.
-  - **HTTPie (`http`) instead of `curl`:** For testing APIs where clear, colorized output and simplified syntax are preferred.
-  - **Tmux (`tmux`):** For executing long-running background processes or isolating environments in multiplexed sessions.
-  - **Nushell (`nu`):** When manipulating complex, structured data directly in the shell (JSON, CSV, YAML) instead of wrestling with `awk` or `sed`.
+  - **DVC (Data Version Control):** Automatically initialize DVC to track datasets and map models exactly to their data versions.
+  - **MLflow Registry:** Do not save models randomly. Log them to MLflow, evaluate, and explicitly tag them as `Staging` or `Production`.
+  - **CT (Continuous Training):** Scaffold pipelines to monitor data drift and trigger automated retraining.
+  - **NVIDIA Triton / ONNX:** Export all production PyTorch/TensorFlow models to ONNX and serve them via high-performance inference servers, not raw Python scripts.
+  - **Evidently AI / Grafana:** Monitor live data drift and prediction latency.
+
+### 13. Transparent Execution Protocol
+- **The Rule:** For any background execution that is expected to take longer than a few seconds (e.g., massive installations, compiling code, starting backend servers, or training ML models), the agent MUST execute the command inside a detached `tmux` session named `agent-tasks`.
+- **The Rationale:** This allows the user to open their terminal at any time and type `tmux attach -t agent-tasks` to watch the live compilation/execution stream natively on their machine.
+
 
 
 
