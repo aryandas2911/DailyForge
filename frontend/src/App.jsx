@@ -126,6 +126,7 @@ const App = () => {
             element={
               <ProtectedRoutes>
                 <Pomodoro />
+              </ProtectedRoutes>
             }
           />
               <Route
