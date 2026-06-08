@@ -1,5 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Task from "../src/models/Task.js";
 import {
   checkOverlap,
   calculateBurnoutScore,
@@ -33,6 +34,16 @@ export const createRoutine = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "A routine with this name already exists",
+      });
+    }
+
+    // verify task ownership to prevent BOLA
+    const taskIds = [...new Set(items.map(item => item.taskId).filter(Boolean))];
+    const validTasksCount = await Task.countDocuments({ _id: { $in: taskIds }, userId });
+    if (validTasksCount !== taskIds.length) {
+      return res.status(403).json({
+        success: false,
+        message: "One or more tasks do not belong to the authenticated user",
       });
     }
 
@@ -299,6 +310,16 @@ const updates = {
     const routineId = req.params.id;
 
     if (updates.items) {
+      // verify task ownership to prevent BOLA
+      const taskIds = [...new Set(updates.items.map(item => item.taskId).filter(Boolean))];
+      const validTasksCount = await Task.countDocuments({ _id: { $in: taskIds }, userId });
+      if (validTasksCount !== taskIds.length) {
+        return res.status(403).json({
+          success: false,
+          message: "One or more tasks do not belong to the authenticated user",
+        });
+      }
+
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
