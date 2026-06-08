@@ -120,8 +120,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to authenticate with Google."
+          err.message ||
+          "Failed to authenticate with Google."
         );
       }
     } finally {
@@ -162,8 +162,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           error.response?.data?.message ||
-            error.message ||
-            "Signup failed. Please try again."
+          error.message ||
+          "Signup failed. Please try again."
         );
       }
     } finally {
@@ -190,7 +190,7 @@ const Signup = () => {
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
+
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
@@ -219,7 +219,7 @@ const Signup = () => {
             flex
             flex-col
             gap-3
-            mt-[-3rem]
+            mt-[-0.3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -241,7 +241,7 @@ const Signup = () => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
-          className="
+            className="
 flex items-center justify-center
 w-full px-4 py-3
 rounded-2xl
@@ -322,6 +322,8 @@ cursor-pointer
                 px-4
                 py-3
                 rounded-2xl
+                border-1
+                border-slate-200
                 text-sm
               "
             />
@@ -352,6 +354,8 @@ cursor-pointer
                 py-3
                 rounded-2xl
                 text-sm
+                border-1
+                border-slate-200
               "
             />
           </div>
@@ -380,6 +384,8 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -432,6 +438,8 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
