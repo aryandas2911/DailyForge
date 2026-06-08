@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { MoreVertical, Trash2, X, Calendar, Layers, Clock } from "lucide-react";
+import { MoreVertical, Trash2, X, Calendar, Layers, Clock, Share2, Copy, Download, Loader2 } from "lucide-react";
+import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
 
 export default function RoutineOverviewModal({
   routine,
@@ -11,6 +12,9 @@ export default function RoutineOverviewModal({
   handleDeleteRoutine,
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -18,6 +22,55 @@ export default function RoutineOverviewModal({
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  const handleCopyLink = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      triggerToast("Share link copied!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy share link");
+    }
+  };
+
+  const handleCopySummary = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const summaryText = generateRoutineSummary(routine, tasks);
+      await navigator.clipboard.writeText(summaryText);
+      triggerToast("Routine summary copied!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy summary");
+    }
+  };
+
+  const handleExportPDF = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      setIsExporting(true);
+      await exportRoutineToPDF(routine, tasks);
+      triggerToast("PDF generated!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const tasksByDay = routine.items.reduce((acc, item) => {
     if (!acc[item.day]) acc[item.day] = [];
@@ -31,6 +84,20 @@ export default function RoutineOverviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm px-4 animate-in">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
+          <div className="rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
+              <div>
+                <p className="text-sm font-semibold text-main">{toastMessage}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-2xl rounded-3xl p-6 bg-white dark:bg-[#1e293b] shadow-2xl border border-soft/50 max-h-[90vh] overflow-y-auto flex flex-col justify-between">
         
         {/* Header */}
@@ -72,7 +139,30 @@ export default function RoutineOverviewModal({
             </button>
 
             {showMenu && (
-              <div className="absolute top-12 right-10 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+              <div className="absolute top-12 right-10 w-48 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+                >
+                  <Share2 size={16} />
+                  Copy Share Link
+                </button>
+                <button
+                  onClick={handleCopySummary}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+                >
+                  <Copy size={16} />
+                  Copy Summary
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
+                >
+                  {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                  Export as PDF
+                </button>
+                <div className="border-t border-soft/20"></div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -85,6 +175,7 @@ export default function RoutineOverviewModal({
                 </button>
               </div>
             )}
+
           
 
             {/* Close */}
