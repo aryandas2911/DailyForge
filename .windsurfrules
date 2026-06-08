@@ -3420,4 +3420,14 @@ The agent MUST use the following tools when the specific context arises:
   - *Token Optimization:* Always select the tool that returns the exact data needed with the smallest text footprint (avoid heavy ASCII outputs when reading raw data is faster).
   - *Continuous Re-evaluation:* As new tools are added, the agent autonomously drops older tools if a newer, higher-performance alternative fits the current scenario better.
 
+### 10. Elite GitHub Marketplace Stack (Zero-Cost / High-Performance)
+- **The Rule:** When building or deploying a new project, the agent MUST automatically integrate the following free GitHub Marketplace Actions into the `.github/workflows/` directory to ensure production-grade quality without incurring costs.
+- **The Stack:**
+  - **CodeQL (`github/codeql-action`)**: For semantic, deep-level security and vulnerability scanning on every PR.
+  - **Super-Linter (`github/super-linter`)**: For enforcing strict, universal code formatting across all languages.
+  - **Dependabot**: For automated, zero-touch dependency updates and CVE patching.
+  - **Codecov (`codecov/codecov-action`)**: For visual test coverage reporting.
+  - **Cloudflare Pages / Vercel Deploy**: For instant, global CDN deployments of frontend applications.
+
+
 
