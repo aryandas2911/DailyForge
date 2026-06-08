@@ -30,8 +30,23 @@ jobs:
             // This ensures we don't override user-applied labels.
             const patterns = [
               {
-                label: 'gssoc-2026',
+                label: 'GSSoC \'26',
                 // GSSOC / GSoC / Google Summer of Code / World GSSOC
+                match: [
+                  /\bgssoc\b/i,
+                  /\bgsoc\b/i,
+                  /g\s*soc/i,
+                  /google\s+summer\s+of\s+code/i,
+                  /world\s+gssoc/i,
+                  /gssoc\s*['’]?\s*26/i,
+                  /gsoc\s*['’]?\s*26/i,
+                  /gssoc\s*26/i,
+                  /gsoc\s*26/i,
+                ],
+              },
+              {
+                label: 'gssoc-2026',
+                // Existing label support
                 match: [
                   /\bgssoc\b/i,
                   /\bgsoc\b/i,
@@ -40,28 +55,97 @@ jobs:
                 ],
               },
               {
+                label: 'backend',
+                match: [
+                  /\bbackend\b/i,
+                  /\bapi\b/i,
+                  /server/i,
+                  /route/i,
+                  /routes/i,
+                  /middleware/i,
+                  /database/i,
+                  /\bdb\b/i,
+                  /auth/i,
+                  /authentication/i,
+                  /token/i,
+                ],
+              },
+              {
+                label: 'frontend',
+                match: [
+                  /\bfrontend\b/i,
+                  /client\b/i,
+                  /\bui\b/i,
+                  /\bux\b/i,
+                  /react/i,
+                  /vite/i,
+                  /\bcss\b/i,
+                  /\bdesign\b/i,
+                  /\btheme\b/i,
+                  /\bhtml\b/i,
+                  /\bjavascript\b/i,
+                  /\bjs\b/i,
+                  /\btypescript\b/i,
+                  /\bts\b/i,
+                ],
+              },
+              {
                 label: 'bug',
-                match: [/\bbug\b/i, /crash/i, /error/i, /fails?/i, /issue\s+with/i],
+                match: [
+                  /\bbug\b/i,
+                  /crash/i,
+                  /error/i,
+                  /fails?/i,
+                  /issue\s+with/i,
+                  /doesn\'t\s+work/i,
+                  /doesnt\s+work/i,
+                  /not\s+working/i,
+                  /regression/i,
+                ],
+              },
+              {
+                label: 'enhancement',
+                match: [
+                  /\benhancement\b/i,
+                  /\bimprovement\b/i,
+                  /upgrade/i,
+                  /add\s+.*(improvement|capability|support|option)/i,
+                  /feature\s+request/i,
+                ],
               },
               {
                 label: 'feature',
-                match: [/\bfeature\b/i, /enhancement/i, /add\s+.*(feature|support|module)/i, /implement/i],
+                match: [
+                  /\bfeature\b/i,
+                  /enhancement/i,
+                  /add\s+.*(feature|support|module)/i,
+                  /implement/i,
+                  /capability/i,
+                  /request\s+for/i,
+                ],
               },
               {
                 label: 'documentation',
-                match: [/\bdocs?\b/i, /documentation/i, /readme/i, /guide/i, /improve\s+.*(doc|docs)/i],
+                match: [
+                  /\bdocs?\b/i,
+                  /documentation/i,
+                  /readme/i,
+                  /guide/i,
+                  /improve\s+.*(doc|docs)/i,
+                  /changelog/i,
+                ],
               },
               {
-                label: 'ui',
-                match: [/\bui\b/i, /ux/i, /frontend/i, /front-end/i, /design/i, /theme/i, /css/i],
-              },
-              {
-                label: 'help wanted',
-                match: [/help wanted/i, /needs?\s+help/i, /anyone\s+can\s+help/i],
-              },
-              {
-                label: 'testing',
-                match: [/\btest\b/i, /unit\s+test/i, /integration\s+test/i, /test\s+coverage/i],
+                label: 'good first issue',
+                match: [
+                  /good first issue/i,
+                  /help\s*wanted/i,
+                  /needs?\s+help/i,
+                  /beginner\b/i,
+                  /easy\b/i,
+                  /starter\b/i,
+                  /first\s+timer/i,
+                ],
               },
             ];
 
