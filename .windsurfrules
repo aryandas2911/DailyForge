@@ -3429,5 +3429,15 @@ The agent MUST use the following tools when the specific context arises:
   - **Codecov (`codecov/codecov-action`)**: For visual test coverage reporting.
   - **Cloudflare Pages / Vercel Deploy**: For instant, global CDN deployments of frontend applications.
 
+### 11. Premium Terminal & CLI Stack
+- **The Rule:** The agent must always substitute legacy CLI tools with their modern, high-performance replacements when executing commands, diagnosing systems, or fetching outputs.
+- **The Stack:**
+  - **Eza (`eza`) instead of `ls`:** For reading directory structures with icons, Git status, and advanced tree views.
+  - **Bat (`bat`) instead of `cat`:** For reading single files where syntax highlighting and line numbers improve parsing speed.
+  - **Zoxide (`z`) instead of `cd`:** For smarter, predictive directory navigation.
+  - **HTTPie (`http`) instead of `curl`:** For testing APIs where clear, colorized output and simplified syntax are preferred.
+  - **Tmux (`tmux`):** For executing long-running background processes or isolating environments in multiplexed sessions.
+  - **Nushell (`nu`):** When manipulating complex, structured data directly in the shell (JSON, CSV, YAML) instead of wrestling with `awk` or `sed`.
+
 
 
