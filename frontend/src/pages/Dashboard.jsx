@@ -7,12 +7,14 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -24,7 +26,7 @@ export default function Dashboard() {
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
-  const { tasks, updateTask: updateDbTask } = useTasks();
+  const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [profileImage, setProfileImage] = useState(() => {
@@ -45,6 +47,42 @@ export default function Dashboard() {
     "Push yourself, because no one else will.",
     "Stay consistent and trust the process.",
   ];
+
+  const availableTags = [
+    "React Learner",
+    "Open Source Contributor",
+    "Web Developer",
+    "DSA Learner",
+    "Designer",
+    "Robotics Learner",
+    "School Student",
+    "College Student",
+    "Tech Enthusiast",
+    "Fitness Freak",
+    "Gym Lover",
+    "Cricket Fan",
+    "Football Fan",
+    "Music Lover",
+    "Gamer",
+    "Reader",
+    "Artist",
+    "Photographer",
+    "Traveler",
+    "Coffee Lover",
+    "Night Owl",
+    "Early Riser",
+    "Problem Solver",
+    "Team Player",
+    "Fast Learner",
+  ];
+
+  const [selectedTags, setSelectedTags] = useState(() => {
+    const saved = localStorage.getItem("selectedTags");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showTagModal, setShowTagModal] = useState(false);
+
+  const [customTag, setCustomTag] = useState("");
 
   const [quote] = useState(() => {
     return motivationalQuotes[
@@ -106,6 +144,13 @@ export default function Dashboard() {
     fetchRoutines();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem(
+      "selectedTags",
+      JSON.stringify(selectedTags)
+    );
+  }, [selectedTags]);
+
 const openDuplicateModal = (routine) => {
   setRoutineToDuplicate(routine);
   setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
@@ -151,6 +196,68 @@ const handleDuplicateRoutine = async () => {
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       <OnboardingModal />
       {/* Header */}
+      <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
+
+        {/* Left */}
+        <div className="flex-1">
+          <h1 className="text-2xl font-semibold text-main leading-tight">
+            {getGreeting()}, {user?.name}
+          </h1>
+
+          <p className="text-sm italic text-primary mt-1">
+            "{quote}"
+          </p>
+
+          <p className="text-sm text-muted mt-2">
+            {new Date()
+              .toLocaleDateString("en-US", {
+                weekday: "long",
+                day: "2-digit",
+                month: "short",
+              })
+              .replace(",", " ·")}
+          </p>
+        </div>
+
+        {/* Middle */}
+        <div className="flex flex-col items-center gap-3">
+
+          <button
+            onClick={() => setShowTagModal(true)}
+            className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-muted hover:text-main hover:border-(--primary) transition"
+          >
+            + Add Tags
+          </button>
+
+          <div className="flex flex-wrap justify-center gap-2">
+            {selectedTags.map((tag) => (
+              <span
+                key={tag}
+                className="px-5 py-2 rounded-full text-sm font-semibold
+                  bg-cyan-500/15 text-cyan-400
+                  border border-cyan-500/30">
+                {tag}
+              </span>
+            ))}
+          </div>
+
+        </div>
+
+        {/* Right */}
+        <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
+
+          <img
+            src={profileImage}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
+            onClick={() => setShowProfilePreview(true)}
+          />
+
+          <LiveClock />
+
+        </div>
+
+      </header>
       <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
 
           {/* Left Section */}
@@ -228,8 +335,12 @@ const handleDuplicateRoutine = async () => {
           </div>
         )}
 
-      {/* Stats Row */}
-      <section className="flex flex-col lg:flex-row gap-6 w-full">
+      {tasksLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          {/* Stats Row */}
+          <section className="flex flex-col lg:flex-row gap-6 w-full">
         <div className="flex-1 animate-in delay-100">
           <StatCard
             label="Today"
@@ -238,7 +349,7 @@ const handleDuplicateRoutine = async () => {
             icon={<CheckCircle2 size={20} />}
           />
         </div>
-        <div className="flex-1 animate-in delay-200">
+        <div className="flex-1 animate-in delay-200 transition-none">
           <StatCard
             label="This Week"
             value={`${weeklyCompletionPercent}%`}
@@ -248,6 +359,14 @@ const handleDuplicateRoutine = async () => {
         </div>
       </section>
 
+      {/* Daily Reflection Summary - placed below StatCards and above Today's Tasks */}
+      <ReflectionSummary
+        completedToday={completedToday}
+        totalToday={totalToday}
+        weeklyCompletionPercent={weeklyCompletionPercent}
+        tasks={tasks}
+        upcomingTasks={upcomingTasks}
+      />
       {/* Contribution Heatmap */}
       <div className="w-full animate-in delay-200">
         <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
@@ -290,7 +409,7 @@ const handleDuplicateRoutine = async () => {
               </button>                                                           
             </div>                                                               
             <button
-              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer"
+              className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-80 active:scale-95 transition-all duration-150 cursor-pointer"
               onClick={() => navigate("/routine-builder")}
             >
               Build
@@ -310,7 +429,7 @@ const handleDuplicateRoutine = async () => {
                 <li
                   key={routine._id}
                   onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-medium text-main">{routine.name}</p>
@@ -343,6 +462,8 @@ const handleDuplicateRoutine = async () => {
           )}
         </div>
       </section>
+      </>
+      )}
 
       {routineToDuplicate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -386,6 +507,81 @@ const handleDuplicateRoutine = async () => {
                 Duplicate
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showTagModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-start justify-center pt-10 z-50"
+          onClick={() => setShowTagModal(false)}
+        >
+          <div
+            className="bg-(--surface) p-6 rounded-xl w-[400px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-4">
+              Select Tags
+            </h3>
+
+            <div className="space-y-2">
+              {availableTags.map((tag) => (
+                <label
+                  key={tag}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedTags.includes(tag)}
+                    onChange={() => {
+                      if (selectedTags.includes(tag)) {
+                        setSelectedTags(
+                          selectedTags.filter((t) => t !== tag)
+                        );
+                      } else {
+                        setSelectedTags([...selectedTags, tag]);
+                      }
+                    }}
+                  />
+
+                  {tag}
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                value={customTag}
+                onChange={(e) => setCustomTag(e.target.value)}
+                placeholder="Create custom tag"
+                className="flex-1 px-3 py-2 rounded-lg border"
+              />
+
+              <button
+                onClick={() => {
+                  if (
+                    customTag.trim() &&
+                    !selectedTags.includes(customTag.trim())
+                  ) {
+                    setSelectedTags([
+                      ...selectedTags,
+                      customTag.trim(),
+                    ]);
+                    setCustomTag("");
+                  }
+                }}
+                className="px-3 py-2 rounded-lg bg-(--primary) text-white"
+              >
+                Add
+              </button>
+            </div>
+
+            <button
+              className="mt-4 px-4 py-2 bg-(--primary) text-white rounded-lg"
+              onClick={() => setShowTagModal(false)}
+            >
+              Save
+            </button>
           </div>
         </div>
       )}

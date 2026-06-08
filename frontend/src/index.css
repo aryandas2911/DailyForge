@@ -3,10 +3,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
 * {
   font-family: 'Outfit', sans-serif;
 }
@@ -36,6 +32,7 @@
 
 html.dark,
 html.dark body {
+  
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -87,25 +84,13 @@ html.dark body {
   }
 
   .card-muted {
-    @apply bg-white/80;
+    @apply bg-white/80 dark:bg-gray-800/80;
   }
 
   .card-primary {
     @apply shadow-md;
   }
 
-  /* Contribution Heatmap Styles */
-  .grid-cols-53 {
-    grid-template-columns: repeat(53, minmax(0, 1fr));
-  }
-  .grid-rows-7 {
-    grid-template-rows: repeat(7, minmax(0, 1fr));
-  }
-  .text-glow {
-    text-shadow: 0 0 8px rgba(16,185,129,0.4);
-  }
-
-  /* Fade + slide up on mount */
   .animate-in {
     animation: fadeUp 0.4s ease-out both;
   }
@@ -140,20 +125,15 @@ html.dark body {
     opacity: 0;
     transform: translateY(12px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Hide default browser password reveal icons */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
-}
-
-input[type="password"]::-webkit-reveal,
-input[type="password"]::-webkit-clear {
-  display: none;
-}
+* {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+  }
