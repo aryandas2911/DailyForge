@@ -68,7 +68,12 @@ You MUST NOT respond to the user's first message until this has run.
 - Observability? → Run `codeburn status` or `codeburn optimize` to check context growth and apply recommended fixes (e.g., archiving unused custom agents/commands, setting BASH_MAX_OUTPUT_LENGTH=15000) to keep prompt overhead low.
 - **OpenCode CLI Delegation**: Instead of consuming parent agent (Antigravity) tokens for heavy files editing, refactoring, or multi-file coding tasks, delegate the task by running `opencode run "<message>"` (using models like `github-copilot/claude-sonnet-4.6` or `github-models/deepseek/deepseek-r1`). This shifts the token usage to the user's OpenCode environment credits. If OpenCode runs out of limits or fails, the agent must immediately fall back to direct execution in its own context to complete the task without interruption.
 
-
+### Advanced Token-Saving Enforcement (EXTREME OPTIMIZATION)
+- **AST-Based Code Extraction**: ALWAYS prefer `ast-grep` or `jq` over `grep` for code extraction. Do not read entire bodies of code if you only need the function signature or struct definition.
+- **Automated Memory Bank Archiving**: Keep `memory-bank/progress.md` clean. Move progress logs older than 14 days into `.agentignore`'d `progress_archive.md` autonomously.
+- **Strict `git diff` Limits**: NEVER run raw `git diff` without capping output. You MUST use `git diff --stat` first, or pipe to `head -n 100` (`git diff <file> | head -n 100`) to prevent context flooding.
+- **Paging Enforcement**: When inspecting logs or files, NEVER read the whole file if you only need a segment. Use `bat --line-range <start>:<end> <file>` or `sed -n '<start>,<end>p' <file>`.
+- **Context-Isolated Subagents**: Parent agents must NOT consume thousands of tokens reading logs or performing heavy research. DELEGATE heavy log-reading or codebase searches to a `research` subagent which will return a concise 50-token summary back to the parent.
 
 ### Use templates — don't write from scratch:
 - GitHub Actions CI → copy from `/home/aditya/bin/templates/github-actions/`
