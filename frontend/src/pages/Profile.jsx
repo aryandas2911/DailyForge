@@ -10,11 +10,14 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
+  const [confirmPassword, setConfirmPassword] = useState('');
   // update name handler
   const handleNameUpdate = async (e) => {
     e.preventDefault();
-
+    if (newPassword !== confirmPassword) {
+  showToast('Passwords do not match', 'error');
+  return;
+}
     try {
       const res = await api.patch('/auth/profile', {
         name,
@@ -224,6 +227,23 @@ const Profile = () => {
             "
               />
             </div>
+            <div className="flex flex-col gap-1.5">
+  <label htmlFor="confirmPassword" className="text-sm font-medium text-main">
+    Confirm New Password
+  </label>
+  <input
+    type="password"
+    id="confirmPassword"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    placeholder="Re-enter new password"
+    required
+    className="w-full px-3 py-2.5 text-sm surface-bg border-soft rounded-sm shadow-xs input-focus hover-lift"
+  />
+  {confirmPassword && newPassword !== confirmPassword && (
+    <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
+  )}
+</div>
 
             <button
               type="submit"
