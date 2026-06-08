@@ -13,7 +13,7 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
@@ -39,11 +39,13 @@ export default function RoutineBuilder() {
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const [isImageExporting, setIsImageExporting] = useState(false);
   const gridRef = useRef(null);
 
   const exportToImage = async () => {
     if (!gridRef.current) return;
     try {
+      setIsImageExporting(true);
       // html-to-image handles CSS variables and Google Fonts without CORS issues
       const url = await toPng(gridRef.current, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement("a");
@@ -55,6 +57,8 @@ export default function RoutineBuilder() {
     } catch (error) {
       console.error("Export failed:", error);
       alert("Failed to export routine as image.");
+    } finally {
+      setIsImageExporting(false);
     }
   };
 
@@ -230,26 +234,14 @@ export default function RoutineBuilder() {
               <p className="mt-1 text-muted">Design your week</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                if (window.confirm("Are you sure you want to clear the grid?")) {
-                  setScheduledTasks([]);
-                }
-              }}
-              className="btn btn-muted flex items-center gap-2 cursor-pointer hover-lift"
-            >
-              <Trash2 size={16} />
-              Clear Grid
-            </button>
-            <button
-              onClick={exportToImage}
-              className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift"
-            >
-              <Download size={16} />
-              Export as PNG
-            </button>
-          </div>
+          <button
+            onClick={exportToImage}
+            disabled={isImageExporting}
+            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift disabled:opacity-50"
+          >
+            {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            {isImageExporting ? "Exporting..." : "Export as PNG"}
+          </button>
         </header>
 
         {/* Main Layout */}
@@ -342,7 +334,7 @@ export default function RoutineBuilder() {
                 placeholder="Add a description (optional)"
                 rows="3"
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
-                           focus:ring-primary bg-transparent text-main resize-none"
+                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white resize-none"
               />
 
               <div className="flex justify-end gap-3">
@@ -367,7 +359,7 @@ export default function RoutineBuilder() {
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            <div className="rounded-xl bg-white dark:text-black p-3 shadow-xl border border-gray-200">
               {activeTask.title}
             </div>
           ) : null}
