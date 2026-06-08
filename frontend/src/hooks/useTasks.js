@@ -9,6 +9,7 @@ const useTasks = ({
   initialLimit = DEFAULT_LIMIT,
 } = {}) => {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(initialPage);
   const [pagination, setPagination] = useState({
     totalTasks: 0,
@@ -20,6 +21,7 @@ const useTasks = ({
   // fetch tasks from database
   const getTasks = useCallback(async (pageToFetch = page) => {
     try {
+      setLoading(true);
       const response = await api.get("/tasks", {
         params: {
           page: pageToFetch,
@@ -44,6 +46,8 @@ const useTasks = ({
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to load tasks");
       setTasks([]);
+    } finally {
+      setLoading(false);
     }
   }, [initialLimit, page]);
 
@@ -112,6 +116,7 @@ const useTasks = ({
   // return reusable functions
   return {
     tasks,
+    loading,
     pagination,
     page,
     setPage,

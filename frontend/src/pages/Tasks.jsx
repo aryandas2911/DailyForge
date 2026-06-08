@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
+import KanbanBoard from "../components/Task/KanbanBoard";
 import {
   Plus,
   ArrowLeft,
@@ -14,6 +15,8 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  LayoutList,
+  Kanban,
 } from "lucide-react";
 import { getCategoryColor } from "../utils/categoryUtils";
 import { TAGS } from "../utils/tagUtils";
@@ -49,6 +52,8 @@ export default function Tasks() {
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("list");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -334,6 +339,37 @@ export default function Tasks() {
             <div className="grid gap-3 md:grid-cols-2">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-main">Search by title</span>
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    viewMode === "list"
+                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                      : "text-muted hover:text-main"
+                  }`}
+                >
+                  <LayoutList size={16} />
+                  <span className="hidden sm:inline">List</span>
+                </button>
+                <button
+                  onClick={() => setViewMode("board")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    viewMode === "board"
+                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                      : "text-muted hover:text-main"
+                  }`}
+                >
+                  <Kanban size={16} />
+                  <span className="hidden sm:inline">Board</span>
+                </button>
+              </div>
+
+              {/* Task Search Input Field */}
+              <div className="relative w-full sm:w-64">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={16} className="text-muted" />
+                </div>
                 <input
                   type="text"
                   value={searchTerm}
@@ -413,13 +449,19 @@ export default function Tasks() {
               [...filteredTasks]
                 .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
                 .map((task) => (
+        {/* Task List / Board */}
+        <div className={`grid ${viewMode === "list" ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"} gap-6`}>
+          <div className={`${viewMode === "list" ? "lg:col-span-2" : "col-span-1"} space-y-4 animate-in delay-200`}>
+            {filteredTasks.length ? (
+              viewMode === "list" ? (
+                filteredTasks.map((task) => (
                   <TaskItem
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
                     onDelete={(id) => deleteTask(id)}
-                    onEdit={(taskToEdit) => {
-                      setEditingTask(taskToEdit);
+                    onEdit={(task) => {
+                      setEditingTask(task);
                       setIsModalOpen(true);
                     }}
                     onUpdate={updateTask}
@@ -437,6 +479,20 @@ export default function Tasks() {
                   Clear filters
                 </button>
               </div>
+              ) : (
+                <KanbanBoard
+                  tasks={filteredTasks}
+                  onToggleComplete={handleToggle}
+                  onDelete={(id) => deleteTask(id)}
+                  onEdit={(task) => {
+                    setEditingTask(task);
+                    setIsModalOpen(true);
+                  }}
+                  onUpdate={updateTask}
+                  selectedIds={selectedIds}
+                  onSelect={handleSelect}
+                />
+              )
             ) : (
               <EmptyState
                 type="tasks"
@@ -474,8 +530,9 @@ export default function Tasks() {
             )}
           </div>
 
-          {/* Insights Sidebar */}
-          <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
+          {/* Insights Sidebar - Only show in list view for better board space */}
+          {viewMode === "list" && (
+            <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
             {/* Unified Insights Card */}
             <div className="card p-6 shadow-sm flex flex-col gap-6">
               {/* Completion */}
@@ -560,6 +617,7 @@ export default function Tasks() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 
@@ -584,6 +642,15 @@ export default function Tasks() {
 
             <p className="text-sm text-muted mb-4">
               How long did you actually take to complete "{durationModalTask.title}"?
+        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold mb-2 text-black/90">
+              Complete Task
+            </h2>
+
+            <p className="text-sm mb-4 text-black">
+              How long did you actually take to complete "
+              {durationModalTask.title}"?
             </p>
             <input
               type="number"
