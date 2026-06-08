@@ -118,6 +118,11 @@ export default function RoutineBuilder() {
   };
 
   const confirmSaveRoutine = async () => {
+    if (!routineName.trim() || routineName.length > 50) {
+      alert("Routine name must be between 1 and 50 characters");
+      return;
+    }
+
     const items = scheduledTasks
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
@@ -308,14 +313,28 @@ export default function RoutineBuilder() {
                 Save {selectedDay} Routine
               </h3>
 
-              <input
-                type="text"
-                value={routineName}
-                onChange={(e) => setRoutineName(e.target.value)}
-                placeholder="Routine name"
-                className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm
-                           focus:outline-none bg-transparent text-main"
-              />
+              <div className="relative mb-4">
+                <input
+                  type="text"
+                  value={routineName}
+                  maxLength={50}
+                  onChange={(e) => setRoutineName(e.target.value)}
+                  placeholder="Routine name"
+                  className="w-full rounded-xl border-soft px-3 py-2 text-sm
+                             focus:outline-none bg-transparent text-main"
+                />
+                <p
+                  className={`text-[10px] text-right mt-1 ${
+                    routineName.length >= 50
+                      ? "text-red-500 font-medium"
+                      : routineName.length >= 40
+                      ? "text-yellow-500"
+                      : "text-muted"
+                  }`}
+                >
+                  {routineName.length}/50
+                </p>
+              </div>
 
               <textarea
                 value={description}
