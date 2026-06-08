@@ -17,7 +17,7 @@ import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
-import ForgeMode from "./pages/ForgeMode.jsx";
+import ShareRoutine from "./pages/ShareRoutine.jsx";
 
 
 const AuthLayout = ({ children }) => (
@@ -109,7 +109,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex flex-col">
+      <main className="app-bg min-h-screen pt-15 flex flex-col text-main transition-colors duration-300">
         <Routes>
           <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
@@ -155,24 +155,10 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
-          <Route
-            path="/forge"
-            element={
-              <ProtectedRoutes>
-                <ForgeMode />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/focus"
-            element={
-              <ProtectedRoutes>
-                <ForgeMode />
-              </ProtectedRoutes>
-            }
-          />
+          <Route path="/share/routine/:id" element={<ShareRoutine />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+
       </main>
       <Footer />
       <ScrollToTop />

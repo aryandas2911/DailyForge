@@ -10,6 +10,7 @@ const routineSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true
     },
     description: {
       type: String,
@@ -25,6 +26,7 @@ const routineSchema = mongoose.Schema(
         day: {
           type: String,
           required: true,
+          trim: true,
           enum: [
             "Monday",
             "Tuesday",

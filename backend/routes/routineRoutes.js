@@ -5,6 +5,7 @@ import {
   duplicateRoutine,
   getRoutines,
   updateRoutine,
+  getPublicRoutine,
 } from "../controllers/routineController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import mongoose from "mongoose";
@@ -38,3 +39,6 @@ routineRouter.put("/:id", authMiddleware, validateObjectId, asyncHandler(updateR
 
 // Route for deleting routine
 routineRouter.delete("/:id", authMiddleware, validateObjectId, asyncHandler(deleteRoutine));
+
+// Route for fetching public routine (unauthenticated)
+routineRouter.get("/public/:id", validateObjectId, asyncHandler(getPublicRoutine));
