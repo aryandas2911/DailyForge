@@ -47,7 +47,6 @@ export default function TaskFormModal({
 
   useEffect(() => {
     if (task) {
-      /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
@@ -61,7 +60,6 @@ export default function TaskFormModal({
         setDueDate(datePart);
         setDueTime(timePart);
       }
-      /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
   }, [task, onError]);
@@ -222,7 +220,7 @@ export default function TaskFormModal({
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
                          focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+                         bg-transparent text-main dark:bg-slate-800"
                 placeholder="Task title"
                 maxLength={TITLE_MAX_LENGTH}
                 required
@@ -251,7 +249,7 @@ export default function TaskFormModal({
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
                          focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+                         bg-transparent text-main dark:bg-slate-800"
                 placeholder="Optional task description"
                 rows={3}
                 maxLength={DESCRIPTION_MAX_LENGTH}
@@ -301,7 +299,7 @@ export default function TaskFormModal({
                     value={customTagInput}
                     onChange={(e) => setCustomTagInput(e.target.value)}
                     disabled={isSubmitting}
-                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
+                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
                     placeholder="Enter custom tag (e.g., 'Essay')"
                   />
                   <button

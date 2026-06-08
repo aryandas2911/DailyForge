@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
+import KanbanBoard from "../components/Task/KanbanBoard";
 import {
   Plus,
   ArrowLeft,
@@ -14,6 +15,8 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
+  LayoutList,
+  Kanban,
 } from "lucide-react";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
@@ -47,6 +50,7 @@ export default function Tasks() {
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("list");
 
   const handleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -186,7 +190,7 @@ export default function Tasks() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-white dark:hover:bg-slate-800 cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted dark:text-gray-200 dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
@@ -280,7 +284,7 @@ export default function Tasks() {
                 type="datetime-local"
                 value={bulkDueDate}
                 onChange={(e) => setBulkDueDate(e.target.value)}
-                className="p-2 border border-soft rounded-lg bg-transparent text-main"
+                className="p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
               />
             </div>
             <button
@@ -316,6 +320,32 @@ export default function Tasks() {
                     Clear all
                   </button>
                 )}
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    viewMode === "list"
+                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                      : "text-muted hover:text-main"
+                  }`}
+                >
+                  <LayoutList size={16} />
+                  <span className="hidden sm:inline">List</span>
+                </button>
+                <button
+                  onClick={() => setViewMode("board")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    viewMode === "board"
+                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                      : "text-muted hover:text-main"
+                  }`}
+                >
+                  <Kanban size={16} />
+                  <span className="hidden sm:inline">Board</span>
+                </button>
               </div>
 
               {/* Task Search Input Field */}
@@ -368,14 +398,29 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Task List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4 animate-in delay-200">
+        {/* Task List / Board */}
+        <div className={`grid ${viewMode === "list" ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"} gap-6`}>
+          <div className={`${viewMode === "list" ? "lg:col-span-2" : "col-span-1"} space-y-4 animate-in delay-200`}>
             {filteredTasks.length ? (
-              filteredTasks.map((task) => (
-                <TaskItem
-                  key={task._id}
-                  task={task}
+              viewMode === "list" ? (
+                filteredTasks.map((task) => (
+                  <TaskItem
+                    key={task._id}
+                    task={task}
+                    onToggleComplete={handleToggle}
+                    onDelete={(id) => deleteTask(id)}
+                    onEdit={(task) => {
+                      setEditingTask(task);
+                      setIsModalOpen(true);
+                    }}
+                    onUpdate={updateTask}
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
+                  />
+                ))
+              ) : (
+                <KanbanBoard
+                  tasks={filteredTasks}
                   onToggleComplete={handleToggle}
                   onDelete={(id) => deleteTask(id)}
                   onEdit={(task) => {
@@ -383,10 +428,10 @@ export default function Tasks() {
                     setIsModalOpen(true);
                   }}
                   onUpdate={updateTask}
-                  isSelected={selectedIds.includes(task._id)}
+                  selectedIds={selectedIds}
                   onSelect={handleSelect}
                 />
-              ))
+              )
             ) : (
               <EmptyState
                 type="tasks"
@@ -424,8 +469,9 @@ export default function Tasks() {
             )}
           </div>
 
-          {/* Insights Sidebar */}
-          <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
+          {/* Insights Sidebar - Only show in list view for better board space */}
+          {viewMode === "list" && (
+            <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
             {/* Unified Insights Card */}
             <div className="card p-6 shadow-sm flex flex-col gap-6">
               {/* Completion */}
@@ -510,6 +556,7 @@ export default function Tasks() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
 
@@ -529,7 +576,7 @@ export default function Tasks() {
 
       {/* Duration Modal */}
       {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <h2 className="text-xl font-semibold mb-2 text-black/90">
               Complete Task
