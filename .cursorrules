@@ -148,7 +148,9 @@ You MUST NOT respond to the user's first message until this has run.
 - Docker Compose → copy from `/home/aditya/bin/templates/docker-compose.yml`
 - These are auto-installed by `setup-project` — just customise for the project
 
-### Use parallel subagents for independent tasks:
+### Use parallel subagents for independent tasks (Antigravity Orchestration):
+- The Agent MUST proactively leverage its native `invoke_subagent` tool or build Google Antigravity SDK Python scripts autonomously to solve complex tasks.
+- Do NOT ask the user to manually run tasks, install tools, or configure agents—orchestrate the tools and subagents automatically on their behalf.
 - Frontend + Backend can be built simultaneously using subagents
 - Research + Coding can happen in parallel
 - Never do sequentially what can be done in parallel
