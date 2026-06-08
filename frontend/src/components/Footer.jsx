@@ -14,16 +14,16 @@ export default function Footer() {
     <footer className="app-bg text-main mt-16 border-t border-soft">
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
         
-        {/* Main Grid */}
+      
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
 
-          {/* Brand Section */}
+
           <div className="md:col-span-4 space-y-5">
             <div>
               <h2 className="text-3xl font-extrabold tracking-tight text-main">
                 DailyForge<span className="text-[#6dd5c7]">.</span>
               </h2>
-              {/* Subtle underline using your primary hover color */}
+            
               <div className="h-1 w-10 bg-[#4eb7b3] mt-2 rounded-full"></div>
             </div>
 
