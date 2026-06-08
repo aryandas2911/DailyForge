@@ -109,7 +109,7 @@ const useTasks = ({
 
   // initial fetch
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     getTasks();
   }, [getTasks]);
 
