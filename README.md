@@ -357,6 +357,53 @@ FIREBASE_PROJECT_ID=your_project_id
 
 ---
 
+## 🧩 REST API Reference
+
+**Base URL:** `/api`
+
+**JWT Authorization header:**
+
+```http
+Authorization: Bearer <token>
+```
+
+### Authentication
+
+| Method | Endpoint                   | Auth Required | Description                        |
+| ------ | -------------------------- | ------------- | ---------------------------------- |
+| POST   | `/api/auth/signup`         | No            | Register a new user                |
+| POST   | `/api/auth/login`          | No            | Login with email and password      |
+| POST   | `/api/auth/google-login`   | No            | Login using Google authentication  |
+| GET    | `/api/auth/user`           | Yes           | Get the current authenticated user |
+| PUT    | `/api/auth/update-profile` | Yes           | Update the current user's profile  |
+| POST   | `/api/auth/logout`         | Yes           | Log out the current user           |
+
+### Tasks
+
+| Method | Endpoint         | Auth Required | Description                              |
+| ------ | ---------------- | ------------- | ---------------------------------------- |
+| POST   | `/api/tasks`     | Yes           | Create a new task                        |
+| GET    | `/api/tasks`     | Yes           | Get all tasks for the authenticated user |
+| PUT    | `/api/tasks/:id` | Yes           | Update a task by ID                      |
+| DELETE | `/api/tasks/:id` | Yes           | Delete a task by ID                      |
+
+### Routines
+
+| Method | Endpoint            | Auth Required | Description                                 |
+| ------ | ------------------- | ------------- | ------------------------------------------- |
+| POST   | `/api/routines`     | Yes           | Create a new routine                        |
+| GET    | `/api/routines`     | Yes           | Get all routines for the authenticated user |
+| PUT    | `/api/routines/:id` | Yes           | Update a routine by ID                      |
+| DELETE | `/api/routines/:id` | Yes           | Delete a routine by ID                      |
+
+### Analytics
+
+| Method | Endpoint         | Auth Required | Description                                         |
+| ------ | ---------------- | ------------- | --------------------------------------------------- |
+| GET    | `/api/analytics` | Yes           | Get analytics/statistics for the authenticated user |
+
+---
+
 ## ❓ FAQ
 
 ### Why is the app slow on first load?

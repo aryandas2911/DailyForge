@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { SearchX } from "lucide-react";
 import EmptyState from "../EmptyState";
 
 /* ---------------- Draggable Task Item ---------------- */
@@ -59,14 +60,37 @@ hover:shadow-md transition duration-200 hover-lift"
   );
 }
 
+/* ---------------- Empty Search Result ---------------- */
+function SearchEmptyState({ query, onClearSearch }) {
+  return (
+    <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-soft bg-white/70 px-4 py-8 text-center">
+      <SearchX size={36} className="mb-3 text-muted" aria-hidden="true" />
+      <h3 className="text-sm font-semibold text-main">No matching tasks</h3>
+      <p className="mt-1 max-w-56 text-xs leading-5 text-muted">
+        No tasks match &quot;{query}&quot;. Try a different search term.
+      </p>
+      <button
+        type="button"
+        className="btn btn-muted mt-4 text-sm"
+        onClick={onClearSearch}
+      >
+        Clear search
+      </button>
+    </div>
+  );
+}
+
 /* ---------------- Task Library ---------------- */
 export default function TaskLibrary({ tasks, onAddTask }) {
   
   const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
 
   const filteredTasks = tasks?.filter((task) =>
-    task.title.toLowerCase().includes(query.toLowerCase())
+    task.title.toLowerCase().includes(normalizedQuery)
   );
+  const hasTasks = Boolean(tasks?.length);
+  const hasSearchQuery = normalizedQuery.length > 0;
 
   return (
     <div className="card h-full flex flex-col animate-in">
@@ -86,7 +110,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
       {/* Search */}
       <input
         type="text"
-        placeholder="Search tasks…"
+        placeholder="Search tasks..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm bg-transparent text-main placeholder:text-muted dark:bg-slate-800 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]"
@@ -98,6 +122,11 @@ export default function TaskLibrary({ tasks, onAddTask }) {
           filteredTasks.map((task) => (
             <DraggableTask key={task._id} task={task} />
           ))
+        ) : hasTasks && hasSearchQuery ? (
+          <SearchEmptyState
+            query={query.trim()}
+            onClearSearch={() => setQuery("")}
+          />
         ) : (
           <EmptyState type="tasks" onAction={onAddTask} />
         )}

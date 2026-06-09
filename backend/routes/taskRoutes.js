@@ -53,8 +53,8 @@ const taskUpdateValidationRules = [
     .withMessage("Priority must be Low, Medium, or High"),
   body("status")
     .optional()
-    .isIn(["Due", "Completed"])
-    .withMessage("Status must be Due or Completed"),
+    .isIn(["Due", "In Progress", "Completed"])
+    .withMessage("Status must be Due, In Progress, or Completed"),
 ];
 
 // router object for task
