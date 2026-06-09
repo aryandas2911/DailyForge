@@ -2,19 +2,7 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Menu,
-  X,
-  LayoutDashboard,
-  CheckSquare,
-  Calendar,
-  LogOut,
-  LogIn,
-  User,
-  Sun,
-  Moon,
-  TrendingUp,
-} from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer, TrendingUp, User } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
@@ -294,6 +282,7 @@ const Navbar = () => {
               </span>
             </Link>
 
+
             {/* Desktop Navigation */}
             {user && (
               <div className="hidden md:flex items-center gap-2">
@@ -356,13 +345,25 @@ const Navbar = () => {
                   </Link>
                 </>
               ) : (
-                <button
-                  onClick={handleLogoutClick}
-                  className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
+                <>
+                  {/*pomodoro focus mode*/}
+
+                  <Link
+                    to="/focus-mode"
+                    className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
+                  >
+                    <Timer size={16} />
+                    Focus Mode
+                  </Link>
+
+                  <button
+                    onClick={handleLogoutClick}
+                    className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </>
               )}
             </div>
 
@@ -452,13 +453,20 @@ const Navbar = () => {
                       </Link>
                     </>
                   ) : (
-                    <button
-                      onClick={handleLogoutClick}
-                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </button>
+                    <>
+                      {/* Mobile focus mode*/}
+                      <Link to="/focus-mode" className="btn btn-primary flex gap-2">
+                        <Timer size={16} />
+                        Focus Mode
+                      </Link>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+                      >
+                        <LogOut size={18} />
+                        Logout
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

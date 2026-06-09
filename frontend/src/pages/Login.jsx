@@ -76,7 +76,12 @@ const Login = () => {
       navigate(redirectPath, { replace: true });
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || err.message || "Failed to log in with Google.");
+
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to log in with Google."
+      );
     } finally {
       setIsGoogleLoading(false);
     }

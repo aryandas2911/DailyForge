@@ -99,6 +99,28 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const getPasswordStrength = (password) => {
+  if (!password) return null;
+
+  let score = 0;
+
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 2)
+    return { text: "Weak", color: "text-red-500" };
+
+  if (score <= 4)
+    return { text: "Medium", color: "text-yellow-500" };
+
+  return { text: "Strong", color: "text-green-500" };
+};
+
+const passwordStrength = getPasswordStrength(password);
+
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
 
@@ -120,8 +142,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to authenticate with Google."
+          err.message ||
+          "Failed to authenticate with Google."
         );
       }
     } finally {
@@ -153,8 +175,8 @@ const Signup = () => {
     setIsLoading(true);
     try {
       localStorage.removeItem("token");
-      const res = await api.post("/auth/signup", { name, email, password });
-      setUser(res.data.user);
+      const { data } = await api.post("/auth/signup", { name, email, password });
+      setUser(data.user);
       navigate("/dashboard");
     } catch (error) {
       if (error.response?.status === 409) {
@@ -162,8 +184,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           error.response?.data?.message ||
-            error.message ||
-            "Signup failed. Please try again."
+          error.message ||
+          "Signup failed. Please try again."
         );
       }
     } finally {
@@ -190,7 +212,7 @@ const Signup = () => {
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
+
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
@@ -219,7 +241,7 @@ const Signup = () => {
             flex
             flex-col
             gap-3
-            mt-[-3rem]
+            mt-[3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -241,27 +263,22 @@ const Signup = () => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
-          className="
-flex items-center justify-center
-w-full px-4 py-3
-rounded-2xl
-!bg-white
-!text-black
-!border
-!border-gray-300
-font-medium
-shadow-sm
-transition-all duration-200
-hover:bg-gray-50
-hover:border-gray-400
-hover:-translate-y-[1px]
-hover:shadow-md
-dark:bg-slate-900/50
-dark:border-slate-700
-dark:text-slate-100
-disabled:opacity-50
-cursor-pointer
-"
+            className="
+            flex items-center justify-center
+            w-full
+            px-4 py-3
+            rounded-2xl
+            border border-teal-400
+            bg-white
+            text-gray-700
+            font-medium
+            transition-all duration-200
+            hover:bg-teal-50
+            hover:-translate-y-[1px]
+            hover:shadow-md
+            disabled:opacity-50
+            cursor-pointer
+          "
           >
             {isGoogleLoading ? (
               <LoadingSpinner />
@@ -404,8 +421,21 @@ cursor-pointer
               </button>
             </div>
             {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
-            )}
+  <span className="text-red-500 text-xs">{errors.password}</span>
+)}
+
+<p className="text-xs text-gray-500">
+  Use at least 8 characters, including 1 uppercase letter,
+  1 lowercase letter, 1 number, and 1 special character.
+</p>
+
+{passwordStrength && (
+  <span
+    className={`text-xs font-medium ${passwordStrength.color}`}
+  >
+    Password Strength: {passwordStrength.text}
+  </span>
+)}
           </div>
 
           {/* Confirm Password */}
