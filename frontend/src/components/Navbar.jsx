@@ -2,19 +2,7 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Menu,
-  X,
-  LayoutDashboard,
-  CheckSquare,
-  Calendar,
-  LogOut,
-  LogIn,
-  User,
-  Sun,
-  Moon,
-  TrendingUp,
-} from "lucide-react";
+import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer, TrendingUp, User } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
@@ -48,7 +36,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 16 }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-[#98e1d7]/30 dark:border-slate-700 p-8 w-full max-w-sm text-center shadow-xl"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--border)]/30 dark:border-slate-700 p-8 w-full max-w-sm text-center shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Icon */}
@@ -70,7 +58,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={onCancel}
-              className="flex-1 py-2.5 rounded-xl border border-[#98e1d7]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-[var(--border)]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </motion.button>
@@ -283,16 +271,17 @@ const Navbar = () => {
               <motion.div
                 whileHover={{ rotate: 180 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+                className="w-8 h-8 rounded-xl bg-linear-to-tr from-primary to-[var(--accent)] flex items-center justify-center shadow-sm"
               >
                 <span className="text-white font-bold text-xl leading-none tracking-tighter">
                   D
                 </span>
               </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[var(--text-main)] to-primary">
                 DailyForge
               </span>
             </Link>
+
 
             {/* Desktop Navigation */}
             {user && (
@@ -305,8 +294,8 @@ const Navbar = () => {
                       cn(
                         "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
                         isActive
-                          ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0] dark:text-gray-300 dark:hover:bg-gray-800",
+                          ? "bg-[var(--bg)] text-[var(--text-main)] shadow-sm"
+                          : "text-[var(--text-muted)] hover:bg-[var(--bg)]/50 hover:text-[var(--text-main)] dark:text-gray-300 dark:hover:bg-gray-800",
                       )
                     }
                   >
@@ -327,13 +316,13 @@ const Navbar = () => {
                 whileHover={{ scale: 1.1, rotate: 15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleThemeToggle}
-                className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
+                className="p-2.5 rounded-xl border border-soft text-main hover:bg-[var(--bg)]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
                 aria-label="Toggle dark mode"
               >
                 {theme === "dark" ? (
                   <Moon
                     size={18}
-                    className="text-[#3b8ea0] fill-[#3b8ea0]/10"
+                    className="text-[var(--text-main)] fill-[var(--text-main)]/10"
                   />
                 ) : (
                   <Sun size={18} className="text-yellow-400 fill-yellow-400" />
@@ -344,7 +333,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                    className="text-sm font-medium text-primary hover:text-[var(--text-main)] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[var(--bg)]/50"
                   >
                     Login
                   </Link>
@@ -356,13 +345,25 @@ const Navbar = () => {
                   </Link>
                 </>
               ) : (
-                <button
-                  onClick={handleLogoutClick}
-                  className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
+                <>
+                  {/*pomodoro focus mode*/}
+
+                  <Link
+                    to="/focus-mode"
+                    className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
+                  >
+                    <Timer size={16} />
+                    Focus Mode
+                  </Link>
+
+                  <button
+                    onClick={handleLogoutClick}
+                    className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </>
               )}
             </div>
 
@@ -372,7 +373,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-xl text-[#3b8ea0] dark:text-white hover:bg-[#d0f6e3] dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                className="p-2 rounded-xl text-[var(--text-main)] dark:text-white hover:bg-[var(--bg)] dark:hover:bg-gray-800 transition-colors focus:outline-none"
                 aria-label="Toggle menu"
                 aria-expanded={isOpen}
                 aria-controls="mobile-navigation-menu"
@@ -415,8 +416,8 @@ const Navbar = () => {
                         cn(
                           "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
                           isActive
-                            ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                            : "text-[#4eb7b3] dark:text-gray-300 hover:bg-[#d0f6e3]/50 dark:hover:bg-gray-800 hover:text-[#3b8ea0]",
+                            ? "bg-[var(--bg)] text-[var(--text-main)]"
+                            : "text-[var(--text-muted)] dark:text-gray-300 hover:bg-[var(--bg)]/50 dark:hover:bg-gray-800 hover:text-[var(--text-main)]",
                         )
                       }
                     >
@@ -428,7 +429,7 @@ const Navbar = () => {
                 <div
                   className={cn(
                     "flex flex-col gap-2",
-                    user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2",
+                    user ? "pt-4 mt-2 border-t border-[var(--border)]/30" : "pt-2",
                   )}
                 >
                   {!user ? (
@@ -436,7 +437,7 @@ const Navbar = () => {
                       <Link
                         to="/login"
                         onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[var(--text-main)] dark:text-gray-300 font-medium hover:bg-[var(--bg)] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
                       >
                         <LogIn size={18} />
                         Login
@@ -452,13 +453,20 @@ const Navbar = () => {
                       </Link>
                     </>
                   ) : (
-                    <button
-                      onClick={handleLogoutClick}
-                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </button>
+                    <>
+                      {/* Mobile focus mode*/}
+                      <Link to="/focus-mode" className="btn btn-primary flex gap-2">
+                        <Timer size={16} />
+                        Focus Mode
+                      </Link>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+                      >
+                        <LogOut size={18} />
+                        Logout
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
