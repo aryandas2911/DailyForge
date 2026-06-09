@@ -200,8 +200,10 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // fetch update task details
-    const updates = req.body;
+    // fetch update task details, strip protected fields to prevent mass assignment
+    const updates = { ...req.body };
+    delete updates.userId;
+    delete updates._id;
 
     // validate title length if title is being updated
     if (updates.title && updates.title.trim().length > 50) {

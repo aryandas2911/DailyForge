@@ -142,8 +142,8 @@ const passwordStrength = getPasswordStrength(password);
       } else {
         setErrorMessage(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to authenticate with Google."
+          err.message ||
+          "Failed to authenticate with Google."
         );
       }
     } finally {
@@ -175,9 +175,8 @@ const passwordStrength = getPasswordStrength(password);
     setIsLoading(true);
     try {
       localStorage.removeItem("token");
-      await api.post("/auth/signup", { name, email, password });
-      const me = await api.get("/auth/user");
-      setUser(me.data.user);
+      const { data } = await api.post("/auth/signup", { name, email, password });
+      setUser(data.user);
       navigate("/dashboard");
     } catch (error) {
       if (error.response?.status === 409) {
@@ -185,8 +184,8 @@ const passwordStrength = getPasswordStrength(password);
       } else {
         setErrorMessage(
           error.response?.data?.message ||
-            error.message ||
-            "Signup failed. Please try again."
+          error.message ||
+          "Signup failed. Please try again."
         );
       }
     } finally {
@@ -213,7 +212,7 @@ const passwordStrength = getPasswordStrength(password);
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
+
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
@@ -242,7 +241,7 @@ const passwordStrength = getPasswordStrength(password);
             flex
             flex-col
             gap-3
-            mt-[-3rem]
+            mt-[3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -265,22 +264,21 @@ const passwordStrength = getPasswordStrength(password);
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
             className="
-              flex items-center justify-center
-              w-full
-              px-4 py-3
-              rounded-2xl
-              border border-soft
-              bg-white/70
-              dark:bg-slate-900/50
-              text-slate-700
-              dark:text-slate-100
-              font-medium
-              transition-all duration-200
-              hover:-translate-y-[1px]
-              hover:shadow-md
-              disabled:opacity-50
-              cursor-pointer
-            "
+            flex items-center justify-center
+            w-full
+            px-4 py-3
+            rounded-2xl
+            border border-teal-400
+            bg-white
+            text-gray-700
+            font-medium
+            transition-all duration-200
+            hover:bg-teal-50
+            hover:-translate-y-[1px]
+            hover:shadow-md
+            disabled:opacity-50
+            cursor-pointer
+          "
           >
             {isGoogleLoading ? (
               <LoadingSpinner />

@@ -407,3 +407,24 @@ export const deleteRoutine = async (req, res) => {
       .json({ success: false, message: "Error deleting routine" });
   }
 };
+
+// Fetch public routine function (unauthenticated)
+export const getPublicRoutine = async (req, res) => {
+  try {
+    const routineId = req.params.id;
+    const routine = await Routine.findById(routineId).populate("items.taskId");
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+    return res.status(200).json({ success: true, routine });
+  } catch (error) {
+    console.log("Error fetching public routine", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error fetching public routine" });
+  }
+};
+

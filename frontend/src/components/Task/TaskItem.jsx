@@ -1,4 +1,4 @@
-import { Check, Trash2, Pencil, Calendar } from "lucide-react";
+import { Check, Trash2, Pencil, Calendar, Play } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
@@ -51,10 +51,12 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           </button>
 
           {/* Content */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <p
-              className={`text-lg font-semibold ${
-                isCompleted ? "line-through text-muted dark:text-gray-300" : "text-main"
+
+              className={`text-lg font-semibold break-words ${
+                isCompleted ? "line-through text-muted" : "text-main"
+
               }`}
             >
               {task.title}
@@ -98,7 +100,25 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onUpdate, i
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {task.status === "Due" && (
+              <button
+                onClick={() => onUpdate(task._id, { status: "In Progress" })}
+                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition cursor-pointer"
+                title="Start Task"
+              >
+                <Play size={14} /> <span className="hidden sm:inline">Start</span>
+              </button>
+            )}
+            {task.status === "In Progress" && (
+              <button
+                onClick={() => onToggleComplete(task)}
+                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition cursor-pointer"
+                title="Complete Task"
+              >
+                <Check size={14} /> <span className="hidden sm:inline">Complete</span>
+              </button>
+            )}
             {/* Edit Button */}
             <button
               onClick={() => setIsEditModalOpen(true)}

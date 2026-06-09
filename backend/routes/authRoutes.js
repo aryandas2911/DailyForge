@@ -36,7 +36,7 @@ router.post('/google-login', googleLogin);
 router.post('/login-2fa', twoFALimiter, loginWith2FA);
 
 // Protected routes (require valid JWT)
-router.get('/user', authMiddleware, getUser);
+router.get('/me', authMiddleware, getUser);
 router.put('/update-profile', authMiddleware, updateProfile);
 router.post('/logout', authMiddleware, logout);
 
