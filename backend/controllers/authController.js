@@ -87,7 +87,7 @@ export const signup = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'User registered successfully',
-        user: { _id: newUser._id, name: newUser.name, email: newUser.email },
+        user: { _id: newUser._id, name: newUser.name, email: newUser.email, primaryColor: newUser.primaryColor },
       });
   } catch (_error) {
     console.error('Signup error:', _error);
@@ -136,7 +136,7 @@ export const login = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'Login successful',
-        user: { _id: user._id, name: user.name, email: user.email },
+        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
       });
   } catch (_error) {
     console.log('Login error: ', _error);
@@ -184,7 +184,7 @@ export const loginWith2FA = async (req, res) => {
       .cookie('token', jwtToken, getAuthCookieOptions())
       .json({
         message: 'Login successful',
-        user: { _id: user._id, name: user.name, email: user.email },
+        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
       });
   } catch (_error) {
     return res.status(500).json({ message: 'Server error during 2FA login' });
@@ -321,6 +321,7 @@ export const updateProfile = async (req, res) => {
     }
 
     if (name) user.name = name;
+    if (req.body.primaryColor) user.primaryColor = req.body.primaryColor;
 
     if (currentPassword && newPassword) {
       const passwordCheck = await bcrypt.compare(currentPassword, user.password);
@@ -335,7 +336,7 @@ export const updateProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user: { _id: user._id, name: user.name, email: user.email },
+      user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
     });
   } catch (_error) {
     console.log('Profile update error:', _error);
@@ -402,7 +403,7 @@ export const googleLogin = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'Google sign-in successful',
-        user: { _id: user._id, name: user.name, email: user.email },
+        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
       });
   } catch (_error) {
     console.error('[GOOGLE AUTH] Controller error:', _error);
