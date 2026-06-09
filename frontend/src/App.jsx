@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import Pomodoro from "./pages/Pomodoro.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
@@ -32,10 +33,10 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-        <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
-        <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+        <Route path="/about" element={<AuthLayout><About /></AuthLayout>} />
         <Route
           path="/dashboard"
           element={
@@ -94,10 +95,10 @@ const App = () => {
       <Navbar />
       <main className="app-bg min-h-screen pt-15 flex flex-col text-main transition-colors duration-300">
         <Routes>
-          <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-          <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
-          <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+          <Route path="/about" element={<AuthLayout><About /></AuthLayout>} />
           <Route
             path="/dashboard"
             element={
@@ -123,13 +124,21 @@ const App = () => {
             }
           />
           <Route
+            path="/focus-mode"
+            element={
+              <ProtectedRoutes>
+                <Pomodoro />
+              </ProtectedRoutes>
+            }
+          />
+              <Route
             path="/profile"
             element={
               <ProtectedRoutes>
                 <Profile />
               </ProtectedRoutes>
             }
-          />
+/>
           <Route
             path="/analytics"
             element={
