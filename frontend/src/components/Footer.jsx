@@ -22,10 +22,10 @@ export default function Footer() {
           <div className="md:col-span-4 space-y-5">
             <div>
               <h2 className="text-3xl font-extrabold tracking-tight text-main">
-                DailyForge<span className="text-[#6dd5c7]">.</span>
+                DailyForge<span className="text-[var(--primary-hover)]">.</span>
               </h2>
               {/* Subtle underline using your primary hover color */}
-              <div className="h-1 w-10 bg-[#4eb7b3] mt-2 rounded-full"></div>
+              <div className="h-1 w-10 bg-primary mt-2 rounded-full"></div>
             </div>
 
             <p className="text-sm leading-relaxed text-muted max-w-xs">
@@ -40,7 +40,7 @@ export default function Footer() {
                 rel="noreferrer"
                 aria-label="DailyForge GitHub repository"
                 title="DailyForge GitHub repository"
-                className="p-2 bg-white/30 dark:bg-white/5 rounded-lg text-[#4eb7b3] hover:bg-[#4eb7b3] hover:text-white transition-all border border-soft"
+                className="p-2 bg-white/30 dark:bg-white/5 rounded-lg text-primary hover:bg-primary hover:text-white transition-all border border-soft"
               >
                 <Github size={18} />
               </a>
@@ -49,7 +49,7 @@ export default function Footer() {
 
           {/* Navigation */}
           <div className="md:col-span-2">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#4eb7b3] mb-6">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">
               Navigation
             </h3>
             <ul className="space-y-4 text-sm">
@@ -57,7 +57,7 @@ export default function Footer() {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-muted hover:text-[#3b8ea0] transition-colors"
+                    className="text-muted hover:text-[var(--text-main)] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -68,22 +68,22 @@ export default function Footer() {
 
           {/* Community Section */}
           <div className="md:col-span-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#4eb7b3] mb-6">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">
               Community
             </h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <a href={githubBase} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[#3b8ea0] transition-colors">
+                <a href={githubBase} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[var(--text-main)] transition-colors">
                   <Github size={14} /> GitHub Repo
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[#3b8ea0] transition-colors">
+                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[var(--text-main)] transition-colors">
                   <MessageSquare size={14} /> Issues
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[#3b8ea0] transition-colors">
+                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted hover:text-[var(--text-main)] transition-colors">
                   <BookOpen size={14} /> Contributing
                 </a>
               </li>
@@ -92,7 +92,7 @@ export default function Footer() {
 
           {/* Tech Stack */}
           <div className="md:col-span-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#4eb7b3] mb-6">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-6">
               Built With
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -116,7 +116,7 @@ export default function Footer() {
             <span>Built with</span>
             <Heart size={14} className="text-red-400 fill-red-400 animate-pulse" />
             <span>for</span>
-            <span className="text-[#4eb7b3] font-bold">GSSoC 2026</span>
+            <span className="text-primary font-bold">GSSoC 2026</span>
           </div>
         </div>
       </div>

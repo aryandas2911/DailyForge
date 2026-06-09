@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
 import Profile from './pages/Profile.jsx';
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import Pomodoro from "./pages/Pomodoro.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
@@ -123,13 +124,21 @@ const App = () => {
             }
           />
           <Route
+            path="/focus-mode"
+            element={
+              <ProtectedRoutes>
+                <Pomodoro />
+              </ProtectedRoutes>
+            }
+          />
+              <Route
             path="/profile"
             element={
               <ProtectedRoutes>
                 <Profile />
               </ProtectedRoutes>
             }
-          />
+/>
           <Route
             path="/analytics"
             element={
