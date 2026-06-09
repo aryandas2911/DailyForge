@@ -153,6 +153,13 @@ html.dark body {
   }
 }
 
+/* Hide default browser reveal buttons to stop overlapping */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-type-password-toggle {
+  display: none !important;
+}
 * {
   transition:
     background-color 0.25s ease,
