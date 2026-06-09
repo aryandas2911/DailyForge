@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-primary: var(--primary);
+}
+
 * {
   font-family: 'Outfit', sans-serif;
 }
@@ -19,6 +23,15 @@
   --radius: 0.75rem;
 }
 
+:root[data-theme-custom="true"] {
+  --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
+  --bg: color-mix(in srgb, var(--primary) 15%, #ffffff);
+  --accent: color-mix(in srgb, var(--primary) 60%, #ffffff);
+  --text-main: color-mix(in srgb, var(--primary) 70%, #000000);
+  --text-muted: var(--primary);
+  --border: color-mix(in srgb, var(--primary) 60%, #ffffff);
+}
+
 .dark {
   --bg: #0f172a;
   --surface: #1e293b;
@@ -28,6 +41,15 @@
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
+}
+
+html.dark[data-theme-custom="true"] {
+  --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
+  --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
+  --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
+  --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
+  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
+  --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
 html.dark,
