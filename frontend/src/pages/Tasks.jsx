@@ -52,7 +52,6 @@ export default function Tasks() {
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("list");
 
   const handleSelect = (id) => {
@@ -174,6 +173,11 @@ export default function Tasks() {
     });
   }, [searchTerm, selectedCategories, statusFilter, tasks]);
 
+  const totalPages = pagination.totalPages;
+  const hasPreviousPage = page > 1;
+  const hasNextPage = page < totalPages;
+  const pageTasks = filteredTasks.length;
+
   const hasActiveFilters =
     searchTerm.trim().length > 0 || statusFilter !== "all" || selectedCategories.length > 0;
 
@@ -243,11 +247,10 @@ export default function Tasks() {
 
             <button
               onClick={() => setIsNotesOpen(!isNotesOpen)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${
-                isNotesOpen
-                  ? "bg-primary text-white border-transparent"
-                  : "bg-white dark:bg-slate-800 text-main border-soft hover:bg-gray-50 dark:hover:bg-slate-700"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${isNotesOpen
+                ? "bg-primary text-white border-transparent"
+                : "bg-white dark:bg-slate-800 text-main border-soft hover:bg-gray-50 dark:hover:bg-slate-700"
+                }`}
               style={isNotesOpen ? { backgroundColor: "var(--primary)" } : {}}
             >
               {isNotesOpen ? <X size={18} /> : <StickyNote size={18} />}
@@ -339,37 +342,6 @@ export default function Tasks() {
             <div className="grid gap-3 md:grid-cols-2">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-main">Search by title</span>
-              {/* View Toggle */}
-              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    viewMode === "list"
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
-                      : "text-muted hover:text-main"
-                  }`}
-                >
-                  <LayoutList size={16} />
-                  <span className="hidden sm:inline">List</span>
-                </button>
-                <button
-                  onClick={() => setViewMode("board")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    viewMode === "board"
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-main"
-                      : "text-muted hover:text-main"
-                  }`}
-                >
-                  <Kanban size={16} />
-                  <span className="hidden sm:inline">Board</span>
-                </button>
-              </div>
-
-              {/* Task Search Input Field */}
-              <div className="relative w-full sm:w-64">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search size={16} className="text-muted" />
-                </div>
                 <input
                   type="text"
                   value={searchTerm}
@@ -378,6 +350,29 @@ export default function Tasks() {
                   className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
                 />
               </label>
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "list"
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                    : "text-muted hover:text-main"
+                    }`}
+                >
+                  <LayoutList size={16} />
+                  <span className="hidden sm:inline">List</span>
+                </button>
+                <button
+                  onClick={() => setViewMode("board")}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "board"
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-main"
+                    : "text-muted hover:text-main"
+                    }`}
+                >
+                  <Kanban size={16} />
+                  <span className="hidden sm:inline">Board</span>
+                </button>
+              </div>
 
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-main">Status</span>
@@ -420,11 +415,10 @@ export default function Tasks() {
                   <button
                     key={tagName}
                     onClick={() => toggleCategoryFilter(tagName)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected
-                        ? "ring-2 ring-offset-1"
-                        : "opacity-60 hover:opacity-100"
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${isSelected
+                      ? "ring-2 ring-offset-1"
+                      : "opacity-60 hover:opacity-100"
+                      }`}
                     style={{
                       backgroundColor: cat.bgColor,
                       color: cat.color,
@@ -446,29 +440,21 @@ export default function Tasks() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
-              [...filteredTasks]
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                .map((task) => (
-        {/* Task List / Board */}
-        <div className={`grid ${viewMode === "list" ? "grid-cols-1 lg:grid-cols-3" : "grid-cols-1"} gap-6`}>
-          <div className={`${viewMode === "list" ? "lg:col-span-2" : "col-span-1"} space-y-4 animate-in delay-200`}>
-            {filteredTasks.length ? (
-              viewMode === "list" ? (
-                filteredTasks.map((task) => (
-                  <TaskItem
-                    key={task._id}
-                    task={task}
-                    onToggleComplete={handleToggle}
-                    onDelete={(id) => deleteTask(id)}
-                    onEdit={(task) => {
-                      setEditingTask(task);
-                      setIsModalOpen(true);
-                    }}
-                    onUpdate={updateTask}
-                    isSelected={selectedIds.includes(task._id)}
-                    onSelect={handleSelect}
-                  />
-                ))
+              filteredTasks.map((task) => (
+                <TaskItem
+                  key={task._id}
+                  task={task}
+                  onToggleComplete={handleToggle}
+                  onDelete={(id) => deleteTask(id)}
+                  onEdit={(task) => {
+                    setEditingTask(task);
+                    setIsModalOpen(true);
+                  }}
+                  onUpdate={updateTask}
+                  isSelected={selectedIds.includes(task._id)}
+                  onSelect={handleSelect}
+                />
+              ))
             ) : tasks.length > 0 ? (
               <div className="card p-8 shadow-sm text-center space-y-3">
                 <h3 className="text-lg font-semibold text-main">No matching tasks</h3>
@@ -479,20 +465,6 @@ export default function Tasks() {
                   Clear filters
                 </button>
               </div>
-              ) : (
-                <KanbanBoard
-                  tasks={filteredTasks}
-                  onToggleComplete={handleToggle}
-                  onDelete={(id) => deleteTask(id)}
-                  onEdit={(task) => {
-                    setEditingTask(task);
-                    setIsModalOpen(true);
-                  }}
-                  onUpdate={updateTask}
-                  selectedIds={selectedIds}
-                  onSelect={handleSelect}
-                />
-              )
             ) : (
               <EmptyState
                 type="tasks"
@@ -533,90 +505,89 @@ export default function Tasks() {
           {/* Insights Sidebar - Only show in list view for better board space */}
           {viewMode === "list" && (
             <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
-            {/* Unified Insights Card */}
-            <div className="card p-6 shadow-sm flex flex-col gap-6">
-              {/* Completion */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Completion
-                </h3>
-                <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  {completionPercent > 0 && (
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                      style={{ width: `${completionPercent}%` }}
-                    />
+              {/* Unified Insights Card */}
+              <div className="card p-6 shadow-sm flex flex-col gap-6">
+                {/* Completion */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Completion
+                  </h3>
+                  <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    {completionPercent > 0 && (
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                        style={{ width: `${completionPercent}%` }}
+                      />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted mt-1">
+                    {completedTasks} of {pageTasks} visible tasks done (
+                    {completionPercent}%)
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+                {/* Upcoming Deadlines */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Upcoming Deadlines
+                  </h3>
+                  {upcomingDeadlines.length ? (
+                    <ul className="space-y-2 text-sm">
+                      {upcomingDeadlines.slice(0, 3).map((task) => (
+                        <li
+                          key={task._id}
+                          className="flex items-center gap-2 text-main"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-red-500" />
+                          {task.title}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : nextTask ? (
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-main">
+                        {nextTask.title}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted">No upcoming tasks</p>
                   )}
                 </div>
-                <p className="text-xs text-muted mt-1">
-                  {completedTasks} of {pageTasks} visible tasks done (
-                  {completionPercent}%)
-                </p>
-              </div>
 
-              {/* Divider */}
-              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+                {/* Divider */}
+                <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
 
-              {/* Upcoming Deadlines */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Upcoming Deadlines
-                </h3>
-                {upcomingDeadlines.length ? (
-                  <ul className="space-y-2 text-sm">
-                    {upcomingDeadlines.slice(0, 3).map((task) => (
-                      <li
-                        key={task._id}
-                        className="flex items-center gap-2 text-main"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-red-500" />
-                        {task.title}
-                      </li>
-                    ))}
-                  </ul>
-                ) : nextTask ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-main">
-                      {nextTask.title}
-                    </p>
-                    <p className="text-xs text-muted">
-                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted">No upcoming tasks</p>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
-
-              {/* Priority Load */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Priority Load
-                </h3>
-                <div
-                  className={`rounded-lg p-4 ${
-                    isOverloaded
+                {/* Priority Load */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Priority Load
+                  </h3>
+                  <div
+                    className={`rounded-lg p-4 ${isOverloaded
                       ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
                       : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-                  }`}
-                >
-                  <p className="text-sm font-medium">
-                    {isOverloaded
-                      ? "Too many high-priority tasks"
-                      : "Priority load is healthy"}
-                  </p>
-                  <p className="text-xs mt-1 opacity-80">
-                    {isOverloaded
-                      ? "Consider rescheduling or delegating."
-                      : "You're pacing this well."}
-                  </p>
+                      }`}
+                  >
+                    <p className="text-sm font-medium">
+                      {isOverloaded
+                        ? "Too many high-priority tasks"
+                        : "Priority load is healthy"}
+                    </p>
+                    <p className="text-xs mt-1 opacity-80">
+                      {isOverloaded
+                        ? "Consider rescheduling or delegating."
+                        : "You're pacing this well."}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           )}
         </div>
       </div>
@@ -638,38 +609,34 @@ export default function Tasks() {
       {durationModalTask && (
         <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50">
           <div className="bg-(--surface) text-main rounded-2xl shadow-xl w-full max-w-sm p-6 border border-soft">
-            <h2 className="text-xl font-semibold text-main mb-2">Complete Task</h2>
-
-            <p className="text-sm text-muted mb-4">
-              How long did you actually take to complete "{durationModalTask.title}"?
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold mb-2 text-black/90">
+            <h2 className="text-xl font-semibold text-main mb-2">
               Complete Task
             </h2>
 
-            <p className="text-sm mb-4 text-black">
-              How long did you actually take to complete "
-              {durationModalTask.title}"?
+            <p className="text-sm text-muted mb-4">
+              How long did you actually take to complete "{durationModalTask.title}"?
             </p>
+
             <input
               type="number"
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg text-black"
+              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted"
               placeholder="Actual duration in minutes"
             />
+
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
+                className="px-4 py-2 rounded-lg border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleActualDurationSubmit}
                 className="btn btn-primary px-4 py-2"
