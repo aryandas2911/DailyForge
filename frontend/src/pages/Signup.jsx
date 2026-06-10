@@ -99,6 +99,28 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const getPasswordStrength = (password) => {
+  if (!password) return null;
+
+  let score = 0;
+
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 2)
+    return { text: "Weak", color: "text-red-500" };
+
+  if (score <= 4)
+    return { text: "Medium", color: "text-yellow-500" };
+
+  return { text: "Strong", color: "text-green-500" };
+};
+
+const passwordStrength = getPasswordStrength(password);
+
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
 
@@ -399,8 +421,21 @@ const Signup = () => {
               </button>
             </div>
             {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
-            )}
+  <span className="text-red-500 text-xs">{errors.password}</span>
+)}
+
+<p className="text-xs text-gray-500">
+  Use at least 8 characters, including 1 uppercase letter,
+  1 lowercase letter, 1 number, and 1 special character.
+</p>
+
+{passwordStrength && (
+  <span
+    className={`text-xs font-medium ${passwordStrength.color}`}
+  >
+    Password Strength: {passwordStrength.text}
+  </span>
+)}
           </div>
 
           {/* Confirm Password */}
