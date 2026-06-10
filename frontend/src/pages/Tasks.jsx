@@ -225,11 +225,10 @@ export default function Tasks() {
 
             <button
               onClick={() => setIsNotesOpen(!isNotesOpen)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${
-                isNotesOpen
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${isNotesOpen
                   ? "bg-primary text-white border-transparent"
                   : "bg-white dark:bg-slate-800 text-main border-soft hover:bg-gray-50 dark:hover:bg-slate-700"
-              }`}
+                }`}
               style={isNotesOpen ? { backgroundColor: "var(--primary)" } : {}}
             >
               {isNotesOpen ? <X size={18} /> : <StickyNote size={18} />}
@@ -250,12 +249,29 @@ export default function Tasks() {
             </button>
 
             {/* Notes Popover */}
-            {isNotesOpen && (
-              <div className="absolute top-full right-0 mt-3 z-50 w-80 md:w-96 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-4 border border-gray-100 dark:border-slate-800">
-                <NotesWidget />
-              </div>
-            )}
           </div>
+{isNotesOpen && (
+  <>
+    {/* Mobile View - No Overlap */}
+    <div className="block md:hidden w-full mt-4">
+      <NotesWidget />
+    </div>
+
+    {/* Desktop View - Popover */}
+    <div
+      className="
+        hidden md:block
+        absolute top-full right-0 mt-3 z-50
+        w-96
+        bg-white dark:bg-slate-900
+        shadow-2xl rounded-2xl overflow-hidden
+        border border-gray-100 dark:border-slate-800
+      "
+    >
+      <NotesWidget />
+    </div>
+  </>
+)}
         </div>
 
         {/* Bulk Edit Panel */}
@@ -326,22 +342,20 @@ export default function Tasks() {
               <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    viewMode === "list"
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "list"
                       ? "bg-white dark:bg-slate-700 shadow-sm text-main"
                       : "text-muted hover:text-main"
-                  }`}
+                    }`}
                 >
                   <LayoutList size={16} />
                   <span className="hidden sm:inline">List</span>
                 </button>
                 <button
                   onClick={() => setViewMode("board")}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    viewMode === "board"
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "board"
                       ? "bg-white dark:bg-slate-700 shadow-sm text-main"
                       : "text-muted hover:text-main"
-                  }`}
+                    }`}
                 >
                   <Kanban size={16} />
                   <span className="hidden sm:inline">Board</span>
@@ -379,11 +393,10 @@ export default function Tasks() {
                   <button
                     key={tagName}
                     onClick={() => toggleCategoryFilter(tagName)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                      isSelected
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${isSelected
                         ? "ring-2 ring-offset-1"
                         : "opacity-60 hover:opacity-100"
-                    }`}
+                      }`}
                     style={{
                       backgroundColor: cat.bgColor,
                       color: cat.color,
@@ -472,90 +485,89 @@ export default function Tasks() {
           {/* Insights Sidebar - Only show in list view for better board space */}
           {viewMode === "list" && (
             <div className="hidden lg:flex flex-col gap-6 animate-in delay-300">
-            {/* Unified Insights Card */}
-            <div className="card p-6 shadow-sm flex flex-col gap-6">
-              {/* Completion */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Completion
-                </h3>
-                <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  {completionPercent > 0 && (
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
-                      style={{ width: `${completionPercent}%` }}
-                    />
+              {/* Unified Insights Card */}
+              <div className="card p-6 shadow-sm flex flex-col gap-6">
+                {/* Completion */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Completion
+                  </h3>
+                  <div className="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    {completionPercent > 0 && (
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
+                        style={{ width: `${completionPercent}%` }}
+                      />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted mt-1">
+                    {completedTasks} of {pageTasks} visible tasks done (
+                    {completionPercent}%)
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+
+                {/* Upcoming Deadlines */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Upcoming Deadlines
+                  </h3>
+                  {upcomingDeadlines.length ? (
+                    <ul className="space-y-2 text-sm">
+                      {upcomingDeadlines.slice(0, 3).map((task) => (
+                        <li
+                          key={task._id}
+                          className="flex items-center gap-2 text-main"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-red-500" />
+                          {task.title}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : nextTask ? (
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-main">
+                        {nextTask.title}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted">No upcoming tasks</p>
                   )}
                 </div>
-                <p className="text-xs text-muted mt-1">
-                  {completedTasks} of {pageTasks} visible tasks done (
-                  {completionPercent}%)
-                </p>
-              </div>
 
-              {/* Divider */}
-              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
+                {/* Divider */}
+                <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
 
-              {/* Upcoming Deadlines */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Upcoming Deadlines
-                </h3>
-                {upcomingDeadlines.length ? (
-                  <ul className="space-y-2 text-sm">
-                    {upcomingDeadlines.slice(0, 3).map((task) => (
-                      <li
-                        key={task._id}
-                        className="flex items-center gap-2 text-main"
-                      >
-                        <span className="w-2 h-2 rounded-full bg-red-500" />
-                        {task.title}
-                      </li>
-                    ))}
-                  </ul>
-                ) : nextTask ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-main">
-                      {nextTask.title}
+                {/* Priority Load */}
+                <div>
+                  <h3 className="text-lg font-semibold text-main mb-2">
+                    Priority Load
+                  </h3>
+                  <div
+                    className={`rounded-lg p-4 ${isOverloaded
+                        ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
+                        : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
+                      }`}
+                  >
+                    <p className="text-sm font-medium">
+                      {isOverloaded
+                        ? "Too many high-priority tasks"
+                        : "Priority load is healthy"}
                     </p>
-                    <p className="text-xs text-muted">
-                      Due on {new Date(nextTask.dueDate).toLocaleDateString()}
+                    <p className="text-xs mt-1 opacity-80">
+                      {isOverloaded
+                        ? "Consider rescheduling or delegating."
+                        : "You're pacing this well."}
                     </p>
                   </div>
-                ) : (
-                  <p className="text-xs text-muted">No upcoming tasks</p>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-gray-100 dark:bg-slate-800 w-full" />
-
-              {/* Priority Load */}
-              <div>
-                <h3 className="text-lg font-semibold text-main mb-2">
-                  Priority Load
-                </h3>
-                <div
-                  className={`rounded-lg p-4 ${
-                    isOverloaded
-                      ? "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400"
-                      : "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400"
-                  }`}
-                >
-                  <p className="text-sm font-medium">
-                    {isOverloaded
-                      ? "Too many high-priority tasks"
-                      : "Priority load is healthy"}
-                  </p>
-                  <p className="text-xs mt-1 opacity-80">
-                    {isOverloaded
-                      ? "Consider rescheduling or delegating."
-                      : "You're pacing this well."}
-                  </p>
                 </div>
               </div>
             </div>
-          </div>
           )}
         </div>
       </div>
