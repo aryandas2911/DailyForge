@@ -76,7 +76,12 @@ const Login = () => {
       navigate(redirectPath, { replace: true });
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || err.message || "Failed to log in with Google.");
+
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to log in with Google."
+      );
     } finally {
       setIsGoogleLoading(false);
     }
@@ -93,7 +98,7 @@ const Login = () => {
         setTempUserId(res.data.tempUserId);
         return;
       }
-      const me = await api.get("/auth/user");
+      const me = await api.get("/auth/me");
       setUser(me.data.user);
       navigate(redirectPath, { replace: true });
     } catch (error) {
@@ -108,7 +113,7 @@ const Login = () => {
     setError("");
     try {
       await api.post("/auth/login-2fa", { tempUserId, token: totpCode });
-      const me = await api.get("/auth/user");
+      const me = await api.get("/auth/me");
       setUser(me.data.user);
       navigate(redirectPath, { replace: true });
     } catch (error) {
