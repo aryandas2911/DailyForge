@@ -166,3 +166,9 @@ input::-webkit-credentials-type-password-toggle {
     border-color 0.25s ease,
     color 0.25s ease;
   }
+
+  footer {
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+}
