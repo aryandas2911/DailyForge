@@ -7,13 +7,8 @@ on:
     branches: ["main"]
 
 jobs:
-  ci:
+  backend:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18]
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -21,11 +16,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: "npm"
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install Backend Dependencies
         working-directory: backend
@@ -35,6 +28,23 @@ jobs:
         working-directory: backend
         run: npm run lint
 
+      - name: Backend Tests
+        working-directory: backend
+        run: npm test --if-present
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci
@@ -42,10 +52,6 @@ jobs:
       - name: Lint Frontend
         working-directory: frontend
         run: npm run lint
-
-      - name: Backend Tests
-        working-directory: backend
-        run: npm test --if-present
 
       - name: Frontend Tests
         working-directory: frontend
