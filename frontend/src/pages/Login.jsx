@@ -34,6 +34,7 @@ const Login = () => {
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [totpCode, setTotpCode] = useState("");
   const [tempUserId, setTempUserId] = useState(null);
+  const [slowLoad, setSlowLoad] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -42,6 +43,15 @@ const Login = () => {
 
   // useContext for auth
   const { setUser } = useContext(AuthContext);
+// Show cold start warning if API takes more than 3 seconds
+  useEffect(() => {
+  if (!isSubmitLoading && !isGoogleLoading) {
+    setSlowLoad(false);
+    return;
+  }
+  const timer = setTimeout(() => setSlowLoad(true), 3000);
+  return () => clearTimeout(timer);
+}, [isSubmitLoading, isGoogleLoading]);
 
   const handleMouseMove = (e) => {
     const card = cardRef.current;
@@ -225,6 +235,11 @@ cursor-pointer
             Don&apos;t have an account?{" "}
             <Link to="/signup" className="text-main font-semibold hover:underline">Sign up</Link>
           </p>
+          {slowLoad && (
+            <p className="text-center text-sm text-yellow-400/80 mt-1">
+              ⏳ Waking up the server — this may take up to 60 seconds on first load...
+            </p>
+          )}
         </form>
       </div>
     </div>
