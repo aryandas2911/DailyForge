@@ -33,6 +33,13 @@ const ScrollToTop = () => {
     };
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  }, [location.pathname]);
+
   // Don't render the button if we are on the login page
   // Force the button to always show on the Tasks page so it's never hidden
   const isTasksPage = location.pathname === "/tasks";
@@ -45,7 +52,7 @@ const ScrollToTop = () => {
       {shouldShow && (
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[var(--text-main)] text-white shadow-lg hover:bg-[var(--primary)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
+          className="p-3 rounded-full bg-[var(--primary)] text-white shadow-lg border border-white/10 dark:border-slate-700 hover:bg-[var(--primary-hover)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           aria-label="Scroll to top"
         >
           <ArrowUp size={24} />
