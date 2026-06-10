@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import {
@@ -36,11 +37,18 @@ export const createRoutine = async (req, res) => {
       });
     }
 
-    // calculate endtime for each task
-    const formatted = [];
+    // validate each item: taskId format, duration minimum
+    const dayGroups = {};
     for (const item of items) {
+      // validate taskId is a proper MongoDB ObjectId before attempting DB save
+      if (!mongoose.Types.ObjectId.isValid(item.taskId)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid taskId: ${item.taskId}`,
+        });
+      }
 
-      // check duration greater than 10 mins
+      // check duration is at least 10 mins
       if (!item.duration || item.duration < 10) {
         return res.status(400).json({
           success: false,
@@ -48,33 +56,16 @@ export const createRoutine = async (req, res) => {
         });
       }
 
+      // compute endTime inline and group by day for overlap check
       const startTime = Number(item.startTime);
-const duration = Number(item.duration);
-const endTime = startTime + duration;
-      formatted.push({
-        day: item.day,
-        startTime: item.startTime,
-        endTime: endTime,
-      });
+      const endTime = startTime + Number(item.duration);
+      if (!dayGroups[item.day]) dayGroups[item.day] = [];
+      dayGroups[item.day].push({ startTime, endTime });
     }
 
-    // group tasks by day
-    const dayGroups = {};
-    for (const task of formatted) {
-      if (!dayGroups[task.day]) {
-        dayGroups[task.day] = [];
-      }
-      dayGroups[task.day].push(task);
-    }
-
-    // loop through each day
+    // check for overlapping tasks within each day
     for (const day in dayGroups) {
-      const tasks = dayGroups[day];
-
-      // sort tasks by start time
-      tasks.sort((a, b) => a.startTime - b.startTime);
-
-      // compare each task with next task
+      const tasks = dayGroups[day].sort((a, b) => a.startTime - b.startTime);
       if (checkOverlap(tasks)) {
         return res.status(400).json({
           success: false,
@@ -299,10 +290,18 @@ const updates = {
     const routineId = req.params.id;
 
     if (updates.items) {
-      // calculate endtime for each task
-      const formatted = [];
+      // validate each item: taskId format, duration minimum, and overlap check
+      const dayGroups = {};
       for (const item of updates.items) {
-        // check duration greater than 10 mins
+        // validate taskId is a proper MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(item.taskId)) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid taskId: ${item.taskId}`,
+          });
+        }
+
+        // check duration is at least 10 mins
         if (!item.duration || item.duration < 10) {
           return res.status(400).json({
             success: false,
@@ -310,33 +309,16 @@ const updates = {
           });
         }
 
+        // compute endTime inline and group by day for overlap check
         const startTime = Number(item.startTime);
-        const duration = Number(item.duration);
-        const endTime = startTime + duration;
-        formatted.push({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: endTime,
-        });
+        const endTime = startTime + Number(item.duration);
+        if (!dayGroups[item.day]) dayGroups[item.day] = [];
+        dayGroups[item.day].push({ startTime, endTime });
       }
 
-      // group tasks by day
-      const dayGroups = {};
-      for (const task of formatted) {
-        if (!dayGroups[task.day]) {
-          dayGroups[task.day] = [];
-        }
-        dayGroups[task.day].push(task);
-      }
-
-      // loop through each day
+      // check for overlapping tasks within each day
       for (const day in dayGroups) {
-        const tasks = dayGroups[day];
-
-        // sort tasks by start time
-        tasks.sort((a, b) => a.startTime - b.startTime);
-
-        // compare each task with next task
+        const tasks = dayGroups[day].sort((a, b) => a.startTime - b.startTime);
         if (checkOverlap(tasks)) {
           return res.status(400).json({
             success: false,
