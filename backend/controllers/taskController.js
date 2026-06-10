@@ -72,12 +72,7 @@ export const getTasks = async (req, res) => {
 
     // fetch tasks from database
     const tasks = await Task.find({ userId: userId }).sort({ createdAt: -1 });
-    if (tasks.length == 0) {
-      return res
-        .status(400)
-        .json({ message: "User has no task", success: false });
-    }
-    return res.status(200).json({ success: true, tasks });
+    return res.status(200).json({ success: true, tasks: tasks || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching tasks", error);
@@ -121,10 +116,12 @@ export const updateTask = async (req, res) => {
     );
     if (!updatedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Task updated successfully",
       task: updatedTask,
     });
@@ -153,16 +150,18 @@ export const deleteTask = async (req, res) => {
     const taskId = req.params.id;
 
     // fetch task to be deleted from database
-    const deleteTask = await Task.findOneAndDelete({
+    const deletedTask = await Task.findOneAndDelete({
       _id: taskId,
       userId: userId,
     });
-    if (!deleteTask) {
+    if (!deletedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Task deleted successfully",
     });
   } catch (error) {
