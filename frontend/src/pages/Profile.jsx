@@ -1,15 +1,220 @@
-import { useContext, useState } from 'react';
+import {useState,useRef,useEffect,useContext} from "react";
+import {Eye,EyeOff} from "lucide-react";
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 
+//Change Password Card 
+function ChangePasswordCard({onUpdatePassword}){
+  //field values
+  const[currentPassword,setCurrentPassword]=useState("");
+  const[newPassword,setNewPassword]=useState("");
+  const[confirmPassword,setConfirmPassword]=useState("");
+
+  //visibility states
+  const[showCurrent,setShowCurrent]=useState(false);
+  const[showNew,setShowNew]=useState(false);
+  const[showConfirm,setShowConfirm]=useState(false);
+
+  //validation
+  const[confirmTouched,setConfirmTouched]=useState(false);
+  const[submitAttempted,setsubmitAttempted]=useState(false);
+
+  //timeout references for auto-remasking
+  const timerCurrent=useRef(null);
+  const timerNew=useRef(null);
+  const timerConfirm =useRef(null);
+
+  useEffect(()=>{
+    return() =>{
+     clearTimeout(timerCurrent.current);
+     clearTimeout(timerNew.current);
+     clearTimeout(timerConfirm.current);
+    };
+  },[]);
+
+//generic helpers
+function startAutoHideTimer(setShow,timerRef)
+{
+  clearTimeout(timerRef.current);
+  timerRef.current=setTimeout(()=>setShow(false),5000);
+}
+
+function handleToggle(e,show,setShow,timerRef)
+{
+  e.preventDefault();
+  const next=!show;
+  setShow(next);
+  if(next){
+   startAutoHideTimer(setShow,timerRef);
+  }
+  else
+  {
+    clearTimeout(timerRef.current);
+  }
+}
+
+  function handleBlur(setShow, timerRef) {
+    setShow(false);
+    clearTimeout(timerRef.current);
+  }
+
+  //validation
+  const passwordsMatch = newPassword === confirmPassword;
+  const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
+
+  function handleSubmit() {
+    setSubmitAttempted(true);
+    if (!passwordsMatch) return;
+    onUpdatePassword?.({ currentPassword, newPassword });
+  }
+
+  //resuable eye toggle button
+  function EyeButton({show,setShow,timerRef})
+  {
+    return(
+      <button type="button"
+      tabIndex={-1}
+      onMouseDown={(e) => handleToggle(e,show,setShow,timerRef)}
+      style={{
+          position: "absolute",
+          right: "12px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px",
+          color: "#6b7280",
+          display: "flex",
+          alignItems: "center", 
+      }}
+      aria-label={show ? "Hide password" : "Show password"}
+      >
+      {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    );
+  }
+
+  //shared input wrapper style
+  const inputWrapperStyle = { position: "relative", display: "flex", alignItems: "center" };
+  const inputStyle = {
+    width: "100%",
+    padding: "10px 40px 10px 12px",
+    border: "1.5px solid #cbd5e1",
+    borderRadius: "8px",
+    fontSize: "14px",
+    outline: "none",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+  };
+
+  return(
+<div style={{
+  background :"#fff",
+  borderRadius: "12px",
+  border: "1px solid #e2e8f0",
+  padding: "28px",
+  flex: 1,
+}}>
+      <h2 style={{ margin: "0 0 4px", fontSize: "18px", fontWeight: 700, color: "#1e293b" }}>
+        Change Password
+      </h2>
+      <p style={{ margin: "0 0 20px", fontSize: "13px", color: "#3b82f6" }}>
+        Update your password to keep your account secure
+      </p>
+
+  
+      {/* current Password */}
+      <label style={labelStyle}>Current Password</label>
+      <div style={inputWrapperStyle}>
+        <input
+          type={showCurrent ? "text" : "password"}
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
+          style={inputStyle}
+          placeholder="Enter current password"
+        />
+        <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
+      </div>
+
+      {/* new Password */}
+      <label style={{ ...labelStyle, marginTop: "16px" }}>New Password</label>
+      <div style={inputWrapperStyle}>
+        <input
+          type={showNew ? "text" : "password"}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          onBlur={() => handleBlur(setShowNew, timerNew)}
+          style={inputStyle}
+          placeholder="Enter new password"
+        />
+        <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
+      </div>
+
+      {/* confirm New Password */}
+      <label style={{ ...labelStyle, marginTop: "16px" }}>Confirm New Password</label>
+      <div style={inputWrapperStyle}>
+        <input
+          type={showConfirm ? "text" : "password"}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          onBlur={() => {
+            setConfirmTouched(true);
+            handleBlur(setShowConfirm, timerConfirm);
+          }}
+          style={{
+            ...inputStyle,
+            borderColor: showMatchError ? "#ef4444" : "#cbd5e1",
+          }}
+          placeholder="Re-enter new password"
+        />
+        <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
+
+</div>
+{/* inline match error */}
+      {showMatchError && (
+        <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#ef4444" }}>
+          Passwords do not match
+        </p>
+      )}
+
+      {/* submit */}
+      <button
+        type="button"
+        onClick={handleSubmit}
+        style={{
+          marginTop: "20px",
+          width: "100%",
+          padding: "12px",
+          background: "#3b82f6",
+          color: "#fff",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "15px",
+          fontWeight: 600,
+          cursor: "pointer",
+        }}
+      >
+        Update Password
+      </button>
+    </div>
+  );
+}
+
+const labelStyle = {
+  display: "block",
+  fontSize: "14px",
+  fontWeight: 500,
+  color: "#374151",
+  marginBottom: "6px",
+};
+
 const Profile = () => {
-  // auth context
   const { user, setUser } = useContext(AuthContext);
 
   // states
   const [name, setName] = useState(user?.name || '');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
 
   // update name handler
@@ -17,36 +222,28 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const res = await api.put('/auth/update-profile', {
-        name,
-      });
-
+      const res = await api.put('/auth/update-profile', {name,});
       // update user in context
       setUser(res.data.user);
-
       alert(res.data.message);
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update name');
+      alert(error.response?.data?.message || 'Failed To Update Name');
     }
   };
 
   // update password handler
-  const handlePasswordUpdate = async (e) => {
-    e.preventDefault();
-
-    try {
+  const handlePasswordUpdate = async ({currentPassword,newPassword}) => {
+    try
+    {
       const res = await api.put('/auth/update-profile', {
         currentPassword,
         newPassword,
       });
-
       alert(res.data.message);
-
-      // clear password fields
-      setCurrentPassword('');
-      setNewPassword('');
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update password');
+    }
+    catch (error)
+    {
+      alert(error.response?.data?.message || 'Failed To Update Password');
     }
   };
 
@@ -54,29 +251,29 @@ const Profile = () => {
   const handleThemeUpdate = async (e) => {
     e.preventDefault();
 
-    try {
-      const res = await api.put('/auth/update-profile', {
-        primaryColor,
-      });
-
+    try
+    {
+      const res = await api.put('/auth/update-profile', {primaryColor});
       setUser(res.data.user);
-      alert('Theme updated successfully');
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update theme');
+      alert('Theme Updated Successfully');
+    }
+    catch (error)
+    {
+      alert(error.response?.data?.message || 'Failed To Update Theme');
     }
   };
 
   // reset theme handler
   const handleThemeReset = async () => {
-    try {
-      const res = await api.put('/auth/update-profile', {
-        primaryColor: '#4eb7b3',
-      });
-
+    try
+    {
+      const res = await api.put('/auth/update-profile', {primaryColor: '#4eb7b3'});
       setUser(res.data.user);
       setPrimaryColor('#4eb7b3');
-      alert('Theme reset successfully');
-    } catch (error) {
+      alert('Theme Reset Successfully');
+    } 
+    catch (error)
+    {
       alert(error.response?.data?.message || 'Failed to reset theme');
     }
   };
@@ -180,95 +377,8 @@ const Profile = () => {
           </form>
 
           {/* Password Section */}
-
-          <form
-            onSubmit={handlePasswordUpdate}
-            className="
-  flex flex-col gap-5
-  border-soft rounded-2xl
-  p-6
-"
-          >
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-main">
-                Change Password
-              </h2>
-
-              <p className="text-sm text-muted">
-                Update your password to keep your account secure
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="currentPassword"
-                className="text-sm font-medium text-main"
-              >
-                Current Password
-              </label>
-
-              <input
-                type="password"
-                id="currentPassword"
-                value={currentPassword}
-                onChange={(e) => {
-                  setCurrentPassword(e.target.value);
-                }}
-                placeholder="Enter current password"
-                required
-                className="
-              w-full px-3 py-2.5
-              text-sm
-              surface-bg
-              border-soft
-              rounded-sm
-              shadow-xs
-              input-focus hover-lift
-            "
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="newPassword"
-                className="text-sm font-medium text-main"
-              >
-                New Password
-              </label>
-
-              <input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => {
-                  setNewPassword(e.target.value);
-                }}
-                placeholder="Enter new password"
-                required
-                className="
-              w-full px-3 py-2.5
-              text-sm
-              surface-bg
-              border-soft
-              rounded-sm
-              shadow-xs
-              input-focus hover-lift
-            "
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="
-            btn btn-primary
-            cursor-pointer
-            w-full
-          "
-            >
-              Update Password
-            </button>
-          </form>
-
+          <ChangePasswordCard onUpdatePassword={handlePasswordUpdate} />
+         
           {/* Theme Section */}
 
           <form
