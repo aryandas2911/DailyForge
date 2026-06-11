@@ -28,6 +28,16 @@ const taskValidationRules = [
     .optional()
     .trim()
     .escape(),
+
+  body("priority")
+    .trim()
+    .isIn(["Low", "Medium", "High"])
+    .withMessage("Priority must be Low, Medium, or High"),
+
+  body("status")
+    .trim()
+    .isIn(["Due", "Completed"])
+    .withMessage("Status must be Due or Completed"),
 ];
 
 // Partial updates (e.g. status toggle) — only validate fields that are sent
