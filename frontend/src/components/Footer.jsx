@@ -11,9 +11,10 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="app-bg text-main mt-16 border-t border-soft">
+    // Changed to a deep dark shade of your theme's green for better contrast
+    <footer className="bg-[#0f2926] text-white border-t border-[#4eb7b3]/30">
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
-        
+
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
 
@@ -33,10 +34,10 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex gap-3">
-              <a 
-                href={githubBase} 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href={githubBase}
+                target="_blank"
+                rel="noreferrer"
                 aria-label="DailyForge GitHub repository"
                 title="DailyForge GitHub repository"
                 className="p-2 bg-white/30 dark:bg-white/5 rounded-lg text-primary hover:bg-primary hover:text-white transition-all border border-soft"
@@ -96,9 +97,9 @@ export default function Footer() {
             </h3>
             <div className="flex flex-wrap gap-2">
               {['React', 'Tailwind', 'Node.js', 'MongoDB'].map((tech) => (
-                <span 
-                  key={tech} 
-                  className="bg-white/40 dark:bg-white/5 border border-soft px-3 py-1 rounded-md text-[11px] font-medium text-[var(--text-main)]"
+                <span
+                  key={tech}
+                  className="bg-white/5 border border-white/10 px-3 py-1 rounded-md text-[11px] font-medium text-[#6dd5c7]"
                 >
                   {tech}
                 </span>
@@ -110,8 +111,8 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-soft flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-muted">
           <p>© 2026 DailyForge. All rights reserved.</p>
-          
-          <div className="flex items-center gap-2 bg-white/40 dark:bg-white/5 px-4 py-2 rounded-full border border-soft">
+
+          <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
             <span>Built with</span>
             <Heart size={14} className="text-red-400 fill-red-400 animate-pulse" />
             <span>for</span>
