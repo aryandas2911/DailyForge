@@ -11,6 +11,7 @@ const TITLE_WARNING_LENGTH = 25;
 
 export default function TaskFormModal({
   task,
+  tasks = [],
   onClose,
   onSubmit,
   errorMessage,
@@ -22,6 +23,7 @@ export default function TaskFormModal({
   const [priority, setPriority] = useState("Low");
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
+  const [dependsOn, setDependsOn] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showOtherInput, setShowOtherInput] = useState(false);
@@ -51,6 +53,7 @@ export default function TaskFormModal({
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
+      setDependsOn(task.dependsOn?._id || "");
       if (task?.dueDate) {
         const dt = new Date(task.dueDate);
 
@@ -129,6 +132,7 @@ export default function TaskFormModal({
           priority,
           status: task ? task.status : "Due",
           dueDate: `${dueDate}T${dueTime}:00`,
+          dependsOn,
         }),
       );
     } finally {
@@ -360,6 +364,41 @@ export default function TaskFormModal({
                 ))}
               </select>
             </div>
+
+            {/* Depends On */}
+<div>
+  <label className="text-sm font-medium text-main">
+    Depends On
+  </label>
+
+  <select
+    value={dependsOn}
+    onChange={(e) => setDependsOn(e.target.value)}
+    disabled={isSubmitting}
+    className="w-full mt-1 p-2 border border-soft rounded-lg
+               focus:ring-(--primary) focus:border-(--primary)
+               bg-transparent text-main dark:bg-slate-800"
+  >
+    <option value="">No Dependency</option>
+
+   {tasks
+  .filter((t) => t._id !== task?._id)
+  .map((t) => (
+    <option
+      key={t._id}
+      value={t._id}
+      className="dark:bg-slate-800"
+    >
+      {t.title}
+    </option>
+  ))}
+
+  </select>
+
+  <p className="text-xs text-muted mt-1">
+    Select a prerequisite task
+  </p>
+</div>
 
             {/* Due Date */}
             <div>
