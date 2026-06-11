@@ -440,10 +440,26 @@ export default function Tasks() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4 animate-in delay-200">
             {filteredTasks.length ? (
-              filteredTasks.map((task) => (
-                <TaskItem
-                  key={task._id}
-                  task={task}
+              viewMode === "list" ? (
+                filteredTasks.map((task) => (
+                  <TaskItem
+                    key={task._id}
+                    task={task}
+                    onToggleComplete={handleToggle}
+                    onDelete={(id) => deleteTask(id)}
+                    onEdit={(task) => {
+                      setEditingTask(task);
+                      setIsModalOpen(true);
+                    }}
+                    onUpdate={updateTask}
+                    isSelected={selectedIds.includes(task._id)}
+                    onSelect={handleSelect}
+                  />
+                ))
+              ) : (
+                <KanbanBoard
+                  viewmode="board"
+                  tasks={filteredTasks}
                   onToggleComplete={handleToggle}
                   onDelete={(id) => deleteTask(id)}
                   onEdit={(task) => {
