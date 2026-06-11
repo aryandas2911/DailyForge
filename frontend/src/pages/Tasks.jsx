@@ -420,6 +420,7 @@ export default function Tasks() {
                 ))
               ) : (
                 <KanbanBoard
+                  viewmode="board"
                   tasks={filteredTasks}
                   onToggleComplete={handleToggle}
                   onDelete={(id) => deleteTask(id)}
