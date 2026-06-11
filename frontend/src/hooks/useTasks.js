@@ -19,37 +19,40 @@ const useTasks = ({
   });
 
   // fetch tasks from database
-  const getTasks = useCallback(async (pageToFetch = page) => {
-    try {
-      setLoading(true);
-      const response = await api.get("/tasks", {
-        params: {
-          page: pageToFetch,
-          limit: initialLimit,
-        },
-      });
-      const data = response.data;
-      const totalPages = data.totalPages || 0;
+  const getTasks = useCallback(
+    async (pageToFetch = page) => {
+      try {
+        setLoading(true);
+        const response = await api.get("/tasks", {
+          params: {
+            page: pageToFetch,
+            limit: initialLimit,
+          },
+        });
+        const data = response.data;
+        const totalPages = data.totalPages || 0;
 
-      if (totalPages > 0 && pageToFetch > totalPages) {
-        setPage(totalPages);
-        return;
+        if (totalPages > 0 && pageToFetch > totalPages) {
+          setPage(totalPages);
+          return;
+        }
+
+        setTasks(data.tasks || []);
+        setPagination({
+          totalTasks: data.totalTasks || 0,
+          totalPages,
+          currentPage: data.currentPage || pageToFetch,
+          limit: data.limit || initialLimit,
+        });
+      } catch (error) {
+        console.log(error?.response?.data?.message || "Failed to load tasks");
+        setTasks([]);
+      } finally {
+        setLoading(false);
       }
-
-      setTasks(data.tasks || []);
-      setPagination({
-        totalTasks: data.totalTasks || 0,
-        totalPages,
-        currentPage: data.currentPage || pageToFetch,
-        limit: data.limit || initialLimit,
-      });
-    } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to load tasks");
-      setTasks([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [initialLimit, page]);
+    },
+    [initialLimit, page],
+  );
 
   // create new task
   const addTask = async (taskData) => {
@@ -66,7 +69,9 @@ const useTasks = ({
     } catch (error) {
       console.log("FULL ERROR:", error);
       console.log(
-        error?.response?.data?.message || error?.response?.data || error.message
+        error?.response?.data?.message ||
+          error?.response?.data ||
+          error.message,
       );
       alert(error?.response?.data?.message || "Failed to create task");
       throw error;
@@ -76,7 +81,7 @@ const useTasks = ({
   // update task
   const updateTask = async (id, updates) => {
     setTasks((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, ...updates } : t))
+      prev.map((t) => (t._id === id ? { ...t, ...updates } : t)),
     );
 
     try {
@@ -109,7 +114,6 @@ const useTasks = ({
 
   // initial fetch
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     getTasks();
   }, [getTasks]);
 
