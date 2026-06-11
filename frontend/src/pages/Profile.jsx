@@ -1,160 +1,152 @@
-import {useState,useRef,useEffect,useContext} from "react";
-import {Eye,EyeOff} from "lucide-react";
+import { useState, useRef, useEffect, useCallback, useContext } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import axios from "../api/axios";
 import { AuthContext } from '../context/AuthContext';
-import api from '../api/axios';
 
-//Change Password Card 
-function ChangePasswordCard({onUpdatePassword}){
-  //field values
-  const[currentPassword,setCurrentPassword]=useState("");
-  const[newPassword,setNewPassword]=useState("");
-  const[confirmPassword,setConfirmPassword]=useState("");
+// toast popup component - shows at bottom right
+function Toast({ message, type }) {
+  if (!message) return null;
+  const base =
+    "fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300";
+  const color = type === "success" ? "bg-green-500" : "bg-red-500";
+  return <div className={`${base} ${color}`}>{message}</div>;
+}
 
-  //visibility states
-  const[showCurrent,setShowCurrent]=useState(false);
-  const[showNew,setShowNew]=useState(false);
-  const[showConfirm,setShowConfirm]=useState(false);
+// component for the change password card
+// gets apiError and resetKey passed down from Profile
+function ChangePasswordCard({ onUpdatePassword, onClearError, apiError, resetKey }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  //validation
-  const[confirmTouched,setConfirmTouched]=useState(false);
-  const[submitAttempted,setsubmitAttempted]=useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  //timeout references for auto-remasking
-  const timerCurrent=useRef(null);
-  const timerNew=useRef(null);
-  const timerConfirm =useRef(null);
+  const [confirmTouched, setConfirmTouched] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  useEffect(()=>{
-    return() =>{
-     clearTimeout(timerCurrent.current);
-     clearTimeout(timerNew.current);
-     clearTimeout(timerConfirm.current);
+  const timerCurrent = useRef(null);
+  const timerNew = useRef(null);
+  const timerConfirm = useRef(null);
+
+  // reset fields when parent increments resetKey (i.e. after successful update)
+  useEffect(() => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowCurrent(false);
+    setShowNew(false);
+    setShowConfirm(false);
+    setConfirmTouched(false);
+    setSubmitAttempted(false);
+  }, [resetKey]);
+
+  // clear timers when unmounting
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerCurrent.current);
+      clearTimeout(timerNew.current);
+      clearTimeout(timerConfirm.current);
     };
-  },[]);
+  }, []);
 
-//generic helpers
-function startAutoHideTimer(setShow,timerRef)
-{
-  clearTimeout(timerRef.current);
-  timerRef.current=setTimeout(()=>setShow(false),5000);
-}
-
-function handleToggle(e,show,setShow,timerRef)
-{
-  e.preventDefault();
-  const next=!show;
-  setShow(next);
-  if(next){
-   startAutoHideTimer(setShow,timerRef);
-  }
-  else
-  {
+  function startAutoHide(setShow, timerRef) {
     clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setShow(false), 5000);
   }
-}
+
+  // toggle eye icon - preventDefault stops the blur firing before the toggle registers
+  function handleToggle(e, show, setShow, timerRef) {
+    e.preventDefault();
+    const next = !show;
+    setShow(next);
+    if (next) startAutoHide(setShow, timerRef);
+    else clearTimeout(timerRef.current);
+  }
 
   function handleBlur(setShow, timerRef) {
     setShow(false);
     clearTimeout(timerRef.current);
   }
 
-  //validation
   const passwordsMatch = newPassword === confirmPassword;
   const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
 
+  // console.log("passwords match:", passwordsMatch);
+
   function handleSubmit() {
     setSubmitAttempted(true);
-    if (!passwordsMatch) return;
-    onUpdatePassword?.({ currentPassword, newPassword });
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return;
+    }
+
+    if (!passwordsMatch) {
+      return;
+    }
+
+    onUpdatePassword({ currentPassword, newPassword });
   }
 
-  //resuable eye toggle button
-  function EyeButton({show,setShow,timerRef})
-  {
-    return(
-      <button type="button"
-      tabIndex={-1}
-      onMouseDown={(e) => handleToggle(e,show,setShow,timerRef)}
-      style={{
-          position: "absolute",
-          right: "12px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "4px",
-          color: "#6b7280",
-          display: "flex",
-          alignItems: "center", 
-      }}
-      aria-label={show ? "Hide password" : "Show password"}
+  function handleCurrentPasswordChange(val) {
+    setCurrentPassword(val);
+    if (apiError) onClearError();
+  }
+
+  function EyeButton({ show, setShow, timerRef }) {
+    return (
+      <button
+        type="button"
+        tabIndex={-1}
+        onMouseDown={(e) => handleToggle(e, show, setShow, timerRef)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors"
+        aria-label={show ? "Hide password" : "Show password"}
       >
-      {show ? <EyeOff size={18} /> : <Eye size={18} />}
+        {show ? <EyeOff size={17} /> : <Eye size={17} />}
       </button>
     );
   }
 
-  //shared input wrapper style
-  const inputWrapperStyle = { position: "relative", display: "flex", alignItems: "center" };
-  const inputStyle = {
-    width: "100%",
-    padding: "10px 40px 10px 12px",
-    border: "1.5px solid #cbd5e1",
-    borderRadius: "8px",
-    fontSize: "14px",
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-  };
+  return (
+    <div className="surface-bg rounded-2xl border border-soft p-7 flex flex-col gap-1">
+      <h2 className="text-main text-lg font-bold mb-1">Change Password</h2>
+      <p className="text-muted text-sm mb-5">Update your password to keep your account secure</p>
 
-  return(
-<div style={{
-  background :"#fff",
-  borderRadius: "12px",
-  border: "1px solid #e2e8f0",
-  padding: "28px",
-  flex: 1,
-}}>
-      <h2 style={{ margin: "0 0 4px", fontSize: "18px", fontWeight: 700, color: "#1e293b" }}>
-        Change Password
-      </h2>
-      <p style={{ margin: "0 0 20px", fontSize: "13px", color: "#3b82f6" }}>
-        Update your password to keep your account secure
-      </p>
-
-  
-      {/* current Password */}
-      <label style={labelStyle}>Current Password</label>
-      <div style={inputWrapperStyle}>
+      <label className="text-main text-sm font-medium mb-1 block">Current Password</label>
+      <div className="relative mb-1">
         <input
           type={showCurrent ? "text" : "password"}
           value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
+          onChange={(e) => handleCurrentPasswordChange(e.target.value)}
           onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
-          style={inputStyle}
           placeholder="Enter current password"
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+            ${apiError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
       </div>
 
-      {/* new Password */}
-      <label style={{ ...labelStyle, marginTop: "16px" }}>New Password</label>
-      <div style={inputWrapperStyle}>
+      {/* show server error right under the current password field */}
+      {apiError && (
+        <p className="text-red-500 text-xs mb-2">{apiError}</p>
+      )}
+
+      <label className="text-main text-sm font-medium mb-1 mt-3 block">New Password</label>
+      <div className="relative">
         <input
           type={showNew ? "text" : "password"}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           onBlur={() => handleBlur(setShowNew, timerNew)}
-          style={inputStyle}
           placeholder="Enter new password"
+          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent"
         />
         <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
       </div>
 
-      {/* confirm New Password */}
-      <label style={{ ...labelStyle, marginTop: "16px" }}>Confirm New Password</label>
-      <div style={inputWrapperStyle}>
+      <label className="text-main text-sm font-medium mb-1 mt-3 block">Confirm New Password</label>
+      <div className="relative">
         <input
           type={showConfirm ? "text" : "password"}
           value={confirmPassword}
@@ -163,38 +155,21 @@ function handleToggle(e,show,setShow,timerRef)
             setConfirmTouched(true);
             handleBlur(setShowConfirm, timerConfirm);
           }}
-          style={{
-            ...inputStyle,
-            borderColor: showMatchError ? "#ef4444" : "#cbd5e1",
-          }}
           placeholder="Re-enter new password"
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+            ${showMatchError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
+      </div>
 
-</div>
-{/* inline match error */}
       {showMatchError && (
-        <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#ef4444" }}>
-          Passwords do not match
-        </p>
+        <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
       )}
 
-      {/* submit */}
       <button
         type="button"
         onClick={handleSubmit}
-        style={{
-          marginTop: "20px",
-          width: "100%",
-          padding: "12px",
-          background: "#3b82f6",
-          color: "#fff",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "15px",
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
+        className="hover-lift mt-5 w-full py-2.5 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition-colors"
       >
         Update Password
       </button>
@@ -202,253 +177,151 @@ function handleToggle(e,show,setShow,timerRef)
   );
 }
 
-const labelStyle = {
-  display: "block",
-  fontSize: "14px",
-  fontWeight: 500,
-  color: "#374151",
-  marginBottom: "6px",
-};
-
-const Profile = () => {
+// main profile page
+export default function Profile() {
   const { user, setUser } = useContext(AuthContext);
 
-  // states
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  // display name state
   const [name, setName] = useState(user?.name || '');
+
+  async function handleNameUpdate(e) {
+    if (e) e.preventDefault();
+    try {
+      const res = await axios.put("/auth/update-profile", { name });
+      setUser(res.data.user);
+      alert(res.data.message || "Name updated successfully!");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed To Update Name");
+    }
+  }
+
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
 
-  // update name handler
-  const handleNameUpdate = async (e) => {
-    e.preventDefault();
-
+  async function handleThemeSave(e) {
+    if (e) e.preventDefault();
     try {
-      const res = await api.put('/auth/update-profile', {name,});
-      // update user in context
+      const res = await axios.put("/auth/update-profile", { primaryColor });
       setUser(res.data.user);
-      alert(res.data.message);
-    } catch (error) {
-      alert(error.response?.data?.message || 'Failed To Update Name');
+      alert("Theme Updated Successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed To Update Theme");
     }
-  };
+  }
 
-  // update password handler
-  const handlePasswordUpdate = async ({currentPassword,newPassword}) => {
-    try
-    {
-      const res = await api.put('/auth/update-profile', {
-        currentPassword,
-        newPassword,
-      });
-      alert(res.data.message);
-    }
-    catch (error)
-    {
-      alert(error.response?.data?.message || 'Failed To Update Password');
-    }
-  };
-
-  // update theme handler
-  const handleThemeUpdate = async (e) => {
-    e.preventDefault();
-
-    try
-    {
-      const res = await api.put('/auth/update-profile', {primaryColor});
-      setUser(res.data.user);
-      alert('Theme Updated Successfully');
-    }
-    catch (error)
-    {
-      alert(error.response?.data?.message || 'Failed To Update Theme');
-    }
-  };
-
-  // reset theme handler
-  const handleThemeReset = async () => {
-    try
-    {
-      const res = await api.put('/auth/update-profile', {primaryColor: '#4eb7b3'});
+  async function handleThemeReset(e) {
+    if (e) e.preventDefault();
+    try {
+      const res = await axios.put("/auth/update-profile", { primaryColor: '#4eb7b3' });
       setUser(res.data.user);
       setPrimaryColor('#4eb7b3');
-      alert('Theme Reset Successfully');
-    } 
-    catch (error)
-    {
-      alert(error.response?.data?.message || 'Failed to reset theme');
+      alert("Theme Reset Successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to reset theme");
     }
-  };
+  }
+
+  // password stuff - using toast instead of alert for this one
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordResetKey, setPasswordResetKey] = useState(0);
+
+  // console.log("current passwordError state:", passwordError);
+
+  async function handlePasswordUpdate({ currentPassword, newPassword }) {
+    setPasswordError("");
+    try {
+      const res = await axios.put("/auth/update-profile", { currentPassword, newPassword });
+      showToast("Password updated successfully!", "success");
+      setPasswordResetKey((k) => k + 1);
+    } catch (err) {
+      const msg = err.response?.data?.message || "Current Password Is Incorrect.";
+      setPasswordError(msg);
+      showToast(msg, "error");
+    }
+  }
 
   return (
-    <div className="min-h-screen w-full px-6 py-10">
-      <div
-        className="
-      max-w-6xl mx-auto
-      surface-bg rounded-3xl
-      p-8 md:p-12
-      flex flex-col gap-10
-      animate-in
-    "
-      >
-        {/* Profile Header */}
+    <div className="min-h-screen page-bg px-6 py-10">
+      <Toast message={toast.message} type={toast.type} />
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div
-              className="
-        w-20 h-20 rounded-full
-        bg-gradient-to-tr
-        from-[#4eb7b3]
-        to-[#98e1d7]
-        flex items-center justify-center
-        text-white text-3xl font-bold
-      "
-            >
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-
-            <div>
-              <h1 className="text-3xl font-bold text-main">Profile Settings</h1>
-
-              <p className="text-muted mt-1">
-                Manage your account details and security
-              </p>
-            </div>
-          </div>
-
-          <div className="text-left md:text-right">
-            <p className="text-sm text-muted">Logged in as</p>
-
-            <p className="font-semibold text-main">{user?.email}</p>
-          </div>
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white text-xl font-bold">
+          {user?.name?.charAt(0).toUpperCase() || 'S'}
         </div>
-        {/* Update Name Section */}
+        <div>
+          <h1 className="text-main text-2xl font-bold">Profile Settings</h1>
+          <p className="text-muted text-sm">Manage your account details and security</p>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <form
-            onSubmit={handleNameUpdate}
-            className="
-  flex flex-col gap-5
-  border-soft rounded-2xl
-  p-6
-"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* name card */}
+        <div className="surface-bg rounded-2xl border border-soft p-7">
+          <p className="text-muted text-sm mb-4">Change how your name appears across DailyForge</p>
+          <label className="text-main text-sm font-medium mb-1 block">Display Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4"
+          />
+          <button
+            onClick={handleNameUpdate}
+            className="hover-lift mt-5 w-full py-2.5 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition-colors"
           >
-            <div className="space-y-1">
-              <p className="text-sm text-muted">
-                Change how your name appears across DailyForge
-              </p>
-            </div>
+            Save Name Changes
+          </button>
+        </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-medium text-main">
-                Display Name
-              </label>
+        <ChangePasswordCard
+          onUpdatePassword={handlePasswordUpdate}
+          onClearError={() => setPasswordError("")}
+          apiError={passwordError}
+          resetKey={passwordResetKey}
+        />
 
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-                placeholder="Enter new display name"
-                required
-                className="
-              w-full px-3 py-2.5
-              text-sm
-              surface-bg
-              border-soft
-              rounded-sm
-              shadow-xs
-              input-focus hover-lift
-            "
-              />
-            </div>
-
+        {/* theme card */}
+        <div className="surface-bg rounded-2xl border border-soft p-7">
+          <h2 className="text-main text-lg font-bold mb-1">Theme Settings</h2>
+          <p className="text-muted text-sm mb-5">Personalize your interface with a custom primary color</p>
+          <label className="text-main text-sm font-medium mb-2 block">Primary Color</label>
+          <div className="flex items-center gap-3 mb-5">
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              className="w-10 h-10 rounded-lg border border-soft cursor-pointer bg-transparent"
+            />
+            <span className="text-main text-sm font-mono">{primaryColor}</span>
+          </div>
+          <div className="flex flex-col xl:flex-row gap-3">
             <button
-              type="submit"
-              className="
-            btn btn-primary
-            cursor-pointer
-            w-full
-          "
+              onClick={handleThemeSave}
+              className="hover-lift flex-1 py-2.5 px-4 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold whitespace-nowrap transition-colors"
             >
-              Save Name Changes
+              Save Theme Changes
             </button>
-          </form>
-
-          {/* Password Section */}
-          <ChangePasswordCard onUpdatePassword={handlePasswordUpdate} />
-         
-          {/* Theme Section */}
-
-          <form
-            onSubmit={handleThemeUpdate}
-            className="
-  flex flex-col gap-5
-  border-soft rounded-2xl
-  p-6
-"
-          >
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-main">
-                Theme Settings
-              </h2>
-
-              <p className="text-sm text-muted">
-                Personalize your interface with a custom primary color
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="primaryColor" className="text-sm font-medium text-main">
-                Primary Color
-              </label>
-
-              <div className="flex items-center gap-4">
-                <input
-                  type="color"
-                  id="primaryColor"
-                  value={primaryColor}
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-10 h-10 rounded cursor-pointer border-0 p-0"
-                />
-                <span className="text-sm text-muted font-mono">{primaryColor}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                className="
-                  btn btn-primary
-                  cursor-pointer
-                  flex-1
-                "
-              >
-                Save Theme Changes
-              </button>
-              
-              <button
-                type="button"
-                onClick={handleThemeReset}
-                className="
-                  btn
-                  bg-transparent
-                  border border-soft
-                  text-main
-                  hover:bg-gray-100 dark:hover:bg-slate-800
-                  cursor-pointer
-                  flex-1
-                "
-              >
-                Reset to Default
-              </button>
-            </div>
-          </form>
+            <button
+              onClick={handleThemeReset}
+              className="flex-1 py-2.5 px-4 border border-soft text-main rounded-lg text-sm font-semibold whitespace-nowrap hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Reset to Default
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   );
-};
-
-export default Profile;
+}
