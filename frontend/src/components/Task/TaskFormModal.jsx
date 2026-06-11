@@ -571,6 +571,41 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
               </select>
             </div>
 
+            {/* Depends On */}
+<div>
+  <label className="text-sm font-medium text-main">
+    Depends On
+  </label>
+
+  <select
+    value={dependsOn}
+    onChange={(e) => setDependsOn(e.target.value)}
+    disabled={isSubmitting}
+    className="w-full mt-1 p-2 border border-soft rounded-lg
+               focus:ring-(--primary) focus:border-(--primary)
+               bg-transparent text-main dark:bg-slate-800"
+  >
+    <option value="">No Dependency</option>
+
+   {tasks
+  .filter((t) => t._id !== task?._id)
+  .map((t) => (
+    <option
+      key={t._id}
+      value={t._id}
+      className="dark:bg-slate-800"
+    >
+      {t.title}
+    </option>
+  ))}
+
+  </select>
+
+  <p className="text-xs text-muted mt-1">
+    Select a prerequisite task
+  </p>
+</div>
+
             {/* Due Date */}
             <div>
               <label className="text-sm font-medium text-main">Due Date</label>
