@@ -36,7 +36,7 @@ export default function Dashboard() {
   const [moreTags, setmoreTags] = useState(false);
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
-  const [profileImage, setProfileImage] = useState("");
+  
 
   const today = new Date();
 
@@ -248,9 +248,9 @@ export default function Dashboard() {
     text-white text-3xl font-bold
     flex-shrink-0 "
               >
-                {user?.photo || profileImage ? (
+                {user?.photo ? (
                   <img
-                    src={profileImage || user?.photo}
+                    src={user?.photo}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
