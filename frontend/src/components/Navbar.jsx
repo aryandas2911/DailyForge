@@ -2,13 +2,29 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, UserPlus, Sun, Moon, Timer, TrendingUp, User } from "lucide-react";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  CheckSquare,
+  Calendar,
+  LogOut,
+  LogIn,
+  UserPlus,
+  Sun,
+  Moon,
+  Timer,
+  TrendingUp,
+  User,
+} from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import ThemeToggle from "./ThemeToggle";
+import dailyForgeLogo from "../assets/logo.png";
+
 
 // Utility for merging tailwind classes safely
 function cn(...inputs) {
@@ -126,7 +142,9 @@ const Navbar = () => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const handleConfirmLogout = (e) => {
@@ -188,37 +206,36 @@ const Navbar = () => {
     if (document.getElementById("theme-transition-overlay")) return;
 
     const { clientX, clientY } = e;
-    const isDark = theme === "dark";
-
-    // Background color of the TARGET theme
-    const targetColor = isDark ? "#ffffff" : "#0f172a";
-
     const overlay = document.createElement("div");
     overlay.id = "theme-transition-overlay";
+
     overlay.style.position = "fixed";
-    overlay.style.backgroundColor = targetColor;
     overlay.style.borderRadius = "50%";
-    overlay.style.zIndex = "9999";
     overlay.style.pointerEvents = "none";
 
     const size = 10;
+
     overlay.style.width = `${size}px`;
     overlay.style.height = `${size}px`;
+
     overlay.style.top = `${clientY - size / 2}px`;
     overlay.style.left = `${clientX - size / 2}px`;
+
     overlay.style.transformOrigin = "center center";
 
     document.body.appendChild(overlay);
 
     const maxDistX = Math.max(clientX, window.innerWidth - clientX);
     const maxDistY = Math.max(clientY, window.innerHeight - clientY);
+
     const maxRadius = Math.sqrt(maxDistX * maxDistX + maxDistY * maxDistY);
+
     const scale = (maxRadius * 2) / size;
 
     gsap.to(overlay, {
-      scale: scale,
-      duration: 0.6,
-      ease: "power2.inOut",
+      scale,
+      duration: 0.75,
+      ease: "power3.inOut",
       onComplete: () => {
         toggleTheme();
 
@@ -271,24 +288,15 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo Section with Hover Animation */}
-            <Link
-              to={user ? "/dashboard" : "/login"}
-              className="flex items-center gap-2 group focus:outline-none"
-            >
-              <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-primary to-[var(--accent)] flex items-center justify-center shadow-sm"
-              >
-                <span className="text-white font-bold text-xl leading-none tracking-tighter">
-                  D
-                </span>
-              </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[var(--text-main)] to-primary">
-                DailyForge
-              </span>
+            <Link to={user ? "/dashboard" : "/login"} className="flex items-center focus:outline-none h-16 overflow-visible">
+              <motion.img 
+                whileHover={{ scale: 1.05 }} 
+                transition={{ duration: 0.2 }}
+                src={dailyForgeLogo}
+                alt="DailyForge"
+                className="h-[96px] w-auto object-contain my-[-18px]"
+              />
             </Link>
-
 
             {/* Desktop Navigation */}
             {user && (
@@ -436,7 +444,9 @@ const Navbar = () => {
                 <div
                   className={cn(
                     "flex flex-col gap-2",
-                    user ? "pt-4 mt-2 border-t border-[var(--border)]/30" : "pt-2",
+                    user
+                      ? "pt-4 mt-2 border-t border-[var(--border)]/30"
+                      : "pt-2",
                   )}
                 >
                   {!user ? (
@@ -462,7 +472,10 @@ const Navbar = () => {
                   ) : (
                     <>
                       {/* Mobile focus mode*/}
-                      <Link to="/focus-mode" className="btn btn-primary flex gap-2">
+                      <Link
+                        to="/focus-mode"
+                        className="btn btn-primary flex gap-2"
+                      >
                         <Timer size={16} />
                         Focus Mode
                       </Link>
