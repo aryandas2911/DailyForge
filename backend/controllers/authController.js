@@ -9,6 +9,15 @@ import crypto from 'crypto';
 // ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
 
+if (
+  !ENCRYPTION_KEY ||
+  Buffer.from(ENCRYPTION_KEY, "hex").length !== 32
+) {
+  throw new Error(
+    "TWO_FACTOR_ENCRYPTION_KEY must be a 32-byte hex key"
+  );
+}
+
 function encrypt(text) {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
@@ -363,18 +372,21 @@ export const googleLogin = async (req, res) => {
     try {
       decodedToken = await verifyFirebaseIdToken(idToken);
     } catch (verifyError) {
-      return res.status(401).json({
-        message: 'Invalid or expired Firebase token',
-        error: verifyError.message,
-      });
+     console.error("[GOOGLE AUTH]", verifyError);
+
+return res.status(401).json({
+  message: "Invalid or expired Firebase token",
+});
     }
 
     const { email, name } = decodedToken;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is missing from the Google identity token' });
-    }
 
-    let user = await User.findOne({ email });
+    
+    const normalizedEmail = email.toLowerCase().trim();
+
+let user = await User.findOne({
+  email: normalizedEmail,
+});
 
     if (!user) {
       const randomPassword = crypto.randomBytes(32).toString('hex');
