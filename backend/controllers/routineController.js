@@ -22,7 +22,7 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
- if (!name || !items || items.length === 0) {
+    if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
@@ -49,8 +49,8 @@ export const createRoutine = async (req, res) => {
       }
 
       const startTime = Number(item.startTime);
-const duration = Number(item.duration);
-const endTime = startTime + duration;
+      const duration = Number(item.duration);
+      const endTime = startTime + duration;
       formatted.push({
         day: item.day,
         startTime: item.startTime,
@@ -128,13 +128,12 @@ const endTime = startTime + duration;
 
     // save routine in collection
     await newRoutine.save();
-    
     return res
       .status(201)
-      .json({ 
-        success: true, 
-        message: "Routine added successfully", 
-        routine: newRoutine.toObject() 
+      .json({
+        success: true,
+        message: "Routine added successfully",
+        routine: newRoutine.toObject()
       });
   } catch (error) {
     // error handling
@@ -162,10 +161,8 @@ export const getRoutines = async (req, res) => {
       orderIndex: 1,
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      return res.status(200).json({ success: true, routines: [] });
-    }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -292,14 +289,30 @@ export const updateRoutine = async (req, res) => {
     // fetch updated routine details
     const { name, description, items } = req.body;
 
-const updates = {
-  ...(name && { name }),
-  ...(description && { description }),
-  ...(items && { items }),
-};
+    const updates = {
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(items && { items }),
+    };
     const routineId = req.params.id;
 
     if (updates.items) {
+      // validate each item
+      for (const item of updates.items) {
+        if (!item.day || item.startTime === undefined || !item.duration) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task must have a day, startTime, and duration",
+          });
+        }
+        if (item.duration < 10) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task duration must be at least 10 minutes",
+          });
+        }
+      }
+
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
@@ -355,6 +368,7 @@ const updates = {
     );
     if (!updatedRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
@@ -388,16 +402,19 @@ export const deleteRoutine = async (req, res) => {
     const routineId = req.params.id;
 
     // fetch routine to be deleted from database
-    const deleteRoutine = await Routine.findOneAndDelete({
+    const deletedRoutine = await Routine.findOneAndDelete({
       _id: routineId,
       userId: userId,
     });
-    if (!deleteRoutine) {
+
+    if (!deletedRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Routine deleted successfully",
     });
   } catch (error) {
@@ -428,7 +445,6 @@ export const getPublicRoutine = async (req, res) => {
       .json({ success: false, message: "Error fetching public routine" });
   }
 };
-
 // Reorder routine items function
 export const reorderRoutine = async (req, res) => {
   try {

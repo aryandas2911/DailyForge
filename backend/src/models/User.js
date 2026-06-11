@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    primaryColor: {
+      type: String,
+      default: '#3b82f6',
+    },
     // ────────────────────────────────────────────────────────────────────────
   },
   { timestamps: true }

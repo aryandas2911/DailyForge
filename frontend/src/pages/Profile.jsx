@@ -10,13 +10,14 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
 
   // update name handler
   const handleNameUpdate = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await api.patch('/auth/profile', {
+      const res = await api.put('/auth/update-profile', {
         name,
       });
 
@@ -34,7 +35,7 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const res = await api.patch('/auth/profile', {
+      const res = await api.put('/auth/update-profile', {
         currentPassword,
         newPassword,
       });
@@ -46,6 +47,37 @@ const Profile = () => {
       setNewPassword('');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to update password');
+    }
+  };
+
+  // update theme handler
+  const handleThemeUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await api.put('/auth/update-profile', {
+        primaryColor,
+      });
+
+      setUser(res.data.user);
+      alert('Theme updated successfully');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to update theme');
+    }
+  };
+
+  // reset theme handler
+  const handleThemeReset = async () => {
+    try {
+      const res = await api.put('/auth/update-profile', {
+        primaryColor: '#4eb7b3',
+      });
+
+      setUser(res.data.user);
+      setPrimaryColor('#4eb7b3');
+      alert('Theme reset successfully');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to reset theme');
     }
   };
 
@@ -235,6 +267,73 @@ const Profile = () => {
             >
               Update Password
             </button>
+          </form>
+
+          {/* Theme Section */}
+
+          <form
+            onSubmit={handleThemeUpdate}
+            className="
+  flex flex-col gap-5
+  border-soft rounded-2xl
+  p-6
+"
+          >
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold text-main">
+                Theme Settings
+              </h2>
+
+              <p className="text-sm text-muted">
+                Personalize your interface with a custom primary color
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="primaryColor" className="text-sm font-medium text-main">
+                Primary Color
+              </label>
+
+              <div className="flex items-center gap-4">
+                <input
+                  type="color"
+                  id="primaryColor"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-10 h-10 rounded cursor-pointer border-0 p-0"
+                />
+                <span className="text-sm text-muted font-mono">{primaryColor}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                className="
+                  btn btn-primary
+                  cursor-pointer
+                  flex-1
+                "
+              >
+                Save Theme Changes
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleThemeReset}
+                className="
+                  btn
+                  bg-transparent
+                  border border-soft
+                  text-main
+                  hover:bg-gray-100 dark:hover:bg-slate-800
+                  cursor-pointer
+                  flex-1
+                "
+              >
+                Reset to Default
+              </button>
+            </div>
           </form>
         </div>
       </div>
