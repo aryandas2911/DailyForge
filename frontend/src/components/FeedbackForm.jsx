@@ -46,7 +46,6 @@ export default function FeedbackForm({ onClose }) {
       return;
     }
     setLoading(true);
-    // Simulated submission — connect to backend/email API later
     await new Promise((res) => setTimeout(res, 1000));
     console.log("Feedback submitted:", form);
     setLoading(false);
@@ -61,19 +60,29 @@ export default function FeedbackForm({ onClose }) {
 
   if (submitted) {
     return (
-      <div style={styles.overlay}>
-        <div style={styles.modal}>
-          <div style={styles.successIcon}>✓</div>
-          <h2 style={styles.successTitle}>Thank you!</h2>
-          <p style={styles.successMsg}>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-colors duration-300">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 w-full max-w-md shadow-2xl transition-all duration-300 transform scale-100">
+          <div className="width-14 h-14 w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-2xl flex items-center justify-center mx-auto mb-4 font-bold">
+            ✓
+          </div>
+          <h2 className="text-center text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            Thank you!
+          </h2>
+          <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
             Your feedback has been received. We'll look into it shortly.
           </p>
-          <div style={styles.successActions}>
-            <button style={styles.btnPrimary} onClick={handleReset}>
+          <div className="flex gap-3 justify-center">
+            <button
+              className="flex-1 py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white font-semibold rounded-xl text-sm transition-colors cursor-pointer"
+              onClick={handleReset}
+            >
               Submit another
             </button>
             {onClose && (
-              <button style={styles.btnSecondary} onClick={onClose}>
+              <button
+                className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                onClick={onClose}
+              >
                 Close
               </button>
             )}
@@ -84,26 +93,32 @@ export default function FeedbackForm({ onClose }) {
   }
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        {/* Header */}
-        <div style={styles.header}>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 w-full max-w-md shadow-2xl transition-all duration-300">
+        <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 style={styles.title}>Feedback & Bug Report</h2>
-            <p style={styles.subtitle}>Help us improve DailyForge</p>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              Feedback & Bug Report
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Help us improve DailyForge
+            </p>
           </div>
           {onClose && (
-            <button style={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <button
+              onClick={onClose}
+              className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-lg p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer leading-none"
+              aria-label="Close"
+            >
               ✕
             </button>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-          {/* Email */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="email">
-              Your Email <span style={styles.required}>*</span>
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="email">
+              Your Email <span className="text-red-500">*</span>
             </label>
             <input
               id="email"
@@ -112,44 +127,50 @@ export default function FeedbackForm({ onClose }) {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              style={{
-                ...styles.input,
-                ...(errors.email ? styles.inputError : {}),
-              }}
+              className={`w-full px-4 py-2.5 rounded-xl text-sm border bg-slate-50/50 dark:bg-slate-800/40 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border ${
+                errors.email
+                  ? "border-red-500 bg-red-50/30 dark:bg-red-950/20 focus:ring-red-500"
+                  : "border-slate-200 dark:border-slate-700 focus:border-transparent"
+              }`}
             />
-            {errors.email && <p style={styles.errorMsg}>{errors.email}</p>}
+            {errors.email && <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.email}</p>}
           </div>
 
-          {/* Feedback Type */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="type">
-              Type of Feedback <span style={styles.required}>*</span>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="type">
+              Type of Feedback <span className="text-red-500">*</span>
             </label>
-            <select
-              id="type"
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              style={{
-                ...styles.input,
-                ...styles.select,
-                ...(errors.type ? styles.inputError : {}),
-              }}
-            >
-              <option value="">Select a type...</option>
-              {FEEDBACK_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-            {errors.type && <p style={styles.errorMsg}>{errors.type}</p>}
+            <div className="relative">
+              <select
+                id="type"
+                name="type"
+                value={form.type}
+                onChange={handleChange}
+                className={`w-full px-4 py-2.5 rounded-xl text-sm border bg-slate-50/50 dark:bg-slate-800/40 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all cursor-pointer appearance-none box-border pr-10 ${
+                  errors.type
+                    ? "border-red-500 bg-red-50/30 dark:bg-red-950/20 focus:ring-red-500"
+                    : "border-slate-200 dark:border-slate-700 focus:border-transparent"
+                }`}
+              >
+                <option value="" className="bg-white dark:bg-slate-900">Select a type...</option>
+                {FEEDBACK_TYPES.map((t) => (
+                  <option key={t} value={t} className="bg-white dark:bg-slate-900">
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400 dark:text-slate-500">
+                <svg className="w-3 h-3 fill-current" viewBox="0 0 12 12">
+                  <path d="M6 8L1 3h10z" />
+                </svg>
+              </div>
+            </div>
+            {errors.type && <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.type}</p>}
           </div>
 
-          {/* Message */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="message">
-              Message <span style={styles.required}>*</span>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="message">
+              Message <span className="text-red-500">*</span>
             </label>
             <textarea
               id="message"
@@ -157,28 +178,27 @@ export default function FeedbackForm({ onClose }) {
               value={form.message}
               onChange={handleChange}
               placeholder="Describe your feedback or bug in detail..."
-              rows={5}
-              style={{
-                ...styles.input,
-                ...styles.textarea,
-                ...(errors.message ? styles.inputError : {}),
-              }}
+              rows={4}
+              className={`w-full px-4 py-2.5 rounded-xl text-sm border bg-slate-50/50 dark:bg-slate-800/40 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all resize-vertical min-h-[100px] leading-relaxed box-border ${
+                errors.message
+                  ? "border-red-500 bg-red-50/30 dark:bg-red-950/20 focus:ring-red-500"
+                  : "border-slate-200 dark:border-slate-700 focus:border-transparent"
+              }`}
             />
-            {errors.message && <p style={styles.errorMsg}>{errors.message}</p>}
+            {errors.message && <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.message}</p>}
           </div>
 
-          {/* Actions */}
-          <div style={styles.actions}>
+          <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              style={{ ...styles.btnPrimary, opacity: loading ? 0.7 : 1 }}
+              className="flex-1 py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white font-bold rounded-xl text-sm transition-colors cursor-pointer disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Submit Feedback"}
             </button>
             <button
               type="button"
-              style={styles.btnSecondary}
+              className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer disabled:opacity-50"
               onClick={handleReset}
               disabled={loading}
             >
@@ -190,154 +210,3 @@ export default function FeedbackForm({ onClose }) {
     </div>
   );
 }
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-    padding: "16px",
-  },
-  modal: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    padding: "32px",
-    width: "100%",
-    maxWidth: "480px",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "24px",
-  },
-  title: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#111827",
-  },
-  subtitle: {
-    margin: "4px 0 0",
-    fontSize: "14px",
-    color: "#6b7280",
-  },
-  closeBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "18px",
-    color: "#9ca3af",
-    cursor: "pointer",
-    padding: "4px 8px",
-    borderRadius: "6px",
-    lineHeight: 1,
-  },
-  field: {
-    marginBottom: "20px",
-  },
-  label: {
-    display: "block",
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: "6px",
-  },
-  required: {
-    color: "#ef4444",
-  },
-  input: {
-    width: "100%",
-    padding: "10px 14px",
-    fontSize: "14px",
-    border: "1.5px solid #e5e7eb",
-    borderRadius: "8px",
-    outline: "none",
-    color: "#111827",
-    backgroundColor: "#f9fafb",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s",
-  },
-  inputError: {
-    borderColor: "#ef4444",
-    backgroundColor: "#fff5f5",
-  },
-  select: {
-    appearance: "none",
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 14px center",
-    cursor: "pointer",
-  },
-  textarea: {
-    resize: "vertical",
-    minHeight: "100px",
-    lineHeight: "1.6",
-  },
-  errorMsg: {
-    margin: "6px 0 0",
-    fontSize: "12px",
-    color: "#ef4444",
-  },
-  actions: {
-    display: "flex",
-    gap: "12px",
-    marginTop: "8px",
-  },
-  btnPrimary: {
-    flex: 1,
-    padding: "11px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
-  btnSecondary: {
-    padding: "11px 20px",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  successIcon: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "50%",
-    backgroundColor: "#d1fae5",
-    color: "#059669",
-    fontSize: "28px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 16px",
-  },
-  successTitle: {
-    textAlign: "center",
-    fontSize: "22px",
-    fontWeight: "600",
-    color: "#111827",
-    margin: "0 0 8px",
-  },
-  successMsg: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#6b7280",
-    margin: "0 0 24px",
-  },
-  successActions: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "center",
-  },
-};
