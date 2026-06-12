@@ -1,33 +1,33 @@
 export default function About() {
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto px-6 py-10 space-y-12">
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto px-6 py-12 space-y-16 transition-colors duration-300">
 
       {/* Heading */}
-      <div className="text-center max-w-3xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-main">
-          About <span className="text-primary">DailyForge</span>
+      <div className="text-center max-w-3xl mx-auto space-y-4">
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+          About <span className="text-[#3b8ea0] dark:text-[#4eb7b3]">DailyForge</span>
         </h1>
-        <p className="mt-4 text-muted text-lg">
+        <p className="text-slate-500 dark:text-slate-400 text-lg font-medium leading-relaxed">
           A simple and focused planner that helps you organize your day, build routines and stay consistent without overthinking.
         </p>
       </div>
 
       {/* What is DailyForge? */}
-      <section className="max-w-5xl mx-auto card p-6">
-        <h2 className="text-xl font-semibold text-main mb-2">
+      <section className="max-w-5xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 rounded-2xl shadow-sm">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
           What is DailyForge?
         </h2>
-        <p className="text-muted leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
           DailyForge is a productivity tool designed to help you plan your tasks in a clear and structured way.
           Instead of juggling messy to-do lists, you can organize everything visually and manage your time better.
         </p>
       </section>
 
       {/* Features */}
-<section className="max-w-6xl mx-auto">
-  <h2 className="text-2xl font-bold text-main text-center mb-10">
-    What you can do here
-  </h2>
+      <section className="max-w-6xl mx-auto">
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-10 uppercase tracking-wide">
+          What you can do here
+        </h2>
 
   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 
@@ -60,11 +60,11 @@ export default function About() {
 </section>
 
       {/* Why it matters */}
-      <section className="text-center max-w-3xl mx-auto">
-        <p className="text-muted">
+      <section className="text-center max-w-3xl mx-auto space-y-2.5">
+        <p className="text-slate-500 dark:text-slate-400 font-medium">
           Productivity isn't about doing more — it's about doing what matters, consistently.
         </p>
-        <h3 className="mt-2 text-xl font-semibold text-primary">
+        <h3 className="text-xl font-bold text-[#3b8ea0] dark:text-[#4eb7b3]">
           DailyForge helps you stay focused, not overwhelmed.
         </h3>
       </section>
