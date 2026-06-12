@@ -9,7 +9,7 @@ import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
 const GoogleIcon = () => (
-  <svg className="w-5 h-5 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+  <svg className="w-5 h-5 mr-2.5 shrink-0" viewBox="0 0 24 24" fill="none">
     <path
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       fill="#4285F4"
@@ -52,9 +52,6 @@ const LoadingSpinner = () => (
 );
 
 const Login = () => {
-
-
-  // two states for inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -66,17 +63,11 @@ const Login = () => {
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [tempUserId, setTempUserId] = useState(null);
 
-  // useNavigate object
   const navigate = useNavigate();
   const location = useLocation();
   const redirectPath = location.state?.from || "/dashboard";
 
-  // useContext for auth
   const { setUser } = useContext(AuthContext);
-
-
-
-
 
   const handleGoogleLogin = async () => {
         
@@ -91,7 +82,6 @@ const Login = () => {
       navigate(redirectPath, { replace: true });
     } catch (err) {
       console.error(err);
-
       setError(
         err.response?.data?.message ||
         err.message ||
@@ -117,7 +107,6 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    // prevents page from refreshing
     e.preventDefault();
     setIsSubmitLoading(true);
     setError("");
@@ -152,23 +141,23 @@ const Login = () => {
 
   if (tempUserId) {
     return (
-      <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
-        <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-        <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
+      <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 pt-24 pb-24 md:pb-32 overflow-hidden relative">
+        <div className="absolute top-[-120px] -left-20 w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
+        <div className="absolute bottom-[-140px] -right-20 w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
         <form
           onSubmit={handle2FASubmit}
-          className="surface-bg animate-in-slow w-full max-w-md rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)] hover-lift hover:scale-50 transition-transform duration-500 ease-out"
+          className="bg-white dark:bg-slate-900 animate-in-slow w-full max-w-md rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-slate-200 dark:border-slate-800 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out"
         >
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
               Two-Factor Auth
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Enter the code from your authenticator app
             </p>
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="totp" className="text-sm font-medium text-main">
+            <label htmlFor="totp" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               TOTP Code
             </label>
             <input
@@ -178,15 +167,14 @@ const Login = () => {
               required
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
-              className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200"
+              className="w-full px-4 py-3 rounded-2xl text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3b8ea0]"
             />
           </div>
           <FormError error={error} />
           <button
             type="submit"
-            className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer"
+            className="w-full py-3 bg-[#3b8ea0] hover:bg-[#337d8f] text-white font-semibold rounded-2xl transition-colors cursor-pointer"
           >
-
             Verify
           </button>
         </form>
@@ -195,65 +183,67 @@ const Login = () => {
   }
 
   return (
-    <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
-      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
+    <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 pt-24 pb-24 md:pb-32 overflow-hidden relative">
+      <div className="absolute top-[-120px] -left-20 w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
+      <div className="absolute bottom-[-140px] -right-20 w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
+      <div className="absolute top-[-140px] -right-20 w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
       <div className="relative z-10 w-full max-w-md animate-in-slow">
-        <form onSubmit={handleSubmit} className="surface-bg hover-lift w-full rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 w-full rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-slate-200 dark:border-slate-800 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
               Welcome Back
             </h1>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Login to continue your experience
             </p>
           </div>
-          <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="
-flex items-center justify-center
-w-full px-4 py-3
-rounded-2xl
-!bg-white
-!text-black
-!border
-!border-gray-300
-font-medium
-shadow-sm
-transition-all duration-200
-hover:bg-gray-50
-hover:border-gray-400
-hover:-translate-y-[1px]
-hover:shadow-md
-dark:bg-slate-900/50
-dark:border-slate-700
-dark:text-slate-100
-disabled:opacity-50
-cursor-pointer
-">
-
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isGoogleLoading || isSubmitLoading}
+            className="flex items-center justify-center w-full px-4 py-3 rounded-2xl bg-white text-[#337d8f] border border-gray-300 font-medium shadow-sm transition-all duration-200 hover:bg-gray-50 hover:border-gray-400 hover:-translate-y-[1px] hover:shadow-md dark:bg-slate-800 dark:border-slate-700 dark:hover:text-[#337d8f] dark:text-slate-100 disabled:opacity-50 cursor-pointer"
+          >
             {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
             {isGoogleLoading ? "Connecting..." : "Continue with Google"}
           </button>
           <div className="flex items-center">
-            <div className="flex-1 h-px bg-white/20"></div>
-            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-slate-400 dark:text-slate-500">
               OR
             </span>
-            <div className="flex-1 h-px bg-white/20"></div>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
-            <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1
-                border-slate-200 " />
+            <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="user@email.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3b8ea0]"
+            />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-sm font-medium text-main">
+            <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Password
             </label>
-            <div className="relative">
-              <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1
-                border-slate-200" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
+            <div className="relative flex items-center">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="••••••••"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 pr-11 rounded-2xl text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3b8ea0]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
+              >
                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
@@ -267,15 +257,15 @@ cursor-pointer
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
+            className="w-full py-3 bg-[#3b8ea0] hover:bg-[#337d8f] text-white font-semibold rounded-2xl transition-colors cursor-pointer disabled:opacity-50"
           >
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
-          <p className="text-center text-sm text-muted">
+          <p className="text-center text-sm text-slate-500 dark:text-slate-400">
             Don&apos;t have an account?{" "}
             <Link
               to="/signup"
-              className="text-main font-semibold hover:underline"
+              className="text-cyan-500 dark:text-cyan-400 font-semibold hover:underline"
             >
               Sign up
             </Link>

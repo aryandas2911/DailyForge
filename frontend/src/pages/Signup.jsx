@@ -7,7 +7,6 @@ import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
-// Google Icon
 const GoogleIcon = () => (
   <svg
     className="w-5 h-5 mr-2.5 flex-shrink-0"
@@ -33,7 +32,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// Loading Spinner
 const LoadingSpinner = () => (
   <svg
     className="animate-spin -ml-1 mr-2.5 h-5 w-5 text-current"
@@ -51,19 +49,12 @@ const LoadingSpinner = () => (
     <path
       className="opacity-75"
       fill="currentColor"
-      d="M4 12a8 8 0 018-8V0C5.373 
-      0 0 5.373 0 12h4zm2 
-      5.291A7.962 7.962 0 014 
-      12H0c0 3.042 1.135 5.824 
-      3 7.938l3-2.647z"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
     />
   </svg>
 );
 
 const Signup = () => {
-
-
-  // Auth State
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,31 +67,30 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const getPasswordStrength = (password) => {
-  if (!password) return null;
+    if (!password) return null;
 
-  let score = 0;
+    let score = 0;
 
-  if (password.length >= 8) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[a-z]/.test(password)) score++;
-  if (/\d/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (score <= 2)
-    return { text: "Weak", color: "text-red-500" };
+    if (score <= 2)
+      return { text: "Weak", color: "text-rose-500" };
 
-  if (score <= 4)
-    return { text: "Medium", color: "text-yellow-500" };
+    if (score <= 4)
+      return { text: "Medium", color: "text-amber-500" };
 
-  return { text: "Strong", color: "text-green-500" };
-};
+    return { text: "Strong", color: "text-emerald-500" };
+  };
 
-const passwordStrength = getPasswordStrength(password);
+  const passwordStrength = getPasswordStrength(password);
 
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
 
-  // Google Login
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     setErrorMessage("");
@@ -134,7 +124,7 @@ const passwordStrength = getPasswordStrength(password);
     }
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
+      newErrors.password = "Password requirement details not fully met";
     }
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
@@ -143,7 +133,6 @@ const passwordStrength = getPasswordStrength(password);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Email Signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -170,116 +159,47 @@ const passwordStrength = getPasswordStrength(password);
   };
 
   return (
-    <div
-      className="
-        auth-page-bg
-        min-h-screen
-        w-full
-        flex
-        items-center
-        justify-center
-        px-6
-        py-10
-        overflow-hidden
-        relative
-      "
-    >
-      {/* Glow blobs */}
-      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-
-
-      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-
-      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
-
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-md animate-in-slow">
+    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#4eb7b3]/10 dark:bg-[#4eb7b3]/5 blur-3xl rounded-full pointer-events-none" />
+      
+      <div className="relative z-10 w-full max-w-md animate-in">
         <form
           onSubmit={handleSubmit}
-          className="
-            surface-bg
-            hover-lift
-            w-full
-            rounded-[30px]
-            px-8
-            py-10
-            flex
-            flex-col
-            gap-3
-            mt-[-0.3rem]
-            border
-            border-white/10
-            shadow-[0_20px_60px_rgba(0,0,0,0.7)]
-          "
+          className="w-full rounded-3xl p-8 flex flex-col gap-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl box-border"
         >
           {/* Heading */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
               Create Account
             </h1>
-
-            <p className="text-sm text-muted">
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
               Sign up to get started
             </p>
           </div>
 
-          {/* Google */}
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
-            className="
-flex items-center justify-center
-w-full px-4 py-3
-rounded-2xl
-!bg-white
-!text-black
-!border
-!border-gray-300
-font-medium
-shadow-sm
-transition-all duration-200
-hover:bg-gray-50
-hover:border-gray-400
-hover:-translate-y-[1px]
-hover:shadow-md
-dark:bg-slate-900/50
-dark:border-slate-700
-dark:text-slate-100
-disabled:opacity-50
-cursor-pointer
-"
+            className="flex items-center justify-center w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-sm shadow-xs transition hover:bg-slate-100 dark:hover:bg-slate-700/80 disabled:opacity-50 cursor-pointer"
           >
-            {isGoogleLoading ? (
-              <LoadingSpinner />
-            ) : (
-              <GoogleIcon />
-            )}
-            {isGoogleLoading
-              ? "Connecting..."
-              : "Continue with Google"}
+            {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
+            {isGoogleLoading ? "Connecting..." : "Continue with Google"}
           </button>
 
-          {/* Divider */}
           <div className="flex items-center">
-            <div className="flex-1 h-px bg-white/20"></div>
-
-            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+            <span className="px-4 text-[10px] font-bold tracking-widest uppercase text-slate-400 select-none">
               OR
             </span>
-
-            <div className="flex-1 h-px bg-white/20"></div>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
           </div>
 
-          {/* Error */}
           <FormError error={errorMessage} />
 
-          {/* Name */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium text-main"
-            >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Name
             </label>
             <input
@@ -289,26 +209,13 @@ cursor-pointer
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="
-                input-modern
-                w-full
-                px-4
-                py-3
-                rounded-2xl
-                border-1
-                border-slate-200
-                text-sm
-              "
+              className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
             />
             <FormError error={errors.name} />
           </div>
 
-          {/* Email */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-main"
-            >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Email
             </label>
             <input
@@ -318,25 +225,12 @@ cursor-pointer
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="
-                input-modern
-                w-full
-                px-4
-                py-3
-                rounded-2xl
-                text-sm
-                border-1
-                border-slate-200
-              "
+              className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
             />
           </div>
 
-          {/* Password */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-main"
-            >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Password
             </label>
             <div className="relative">
@@ -347,62 +241,32 @@ cursor-pointer
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  px-4
-                  py-3
-                  pr-11
-                  rounded-2xl
-                  text-sm
-                  border-1
-                  border-slate-200
-                "
+                className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400 pr-11"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="
-                  absolute
-                  right-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-muted
-                  hover:text-main
-                  transition-colors
-                  cursor-pointer
-                "
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
-                {showPassword ? (
-                  <Eye size={18} />
-                ) : (
-                  <EyeOff size={18} />
-                )}
+                {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
             <FormError error={errors.password} />
 
-            <p className="text-xs text-gray-500 dark:text-slate-400">
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold leading-normal mt-0.5">
               Use at least 8 characters, including 1 uppercase letter,
               1 lowercase letter, 1 number, and 1 special character.
             </p>
 
             {passwordStrength && (
-              <span
-                className={`text-xs font-medium ${passwordStrength.color}`}
-              >
+              <span className={`text-xs font-bold mt-0.5 ${passwordStrength.color}`}>
                 Password Strength: {passwordStrength.text}
               </span>
             )}
-
           </div>
 
-          {/* Confirm Password */}
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="confirmPassword"
-              className="text-sm font-medium text-main"
-            >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="confirmPassword" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Confirm Password
             </label>
             <div className="relative">
@@ -413,69 +277,33 @@ cursor-pointer
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  px-4
-                  py-3
-                  pr-11
-                  rounded-2xl
-                  text-sm
-                  border-1
-                  border-slate-200
-                "
+                className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400 pr-11"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="
-                  absolute
-                  right-4
-                  top-1/2
-                  -translate-y-1/2
-                  text-muted
-                  hover:text-main
-                  transition-colors
-                  cursor-pointer
-                "
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
-                {showConfirmPassword ? (
-                  <Eye size={18} />
-                ) : (
-                  <EyeOff size={18} />
-                )}
+                {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
             <FormError error={errors.confirmPassword} />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isLoading || isGoogleLoading}
-            className="
-              btn btn-primary
-              w-full
-              py-3
-              rounded-2xl
-              cursor-pointer
-              disabled:opacity-50
-            "
+            className="w-full py-3 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-bold rounded-xl transition-colors shadow-xs cursor-pointer disabled:opacity-50 mt-2"
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
 
 
-          {/* Footer */}
-          <p className="text-center text-sm text-muted">
+          <p className="text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="
-                text-main
-                font-semibold
-                hover:underline
-              "
+              className="text-[#3b8ea0] dark:text-[#4eb7b3] font-bold hover:underline"
             >
               Login
             </Link>
