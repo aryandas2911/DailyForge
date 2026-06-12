@@ -1,23 +1,27 @@
-import { useContext, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import api from '../api/axios';
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { Upload } from "lucide-react";
+import api from "../api/axios";
 
 const Profile = () => {
   // auth context
   const { user, setUser } = useContext(AuthContext);
 
   // states
-  const [name, setName] = useState(user?.name || '');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
+  const [name, setName] = useState(user?.name || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [primaryColor, setPrimaryColor] = useState(
+    user?.primaryColor || "#4eb7b3",
+  );
+  const [profileImage, setProfileImage] = useState("");
 
   // update name handler
   const handleNameUpdate = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await api.put('/auth/update-profile', {
+      const res = await api.put("/auth/update-profile", {
         name,
       });
 
@@ -26,7 +30,7 @@ const Profile = () => {
 
       alert(res.data.message);
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update name');
+      alert(error.response?.data?.message || "Failed to update name");
     }
   };
 
@@ -35,7 +39,7 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const res = await api.put('/auth/update-profile', {
+      const res = await api.put("/auth/update-profile", {
         currentPassword,
         newPassword,
       });
@@ -43,10 +47,10 @@ const Profile = () => {
       alert(res.data.message);
 
       // clear password fields
-      setCurrentPassword('');
-      setNewPassword('');
+      setCurrentPassword("");
+      setNewPassword("");
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update password');
+      alert(error.response?.data?.message || "Failed to update password");
     }
   };
 
@@ -55,29 +59,29 @@ const Profile = () => {
     e.preventDefault();
 
     try {
-      const res = await api.put('/auth/update-profile', {
+      const res = await api.put("/auth/update-profile", {
         primaryColor,
       });
 
       setUser(res.data.user);
-      alert('Theme updated successfully');
+      alert("Theme updated successfully");
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update theme');
+      alert(error.response?.data?.message || "Failed to update theme");
     }
   };
 
   // reset theme handler
   const handleThemeReset = async () => {
     try {
-      const res = await api.put('/auth/update-profile', {
-        primaryColor: '#4eb7b3',
+      const res = await api.put("/auth/update-profile", {
+        primaryColor: "#4eb7b3",
       });
 
       setUser(res.data.user);
-      setPrimaryColor('#4eb7b3');
-      alert('Theme reset successfully');
+      setPrimaryColor("#4eb7b3");
+      alert("Theme reset successfully");
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to reset theme');
+      alert(error.response?.data?.message || "Failed to reset theme");
     }
   };
 
@@ -96,17 +100,74 @@ const Profile = () => {
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div
-              className="
-        w-20 h-20 rounded-full
-        bg-gradient-to-tr
-        from-[#4eb7b3]
-        to-[#98e1d7]
-        flex items-center justify-center
-        text-white text-3xl font-bold
-      "
-            >
-              {user?.name?.charAt(0).toUpperCase()}
+            <div className="flex flex-row gap-4 align-baseline">
+              <div
+                className="
+    w-20 h-20 
+    rounded-full 
+    overflow-hidden      
+    bg-gradient-to-tr
+    from-[#4eb7b3]
+    to-[#98e1d7]
+    flex items-center justify-center
+    text-white text-3xl font-bold
+    flex-shrink-0 "
+              >
+                {user?.photo || profileImage ? (
+                  <img
+                    src={profileImage || user?.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
+              </div>
+              <label className="mt-10 bg-transparent dark:text-white text-black rounded-lg cursor-pointer transition text-sm font-medium">
+                <Upload />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const maxAllowedSize = 3 * 1024 * 1024;
+                    if (file.size > maxAllowedSize) {
+                      alert(
+                        "File is too large! Please choose an image under 3MB.",
+                      );
+                      return;
+                    }
+                    const formData = new FormData();
+                    formData.append("profileImage", file);
+
+                    try {
+                      const response = await api.post(
+                        "/auth/upload-profile",
+                        formData,
+                        {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                          },
+                        },
+                      );
+
+                      if (response.data?.imageUrl) {
+                        setProfileImage(response.data.imageUrl);
+                        setUser(response.data.user);
+                        alert("Profile picture updated successfully!");
+                      }
+                    } catch (error) {
+                      console.error("Upload failed:", error);
+                      alert(
+                        error.response?.data?.error || "Error uploading image",
+                      );
+                    }
+                  }}
+                />
+              </label>
             </div>
 
             <div>
@@ -290,7 +351,10 @@ const Profile = () => {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="primaryColor" className="text-sm font-medium text-main">
+              <label
+                htmlFor="primaryColor"
+                className="text-sm font-medium text-main"
+              >
                 Primary Color
               </label>
 
@@ -302,7 +366,9 @@ const Profile = () => {
                   onChange={(e) => setPrimaryColor(e.target.value)}
                   className="w-10 h-10 rounded cursor-pointer border-0 p-0"
                 />
-                <span className="text-sm text-muted font-mono">{primaryColor}</span>
+                <span className="text-sm text-muted font-mono">
+                  {primaryColor}
+                </span>
               </div>
             </div>
 
@@ -317,7 +383,7 @@ const Profile = () => {
               >
                 Save Theme Changes
               </button>
-              
+
               <button
                 type="button"
                 onClick={handleThemeReset}
