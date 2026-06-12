@@ -6,10 +6,8 @@ const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  // Hide the button on login and root pages
   const isLoginPage = location.pathname === "/login" || location.pathname === "/";
 
-  // Toggle visibility based on scroll position
   const toggleVisibility = () => {
     if (window.scrollY > 100) {
       setIsVisible(true);
@@ -18,7 +16,6 @@ const ScrollToTop = () => {
     }
   };
 
-  // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -40,8 +37,6 @@ const ScrollToTop = () => {
     });
   }, [location.pathname]);
 
-  // Don't render the button if we are on the login page
-  // Force the button to always show on the Tasks page so it's never hidden
   const isTasksPage = location.pathname === "/tasks";
   const shouldShow = isVisible || isTasksPage;
 
@@ -52,8 +47,7 @@ const ScrollToTop = () => {
       {shouldShow && (
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[var(--primary)] text-white shadow-lg hover:bg-[var(--primary-hover)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
-          className="p-3 rounded-full bg-[var(--primary)] text-white shadow-lg border border-white/10 dark:border-slate-700 hover:bg-[var(--primary-hover)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+          className="p-3 rounded-full bg-[#3b8ea0] text-white shadow-lg border border-white/10 dark:border-slate-700 hover:bg-[#4eb7b3] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#3b8ea0] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           aria-label="Scroll to top"
         >
           <ArrowUp size={24} />
