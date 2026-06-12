@@ -83,116 +83,114 @@ export default function RoutineOverviewModal({
   }, {});
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm px-4 animate-in">
-      {/* Toast Notification */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-xs px-4 animate-in">
       {showToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
-          <div className="rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl px-5 py-4 min-w-[320px]">
             <div className="flex items-start gap-3">
               <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
               <div>
-                <p className="text-sm font-semibold text-main">{toastMessage}</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">{toastMessage}</p>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="w-full max-w-2xl rounded-3xl p-6 bg-white dark:bg-[#1e293b] shadow-2xl border border-soft/50 max-h-[90vh] overflow-y-auto flex flex-col justify-between">
-        
-        {/* Header */}
-        <div className="flex items-start justify-between mb-6 pb-4 border-b border-soft/20">
-          <div>
-            <h2 className="text-2xl font-bold text-main">
-              {routine.name}
-            </h2>
+      <div className="w-full max-w-2xl rounded-3xl p-6 bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800/80 max-h-[90vh] overflow-y-auto flex flex-col justify-between transition-colors duration-300">
+        <div>
+          <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+            <div className="min-w-0">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white truncate">
+                {routine.name}
+              </h2>
 
-            {routine.description && (
-              <p className="text-sm text-muted mt-2 max-w-lg leading-relaxed italic">
-                {routine.description}
-              </p>
-            )}
+              {routine.description && (
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-lg leading-relaxed italic break-words">
+                  {routine.description}
+                </p>
+              )}
 
-            <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold">
-              <span className="flex items-center gap-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/40 px-3 py-1 text-cyan-600 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-800/40">
-                <Layers size={12} />
-                {routine.items.length} Tasks
-              </span>
+              <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold">
+                <span className="flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <Layers size={12} className="text-slate-400 dark:text-slate-500" />
+                  {routine.items.length} Tasks
+                </span>
 
-              <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/40">
-                <Calendar size={12} />
-                Routine Template
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 relative shrink-0">
-            {/* 3-dot menu */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu((prev) => !prev);
-              }}
-              className="rounded-xl border border-soft p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-muted hover:text-main cursor-pointer"
-            >
-              <MoreVertical size={18} />
-            </button>
-
-            {showMenu && (
-              <div className="absolute top-12 right-10 w-48 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
-                <button
-                  onClick={handleCopyLink}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
-                >
-                  <Share2 size={16} />
-                  Copy Share Link
-                </button>
-                <button
-                  onClick={handleCopySummary}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
-                >
-                  <Copy size={16} />
-                  Copy Summary
-                </button>
-                <button
-                  onClick={handleExportPDF}
-                  disabled={isExporting}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
-                >
-                  {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-                  Export as PDF
-                </button>
-                <div className="border-t border-soft/20"></div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteRoutine();
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition font-medium cursor-pointer"
-                >
-                  <Trash2 size={16} />
-                  Delete Routine
-                </button>
+                <span className="flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                  <Calendar size={12} className="text-slate-400 dark:text-slate-500" />
+                  Routine Template
+                </span>
               </div>
-            )}
+            </div>
 
-          
+            <div className="flex items-center gap-2 relative shrink-0 ml-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu((prev) => !prev);
+                }}
+                className="rounded-xl border border-slate-200 dark:border-slate-700 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
+                aria-label="Routine options"
+                aria-haspopup="true"
+                aria-expanded={showMenu}
+              >
+                <MoreVertical size={18} />
+              </button>
 
-            {/* Close */}
-            <button
-              onClick={onClose}
-              className="rounded-xl border border-soft p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-muted hover:text-main cursor-pointer"
-            >
-              <X size={18} />
-            </button>
+              {showMenu && (
+                <div className="absolute top-12 right-0 w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+                  <button
+                    onClick={handleCopyLink}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition font-medium cursor-pointer"
+                  >
+                    <Share2 size={16} className="text-slate-400 dark:text-slate-500" />
+                    Copy Share Link
+                  </button>
+                  <button
+                    onClick={handleCopySummary}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition font-medium cursor-pointer"
+                  >
+                    <Copy size={16} className="text-slate-400 dark:text-slate-500" />
+                    Copy Summary
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    disabled={isExporting}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition font-medium cursor-pointer disabled:opacity-50"
+                  >
+                    {isExporting ? <Loader2 size={16} className="animate-spin text-slate-400" /> : <Download size={16} className="text-slate-400 dark:text-slate-500" />}
+                    Export as PDF
+                  </button>
+                  <div className="border-t border-slate-100 dark:border-slate-800"></div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteRoutine();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition font-medium cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                    Delete Routine
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={onClose}
+                className="rounded-xl border border-slate-200 dark:border-slate-700 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
+                aria-label="Close layout panel"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Timeline */}
-        <div className="space-y-6 flex-1 overflow-y-auto pr-1 py-2 max-h-[50vh]">
+        <div className="space-y-6 flex-1 overflow-y-auto pr-1 py-2 max-h-[50vh] scrollbar-thin">
           {Object.keys(tasksByDay).map((day) => (
             <div key={day} className="space-y-3">
-              <h3 className="text-base font-bold text-main uppercase tracking-wider border-l-4 border-[#4eb7b3] pl-2.5">
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider border-l-4 border-[#3b8ea0] pl-2.5">
                 {day}
               </h3>
 
@@ -200,34 +198,29 @@ export default function RoutineOverviewModal({
                 {tasksByDay[day]
                   .sort((a, b) => a.startTime - b.startTime)
                   .map((task) => {
-                    const hours = String(
-                      Math.floor(task.startTime / 60)
-                    ).padStart(2, "0");
-
-                    const minutes = String(
-                      task.startTime % 60
-                    ).padStart(2, "0");
+                    const hours = String(Math.floor(task.startTime / 60)).padStart(2, "0");
+                    const minutes = String(task.startTime % 60).padStart(2, "0");
 
                     return (
                       <div
                         key={task.taskId}
-                        className="rounded-2xl border border-soft/30 bg-slate-50 dark:bg-slate-800/30 p-4 hover:shadow-sm hover:border-soft/60 transition duration-200"
+                        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 p-4 hover:shadow-xs transition duration-200"
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 min-w-0">
-                            <span className="h-2.5 w-2.5 rounded-full bg-[#4eb7b3] shrink-0" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#3b8ea0] shrink-0" />
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-main truncate">
+                              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
                                 {task.title}
                               </p>
-                              <p className="text-[11px] text-muted mt-0.5 flex items-center gap-1">
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1 font-medium">
                                 <Clock size={10} />
                                 Active Task
                               </p>
                             </div>
                           </div>
 
-                          <div className="text-xs font-semibold text-main rounded-xl border border-soft/40 px-3 py-1 bg-white dark:bg-slate-800 shrink-0">
+                          <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1 bg-white dark:bg-slate-800 shrink-0">
                             {hours}:{minutes}
                           </div>
                         </div>
@@ -239,25 +232,23 @@ export default function RoutineOverviewModal({
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 pt-4 border-t border-soft/20 shrink-0">
+        <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800/60 shrink-0">
           {isRoutineStarted ? (
             <button
-              className="w-full rounded-2xl py-3 bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition cursor-pointer shadow-sm"
+              className="w-full rounded-xl py-2.5 bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold shadow-xs active:scale-[0.99] transition cursor-pointer"
               onClick={handleStopRoutine}
             >
               Stop Routine
             </button>
           ) : (
             <button
-              className="btn btn-primary w-full rounded-2xl py-3 font-semibold hover-lift cursor-pointer"
+              className="w-full rounded-xl py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold shadow-xs active:scale-[0.99] transition cursor-pointer"
               onClick={handleStartRoutine}
             >
               Start This Routine
             </button>
           )}
         </div>
-
       </div>
     </div>
   );
