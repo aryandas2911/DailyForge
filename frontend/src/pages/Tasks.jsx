@@ -271,12 +271,29 @@ export default function Tasks() {
             </button>
 
             {/* Notes Popover */}
-            {isNotesOpen && (
-              <div className="absolute top-full right-0 mt-3 z-50 w-80 md:w-96 bg-white dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden animate-in fade-in slide-in-from-top-4 border border-gray-100 dark:border-slate-800">
-                <NotesWidget />
-              </div>
-            )}
           </div>
+{isNotesOpen && (
+  <>
+    {/* Mobile View - No Overlap */}
+    <div className="block md:hidden w-full mt-4">
+      <NotesWidget />
+    </div>
+
+    {/* Desktop View - Popover */}
+    <div
+      className="
+        hidden md:block
+        absolute top-full right-0 mt-3 z-50
+        w-96
+        bg-white dark:bg-slate-900
+        shadow-2xl rounded-2xl overflow-hidden
+        border border-gray-100 dark:border-slate-800
+      "
+    >
+      <NotesWidget />
+    </div>
+  </>
+)}
         </div>
 
         {/* Bulk Edit Panel */}
