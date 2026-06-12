@@ -18,7 +18,15 @@ async function fetchGooglePublicKeys() {
 
   try {
     const url = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
-    const response = await fetch(url);
+    const controller = new AbortController();
+
+const timeout = setTimeout(() => controller.abort(), 5000);
+
+const response = await fetch(url, {
+  signal: controller.signal,
+});
+
+clearTimeout(timeout);
     if (!response.ok) {
       throw new Error(`Failed to fetch Google public keys: ${response.statusText}`);
     }
@@ -107,9 +115,9 @@ if (!projectId) {
     }
 
     const { kid } = decodedToken.header;
-    if (!kid) {
-      throw new Error("Token header is missing 'kid' field");
-    }
+   if (!kid || typeof kid !== "string") {
+  throw new Error("Invalid Firebase token header");
+}
 
     // 2. Retrieve active public certificates from Google
     const publicKeys = await fetchGooglePublicKeys();
@@ -127,11 +135,6 @@ if (!projectId) {
     }
     if (verified.aud !== projectId) {
       throw new Error(`Invalid token audience (project ID): ${verified.aud}`);
-    }
-    
-    const now = Math.floor(Date.now() / 1000);
-    if (verified.exp && verified.exp < now) {
-      throw new Error("Firebase ID token has expired");
     }
 
     return verified;
