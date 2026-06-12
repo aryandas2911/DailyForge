@@ -20,9 +20,11 @@ const PublicRoute = ({ children }) => {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-lg"
+          className="w-16 h-16 rounded-2xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-lg"
         >
-          <span className="text-white font-bold text-3xl leading-none tracking-tighter select-none">D</span>
+          <span className="text-white font-bold text-3xl leading-none tracking-tighter select-none">
+            D
+          </span>
         </motion.div>
         <motion.div
           initial={{ opacity: 0.5 }}
