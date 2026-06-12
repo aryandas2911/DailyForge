@@ -44,57 +44,35 @@ export default function NotesWidget() {
   const completedCount = notes.filter((n) => n.completed).length;
 
   return (
-    <div className="card p-0 shadow-sm flex flex-col overflow-hidden">
-      {/* Header */}
-      <div
-        className="flex items-center justify-between px-6 py-4"
-        style={{ borderBottom: "1px solid var(--border)" }}
-      >
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col overflow-hidden transition-colors duration-300 w-full">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/60">
         <div className="flex items-center gap-3">
-          <StickyNote size={20} style={{ color: "var(--primary)" }} />
-          <h3
-            className="text-xl font-semibold"
-            style={{ color: "var(--text-main)" }}
-          >
+          <StickyNote size={20} className="text-[#3b8ea0]" />
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
             Quick Notes
           </h3>
         </div>
-        <span
-          className="text-sm font-medium px-2.5 py-1 rounded-full"
-          style={{
-            backgroundColor: "var(--accent)",
-            color: "var(--text-muted)",
-          }}
-        >
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
           {completedCount}/{notes.length} done
         </span>
       </div>
 
-      {/* Notes List */}
-      <div className="px-6 py-4 flex flex-col gap-1">
+      <div className="px-4 py-3 flex flex-col gap-1">
         {notes.map((note) => (
           <div
             key={note.id}
-            className="flex items-center gap-3 group relative rounded-lg px-2 py-2.5 transition-colors"
-            style={{
-              backgroundColor: "transparent",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--accent)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
+            className="flex items-center gap-3 group relative rounded-xl px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
           >
             <button
               onClick={() => toggleComplete(note.id)}
-              className="flex-shrink-0 transition-colors cursor-pointer"
-              style={{ color: note.completed ? "var(--primary)" : "var(--text-muted)" }}
+              className={`flex-shrink-0 transition-colors cursor-pointer ${
+                note.completed ? "text-[#3b8ea0]" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
+              }`}
             >
               {note.completed ? (
-                <CheckCircle2 size={22} />
+                <CheckCircle2 size={20} />
               ) : (
-                <Circle size={22} strokeWidth={1.5} />
+                <Circle size={20} strokeWidth={2} />
               )}
             </button>
             <textarea
@@ -120,35 +98,21 @@ export default function NotesWidget() {
             />
             <button
               onClick={() => removeNote(note.id)}
-              className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1 rounded-md"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#ef4444")}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--text-muted)")
-              }
+              className="absolute right-3 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer p-1 rounded-lg"
               aria-label="Delete note"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         ))}
       </div>
 
-      {/* Add Note Button */}
-      <div
-        className="px-6 py-3"
-        style={{ borderTop: "1px solid var(--border)" }}
-      >
+      <div className="px-6 py-3.5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/10">
         <button
           onClick={addNote}
-          className="flex items-center gap-2 text-base font-medium transition-colors cursor-pointer w-max rounded-lg px-3 py-1.5"
-          style={{ color: "var(--text-muted)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--primary)")}
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--text-muted)")
-          }
+          className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-[#3b8ea0] dark:hover:text-white transition-colors cursor-pointer"
         >
-          <Plus size={18} /> Add Note
+          <Plus size={16} /> Add Note
         </button>
       </div>
     </div>
