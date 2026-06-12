@@ -48,7 +48,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 16 }}
           transition={{ type: "spring", stiffness: 400, damping: 28 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-[#98e1d7]/30 dark:border-slate-700 p-8 w-full max-w-sm text-center shadow-xl"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--border)]/30 dark:border-slate-700 p-8 w-full max-w-sm text-center shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Icon */}
@@ -70,7 +70,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={onCancel}
-              className="flex-1 py-2.5 rounded-xl border border-[#98e1d7]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-[var(--border)]/50 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               Cancel
             </motion.button>
@@ -137,7 +137,9 @@ const Navbar = () => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const handleConfirmLogout = (e) => {
@@ -199,37 +201,38 @@ const Navbar = () => {
     if (document.getElementById("theme-transition-overlay")) return;
 
     const { clientX, clientY } = e;
-    const isDark = theme === "dark";
-
-    // Background color of the TARGET theme
-    const targetColor = isDark ? "#ffffff" : "#0f172a";
 
     const overlay = document.createElement("div");
     overlay.id = "theme-transition-overlay";
+
     overlay.style.position = "fixed";
-    overlay.style.backgroundColor = targetColor;
     overlay.style.borderRadius = "50%";
     overlay.style.zIndex = "9999";
     overlay.style.pointerEvents = "none";
 
     const size = 10;
+
     overlay.style.width = `${size}px`;
     overlay.style.height = `${size}px`;
+
     overlay.style.top = `${clientY - size / 2}px`;
     overlay.style.left = `${clientX - size / 2}px`;
+
     overlay.style.transformOrigin = "center center";
 
     document.body.appendChild(overlay);
 
     const maxDistX = Math.max(clientX, window.innerWidth - clientX);
     const maxDistY = Math.max(clientY, window.innerHeight - clientY);
+
     const maxRadius = Math.sqrt(maxDistX * maxDistX + maxDistY * maxDistY);
+
     const scale = (maxRadius * 2) / size;
 
     gsap.to(overlay, {
-      scale: scale,
-      duration: 0.6,
-      ease: "power2.inOut",
+      scale,
+      duration: 0.75,
+      ease: "power3.inOut",
       onComplete: () => {
         toggleTheme();
 
@@ -269,8 +272,8 @@ const Navbar = () => {
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/60 dark:bg-slate-900/70 backdrop-blur-xl shadow-md border-b border-soft"
-            : "bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shadow-sm border-b border-soft",
+            ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm"
+            : "bg-transparent border-b border-transparent",
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -327,7 +330,7 @@ const Navbar = () => {
                 whileHover={{ scale: 1.1, rotate: 15 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleThemeToggle}
-                className="p-2.5 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
+                className="p-2.5 rounded-xl border border-soft text-main hover:bg-[var(--bg)]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
                 aria-label="Toggle dark mode"
               >
                 {theme === "dark" ? (
@@ -344,7 +347,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-[#4eb7b3] hover:text-[#3b8ea0] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[#d0f6e3]/50"
+                    className="text-sm font-medium text-primary hover:text-[var(--text-main)] dark:hover:text-white dark:hover:bg-gray-800 transition-colors px-4 py-2 rounded-xl hover:bg-[var(--bg)]/50"
                   >
                     Login
                   </Link>
@@ -356,13 +359,25 @@ const Navbar = () => {
                   </Link>
                 </>
               ) : (
-                <button
-                  onClick={handleLogoutClick}
-                  className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
+                <>
+                  {/*pomodoro focus mode*/}
+
+                  <Link
+                    to="/focus-mode"
+                    className="px-4 py-2 rounded-xl btn btn-primary flex items-center gap-2 text-sm font-bold"
+                  >
+                    <Timer size={16} />
+                    Focus Mode
+                  </Link>
+
+                  <button
+                    onClick={handleLogoutClick}
+                    className="btn btn-primary text-sm flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </>
               )}
             </div>
 
@@ -372,7 +387,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-xl text-[#3b8ea0] dark:text-white hover:bg-[#d0f6e3] dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                className="p-2 rounded-xl text-[var(--text-main)] dark:text-white hover:bg-[var(--bg)] dark:hover:bg-gray-800 transition-colors focus:outline-none"
                 aria-label="Toggle menu"
                 aria-expanded={isOpen}
                 aria-controls="mobile-navigation-menu"

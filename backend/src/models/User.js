@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    photo: {
+      type: String,
+      required: false,
+    },
 
     // ─── Two-Factor Authentication ──────────────────────────────────────────
     twoFactorEnabled: {
@@ -38,6 +42,10 @@ const userSchema = new mongoose.Schema(
     backupCodes: {
       type: [String],
       default: [],
+    },
+    primaryColor: {
+      type: String,
+      default: '#3b82f6',
     },
     // ────────────────────────────────────────────────────────────────────────
   },
