@@ -36,7 +36,6 @@ export default function Dashboard() {
 
   const today = new Date();
 
-  //quotes array and random selection
   const motivationalQuotes = [
     "Win the morning, win the day.",
     "Small progress is still progress.",
@@ -78,7 +77,6 @@ export default function Dashboard() {
     return saved ? JSON.parse(saved) : [];
   });
   const [showTagModal, setShowTagModal] = useState(false);
-
   const [customTag, setCustomTag] = useState("");
 
   const [quote] = useState(() => {
@@ -86,6 +84,7 @@ export default function Dashboard() {
       Math.floor(Math.random() * motivationalQuotes.length)
     ];
   });
+
   const todayTasks = tasks.filter((task) => {
     if (!task.dueDate) return false;
     const due = new Date(task.dueDate);
@@ -124,7 +123,6 @@ export default function Dashboard() {
     .filter((task) => task.status !== "Completed")
     .slice(0, 2);
 
-  // Fetch routines
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
@@ -207,8 +205,9 @@ export default function Dashboard() {
       setDuplicatingRoutineId(null);
     }
   };
+
   return (
-    <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
+    <div className="min-h-screen w-full max-w-[1440px] mx-auto bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in transition-colors duration-300">
       <OnboardingModal />
 
         {/* Get Started */}
@@ -277,18 +276,17 @@ export default function Dashboard() {
                 </span>
                 <button
                   onClick={() => setmoreTags(false)}
-                  className="text-red-500 hover:text-red-400 font-medium transition-colors"
+                  className="text-rose-500 hover:text-rose-600 font-bold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
               </div>
 
-              {/* Tags List */}
-              <ul className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto list-none pl-0">
+              <ul className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto list-none pl-0 mt-0">
                 {selectedTags.map((tag) => (
                   <li
                     key={tag}
-                    className="px-2 py-1 rounded bg-slate-100 dark:bg-cyan-500/15 text-slate-700 dark:text-cyan-400"
+                    className="px-2.5 py-1 rounded-lg font-bold bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] border border-slate-300/30 dark:border-slate-700"
                   >
                     {tag}
                   </li>
@@ -297,7 +295,6 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          // Open Fragment here to wrap Left, Middle, and Right columns
           <>
             {/* Left */}
             <div className="flex-1">
@@ -339,28 +336,23 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Middle */}
-            <div className="relative flex flex-col items-baseline gap-3">
-              {/* Preview Tags */}
-              <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-col items-center lg:items-end gap-3 shrink-0">
+              <div className="flex flex-wrap justify-center gap-1.5">
                 {selectedTags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="px-5 py-2 rounded-full text-sm font-semibold
-        bg-cyan-500/15 text-cyan-400
-        border border-cyan-500/30"
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/40 dark:border-slate-700/60"
                   >
                     {tag}
                   </span>
                 ))}
 
-                {/* Show 'More..' button only when list is closed and there are more than 3 tags */}
                 {!moreTags && selectedTags.length > 3 && (
                   <button
                     onClick={() => setmoreTags(true)}
-                    className="text-sm font-medium text-cyan-500 hover:text-cyan-400 transition-colors self-center"
+                    className="text-xs font-bold text-[#3b8ea0] hover:text-[#4eb7b3] transition-colors self-center px-1 cursor-pointer"
                   >
-                    +{selectedTags.length - 3} More..
+                    +{selectedTags.length - 3} More
                   </button>
                 )}
               </div>
@@ -373,9 +365,8 @@ export default function Dashboard() {
         <LoadingSpinner />
       ) : (
         <>
-          {/* Stats Row */}
-          <section className="flex flex-col lg:flex-row gap-6 w-full">
-            <div className="flex-1 animate-in delay-100">
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+            <div className="animate-in delay-100">
               <StatCard
                 label="Today"
                 value={`${completedToday} / ${totalToday}`}
@@ -383,7 +374,7 @@ export default function Dashboard() {
                 icon={<CheckCircle2 size={20} />}
               />
             </div>
-            <div className="flex-1 animate-in delay-200 transition-none">
+            <div className="animate-in delay-200">
               <StatCard
                 label="This Week"
                 value={`${weeklyCompletionPercent}%`}
@@ -393,7 +384,6 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Daily Reflection Summary - placed below StatCards and above Today's Tasks */}
           <ReflectionSummary
             completedToday={completedToday}
             totalToday={totalToday}
@@ -401,12 +391,11 @@ export default function Dashboard() {
             tasks={tasks}
             upcomingTasks={upcomingTasks}
           />
-          {/* Contribution Heatmap */}
+
           <div className="w-full animate-in delay-200">
             <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
           </div>
 
-          {/* Today's Tasks */}
           <div className="w-full animate-in delay-200">
             <DashboardTasks
               tasks={[...tasks, ...routineTasks]}
@@ -414,58 +403,54 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Bottom Row: TaskPreview + Routines */}
-          <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
-            {/* Upcoming Tasks */}
-            <div className="flex-1 animate-in delay-300">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-200">
+            <div className="w-full animate-in delay-300">
               <TaskPreview tasks={upcomingTasks} updateTask={updateTask} />
             </div>
 
-            {/* Saved Routines */}
-            <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
-              {/* Header with button */}
-              <div className="flex justify-between items-center mb-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col h-[360px] overflow-y-auto relative transition-colors duration-300 scrollbar-thin">
+              <div className="flex justify-between items-center mb-5 shrink-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-semibold text-main">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                     Saved Routines
                   </h2>
                   <button
                     onClick={fetchRoutines}
                     disabled={loadingRoutines}
                     aria-label="Refresh routines"
-                    className="p-1 rounded-full hover:bg-gray-100 transition cursor-pointer disabled:opacity-50"
+                    className="p-1.5 rounded-xl border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-50"
                   >
                     <RotateCw
-                      size={15}
-                      className={`text-muted ${loadingRoutines ? "animate-spin" : ""}`}
+                      size={14}
+                      className={`${loadingRoutines ? "animate-spin" : ""}`}
                     />
                   </button>
                 </div>
                 <button
-                  className="group flex gap-2 self-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-80 active:scale-95 transition-all duration-150 cursor-pointer"
+                  className="group flex gap-1.5 items-center px-4 py-2 rounded-lg bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-medium active:scale-95 transition-all duration-150 cursor-pointer"
                   onClick={() => navigate("/routine-builder")}
                 >
                   Build
-                  <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+                  <ArrowRight size={16} className="transition-transform duration-150 group-hover:translate-x-1" />
                 </button>
               </div>
 
               {loadingRoutines ? (
-                <p className="text-sm text-muted">Loading routines…</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Loading routines…</p>
               ) : savedRoutines.length === 0 ? (
-                <p className="text-sm text-muted text-center mt-10">
+                <p className="text-sm text-slate-400 dark:text-slate-500 text-center mt-12 font-medium italic">
                   No routines saved yet
                 </p>
               ) : (
-                <ul className="space-y-3">
+                <ul className="space-y-3 mt-0 pl-0 list-none">
                   {savedRoutines.map((routine) => (
                     <li
                       key={routine._id}
                       onClick={() => navigate("/routine-builder")}
-                      className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                      className="border-l-4 border-[#3b8ea0] rounded-xl p-4 bg-slate-50 hover:bg-slate-100/70 dark:bg-slate-800/40 dark:hover:bg-slate-800/80 border-y border-r border-slate-200/60 dark:border-slate-800/80 shadow-xs transition-all duration-200 animate-in cursor-pointer"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="font-medium text-main">{routine.name}</p>
+                        <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 truncate pr-1">{routine.name}</p>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -475,17 +460,17 @@ export default function Dashboard() {
                           disabled={duplicatingRoutineId === routine._id}
                           aria-label={`Duplicate ${routine.name}`}
                           title="Duplicate routine"
-                          className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                          className="shrink-0 rounded-xl p-2 border border-slate-200/60 dark:border-slate-700/60 text-slate-400 hover:text-[#3b8ea0] dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 transition cursor-pointer"
                         >
-                          <Copy size={16} />
+                          <Copy size={14} />
                         </button>
                       </div>
                       {routine.description && (
-                        <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 italic break-words">
                           {routine.description}
                         </p>
                       )}
-                      <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-2 uppercase tracking-wider">
                         {routine.items.length} tasks across{" "}
                         {new Set(routine.items.map((i) => i.day)).size} day(s)
                       </p>
@@ -565,41 +550,41 @@ export default function Dashboard() {
       )}
 
       {routineToDuplicate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="card card-primary w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-main">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-sm transition-all transform scale-100">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               Duplicate Routine
             </h3>
-            <p className="mt-1 text-sm text-muted">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               Choose the day for "{routineToDuplicate.name} (Copy)".
             </p>
 
-            <label className="mt-4 block text-sm font-medium text-main">
+            <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Copy to
             </label>
             <select
               value={duplicateTargetDay}
               onChange={(e) => setDuplicateTargetDay(e.target.value)}
-              className="mt-2 w-full rounded-lg border-soft bg-transparent px-3 py-2 text-sm text-main focus:outline-none"
+              className="mt-1.5 w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all cursor-pointer box-border"
             >
               {DAYS_OF_WEEK.map((day) => (
-                <option key={day} value={day}>
+                <option key={day} value={day} className="dark:bg-slate-900 text-slate-900 dark:text-white">
                   {day}
                 </option>
               ))}
             </select>
 
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                className="btn btn-muted"
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
                 onClick={closeDuplicateModal}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="btn btn-primary cursor-pointer"
+                className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
                 onClick={handleDuplicateRoutine}
                 disabled={duplicatingRoutineId === routineToDuplicate._id}
               >
@@ -609,23 +594,33 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
       {showTagModal && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-start justify-center pt-10 z-50"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 px-4"
           onClick={() => setShowTagModal(false)}
         >
           <div
-            className="bg-(--surface) p-6 rounded-xl w-[400px]"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col justify-between overflow-hidden z-10 box-border transition-colors duration-300 animate-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold mb-4">Select Tags</h3>
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Select Tags</h3>
+              <button
+                onClick={() => setShowTagModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1 overflow-y-auto pr-1 py-1 max-h-[40vh] border border-slate-100 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-slate-950/20 scrollbar-thin">
               {availableTags.map((tag) => (
-                <label key={tag} className="flex items-center gap-2">
+                <label key={tag} className="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-300">
                   <input
                     type="checkbox"
                     checked={selectedTags.includes(tag)}
+                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-[#3b8ea0] focus:ring-[#3b8ea0] accent-[#3b8ea0]"
                     onChange={() => {
                       if (selectedTags.includes(tag)) {
                         setSelectedTags(selectedTags.filter((t) => t !== tag));
@@ -634,13 +629,12 @@ export default function Dashboard() {
                       }
                     }}
                   />
-
-                  {tag}
+                  <span>{tag}</span>
                 </label>
               ))}
             </div>
 
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex gap-2 shrink-0">
               <input
                 type="text"
                 value={customTag}
@@ -648,7 +642,6 @@ export default function Dashboard() {
                 placeholder="Create custom tag"
                 className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
               />
-
               <button
                 onClick={() => {
                   if (
@@ -659,18 +652,20 @@ export default function Dashboard() {
                     setCustomTag("");
                   }
                 }}
-                className="px-3 py-2 rounded-lg bg-(--primary) text-white"
+                className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
               >
                 Add
               </button>
             </div>
 
-            <button
-              className="mt-4 px-4 py-2 bg-(--primary) text-white rounded-lg"
-              onClick={() => setShowTagModal(false)}
-            >
-              Save
-            </button>
+            <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800 shrink-0">
+              <button
+                className="w-full py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
+                onClick={() => setShowTagModal(false)}
+              >
+                Save Tags Selection
+              </button>
+            </div>
           </div>
         </div>
       )}
