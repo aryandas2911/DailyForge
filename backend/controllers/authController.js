@@ -369,7 +369,7 @@ export const getUser = async (req, res) => {
 // ─── Update profile ───────────────────────────────────────────────────────────
 export const updateProfile = async (req, res) => {
   try {
-    const { name, currentPassword, newPassword, image } = req.body;
+    const { name, currentPassword, newPassword } = req.body;
     const user = await User.findById(req.userId);
 
     if (!user) {
