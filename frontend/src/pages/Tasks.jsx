@@ -458,7 +458,7 @@ export default function Tasks() {
                 ))
               ) : (
                 <KanbanBoard
-                  viewmode="board"
+                  viewMode="board"
                   tasks={filteredTasks}
                   onToggleComplete={handleToggle}
                   onDelete={(id) => deleteTask(id)}
@@ -467,10 +467,8 @@ export default function Tasks() {
                     setIsModalOpen(true);
                   }}
                   onUpdate={updateTask}
-                  isSelected={selectedIds.includes(task._id)}
-                  onSelect={handleSelect}
                 />
-              ))
+              )
             ) : tasks.length > 0 ? (
               <div className="card p-8 shadow-sm text-center space-y-3">
                 <h3 className="text-lg font-semibold text-main">No matching tasks</h3>
