@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyFirebaseIdToken } from "../utils/firebaseAuth.js";
 import crypto from "crypto";
+import { generateRecurringTasks } from '../utils/generateRecurringTasks.js';
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import dotenv from "dotenv";
@@ -168,7 +169,10 @@ export const login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN || "24h",
       algorithm: JWT_ALGORITHM,
     });
-
+    // fire-and-forget — does NOT block login response
+    generateRecurringTasks(user._id).catch((err) =>
+      console.error("[RecurringTasks] generation error:", err)
+    );
     return res
       .status(200)
       .cookie("token", token, getAuthCookieOptions())

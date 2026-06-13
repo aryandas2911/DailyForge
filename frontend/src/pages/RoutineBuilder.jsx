@@ -18,6 +18,7 @@ import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import { routineTemplates } from '../utils/routineTemplate';
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
@@ -33,7 +34,10 @@ export default function RoutineBuilder() {
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
   const [isImageExporting, setIsImageExporting] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
   const gridRef = useRef(null);
+ 
 
   const exportToImage = async () => {
     if (!gridRef.current) return;
@@ -122,6 +126,7 @@ export default function RoutineBuilder() {
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
         taskId: task.taskId,
+        title: task.title,
         day: selectedDay,
         startTime: task.startTime,
         duration: task.duration,
@@ -181,6 +186,23 @@ export default function RoutineBuilder() {
       )
     );
   };
+  const handleAdoptTemplate = (template) => {
+    let currentHour = 9; 
+    const hydratedTasks = template.tasks.map((task, index) => {
+      const hour = currentHour + index;
+      const formattedTime = `${hour < 10 ? '0' : ''}${hour}:00`;
+      return {
+        taskId: `temp_${crypto.randomUUID()}`, 
+        title: task.title,
+        day: selectedTemplateDay,
+        startTime: formattedTime,
+        duration: task.duration
+      };
+    });
+    setScheduledTasks((prev) => [...prev, ...hydratedTasks]);
+    setIsTemplateModalOpen(false);
+  };
+  
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -231,6 +253,14 @@ export default function RoutineBuilder() {
             {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             {isImageExporting ? "Exporting..." : "Export as PNG"}
           </button>
+          <div className="flex items-center gap-3">
+            <button
+            onClick={() => setIsTemplateModalOpen(true)}
+            className="btn btn-secondary flex items-center gap-2 cursor-pointer hover-lift border border-gray-300 px-4 py-2 rounded-lg"
+            >
+            Start from Template
+            </button>
+          </div>
         </header>
 
         {/* Main Layout */}
@@ -340,6 +370,42 @@ export default function RoutineBuilder() {
                 >
                   Save Routine
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {isTemplateModalOpen && (
+          <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in">
+            <div className="card card-primary w-full max-w-2xl animate-in delay-100 bg-white p-6 rounded-xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-main">Choose a Template</h3>
+                <button onClick={() => setIsTemplateModalOpen(false)} className="text-gray-500 hover:text-black">✕</button>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Target Day</label>
+                <select 
+                  value={selectedTemplateDay}
+                  onChange={(e) => setSelectedTemplateDay(e.target.value)}
+                  className="w-full border-soft rounded-lg px-3 py-2 bg-transparent"
+                >
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {routineTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => handleAdoptTemplate(template)}
+                    className="text-left p-4 border rounded-xl hover:border-blue-500 transition-colors"
+                  >
+                    <h4 className="font-bold text-gray-900">{template.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
