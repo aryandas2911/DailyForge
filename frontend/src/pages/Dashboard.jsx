@@ -2,7 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -35,6 +35,7 @@ export default function Dashboard() {
     "https://i.pravatar.cc/100"
   );
 });
+  const [todayJournal, setTodayJournal] = useState(null);
 
   const today = new Date();
  
@@ -140,8 +141,25 @@ export default function Dashboard() {
       setLoadingRoutines(false);
     }
   };
+
+  const fetchTodayJournal = async () => {
+    try {
+      const todayStr = new Date().toLocaleDateString("en-CA");
+      const res = await api.get(`/journal/by-date/${todayStr}`);
+      if (res.data.success && res.data.journal) {
+        setTodayJournal(res.data.journal);
+      } else {
+        setTodayJournal(null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch today's journal:", err);
+      setTodayJournal(null);
+    }
+  };
+
   useEffect(() => {
     fetchRoutines();
+    fetchTodayJournal();
   }, []);
 
   useEffect(() => {
@@ -258,44 +276,6 @@ const handleDuplicateRoutine = async () => {
         </div>
 
       </header>
-      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
-
-          {/* Left Section */}
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold text-main leading-tight">
-              {getGreeting()}, {user?.name}
-            </h1>
-
-            <p className="text-sm italic text-primary">
-              "{quote}"
-            </p>
-
-            <p className="text-sm text-muted">
-              {new Date()
-                .toLocaleDateString("en-US", {
-                  weekday: "long",
-                  day: "2-digit",
-                  month: "short",
-                })
-                .replace(",", " ·")}
-            </p>
-          </div>
-
-          {/* Right Section */}
-          <div className="flex flex-col items-center gap-2 self-end lg:self-auto">
-            
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
-              onClick={() => setShowProfilePreview(true)}
-            />
-
-            <LiveClock />
-
-          </div>
-
-        </header>
         {showProfilePreview && (
           <div
             className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50 px-4"
@@ -379,11 +359,10 @@ const handleDuplicateRoutine = async () => {
             updateTask={updateTask}
         />
       </div>
-
-      {/* Bottom Row: TaskPreview + Routines */}
-      <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
+      {/* Bottom Row: TaskPreview + Routines + Daily Journal */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
         {/* Upcoming Tasks */}
-        <div className="flex-1 animate-in delay-300">
+        <div className="animate-in delay-300">
           <TaskPreview
             tasks={upcomingTasks}
             updateTask={updateTask}
@@ -391,7 +370,7 @@ const handleDuplicateRoutine = async () => {
         </div>
 
         {/* Saved Routines */}
-        <div className="card flex-1 animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
+        <div className="card animate-in delay-300 flex flex-col h-[340px] overflow-y-auto relative">
           {/* Header with button */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2">
@@ -460,6 +439,72 @@ const handleDuplicateRoutine = async () => {
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Daily Journal */}
+        <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
+          <div className="flex flex-col h-full justify-between">
+            <div>
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={20} className="text-primary" />
+                  <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
+                </div>
+                {todayJournal && (
+                  <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
+                    {todayJournal.mood === "happy" ? "😃" :
+                     todayJournal.mood === "calm" ? "😌" :
+                     todayJournal.mood === "neutral" ? "😐" :
+                     todayJournal.mood === "stressed" ? "🤯" :
+                     todayJournal.mood === "sad" ? "😢" :
+                     todayJournal.mood === "energetic" ? "⚡" : "😴"}
+                  </span>
+                )}
+              </div>
+
+              {/* Body Content */}
+              {todayJournal ? (
+                <div className="space-y-2 text-left">
+                  <h3 className="font-semibold text-main line-clamp-1">
+                    {todayJournal.title || "Untitled Reflection"}
+                  </h3>
+                  <p className="text-sm text-muted line-clamp-4 leading-relaxed">
+                    {todayJournal.content}
+                  </p>
+                  {todayJournal.tags && todayJournal.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {todayJournal.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3 mt-4 text-left">
+                  <p className="text-xs text-muted leading-relaxed">
+                    No journal entry logged for today yet. Reflect on your wins, challenges, and learnings to keep track of your progress.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Action Button */}
+            <div className="mt-2">
+              <button
+                className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
+                onClick={() => navigate("/daily-journal")}
+              >
+                {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
+                <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
       </>
