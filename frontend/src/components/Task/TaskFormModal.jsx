@@ -4,68 +4,6 @@ import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
 import FormError from "../common/FormError";
 
-const priorities = ["Low", "Medium", "High"];
-const DESCRIPTION_MAX_LENGTH = 500;
-const DESCRIPTION_WARNING_LENGTH = 450;
-const TITLE_MAX_LENGTH = 30;
-const TITLE_WARNING_LENGTH = 25;
-
-export default function TaskFormModal({
-  task,
-  onClose,
-  onSubmit,
-  errorMessage,
-  onError,
-}) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [tags, setTags] = useState([]);
-  const [priority, setPriority] = useState("Low");
-  const [dueDate, setDueDate] = useState("");
-  const [dueTime, setDueTime] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [showOtherInput, setShowOtherInput] = useState(false);
-  const [customTagInput, setCustomTagInput] = useState("");
-  const submitLockRef = useRef(false);
-
-  const today = new Date();
-  const todayStr =
-    today.getFullYear() +
-    "-" +
-    String(today.getMonth() + 1).padStart(2, "0") +
-    "-" +
-    String(today.getDate()).padStart(2, "0");
-
-  const maxDateObj = new Date();
-  maxDateObj.setFullYear(today.getFullYear() + 1);
-  const maxDateStr =
-    maxDateObj.getFullYear() +
-    "-" +
-    String(maxDateObj.getMonth() + 1).padStart(2, "0") +
-    "-" +
-    String(maxDateObj.getDate()).padStart(2, "0");
-
-  useEffect(() => {
-    if (task) {
-      setTitle(task.title || "");
-      setDescription(task.description || "");
-      setTags(Array.isArray(task.tags) ? task.tags : []);
-      setPriority(task.priority || "Low");
-      if (task?.dueDate) {
-        const dt = new Date(task.dueDate);
-
-        const datePart = dt.toISOString().slice(0, 10); // YYYY-MM-DD
-        const timePart = dt.toTimeString().slice(0, 5); // HH:MM
-
-        setDueDate(datePart);
-        setDueTime(timePart);
-  import { useState, useEffect, useRef } from "react";
-  import { createPortal } from "react-dom";
-  import { X } from "lucide-react";
-  import { TAGS } from "../../utils/tagUtils";
-  import FormError from "../common/FormError";
-
   const priorities = ["Low", "Medium", "High"];
   const DESCRIPTION_MAX_LENGTH = 500;
   const DESCRIPTION_WARNING_LENGTH = 450;
