@@ -2,6 +2,7 @@ import { Check, Trash2, Pencil, Calendar, Play } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
+import { RefreshCw } from "lucide-react";
 
 const priorityStyles = {
   Low: "border-green-500 bg-green-50 dark:bg-green-950/20",
@@ -11,6 +12,7 @@ const priorityStyles = {
 
 export default function TaskItem({
   task,
+  tasks = [],
   onToggleComplete,
   onDelete,
   onUpdate,
@@ -48,19 +50,21 @@ export default function TaskItem({
             {/* Content */}
 
             <div className="flex-1 min-w-0">
-              <p
-                className={`text-lg font-semibold wrap-break-word ${
-                  isCompleted ? "line-through text-muted" : "text-main"
-                }`}
-              >
-                {task.title}
-              </p>
-                {task.dependsOn && (
-  <p className="text-xs text-muted mt-1">
-    🔗 Depends on: {task.dependsOn.title}
-  </p>
-)}
-          
+              <div className="flex items-center gap-2">
+                <p
+                  className={`text-lg font-semibold wrap-break-word ${
+                    isCompleted ? "line-through text-muted" : "text-main"
+                  }`}
+                >
+                  {task.title}
+                </p>
+                {task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-muted flex-shrink-0" title="Recurring task instance" />
+                )}
+                {task.recurrence?.enabled && !task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-(--primary) flex-shrink-0" title="Recurring task" />
+                )}
+              </div>
 
               <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
                 <span className="uppercase tracking-wide">
@@ -177,19 +181,21 @@ export default function TaskItem({
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <p
-                className={`text-lg font-semibold break-words ${
-                  isCompleted ? "line-through text-muted" : "text-main"
-                }`}
-              >
-                {task.title}
-              </p>
-
-              {task.dependsOn && (
-  <p className="text-xs text-muted mt-1">
-    🔗 Depends on: {task.dependsOn.title}
-  </p>
-)}
+              <div className="flex items-center gap-2">
+                <p
+                  className={`text-lg font-semibold break-words ${
+                    isCompleted ? "line-through text-muted" : "text-main"
+                  }`}
+                >
+                  {task.title}
+                </p>
+                {task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-muted flex-shrink-0" title="Recurring task instance" />
+                )}
+                {task.recurrence?.enabled && !task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-(--primary) flex-shrink-0" title="Recurring task" />
+                )}
+              </div>
 
               <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
                 <span className="uppercase tracking-wide">
@@ -272,15 +278,16 @@ export default function TaskItem({
       </div>
 
       {/* Edit Modal */}
-{isEditModalOpen && (
-  <TaskFormModal
-    task={task}
-    onClose={() => setIsEditModalOpen(false)}
-    onSubmit={handleEditSubmit}
-    errorMessage=""
-    onError={() => {}}
-  />
-)}
+      {isEditModalOpen && (
+        <TaskFormModal
+          task={task}
+          tasks={tasks}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleEditSubmit}
+          errorMessage=""
+          onError={() => {}}
+        />
+      )}
     </>
   );
 }
