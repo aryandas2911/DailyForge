@@ -2,15 +2,27 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, LogOut, LogIn, User, Sun, Moon, TrendingUp,Info } from "lucide-react";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  CheckSquare,
+  Calendar,
+  LogOut,
+  LogIn,
+  User,
+  Sun,
+  Moon,
+  TrendingUp,
+  Timer,
+  Info
+} from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import gsap from "gsap";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import ThemeToggle from "./ThemeToggle";
-import dailyForgeLogo from "../assets/logo.png";
-
 
 // Utility for merging tailwind classes safely
 function cn(...inputs) {
@@ -191,11 +203,13 @@ const Navbar = () => {
     if (document.getElementById("theme-transition-overlay")) return;
 
     const { clientX, clientY } = e;
+
     const overlay = document.createElement("div");
     overlay.id = "theme-transition-overlay";
 
     overlay.style.position = "fixed";
     overlay.style.borderRadius = "50%";
+    overlay.style.zIndex = "9999";
     overlay.style.pointerEvents = "none";
 
     const size = 10;
@@ -340,33 +354,7 @@ const Navbar = () => {
               </NavLink>
             </div>
           )}
-
-            {/* Desktop Navigation */}
-            {user && (
-              <div className="hidden md:flex items-center gap-2">
-                {navLinks.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    className={({ isActive }) =>
-                      cn(
-                        "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
-                        isActive
-                          ? "bg-[var(--bg)] text-[var(--text-main)] shadow-sm"
-                          : "text-[var(--text-muted)] hover:bg-[var(--bg)]/50 hover:text-[var(--text-main)] dark:text-gray-300 dark:hover:bg-gray-800",
-                      )
-                    }
-                  >
-                    <link.icon
-                      size={16}
-                      className={cn("transition-transform duration-200")}
-                    />
-                    {link.name}
-                  </NavLink>
-                ))}
-              </div>
-            )}
-
+          
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-4">
               {/* Premium Dark Mode Toggle */}
@@ -380,7 +368,7 @@ const Navbar = () => {
                 {theme === "dark" ? (
                   <Moon
                     size={18}
-                    className="text-[var(--text-main)] fill-[var(--text-main)]/10"
+                    className="text-[#3b8ea0] fill-[#3b8ea0]/10"
                   />
                 ) : (
                   <Sun size={18} className="text-yellow-400 fill-yellow-400" />
@@ -463,70 +451,6 @@ const Navbar = () => {
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
             >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isOpen ? "close" : "open"}
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 90 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {isOpen ? <X size={24} /> : <Menu size={24} />}
-                </motion.div>
-              </AnimatePresence>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Navigation Dropdown */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            id="mobile-navigation-menu"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
-          >
-            <div className="px-4 pt-2 pb-6 space-y-1">
-              {user && navLinks.map((link) => (
-                <NavLink
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
-                      isActive
-                        ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
-                    )
-                  }
-                >
-                  <link.icon size={18} />
-                  {link.name}
-                </NavLink>
-              ))}
-
-              {/* About link for mobile dropdown  */}
-              <NavLink
-                to="/about"
-                onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
-                  cn(
-                    "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
-                    isActive
-                      ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                      : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
-                  )
-                }
-              >
-                <Info size={18} />
-                About
-              </NavLink>
-
               {/* Premium Mobile Dark Mode Toggle */}
               <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
                 <span className="text-sm font-medium text-main">Theme Mode</span>
@@ -541,7 +465,7 @@ const Navbar = () => {
                       <Link
                         to="/login"
                         onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[var(--text-main)] dark:text-gray-300 font-medium hover:bg-[var(--bg)] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
                       >
                         <LogIn size={18} />
                         Login
@@ -557,24 +481,15 @@ const Navbar = () => {
                       </Link>
                     </>
                   ) : (
-                    <>
-                      {/* Mobile focus mode*/}
-                      <Link
-                        to="/focus-mode"
-                        className="btn btn-primary flex gap-2"
-                      >
-                        <Timer size={16} />
-                        Focus Mode
-                      </Link>
-                      <button
-                        onClick={handleLogoutClick}
-                        className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                      >
-                        <LogOut size={18} />
-                        Logout
-                      </button>
-                    </>
+                    <button
+                      onClick={handleLogoutClick}
+                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
                   )}
+                  </motion.button>
                 </div>
               </div>
             </motion.div>

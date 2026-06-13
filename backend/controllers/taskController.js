@@ -35,7 +35,15 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-    const { title, description, tags, priority, status, dueDate } = req.body;
+   const {
+  title,
+  description,
+  tags,
+  priority,
+  status,
+  dueDate,
+  dependsOn,
+} = req.body;
 
     if (!title || !priority || !status || !dueDate) {
       return res.status(400).json({
@@ -85,6 +93,8 @@ export const createTask = async (req, res) => {
     }
 
     // new task object
+    const { recurrence } = req.body;
+
     const newTask = new Task({
       userId,
       title,
@@ -93,7 +103,9 @@ export const createTask = async (req, res) => {
       priority,
       status,
       dueDate,
+      dependsOn,
       completedAt: status === "Completed" ? new Date() : null,
+      recurrence: recurrence || { enabled: false },
     });
 
     // save task in database
@@ -142,7 +154,11 @@ export const getTasks = async (req, res) => {
 
     // fetch paginated tasks from database
     const [tasks, totalTasks] = await Promise.all([
-      Task.find(taskQuery).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Task.find(taskQuery)
+  .populate("dependsOn", "title status")
+  .sort({ createdAt: -1 })
+  .skip(skip)
+  .limit(limit),
       Task.countDocuments(taskQuery),
     ]);
 
@@ -213,6 +229,31 @@ export const updateTask = async (req, res) => {
         message: "Title must be 50 characters or less",
       });
     }
+
+
+
+    const existingTask = await Task.findOne({
+  _id: taskId,
+  userId,
+}).populate("dependsOn");
+
+if (!existingTask) {
+  return res.status(404).json({
+    success: false,
+    message: "Task not found",
+  });
+}
+
+if (
+  updates.status === "Completed" &&
+  existingTask.dependsOn &&
+  existingTask.dependsOn.status !== "Completed"
+) {
+  return res.status(400).json({
+    success: false,
+    message: "Complete prerequisite task first",
+  });
+}
 
     // Auto-manage completedAt timestamp based on status change
     if (updates.status === "Completed") {

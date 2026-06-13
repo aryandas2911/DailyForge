@@ -36,69 +36,6 @@ const routineSchema = mongoose.Schema(
             "Saturday",
             "Sunday",
           ],
-          adaptiveSettings: {
-         adaptiveEnabled: {
-         type: Boolean,
-         default: true,
-         },
-
-         difficultyLevel: {
-         type: String,
-         enum: ["easy", "moderate", "hard"],
-         default: "moderate",
-         },
-
-         burnoutScore: {
-         type: Number,
-         default: 0,
-         min: 0,
-         max: 100,
-         },
-
-         consistencyScore: {
-         type: Number,
-         default: 100,
-         min: 0,
-         max: 100,
-         },
-
-         fatigueLevel: {
-         type: String,
-         enum: ["low", "medium", "high"],
-         default: "low",
-        },
-
-         recoveryMode: {
-         type: Boolean,
-         default: false,
-        },
-
-         recoveryDays: {
-         type: Number,
-         default: 0,
-         },
-
-           missedDaysCount: {
-           type: Number,
-           default: 0,
-          },
-
-           completedDaysCount: {
-           type: Number,
-           default: 0,
-           },
-
-           sustainabilityScore: {
-            type: Number,
-            default: 100,
-            min: 0,
-            max: 100,
-           },
-
-           lastRecoveryDate: {
-           type: Date,
-           },
-          },
         },
         startTime: {
           type: Number,
@@ -111,6 +48,59 @@ const routineSchema = mongoose.Schema(
         },
       },
     ],
+    adaptiveSettings: {
+      adaptiveEnabled: {
+        type: Boolean,
+        default: true,
+      },
+      difficultyLevel: {
+        type: String,
+        enum: ["easy", "moderate", "hard"],
+        default: "moderate",
+      },
+      burnoutScore: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+      },
+      consistencyScore: {
+        type: Number,
+        default: 100,
+        min: 0,
+        max: 100,
+      },
+      fatigueLevel: {
+        type: String,
+        enum: ["low", "medium", "high"],
+        default: "low",
+      },
+      recoveryMode: {
+        type: Boolean,
+        default: false,
+      },
+      recoveryDays: {
+        type: Number,
+        default: 0,
+      },
+      missedDaysCount: {
+        type: Number,
+        default: 0,
+      },
+      completedDaysCount: {
+        type: Number,
+        default: 0,
+      },
+      sustainabilityScore: {
+        type: Number,
+        default: 100,
+        min: 0,
+        max: 100,
+      },
+      lastRecoveryDate: {
+        type: Date,
+      },
+    },
   },
   { timestamps: true }
 );
