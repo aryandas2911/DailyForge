@@ -85,6 +85,8 @@ export const createTask = async (req, res) => {
     }
 
     // new task object
+    const { recurrence } = req.body;
+
     const newTask = new Task({
       userId,
       title,
@@ -94,6 +96,7 @@ export const createTask = async (req, res) => {
       status,
       dueDate,
       completedAt: status === "Completed" ? new Date() : null,
+      recurrence: recurrence || { enabled: false },
     });
 
     // save task in database
