@@ -17,7 +17,7 @@ export default function Footer() {
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
 
-          {/* Brand Section */}
+
           <div className="md:col-span-4 space-y-5">
             <div>
               <h2 className="text-3xl font-extrabold tracking-tight text-[#f8fafc]">

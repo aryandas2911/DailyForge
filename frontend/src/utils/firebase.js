@@ -1,36 +1,36 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
 
 let app = null;
 let auth = null;
 let googleProvider = null;
 
-// Only initialize Firebase if an API key is provided
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your_firebase_api_key") {
-  // Initialize Firebase
-  app = initializeApp(firebaseConfig);
+if (apiKey && apiKey !== "your_firebase_api_key") {
+  const firebaseConfig = {
+    apiKey: apiKey,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  };
 
-  // Initialize Firebase Auth and Google Provider
-  auth = getAuth(app);
-  googleProvider = new GoogleAuthProvider();
-
-  // Request profile and email scopes (standard for Google Sign-In)
-  googleProvider.addScope("profile");
-  googleProvider.addScope("email");
-
-  // Force account selection screen
-  googleProvider.setCustomParameters({
-    prompt: "select_account",
-  });
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    googleProvider.addScope("profile");
+    googleProvider.addScope("email");
+    googleProvider.setCustomParameters({
+      prompt: "select_account",
+    });
+  } catch (error) {
+    console.error("Failed to initialize Firebase:", error);
+  }
+} else {
+  console.warn("Firebase API Key is missing or default. Google Sign-In will be disabled.");
 }
 
 export { auth, googleProvider };
