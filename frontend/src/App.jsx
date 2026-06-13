@@ -17,6 +17,7 @@ import About from "./pages/About.jsx";
 import Profile from "./pages/Profile.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
+import ForgeMode from "./pages/ForgeMode.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";

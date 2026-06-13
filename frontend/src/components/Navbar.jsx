@@ -100,6 +100,7 @@ const Navbar = () => {
   const toggleRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+
   // Handle scroll effect for premium glassmorphism transition
   useEffect(() => {
     const handleScroll = () => {
@@ -257,7 +258,13 @@ const Navbar = () => {
     { name: "Profile", path: "/profile", icon: User },
   ];
 
+
+  if (location.pathname === "/forge" || location.pathname === "/focus") {
+    return null;
+  }
+
   return (
+
     <>
       {/* logout modal here, outside of nav so that it overlays everything */}
       <LogoutModal
