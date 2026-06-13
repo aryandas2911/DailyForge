@@ -55,6 +55,12 @@ export default function TaskItem({
               >
                 {task.title}
               </p>
+                {task.dependsOn && (
+  <p className="text-xs text-muted mt-1">
+    🔗 Depends on: {task.dependsOn.title}
+  </p>
+)}
+          
 
               <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
                 <span className="uppercase tracking-wide">
@@ -179,6 +185,12 @@ export default function TaskItem({
                 {task.title}
               </p>
 
+              {task.dependsOn && (
+  <p className="text-xs text-muted mt-1">
+    🔗 Depends on: {task.dependsOn.title}
+  </p>
+)}
+
               <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
                 <span className="uppercase tracking-wide">
                   {task.priority} priority
@@ -260,13 +272,15 @@ export default function TaskItem({
       </div>
 
       {/* Edit Modal */}
-      {isEditModalOpen && (
-        <TaskFormModal
-          task={task}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleEditSubmit}
-        />
-      )}
+{isEditModalOpen && (
+  <TaskFormModal
+    task={task}
+    onClose={() => setIsEditModalOpen(false)}
+    onSubmit={handleEditSubmit}
+    errorMessage=""
+    onError={() => {}}
+  />
+)}
     </>
   );
 }
