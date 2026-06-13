@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -13,7 +14,7 @@ import Analytics from "./pages/Analytics.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
-import Profile from './pages/Profile.jsx';
+import Profile from "./pages/Profile.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
@@ -42,7 +43,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><Dashboard /></PageTransition>
+                <PageTransition>
+                  <Dashboard />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -52,7 +55,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><Tasks /></PageTransition>
+                <PageTransition>
+                  <Tasks />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -62,7 +67,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><RoutineBuilder /></PageTransition>
+                <PageTransition>
+                  <RoutineBuilder />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -71,7 +78,9 @@ const AnimatedRoutes = () => {
           path="/profile"
           element={
             <ProtectedRoutes>
-              <PageTransition><Profile /></PageTransition>
+              <PageTransition>
+                <Profile />
+              </PageTransition>
             </ProtectedRoutes>
           }
         />
@@ -79,7 +88,9 @@ const AnimatedRoutes = () => {
           path="/analytics"
           element={
             <ProtectedRoutes>
-              <PageTransition><Analytics /></PageTransition>
+              <PageTransition>
+                <Analytics />
+              </PageTransition>
             </ProtectedRoutes>
           }
         />
