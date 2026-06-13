@@ -58,8 +58,11 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   useEffect(() => {
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerCurrent.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerNew.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerConfirm.current);
     };
   }, []);

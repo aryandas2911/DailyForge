@@ -6,7 +6,6 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
