@@ -441,60 +441,66 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Navigation Dropdown */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              id="mobile-navigation-menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
-            >
-              {/* Premium Mobile Dark Mode Toggle */}
-              <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
-                <span className="text-sm font-medium text-main">Theme Mode</span>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={toggleTheme}
-                  className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
-                  aria-label="Toggle dark mode"
-                >
-                  {!user ? (
-                    <>
-                      <Link
-                        to="/login"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
-                      >
-                        <LogIn size={18} />
-                        Login
-                      </Link>
-
-                      <Link
-                        to="/signup"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                      >
-                        <User size={18} />
-                        Signup
-                      </Link>
-                    </>
-                  ) : (
-                    <button
-                      onClick={handleLogoutClick}
-                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </button>
-                  )}
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      id="mobile-navigation-menu"
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+    >
+      {/* Premium Mobile Dark Mode Toggle */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
+        <span className="text-sm font-medium text-main">Theme Mode</span>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleTheme}
+          className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
+          aria-label="Toggle dark mode"
+        >
+          {theme === "dark" ? (
+            <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
+          ) : (
+            <Sun size={18} className="text-yellow-400 fill-yellow-400" />
           )}
-        </AnimatePresence>
+        </motion.button>
+      </div>
+      
+      <div className="px-4 py-2">
+        {!user ? (
+          <div className="flex flex-col gap-2">
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800"
+            >
+              <LogIn size={18} />
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+            >
+              <User size={18} />
+              Signup
+            </Link>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogoutClick}
+            className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        )}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
       </motion.nav>
     </>
   );
