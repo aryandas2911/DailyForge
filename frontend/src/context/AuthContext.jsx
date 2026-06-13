@@ -18,6 +18,8 @@ const AuthProvider = ({ children }) => {
       console.log(e);
     }
     setUser(null);
+    localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
+    
   };
 
   // restore session on app load
@@ -35,6 +37,18 @@ const AuthProvider = ({ children }) => {
         setIsLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    // Check if the user has a custom color that is not the default
+    if (user?.primaryColor && user.primaryColor.toLowerCase() !== '#4eb7b3') {
+      root.style.setProperty('--primary', user.primaryColor);
+      root.setAttribute('data-theme-custom', 'true');
+    } else {
+      root.style.removeProperty('--primary');
+      root.removeAttribute('data-theme-custom');
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
