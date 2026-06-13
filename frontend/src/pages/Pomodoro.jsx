@@ -10,6 +10,19 @@ const Pomodoro = () => {
 
     const finRef = useRef(new Audio(finSound));
 
+    const stopCompletionSound = () => {
+        if (finRef.current) {
+            finRef.current.pause();
+            finRef.current.currentTime = 0;
+            finRef.current.loop = false;
+        }
+    };
+
+    // Stop audio when the user navigates away from the page
+    useEffect(() => {
+        return () => stopCompletionSound();
+    }, []);
+
     useEffect(()=>{
         let interval;
 
@@ -20,7 +33,6 @@ const Pomodoro = () => {
                         clearInterval(interval);
                         setTimeLeft(25*60);
                         setIsRunning(false);
-                        finRef.current.loop = true;
                         finRef.current.play();
                         setShowPopUp(true);
                         return 0;
@@ -79,7 +91,7 @@ const Pomodoro = () => {
                         </button>
 
                         <button className='cursor-pointer btn btn-primary'
-                            onClick={()=>{setTimeLeft(25*60); setIsRunning(false)}}
+                            onClick={()=>{setTimeLeft(25*60); setIsRunning(false); stopCompletionSound(); setShowPopUp(false);}}
                         >
                             Reset
                         </button>
