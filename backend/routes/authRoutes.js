@@ -12,7 +12,9 @@ import {
   logout,
   googleLogin,
   uploadProfileImage,
-  uploadMiddleware
+  uploadMiddleware,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/authController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
@@ -33,6 +35,8 @@ const twoFALimiter = rateLimit({
 router.post('/signup', signup);
 router.post('/login', login);
 router.post('/google-login', googleLogin);
+router.post('/forgot-password' , forgotPassword);
+router.post('/reset-password' , resetPassword);
 
 // 2FA login completion (rate limited — protects TOTP brute-force)
 router.post('/login-2fa', twoFALimiter, loginWith2FA);

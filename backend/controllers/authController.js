@@ -4,6 +4,7 @@ import User from "../src/models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyFirebaseIdToken } from "../utils/firebaseAuth.js";
+import { sendEmail } from '../utils/mail.js';
 import crypto from "crypto";
 import { generateRecurringTasks } from '../utils/generateRecurringTasks.js';
 import { v2 as cloudinary } from "cloudinary";
@@ -539,3 +540,78 @@ export const uploadMiddleware = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 3 * 1024 * 1024 },
 }).single("profileImage"); 
+
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ message: 'Valid email is required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+      user.resetPasswordToken = resetTokenHash;
+      user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
+      await user.save();
+
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+      const message =`
+         You requested a password reset . Click the link below :
+         ${resetUrl}
+
+         If you did not request this , ignore this mail .
+      `;
+      await sendEmail({
+        to: user.email,
+        subject: 'DailyForge Password Reset',
+        text:message,
+      })
+    }
+
+    return res.status(200).json({
+      message: 'If that email exists, a password reset link has been sent.',
+    });
+  } catch (_error) {
+    console.error('Forgot password error:', _error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const resetPassword = async (req , res) =>{
+  try{
+    const {token , newPassword }= req.body ; 
+    if(!token || !newPassword || typeof newPassword !== 'string'){
+      return res.status(400).json({message:'Token and new password are required'});
+
+    }
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if(!passwordRegex.test(newPassword)){
+      return res.status(400).json({
+        message:'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character'
+      });
+    }
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    
+    const user = await User.findOne({
+      resetPasswordToken: tokenHash,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if(!user){
+      return res.status(400).json({message:'Invalid or expired token '});
+    }
+    user.password = await bcrypt.hash(newPassword , 10);
+    user.resetPasswordToken = null ;
+    user.resetPasswordExpires = null ;
+    await user.save();
+
+    return res.status(200).json({message :'Password has been reset successfully'});
+  }catch(_error){
+    console.error('Reset Password error:' , _error);
+    return res.status(500).json({message:'Server error'});
+  }
+};
+
