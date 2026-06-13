@@ -1,10 +1,11 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
+import FormError from "../components/common/FormError";
 
 // Google Icon
 const GoogleIcon = () => (
@@ -60,32 +61,7 @@ const LoadingSpinner = () => (
 );
 
 const Signup = () => {
-  // Tilt
-  const cardRef = useRef(null);
 
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    card.style.transition = "transform 0.4s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
-  };
 
   // Auth State
   const [name, setName] = useState("");
@@ -216,24 +192,12 @@ const passwordStrength = getPasswordStrength(password);
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="
-          relative
-          z-10
-          w-full
-          max-w-md
-          will-change-transform
-          transform-gpu
-        "
-      >
+      <div className="relative z-10 w-full max-w-md animate-in-slow">
         <form
           onSubmit={handleSubmit}
           className="
             surface-bg
-            animate-in
+            hover-lift
             w-full
             rounded-[30px]
             px-8
@@ -241,7 +205,7 @@ const passwordStrength = getPasswordStrength(password);
             flex
             flex-col
             gap-3
-            mt-[3rem]
+            mt-[-0.3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -264,21 +228,26 @@ const passwordStrength = getPasswordStrength(password);
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
             className="
-            flex items-center justify-center
-            w-full
-            px-4 py-3
-            rounded-2xl
-            border border-teal-400
-            bg-white
-            text-gray-700
-            font-medium
-            transition-all duration-200
-            hover:bg-teal-50
-            hover:-translate-y-[1px]
-            hover:shadow-md
-            disabled:opacity-50
-            cursor-pointer
-          "
+flex items-center justify-center
+w-full px-4 py-3
+rounded-2xl
+!bg-white
+!text-black
+!border
+!border-gray-300
+font-medium
+shadow-sm
+transition-all duration-200
+hover:bg-gray-50
+hover:border-gray-400
+hover:-translate-y-[1px]
+hover:shadow-md
+dark:bg-slate-900/50
+dark:border-slate-700
+dark:text-slate-100
+disabled:opacity-50
+cursor-pointer
+"
           >
             {isGoogleLoading ? (
               <LoadingSpinner />
@@ -302,21 +271,7 @@ const passwordStrength = getPasswordStrength(password);
           </div>
 
           {/* Error */}
-          {errorMessage && (
-            <div
-              className="
-                px-4 py-3
-                rounded-2xl
-                text-sm
-                border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
-              "
-            >
-              {errorMessage}
-            </div>
-          )}
+          <FormError error={errorMessage} />
 
           {/* Name */}
           <div className="flex flex-col gap-2">
@@ -339,12 +294,12 @@ const passwordStrength = getPasswordStrength(password);
                 px-4
                 py-3
                 rounded-2xl
+                border-1
+                border-slate-200
                 text-sm
               "
             />
-            {errors.name && (
-              <span className="text-red-500 text-xs">{errors.name}</span>
-            )}
+            <FormError error={errors.name} />
           </div>
 
           {/* Email */}
@@ -369,6 +324,8 @@ const passwordStrength = getPasswordStrength(password);
                 py-3
                 rounded-2xl
                 text-sm
+                border-1
+                border-slate-200
               "
             />
           </div>
@@ -397,6 +354,8 @@ const passwordStrength = getPasswordStrength(password);
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -420,22 +379,21 @@ const passwordStrength = getPasswordStrength(password);
                 )}
               </button>
             </div>
-            {errors.password && (
-  <span className="text-red-500 text-xs">{errors.password}</span>
-)}
+            <FormError error={errors.password} />
 
-<p className="text-xs text-gray-500">
-  Use at least 8 characters, including 1 uppercase letter,
-  1 lowercase letter, 1 number, and 1 special character.
-</p>
+            <p className="text-xs text-gray-500">
+              Use at least 8 characters, including 1 uppercase letter,
+              1 lowercase letter, 1 number, and 1 special character.
+            </p>
 
-{passwordStrength && (
-  <span
-    className={`text-xs font-medium ${passwordStrength.color}`}
-  >
-    Password Strength: {passwordStrength.text}
-  </span>
-)}
+            {passwordStrength && (
+              <span
+                className={`text-xs font-medium ${passwordStrength.color}`}
+              >
+                Password Strength: {passwordStrength.text}
+              </span>
+            )}
+
           </div>
 
           {/* Confirm Password */}
@@ -462,6 +420,8 @@ const passwordStrength = getPasswordStrength(password);
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -485,9 +445,7 @@ const passwordStrength = getPasswordStrength(password);
                 )}
               </button>
             </div>
-            {errors.confirmPassword && (
-              <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
-            )}
+            <FormError error={errors.confirmPassword} />
           </div>
 
           {/* Submit */}
