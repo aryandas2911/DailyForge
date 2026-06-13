@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
+import FormError from "../common/FormError";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -207,11 +208,7 @@ export default function TaskFormModal({
             {task ? "Edit Task" : "New Task"}
           </h2>
 
-          {errorMessage && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {errorMessage}
-            </div>
-          )}
+          <FormError error={errorMessage} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
