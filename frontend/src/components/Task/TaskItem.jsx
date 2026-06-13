@@ -273,13 +273,13 @@ export default function TaskItem({
 
       {/* Edit Modal */}
 {isEditModalOpen && (
-  <TaskFormModal
-    task={task}
-    onClose={() => setIsEditModalOpen(false)}
-    onSubmit={handleEditSubmit}
-    errorMessage=""
-    onError={() => {}}
-  />
+ <TaskFormModal
+  task={task}
+  onClose={() => setIsEditModalOpen(false)}
+  onSubmit={handleEditSubmit}
+  errorMessage=""
+ onError={console.error}
+/>
 )}
     </>
   );
