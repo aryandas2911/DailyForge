@@ -6,7 +6,6 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 mr-2.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
@@ -245,20 +244,13 @@ cursor-pointer
             </div>
           </div>
           
-          <FormError message={error} />
+          <FormError error={error} />
           
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary cursor-pointer w-full py-3 mt-1 hover-lift disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
+            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
           >
-          <FormError error={error} />
-          <button
-            type="submit"
-            disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50"
-          >
-
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
           <p className="text-center text-sm text-muted">
