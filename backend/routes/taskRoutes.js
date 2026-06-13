@@ -28,6 +28,11 @@ const taskValidationRules = [
     .optional()
     .trim()
     .escape(),
+
+  body("duration")
+    .optional()
+    .isInt({ min: 10 })
+    .withMessage("Duration must be at least 10 minutes"),
 ];
 
 // Partial updates (e.g. status toggle) — only validate fields that are sent

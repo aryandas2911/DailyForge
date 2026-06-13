@@ -35,6 +35,19 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
+    const { title, description, tags, priority, status, dueDate, duration } = req.body;
+    const taskDuration = Number(duration);
+
+    if (!title || !priority || !status || !dueDate || !taskDuration) {
+    const {
+  title,
+  description,
+  tags,
+  priority,
+  status = "Due",
+  dueDate,
+} = req.body;
+    if (!title || !priority || !dueDate) {
     const { title, description, tags, priority, status, dueDate } = req.body;
 
     if (!title || !priority || !status || !dueDate) {
@@ -66,6 +79,13 @@ export const createTask = async (req, res) => {
     const dateEnd = new Date(dateStart);
     dateEnd.setUTCDate(dateEnd.getUTCDate() + 1);
 
+    if (Number.isNaN(taskDuration) || taskDuration < 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Duration must be at least 10 minutes",
+      });
+    }
+
     const existingTask = await Task.findOne({
       userId,
       title: {
@@ -92,6 +112,7 @@ export const createTask = async (req, res) => {
       tags,
       priority,
       status,
+      duration: taskDuration,
       dueDate,
       completedAt: status === "Completed" ? new Date() : null,
     });
@@ -201,6 +222,12 @@ export const updateTask = async (req, res) => {
       });
     }
 
+    // fetch update task details
+    const updates = req.body;
+    if (updates.duration !== undefined) {
+      updates.duration = Number(updates.duration);
+    }
+    const taskId = req.params.id;
     // fetch update task details, strip protected fields to prevent mass assignment
     const updates = { ...req.body };
     delete updates.userId;

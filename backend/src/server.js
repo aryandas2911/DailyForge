@@ -10,6 +10,8 @@ import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 
 // dotenv config
+dotenv.config();
+const PORT = process.env.PORT || 5000;
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
 const PORT = process.env.PORT;
 

@@ -32,6 +32,12 @@ const taskSchema = mongoose.Schema(
       required: true,
       enum: ["Due", "In Progress", "Completed"],
     },
+    duration: {
+      type: Number,
+      required: false,
+      min: 10,
+      default: 30,
+    },
     dueDate: {
       type: Date,
       required: true,

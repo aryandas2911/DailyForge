@@ -14,6 +14,7 @@ import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
+import TimeUsageChart from "../components/Dashboard/TimeUsageChart";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
@@ -24,7 +25,19 @@ import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const [greeting, setGreeting] = useState(getGreeting());
+
+  useEffect(() => {
+    // Update greeting every minute in case the hour changes
+    const interval = setInterval(() => {
+      setGreeting(getGreeting());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const { user, token } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const [savedRoutines, setSavedRoutines] = useState([]);
@@ -130,12 +143,22 @@ export default function Dashboard() {
 
   // Fetch routines
   const fetchRoutines = async () => {
+    if (!token) {
+      setSavedRoutines([]);
+      return;
+    }
+
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
-      setSavedRoutines(res.data.routines || []);
+      if (import.meta.env.DEV) {
+        console.debug("Dashboard fetchRoutines response", res.data);
+      }
+      setSavedRoutines(res.data.routines ?? []);
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.DEV) {
+        console.error("Dashboard fetchRoutines error", err?.response?.data || err.message || err);
+      }
       setSavedRoutines([]);
     } finally {
       setLoadingRoutines(false);
@@ -143,7 +166,7 @@ export default function Dashboard() {
   };
   useEffect(() => {
     fetchRoutines();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
@@ -196,6 +219,49 @@ export default function Dashboard() {
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       <OnboardingModal />
       {/* Header */}
+      <header className="animate-in flex flex-col lg:flex-row justify-between items-start lg:items-center p-6 shadow-md rounded-xl bg-(--surface) gap-6">
+
+          {/* Left Section */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold text-main leading-tight">
+              {greeting}, {user?.name}
+            </h1>
+
+            <p className="text-sm italic text-primary">
+              "{quote}"
+            </p>
+
+            <p className="text-sm text-muted">
+              {new Date()
+                .toLocaleDateString("en-US", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+                })
+                .replace(",", " ·")}
+            </p>
+          </div>
+
+          {/* Right Section */}
+          <div className="flex flex-col items-center gap-2 self-end lg:self-auto">
+            
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
+              onClick={() => setShowProfilePreview(true)}
+            />
+
+            <LiveClock />
+
+          </div>
+
+        </header>
+        {showProfilePreview && (
+          <div
+            className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50 px-4"
+            onClick={() => setShowProfilePreview(false)}
+          >
       <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-[var(--surface)] gap-6">
         {moreTags ? (
           <div className="flex align-middle">
@@ -315,6 +381,52 @@ export default function Dashboard() {
             </div>
           </> // Close Fragment here
         )}
+
+      {/* Stats Row */}
+      <section className="flex flex-col lg:flex-row gap-6 w-full">
+        <div className="flex-1 animate-in delay-100">
+          <StatCard
+            label="Today"
+            value={`${completedToday} / ${totalToday}`}
+            subtitle="Tasks done"
+            icon={<CheckCircle2 size={20} />}
+          />
+        </div>
+        <div className="flex-1 animate-in delay-200">
+          <StatCard
+            label="This Week"
+            value={`${weeklyCompletionPercent}%`}
+            subtitle="Completion"
+            icon={<Calendar size={20} />}
+          />
+        </div>
+      </section>
+
+      {/* Contribution Heatmap */}
+      <div className="w-full animate-in delay-200">
+        <ContributionHeatmap tasks={tasks} routineTasks={routineTasks} />
+      </div>
+
+      {/* Today's Tasks */}
+      <div className="w-full animate-in delay-200">
+        <DashboardTasks
+            tasks={[...tasks, ...routineTasks]}
+            updateTask={updateTask}
+        />
+      </div>
+
+      {/* Time Usage Breakdown */}
+      <div className="w-full animate-in delay-200">
+        <TimeUsageChart tasks={tasks} />
+      </div>
+
+      {/* Bottom Row: TaskPreview + Routines */}
+      <section className="flex animate-in delay-200 flex-col lg:flex-row gap-6 w-full">
+        {/* Upcoming Tasks */}
+        <div className="flex-1 animate-in delay-300">
+          <TaskPreview
+            tasks={upcomingTasks}
+            updateTask={updateTask}
       </header>
 
       {tasksLoading ? (

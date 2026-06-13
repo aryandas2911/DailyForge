@@ -22,6 +22,7 @@ export default function TaskFormModal({
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState([]);
   const [priority, setPriority] = useState("Low");
+  const [duration, setDuration] = useState(30);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [dependsOn, setDependsOn] = useState("");
@@ -54,6 +55,7 @@ export default function TaskFormModal({
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
+      setDuration(task.duration || 30);
       setDependsOn(task.dependsOn?._id || "");
       if (task?.dueDate) {
         const dt = new Date(task.dueDate);
@@ -108,6 +110,8 @@ export default function TaskFormModal({
     if (title.trim().length > TITLE_MAX_LENGTH)
       return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
     if (!priority) return onError?.("Priority is required");
+    if (!duration || duration < 10)
+      return onError?.("Duration must be at least 10 minutes");
     if (!dueDate || !dueTime)
       return onError?.("Due date and time are required");
 
@@ -132,6 +136,7 @@ export default function TaskFormModal({
           tags: tags,
           priority,
           status: task ? task.status : "Due",
+          duration: Number(duration),
           dueDate: `${dueDate}T${dueTime}:00`,
           dependsOn,
         }),
@@ -362,6 +367,26 @@ export default function TaskFormModal({
               </select>
             </div>
 
+            {/* Duration */}
+            <div>
+              <label className="text-sm font-medium text-main">Duration (minutes)</label>
+              <input
+                type="number"
+                value={duration}
+                min={10}
+                max={720}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                disabled={isSubmitting}
+                className="w-full mt-1 p-2 border border-soft rounded-lg
+                           focus:ring-(--primary) focus:border-(--primary)
+                           bg-transparent text-main"
+                placeholder="30"
+                required
+              />
+              <p className="text-xs text-muted mt-1">
+                Recommended duration is at least 10 minutes.
+              </p>
+            </div>
             {/* Depends On */}
 <div>
   <label className="text-sm font-medium text-main">
@@ -408,8 +433,8 @@ export default function TaskFormModal({
                 onChange={(e) => setDueDate(e.target.value)}
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
+                           focus:ring-(--primary) focus:border-(--primary)
+                           bg-transparent text-main"
                 required
               />
             </div>
@@ -423,8 +448,8 @@ export default function TaskFormModal({
                 onChange={(e) => setDueTime(e.target.value)}
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
+                           focus:ring-(--primary) focus:border-(--primary)
+                           bg-transparent text-main"
                 required
               />
             </div>

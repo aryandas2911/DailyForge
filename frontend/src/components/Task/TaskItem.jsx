@@ -112,6 +112,25 @@ export default function TaskItem({
               ${isCompleted ? "bg-(--primary) text-white" : "bg-white dark:bg-slate-800 dark:text-white"}
             `}
             >
+              {task.title}
+            </p>
+
+            <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
+              <span className="uppercase tracking-wide">{task.priority} priority</span>
+
+              {task.duration && (
+                <span className="flex items-center gap-1">
+                  {task.duration >= 60
+                    ? `${Math.floor(task.duration / 60)}h${task.duration % 60 ? ` ${task.duration % 60}m` : ""}`
+                    : `${task.duration} min`}
+                </span>
+              )}
+
+              {task.dueDate && (
+                <span className="flex items-center gap-1">
+                  <Calendar size={12} />
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </span>
               {isCompleted && <Check size={18} />}
             </button>
             <div className="flex items-center gap-2">
