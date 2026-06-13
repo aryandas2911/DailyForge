@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
-import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import FormError from "../components/common/FormError";
