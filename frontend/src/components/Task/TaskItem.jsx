@@ -2,6 +2,7 @@ import { Check, Trash2, Pencil, Calendar, Play } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
+import { RefreshCw } from "lucide-react";
 
 const priorityStyles = {
   Low: "border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/10",
@@ -11,6 +12,7 @@ const priorityStyles = {
 
 export default function TaskItem({
   task,
+  tasks = [],
   onToggleComplete,
   onDelete,
   onUpdate,
@@ -60,10 +62,22 @@ export default function TaskItem({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-medium text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/60 pt-3">
-              <span className="uppercase tracking-wider text-[10px] font-bold">
-                {task.priority}
-              </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p
+                  className={`text-lg font-semibold wrap-break-word ${
+                    isCompleted ? "line-through text-muted" : "text-main"
+                  }`}
+                >
+                  {task.title}
+                </p>
+                {task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-muted flex-shrink-0" title="Recurring task instance" />
+                )}
+                {task.recurrence?.enabled && !task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-(--primary) flex-shrink-0" title="Recurring task" />
+                )}
+              </div>
 
               {task.dueDate && (
                 <span className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
@@ -148,24 +162,50 @@ export default function TaskItem({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5">
-            <div className="flex items-start gap-3 min-w-0">
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => onSelect(task._id)}
-                className="w-4 h-4 mt-1 cursor-pointer rounded border-slate-300 dark:border-slate-700 text-[#3b8ea0] focus:ring-[#3b8ea0] accent-[#3b8ea0]"
-              />
-              <button
-                onClick={() => onToggleComplete(task)}
-                className={`w-8 h-8 rounded-xl flex items-center justify-center border shrink-0 cursor-pointer transition mt-0.5 ${
-                  isCompleted
-                    ? "bg-[#3b8ea0] border-[#3b8ea0] text-white"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                }`}
-              >
-                {isCompleted && <Check size={16} strokeWidth={3} />}
-              </button>
+          <div className="flex items-center gap-6 px-6 py-6">
+            {/* Selection Checkbox */}
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onSelect(task._id)}
+              className="w-4 h-4 cursor-pointer accent-blue-500"
+            />
+            {/* Checkbox */}
+            <button
+              onClick={() => onToggleComplete(task)}
+              className={`
+              w-8 h-8 rounded-md flex items-center justify-center
+              border-soft shrink-0 cursor-pointer
+              transition-transform duration-150
+              ${isCompleted ? "bg-(--primary) text-white" : "bg-white dark:bg-slate-800 dark:text-white"}
+            `}
+            >
+              {isCompleted && <Check size={18} />}
+            </button>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p
+                  className={`text-lg font-semibold break-words ${
+                    isCompleted ? "line-through text-muted" : "text-main"
+                  }`}
+                >
+                  {task.title}
+                </p>
+                {task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-muted flex-shrink-0" title="Recurring task instance" />
+                )}
+                {task.recurrence?.enabled && !task.isRecurringInstance && (
+                  <RefreshCw size={12} className="text-(--primary) flex-shrink-0" title="Recurring task" />
+                )}
+              </div>
+
+              {task.dependsOn && (
+  <p className="text-xs text-muted mt-1">
+    🔗 Depends on: {task.dependsOn.title}
+  </p>
+)}
 
               <div className="min-w-0">
                 <p
@@ -261,9 +301,11 @@ export default function TaskItem({
         )}
       </div>
 
+      {/* Edit Modal */}
       {isEditModalOpen && (
         <TaskFormModal
           task={task}
+          tasks={tasks}
           onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditSubmit}
           errorMessage=""
