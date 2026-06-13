@@ -6,7 +6,6 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 // Google Icon
 const GoogleIcon = () => (
