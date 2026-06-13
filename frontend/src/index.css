@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-primary: var(--primary);
+}
+
 * {
   font-family: 'Outfit', sans-serif;
 }
@@ -19,6 +23,15 @@
   --radius: 0.75rem;
 }
 
+:root[data-theme-custom="true"] {
+  --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
+  --bg: color-mix(in srgb, var(--primary) 15%, #ffffff);
+  --accent: color-mix(in srgb, var(--primary) 60%, #ffffff);
+  --text-main: color-mix(in srgb, var(--primary) 70%, #000000);
+  --text-muted: var(--primary);
+  --border: color-mix(in srgb, var(--primary) 60%, #ffffff);
+}
+
 .dark {
   --bg: #0f172a;
   --surface: #1e293b;
@@ -30,9 +43,18 @@
   --border: #334155;
 }
 
+html.dark[data-theme-custom="true"] {
+  --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
+  --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
+  --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
+  --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
+  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
+  --border: color-mix(in srgb, var(--primary) 30%, #334155);
+}
+
 html.dark,
 html.dark body {
-  
+
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -112,11 +134,16 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+      opacity 0.3s ease-in-out,
+      background-color 0.3s ease-in-out;
+    will-change: transform;
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-6px) scale(1.015);
+    opacity: 0.9;
+    animation-timing-function: ease-in-out;
   }
 }
 
@@ -125,15 +152,29 @@ html.dark body {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Hide default browser reveal buttons to stop overlapping */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-type-password-toggle {
+  display: none !important;
+}
 * {
   transition:
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
   }
+
+  footer {
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+}

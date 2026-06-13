@@ -11,6 +11,8 @@ import {
   updateProfile,
   logout,
   googleLogin,
+  uploadProfileImage,
+  uploadMiddleware
 } from '../controllers/authController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
@@ -36,8 +38,9 @@ router.post('/google-login', googleLogin);
 router.post('/login-2fa', twoFALimiter, loginWith2FA);
 
 // Protected routes (require valid JWT)
-router.get('/user', authMiddleware, getUser);
+router.get('/me', authMiddleware, getUser);
 router.put('/update-profile', authMiddleware, updateProfile);
+router.post("/upload-profile", authMiddleware, uploadMiddleware, uploadProfileImage);
 router.post('/logout', authMiddleware, logout);
 
 // 2FA management routes (protected + rate limited)

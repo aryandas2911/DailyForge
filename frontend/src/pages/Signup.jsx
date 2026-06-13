@@ -1,10 +1,11 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
+import FormError from "../components/common/FormError";
 
 // Google Icon
 const GoogleIcon = () => (
@@ -60,32 +61,7 @@ const LoadingSpinner = () => (
 );
 
 const Signup = () => {
-  // Tilt
-  const cardRef = useRef(null);
 
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    card.style.transition = "transform 0.4s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
-  };
 
   // Auth State
   const [name, setName] = useState("");
@@ -98,6 +74,28 @@ const Signup = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const getPasswordStrength = (password) => {
+  if (!password) return null;
+
+  let score = 0;
+
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/\d/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 2)
+    return { text: "Weak", color: "text-red-500" };
+
+  if (score <= 4)
+    return { text: "Medium", color: "text-yellow-500" };
+
+  return { text: "Strong", color: "text-green-500" };
+};
+
+const passwordStrength = getPasswordStrength(password);
 
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
@@ -120,8 +118,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to authenticate with Google."
+          err.message ||
+          "Failed to authenticate with Google."
         );
       }
     } finally {
@@ -153,8 +151,8 @@ const Signup = () => {
     setIsLoading(true);
     try {
       localStorage.removeItem("token");
-      const res = await api.post("/auth/signup", { name, email, password });
-      setUser(res.data.user);
+      const { data } = await api.post("/auth/signup", { name, email, password });
+      setUser(data.user);
       navigate("/dashboard");
     } catch (error) {
       if (error.response?.status === 409) {
@@ -162,8 +160,8 @@ const Signup = () => {
       } else {
         setErrorMessage(
           error.response?.data?.message ||
-            error.message ||
-            "Signup failed. Please try again."
+          error.message ||
+          "Signup failed. Please try again."
         );
       }
     } finally {
@@ -190,28 +188,16 @@ const Signup = () => {
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-      
+
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="
-          relative
-          z-10
-          w-full
-          max-w-md
-          will-change-transform
-          transform-gpu
-        "
-      >
+      <div className="relative z-10 w-full max-w-md animate-in-slow">
         <form
           onSubmit={handleSubmit}
           className="
             surface-bg
-            animate-in
+            hover-lift
             w-full
             rounded-[30px]
             px-8
@@ -219,7 +205,7 @@ const Signup = () => {
             flex
             flex-col
             gap-3
-            mt-[-3rem]
+            mt-[-0.3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -241,7 +227,7 @@ const Signup = () => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
-          className="
+            className="
 flex items-center justify-center
 w-full px-4 py-3
 rounded-2xl
@@ -285,21 +271,7 @@ cursor-pointer
           </div>
 
           {/* Error */}
-          {errorMessage && (
-            <div
-              className="
-                px-4 py-3
-                rounded-2xl
-                text-sm
-                border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
-              "
-            >
-              {errorMessage}
-            </div>
-          )}
+          <FormError error={errorMessage} />
 
           {/* Name */}
           <div className="flex flex-col gap-2">
@@ -322,12 +294,12 @@ cursor-pointer
                 px-4
                 py-3
                 rounded-2xl
+                border-1
+                border-slate-200
                 text-sm
               "
             />
-            {errors.name && (
-              <span className="text-red-500 text-xs">{errors.name}</span>
-            )}
+            <FormError error={errors.name} />
           </div>
 
           {/* Email */}
@@ -352,6 +324,8 @@ cursor-pointer
                 py-3
                 rounded-2xl
                 text-sm
+                border-1
+                border-slate-200
               "
             />
           </div>
@@ -380,6 +354,8 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -403,9 +379,21 @@ cursor-pointer
                 )}
               </button>
             </div>
-            {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
+            <FormError error={errors.password} />
+
+            <p className="text-xs text-gray-500">
+              Use at least 8 characters, including 1 uppercase letter,
+              1 lowercase letter, 1 number, and 1 special character.
+            </p>
+
+            {passwordStrength && (
+              <span
+                className={`text-xs font-medium ${passwordStrength.color}`}
+              >
+                Password Strength: {passwordStrength.text}
+              </span>
             )}
+
           </div>
 
           {/* Confirm Password */}
@@ -432,6 +420,8 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -455,9 +445,7 @@ cursor-pointer
                 )}
               </button>
             </div>
-            {errors.confirmPassword && (
-              <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
-            )}
+            <FormError error={errors.confirmPassword} />
           </div>
 
           {/* Submit */}
