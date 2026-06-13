@@ -61,22 +61,6 @@ export const createRoutine = async (req, res) => {
       const endTime = startTime + Number(item.duration);
       if (!dayGroups[item.day]) dayGroups[item.day] = [];
       dayGroups[item.day].push({ startTime, endTime });
-      const duration = Number(item.duration);
-      const endTime = startTime + duration;
-      formatted.push({
-        day: item.day,
-        startTime: item.startTime,
-        endTime: endTime,
-      });
-    }
-
-    // group tasks by day
-    const dayGroups = {};
-    for (const task of formatted) {
-      if (!dayGroups[task.day]) {
-        dayGroups[task.day] = [];
-      }
-      dayGroups[task.day].push(task);
     }
 
     // check for overlapping tasks within each day
@@ -322,7 +306,6 @@ export const updateRoutine = async (req, res) => {
       }
 
       // calculate endtime for each task
-      const formatted = [];
       for (const item of updates.items) {
         // validate taskId is a proper MongoDB ObjectId
         if (!mongoose.Types.ObjectId.isValid(item.taskId)) {
