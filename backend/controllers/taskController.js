@@ -93,6 +93,8 @@ export const createTask = async (req, res) => {
     }
 
     // new task object
+    const { recurrence } = req.body;
+
     const newTask = new Task({
       userId,
       title,
@@ -103,14 +105,16 @@ export const createTask = async (req, res) => {
       dueDate,
       dependsOn,
       completedAt: status === "Completed" ? new Date() : null,
+      recurrence: recurrence || { enabled: false },
     });
 
     // save task in database
     await newTask.save();
 
     return res.status(201).json({
+      success: true,
       message: "Task added successfully",
-      newTask,
+      task: newTask,
     });
   } catch (error) {
     // error handling
@@ -267,11 +271,13 @@ if (
 
     if (!updatedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Task updated successfully",
       task: updatedTask,
     });
@@ -318,11 +324,13 @@ export const deleteTask = async (req, res) => {
 
     if (!deletedTask) {
       return res.status(404).json({
+        success: false,
         message: "Task not found",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Task deleted successfully",
     });
   } catch (error) {
