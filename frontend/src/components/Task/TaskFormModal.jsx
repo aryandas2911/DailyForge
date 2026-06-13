@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
+import FormError from "../common/FormError";
 
 const priorities = ["Low", "Medium", "High"];
 const DESCRIPTION_MAX_LENGTH = 500;
@@ -11,6 +12,7 @@ const TITLE_WARNING_LENGTH = 25;
 
 export default function TaskFormModal({
   task,
+  tasks = [],
   onClose,
   onSubmit,
   errorMessage,
@@ -23,6 +25,7 @@ export default function TaskFormModal({
   const [duration, setDuration] = useState(30);
   const [dueDate, setDueDate] = useState("");
   const [dueTime, setDueTime] = useState("");
+  const [dependsOn, setDependsOn] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showOtherInput, setShowOtherInput] = useState(false);
@@ -48,12 +51,12 @@ export default function TaskFormModal({
 
   useEffect(() => {
     if (task) {
-      /* eslint-disable react-hooks/set-state-in-effect */
       setTitle(task.title || "");
       setDescription(task.description || "");
       setTags(Array.isArray(task.tags) ? task.tags : []);
       setPriority(task.priority || "Low");
       setDuration(task.duration || 30);
+      setDependsOn(task.dependsOn?._id || "");
       if (task?.dueDate) {
         const dt = new Date(task.dueDate);
 
@@ -63,7 +66,6 @@ export default function TaskFormModal({
         setDueDate(datePart);
         setDueTime(timePart);
       }
-      /* eslint-enable react-hooks/set-state-in-effect */
     }
     onError?.("");
   }, [task, onError]);
@@ -136,6 +138,7 @@ export default function TaskFormModal({
           status: task ? task.status : "Due",
           duration: Number(duration),
           dueDate: `${dueDate}T${dueTime}:00`,
+          dependsOn,
         }),
       );
     } finally {
@@ -210,11 +213,7 @@ export default function TaskFormModal({
             {task ? "Edit Task" : "New Task"}
           </h2>
 
-          {errorMessage && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {errorMessage}
-            </div>
-          )}
+          <FormError error={errorMessage} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Title */}
@@ -227,7 +226,7 @@ export default function TaskFormModal({
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
                          focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+                         bg-transparent text-main dark:bg-slate-800"
                 placeholder="Task title"
                 maxLength={TITLE_MAX_LENGTH}
                 required
@@ -256,7 +255,7 @@ export default function TaskFormModal({
                 disabled={isSubmitting}
                 className="w-full mt-1 p-2 border border-soft rounded-lg
                          focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main"
+                         bg-transparent text-main dark:bg-slate-800"
                 placeholder="Optional task description"
                 rows={3}
                 maxLength={DESCRIPTION_MAX_LENGTH}
@@ -306,7 +305,7 @@ export default function TaskFormModal({
                     value={customTagInput}
                     onChange={(e) => setCustomTagInput(e.target.value)}
                     disabled={isSubmitting}
-                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main"
+                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
                     placeholder="Enter custom tag (e.g., 'Essay')"
                   />
                   <button
@@ -388,6 +387,40 @@ export default function TaskFormModal({
                 Recommended duration is at least 10 minutes.
               </p>
             </div>
+            {/* Depends On */}
+<div>
+  <label className="text-sm font-medium text-main">
+    Depends On
+  </label>
+
+  <select
+    value={dependsOn}
+    onChange={(e) => setDependsOn(e.target.value)}
+    disabled={isSubmitting}
+    className="w-full mt-1 p-2 border border-soft rounded-lg
+               focus:ring-(--primary) focus:border-(--primary)
+               bg-transparent text-main dark:bg-slate-800"
+  >
+    <option value="">No Dependency</option>
+
+   {tasks
+  .filter((t) => t._id !== task?._id)
+  .map((t) => (
+    <option
+      key={t._id}
+      value={t._id}
+      className="dark:bg-slate-800"
+    >
+      {t.title}
+    </option>
+  ))}
+
+  </select>
+
+  <p className="text-xs text-muted mt-1">
+    Select a prerequisite task
+  </p>
+</div>
 
             {/* Due Date */}
             <div>
