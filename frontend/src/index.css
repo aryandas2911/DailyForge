@@ -54,7 +54,7 @@ html.dark[data-theme-custom="true"] {
 
 html.dark,
 html.dark body {
-  
+
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -134,11 +134,16 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+      opacity 0.3s ease-in-out,
+      background-color 0.3s ease-in-out;
+    will-change: transform;
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-6px) scale(1.015);
+    opacity: 0.9;
+    animation-timing-function: ease-in-out;
   }
 }
 
@@ -147,6 +152,7 @@ html.dark body {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -165,4 +171,4 @@ input::-webkit-credentials-type-password-toggle {
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
-  }
+}
