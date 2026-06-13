@@ -33,6 +33,7 @@ app.use(
 connectDB();
 
 // Middleware for parsing cookies and request body
+
 app.use(cookieParser());
 app.use(express.json());
 

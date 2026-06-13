@@ -63,7 +63,7 @@ export default function Analytics() {
       ["Best Streak", `${stats.streaks.bestStreak} days`, "All-time record streak"],
       ["Total Routines", stats.summary.totalRoutines, "Routines constructed"],
       ["Total Routine Tasks Scheduled", stats.summary.totalRoutineTasksCount, "Tasks run via weekly grid"],
-      ["Total Journal Entries", stats.summary.totalJournalsCount || 0, "Personal reflections logged"],
+      ["Total Journal Entries", stats.summary.totalJournalsCount || 0, "Personal journal entries logged"],
     ];
 
     // Append Category details
@@ -324,7 +324,7 @@ export default function Analytics() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">Journal Entries</p>
             <h3 className="text-2xl font-bold text-main">{stats.summary.totalJournalsCount || 0}</h3>
-            <p className="text-xs text-muted/70">Click to write reflections</p>
+            <p className="text-xs text-muted/70">Click to write journal entries</p>
           </div>
         </div>
       </section>
