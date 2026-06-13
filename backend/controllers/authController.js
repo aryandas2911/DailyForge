@@ -87,7 +87,7 @@ export const signup = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'User registered successfully',
-        user: { _id: newUser._id, name: newUser.name, email: newUser.email, primaryColor: newUser.primaryColor },
+        user: { _id: newUser._id, name: newUser.name, email: newUser.email, primaryColor: newUser.primaryColor, xp: newUser.xp, level: newUser.level, streak: newUser.streak },
       });
   } catch (_error) {
     console.error('Signup error:', _error);
@@ -136,7 +136,7 @@ export const login = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'Login successful',
-        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
+      user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor, xp: user.xp, level: user.level, streak: user.streak },
       });
   } catch (_error) {
     console.log('Login error: ', _error);
@@ -336,7 +336,7 @@ export const updateProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
-      user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
+      user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor, xp: user.xp, level: user.level, streak: user.streak },
     });
   } catch (_error) {
     console.log('Profile update error:', _error);
@@ -403,7 +403,7 @@ export const googleLogin = async (req, res) => {
       .cookie('token', token, getAuthCookieOptions())
       .json({
         message: 'Google sign-in successful',
-        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor },
+        user: { _id: user._id, name: user.name, email: user.email, primaryColor: user.primaryColor, xp: user.xp, level: user.level, streak: user.streak },
       });
   } catch (_error) {
     console.error('[GOOGLE AUTH] Controller error:', _error);

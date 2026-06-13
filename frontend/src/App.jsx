@@ -19,6 +19,7 @@ import Pomodoro from "./pages/Pomodoro.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
+import XPToast from "./components/XP/XPToast.jsx";
 
 
 const AuthLayout = ({ children }) => (
@@ -154,6 +155,7 @@ const App = () => {
       </main>
       <Footer />
       <ScrollToTop />
+      <XPToast />
     </BrowserRouter>
   );
 };

@@ -1,10 +1,14 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
+import XPProgressBar from '../components/XP/XPProgressBar';
+import { XPContext } from '../context/XPContext';
+import { Zap } from 'lucide-react';
 
 const Profile = () => {
   // auth context
   const { user, setUser } = useContext(AuthContext);
+  const { xpData } = useContext(XPContext);
 
   // states
   const [name, setName] = useState(user?.name || '');
@@ -124,8 +128,31 @@ const Profile = () => {
             <p className="font-semibold text-main">{user?.email}</p>
           </div>
         </div>
-        {/* Update Name Section */}
+        {/* XP & Gamification Card */}
+        <div className="border-soft rounded-2xl p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Zap size={18} className="text-amber-500 fill-amber-400" />
+            <h2 className="text-lg font-semibold text-main">XP & Progress</h2>
+          </div>
 
+          <XPProgressBar />
+
+          {xpData?.recentHistory?.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">Recent XP</p>
+              <ul className="space-y-1.5">
+                {xpData.recentHistory.slice(0, 5).map((entry, idx) => (
+                  <li key={idx} className="flex items-center justify-between text-xs text-muted">
+                    <span className="truncate max-w-[220px]">{entry.reason}</span>
+                    <span className="font-bold text-amber-500 ml-2">+{entry.amount}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Update Name Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form
             onSubmit={handleNameUpdate}

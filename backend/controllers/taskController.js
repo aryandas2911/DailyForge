@@ -3,7 +3,12 @@ import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
-
+import {
+  XP_VALUES,
+  getLevelFromXP,
+  calculateNewStreak,
+  getStreakBonus,
+} from "../utils/xpUtils.js";
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DEFAULT_TASK_PAGE = 1;
 const DEFAULT_TASK_LIMIT = 10;
@@ -227,15 +232,47 @@ export const updateTask = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!updatedTask) {
+   if (!updatedTask) {
       return res.status(404).json({
         message: "Task not found",
       });
     }
 
+    // ─── Award XP when a task is marked Completed ────────────────────────────
+    let xpAwarded = 0;
+    const xpEvents = [];
+
+    const wasCompleted = req.body.status === "Completed";
+    if (wasCompleted) {
+      const taskUser = await User.findById(userId);
+
+      const baseXP = XP_VALUES[updatedTask.priority] ?? XP_VALUES.Medium;
+      xpAwarded += baseXP;
+      xpEvents.push({ amount: baseXP, reason: `Completed task: ${updatedTask.title}`, earnedAt: new Date() });
+
+      const newStreak = calculateNewStreak(taskUser.streak, taskUser.lastActivityDate);
+
+      const streakBonus = getStreakBonus(newStreak);
+      if (streakBonus) {
+        xpAwarded += streakBonus.bonusXP;
+        xpEvents.push({ amount: streakBonus.bonusXP, reason: streakBonus.label, earnedAt: new Date() });
+      }
+
+      const newTotalXP = (taskUser.xp || 0) + xpAwarded;
+      const newLevel   = getLevelFromXP(newTotalXP);
+
+      await User.findByIdAndUpdate(userId, {
+        $inc:  { xp: xpAwarded },
+        $set:  { level: newLevel, streak: newStreak, lastActivityDate: new Date() },
+        $push: { xpHistory: { $each: xpEvents } },
+      });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask,
+      ...(xpAwarded > 0 && { xpAwarded, xpEvents }),
     });
   } catch (error) {
     // error handling

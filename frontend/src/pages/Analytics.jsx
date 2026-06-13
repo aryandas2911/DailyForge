@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -12,10 +12,13 @@ import {
   BookOpen,
   Tag,
   Clock,
-  Briefcase
+  Briefcase,
+  Zap
 } from "lucide-react";
 import api from "../api/axios";
 import html2canvas from "html2canvas";
+import { XPContext } from "../context/XPContext";
+import { getLevelInfo } from "../utils/xpUtils";
 
 export default function Analytics() {
   const navigate = useNavigate();
@@ -24,6 +27,7 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const { xpData } = useContext(XPContext);
 
   const fetchAnalytics = async () => {
     try {
@@ -302,14 +306,16 @@ export default function Analytics() {
           </div>
         </div>
 
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-amber-500">
-          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
-            <Calendar size={24} />
+        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-amber-400">
+          <div className="p-3 bg-amber-400/10 text-amber-500 rounded-xl">
+            <Zap size={24} className="fill-amber-400" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Saved Routines</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.totalRoutines}</h3>
-            <p className="text-xs text-muted/70">{stats.summary.totalRoutineTasksCount} scheduled items</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Total XP</p>
+            <h3 className="text-2xl font-bold text-main">{(xpData?.total ?? 0).toLocaleString()}</h3>
+            <p className="text-xs text-muted/70">
+              {xpData ? `Level ${xpData.level} · ${getLevelInfo(xpData.total).levelName}` : "—"}
+            </p>
           </div>
         </div>
       </section>

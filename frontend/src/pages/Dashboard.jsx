@@ -15,6 +15,7 @@ import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import XPProgressBar from "../components/XP/XPProgressBar";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -356,6 +357,9 @@ const handleDuplicateRoutine = async () => {
             subtitle="Completion"
             icon={<Calendar size={20} />}
           />
+        </div>
+        <div className="flex-1 animate-in delay-300">
+          <XPProgressBar compact />
         </div>
       </section>
 

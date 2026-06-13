@@ -5,13 +5,16 @@ import App from "./App.jsx";
 import AuthProvider from "./context/AuthContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import XPProvider from "./context/XPContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ErrorBoundary>
       <AuthProvider>
         <ThemeProvider>
-          <App />
+          <XPProvider>
+            <App />
+          </XPProvider>
         </ThemeProvider>
       </AuthProvider>
     </ErrorBoundary>

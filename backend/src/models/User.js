@@ -42,6 +42,37 @@ const userSchema = new mongoose.Schema(
     primaryColor: {
       type: String,
       default: '#3b82f6',
+      // ─── XP & Gamification ───────────────────────────────────────────────────
+    xp: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    level: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+    streak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastActivityDate: {
+      type: Date,
+      default: null,
+    },
+    xpHistory: {
+      type: [
+        {
+          amount:   { type: Number, required: true },
+          reason:   { type: String, required: true },
+          earnedAt: { type: Date,   default: Date.now },
+        },
+      ],
+      default: [],
+    },
+    // ────────────────────────────────────────────────────────────────────────
     },
     // ────────────────────────────────────────────────────────────────────────
   },

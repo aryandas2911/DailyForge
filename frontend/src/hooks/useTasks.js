@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
+import { XPContext } from "../context/XPContext";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 100;
@@ -17,6 +18,10 @@ const useTasks = ({
     currentPage: initialPage,
     limit: initialLimit,
   });
+  const xpCtx = useContext(XPContext);try {
+      await api.put(`/tasks/${id}`, updates);
+      await getTasks(page);
+    } catch (error) {
 
   // fetch tasks from database
   const getTasks = useCallback(async (pageToFetch = page) => {
@@ -80,7 +85,15 @@ const useTasks = ({
     );
 
     try {
-      await api.put(`/tasks/${id}`, updates);
+      const res = await api.put(`/tasks/${id}`, updates);
+
+      if (res.data.xpAwarded && xpCtx?.triggerXPReward) {
+        xpCtx.triggerXPReward({
+          xpAwarded: res.data.xpAwarded,
+          xpEvents: res.data.xpEvents,
+        });
+      }
+
       await getTasks(page);
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to update task");
