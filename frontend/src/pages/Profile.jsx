@@ -12,9 +12,39 @@ function Toast({ message, type }) {
   return <div className={`${base} ${color}`}>{message}</div>;
 }
 
+function startAutoHide(setShow,timerRef)
+{
+  clearTimeout(timerRef.current);
+  timerRef.current = setTimeout(()=> setShow(false),5000);
+}
+
+function handleToggle(e, show, setShow, timerRef)
+{
+  e.preventDefault();
+  const next = !show;
+  setShow(next);
+  if (next) startAutoHide(setShow, timerRef);
+  else clearTimeout(timerRef.current);
+}
+
+function EyeButton({ show, setShow, timerRef })
+{
+  return (
+    <button
+      type="button"
+      tabIndex={-1}
+      onMouseDown={(e) => handleToggle(e, show, setShow, timerRef)}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors"
+      aria-label={show ? "Hide password" : "Show password"}
+    >
+      {show ? <EyeOff size={17} /> : <Eye size={17} />}
+    </button>
+  );
+}
+
 // component for the change password card
 // gets apiError and resetKey passed down from Profile
-function ChangePasswordCard({ onUpdatePassword, onClearError, apiError, resetKey }) {
+function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,40 +62,17 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError, resetKey
 
   // reset fields when parent increments resetKey (i.e. after successful update)
   useEffect(() => {
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setShowCurrent(false);
-    setShowNew(false);
-    setShowConfirm(false);
-    setConfirmTouched(false);
-    setSubmitAttempted(false);
-  }, [resetKey]);
-
-  // clear timers when unmounting
-  useEffect(() => {
-    return () => {
+return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerCurrent.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerNew.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(timerConfirm.current);
-    };
+};
   }, []);
 
-  function startAutoHide(setShow, timerRef) {
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setShow(false), 5000);
-  }
-
-  // toggle eye icon - preventDefault stops the blur firing before the toggle registers
-  function handleToggle(e, show, setShow, timerRef) {
-    e.preventDefault();
-    const next = !show;
-    setShow(next);
-    if (next) startAutoHide(setShow, timerRef);
-    else clearTimeout(timerRef.current);
-  }
-
-  function handleBlur(setShow, timerRef) {
+function handleBlur(setShow, timerRef) {
     setShow(false);
     clearTimeout(timerRef.current);
   }
@@ -73,7 +80,6 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError, resetKey
   const passwordsMatch = newPassword === confirmPassword;
   const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
 
-  // console.log("passwords match:", passwordsMatch);
 
   function handleSubmit() {
     setSubmitAttempted(true);
@@ -231,16 +237,16 @@ export default function Profile() {
     }
   }
 
-  // password stuff - using toast instead of alert for this one
+  // password - using toast instead of alert 
   const [passwordError, setPasswordError] = useState("");
   const [passwordResetKey, setPasswordResetKey] = useState(0);
 
-  // console.log("current passwordError state:", passwordError);
+  
 
   async function handlePasswordUpdate({ currentPassword, newPassword }) {
     setPasswordError("");
     try {
-      const res = await axios.put("/auth/update-profile", { currentPassword, newPassword });
+      await axios.put("/auth/update-profile", { currentPassword, newPassword });
       showToast("Password updated successfully!", "success");
       setPasswordResetKey((k) => k + 1);
     } catch (err) {
@@ -285,10 +291,10 @@ export default function Profile() {
         </div>
 
         <ChangePasswordCard
+          key={passwordResetKey}
           onUpdatePassword={handlePasswordUpdate}
           onClearError={() => setPasswordError("")}
           apiError={passwordError}
-          resetKey={passwordResetKey}
         />
 
         {/* theme card */}
