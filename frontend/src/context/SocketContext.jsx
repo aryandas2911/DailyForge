@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
@@ -12,6 +13,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (!user?._id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSocket(null);
       return;
     }
