@@ -5,20 +5,16 @@ import { ArrowUp } from "lucide-react";
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
+ // Hide the button on login and root pages
+  const isLoginPage =
+    location.pathname === "/login" || location.pathname === "/";
 
-  // Hide the button on login and root pages
-  const isLoginPage = location.pathname === "/login" || location.pathname === "/";
-
-  // Toggle visibility based on scroll position
+     // Toggle visibility based on scroll position
+     //little changed
   const toggleVisibility = () => {
-    if (window.scrollY > 100) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
+    setIsVisible(window.scrollY > 100);
   };
-
-  // Scroll to top function
+// Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -48,7 +44,8 @@ const ScrollToTop = () => {
   if (isLoginPage) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    /* FIXED */
+    <div className="fixed right-6 bottom-24 sm:bottom-24 md:bottom-24 lg:bottom-24 z-50">
       {shouldShow && (
         <button
           onClick={scrollToTop}
