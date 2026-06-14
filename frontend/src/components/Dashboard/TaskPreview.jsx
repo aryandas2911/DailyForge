@@ -21,13 +21,13 @@ export default function TaskPreview({ tasks , updateTask}) {
   const priorityBorder = {
     Low: "border-green-400",
     Medium: "border-yellow-400",
-    High: "border-red-500",
+    High: "border-[var(--urgent)]",
   };
 
   const priorityBadge = {
     Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
     Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    High: "bg-[var(--urgent)]/10 text-[var(--urgent)] dark:bg-[var(--urgent)]/20 dark:text-[var(--urgent)]",
   };
 
   const handleCheckboxChange = async (task) => {
@@ -137,6 +137,10 @@ export default function TaskPreview({ tasks , updateTask}) {
 
                   {/*Disply Remaining Time */}
                   {task.dueDate && (
+                    <span className="text-[11px] font-medium" style={{ color: 'var(--urgent)' }}>
+                      {remainingTime > 0
+                        ? `${hours}h ${minutes}m ${seconds}s left`
+                        : "Overdue"}
                     <span className="text-[11px] text-red-500 font-medium">
                       {isOverdue 
                         ? "Overdue"

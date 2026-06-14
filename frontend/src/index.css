@@ -12,6 +12,31 @@
 }
 
 :root {
+  /* App background (outer layout) */
+  --bg: #F8FAFC;
+
+  /* Surfaces: cards, modals, panels */
+  --surface: #ffffff;
+
+  /* Primary action color (CTAs) */
+  --primary: #06B6D4;
+
+  /* Hover / active feedback */
+  --primary-hover: #0891b2;
+
+  /* Accents: highlights, tags, blocks */
+  --accent: #EEF2F6;
+
+  /* Main readable text */
+  --text-main: #1E293B;
+
+  /* Secondary / low-priority text */
+  --text-muted: #475569;
+
+  /* Soft separators and outlines */
+  --border: #CBD5E1;
+
+  /* Consistent rounding across UI */
   --bg: #d0f6e3;
   --surface: #ffffff;
   --primary: #4eb7b3;
@@ -21,6 +46,11 @@
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
+
+  /* Theme-specific custom properties */
+  --sidebar-bg: #1E293B;
+  --sidebar-text: #F8FAFC;
+  --urgent: #F43F5E;
 }
 
 :root[data-theme-custom="true"] {

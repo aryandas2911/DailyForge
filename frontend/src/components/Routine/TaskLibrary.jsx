@@ -30,6 +30,9 @@ function DraggableTask({ task }) {
       style={style}
       {...listeners}
       {...attributes}
+      className="group flex items-center gap-3 rounded-xl border-soft bg-black/20 dark:bg-slate-800/80 p-3
+                 cursor-grab active:cursor-grabbing
+                 hover:bg-[var(--card-hover)] dark:hover:bg-slate-800 hover:shadow-md transition hover-lift"
       className="group flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60
 bg-slate-50/60 dark:bg-slate-800/60 p-3
 cursor-grab active:cursor-grabbing
@@ -45,7 +48,7 @@ hover:shadow-md transition duration-200 hover-lift"
         style={{
           backgroundColor:
             task.priority === "High"
-              ? "#ef4444"
+              ? "var(--urgent)"
               : task.priority === "Medium"
                 ? "#f59e0b"
                 : "#10b981",
@@ -93,6 +96,16 @@ export default function TaskLibrary({ tasks, onAddTask }) {
   const hasSearchQuery = normalizedQuery.length > 0;
 
   return (
+    <div className="card h-full flex flex-col animate-in" style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--sidebar-text)', borderColor: 'var(--sidebar-bg)' }}>
+      {/* Header */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--sidebar-text)' }}>
+  Task Library
+</h2>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-soft" style={{ color: 'var(--sidebar-bg)', backgroundColor: 'var(--sidebar-text)' }}>
+  {filteredTasks?.length ?? 0}
+</span>
     <div className="card h-full flex flex-col animate-in">
       {/* Header */}
       <div className="mb-4">
@@ -104,11 +117,18 @@ export default function TaskLibrary({ tasks, onAddTask }) {
             {filteredTasks?.length ?? 0}
           </span>
         </div>
-        <p className="text-xs text-muted">Drag tasks into your week</p>
+        <p className="text-xs" style={{ color: 'var(--sidebar-text)', opacity: 0.8 }}>Drag tasks into your week</p>
       </div>
 
       {/* Search */}
       <input
+  type="text"
+  placeholder="Search tasks…"
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  className="mb-4 rounded-xl border-soft px-3 py-2 text-sm focus:outline-none bg-transparent"
+  style={{ color: 'var(--sidebar-text)', borderColor: 'var(--sidebar-text)' }}
+/>
         type="text"
         placeholder="Search tasks..."
         value={query}

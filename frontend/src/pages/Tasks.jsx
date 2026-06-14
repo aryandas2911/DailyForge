@@ -246,6 +246,9 @@ export default function Tasks() {
             )}
 
             <button
+              onClick={handleBulkDelete}
+              className="btn flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-lg transition"
+              style={{ backgroundColor: 'var(--urgent)' }}
               onClick={() => setIsNotesOpen(!isNotesOpen)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer border ${isNotesOpen
                 ? "bg-primary text-white border-transparent"

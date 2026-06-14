@@ -7,7 +7,7 @@ import { RefreshCw } from "lucide-react";
 const priorityStyles = {
   Low: "border-green-500 bg-green-50 dark:bg-green-950/20",
   Medium: "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20",
-  High: "border-red-500 bg-red-50 dark:bg-red-950/20",
+  High: "border-[var(--urgent)] bg-[var(--urgent)]/10 dark:bg-[var(--urgent)]/20",
 };
 
 export default function TaskItem({
@@ -179,6 +179,13 @@ export default function TaskItem({
               {isCompleted && <Check size={18} />}
             </button>
 
+            {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
+            <button
+              onClick={()=> onDelete(task._id)}
+              className="p-2 rounded-lg hover:bg-[var(--urgent)]/10 transition cursor-pointer"
+            >
+              <Trash2 size={18} style={{ color: 'var(--urgent)' }} />
+            </button>
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
