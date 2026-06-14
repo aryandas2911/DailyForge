@@ -63,6 +63,7 @@ export default function Analytics() {
       ["Best Streak", `${stats.streaks.bestStreak} days`, "All-time record streak"],
       ["Total Routines", stats.summary.totalRoutines, "Routines constructed"],
       ["Total Routine Tasks Scheduled", stats.summary.totalRoutineTasksCount, "Tasks run via weekly grid"],
+      ["Total Journal Entries", stats.summary.totalJournalsCount || 0, "Personal journal entries logged"],
     ];
 
     // Append Category details
@@ -268,7 +269,7 @@ export default function Analytics() {
       </header>
 
       {/* Grid of Key Metrics */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full animate-in delay-100">
         <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
           <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
             <BookOpen size={24} />
@@ -310,6 +311,20 @@ export default function Analytics() {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">Saved Routines</p>
             <h3 className="text-2xl font-bold text-main">{stats.summary.totalRoutines}</h3>
             <p className="text-xs text-muted/70">{stats.summary.totalRoutineTasksCount} scheduled items</p>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => navigate("/daily-journal")}
+          className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg hover:border-cyan-500/50 transition-all duration-300 border-l-4 border-l-cyan-500 cursor-pointer"
+        >
+          <div className="p-3 bg-cyan-500/10 text-cyan-500 rounded-xl">
+            <BookOpen size={24} className="text-cyan-500" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Journal Entries</p>
+            <h3 className="text-2xl font-bold text-main">{stats.summary.totalJournalsCount || 0}</h3>
+            <p className="text-xs text-muted/70">Click to write journal entries</p>
           </div>
         </div>
       </section>
