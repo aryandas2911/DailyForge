@@ -466,7 +466,7 @@ export default function Dashboard() {
                   routines={savedRoutines}
                   setRoutines={setSavedRoutines}
                   fetchRoutines={fetchRoutines}
-                  onNavigate={(routine) => navigate("/routine-builder")}
+                  onNavigate={() => navigate("/routine-builder")}
                   onDuplicate={(routine) => openDuplicateModal(routine)}
                 />
               )}
