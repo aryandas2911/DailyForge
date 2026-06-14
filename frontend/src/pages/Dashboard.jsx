@@ -1,8 +1,9 @@
 import OnboardingModal from "../components/OnboardingModal";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
+import { SocketContext } from "../context/SocketContext";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, LogOut, BookOpen } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -129,7 +130,7 @@ export default function Dashboard() {
     .slice(0, 2);
 
   // Fetch routines
-  const fetchRoutines = async () => {
+  const fetchRoutines = useCallback(async () => {
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
@@ -140,9 +141,9 @@ export default function Dashboard() {
     } finally {
       setLoadingRoutines(false);
     }
-  };
+  }, []);
 
-  const fetchTodayJournal = async () => {
+  const fetchTodayJournal = useCallback(async () => {
     try {
       const todayStr = new Date().toLocaleDateString("en-CA");
       const res = await api.get(`/journal/by-date/${todayStr}`);
@@ -155,16 +156,24 @@ export default function Dashboard() {
       console.error("Failed to fetch today's journal:", err);
       setTodayJournal(null);
     }
-  };
+  }, []);
+
+  const { routineUpdateTick } = useContext(SocketContext) || {};
 
   useEffect(() => {
     fetchRoutines();
     fetchTodayJournal();
-  }, []);
+  }, [fetchRoutines, fetchTodayJournal]);
 
   useEffect(() => {
     localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
   }, [selectedTags]);
+
+  useEffect(() => {
+    if (routineUpdateTick > 0) {
+      fetchRoutines();
+    }
+  }, [routineUpdateTick, fetchRoutines]);
 
   const openDuplicateModal = (routine) => {
     setRoutineToDuplicate(routine);

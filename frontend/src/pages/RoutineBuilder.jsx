@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useContext } from "react";
+import { SocketContext } from "../context/SocketContext";
 import {
   DndContext,
   DragOverlay,
@@ -83,30 +84,7 @@ export default function RoutineBuilder() {
     }
   };
 
-  useEffect(() => {
-    fetchRoutines();
-  }, []);
-
-  useEffect(() => {
-
-  if (!savedRoutines.length) return;
-
-  const storedRoutineIds = JSON.parse(
-    localStorage.getItem("activeRoutineIds") || "[]"
-  );
-
-  if (!storedRoutineIds.length) return;
-
-  const restoredRoutines = savedRoutines.filter(
-    (routine) =>
-      storedRoutineIds.includes(routine._id)
-  );
-
-  setActiveRoutine(restoredRoutines);
-
-  }, [savedRoutines]);
-
-  const fetchRoutines = async () => {
+  const fetchRoutines = useCallback(async () => {
     try {
       setLoadingRoutines(true);
       const res = await api.get("/routines");
@@ -119,7 +97,36 @@ export default function RoutineBuilder() {
     } finally {
       setLoadingRoutines(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchRoutines();
+  }, [fetchRoutines]);
+
+  const { routineUpdateTick } = useContext(SocketContext) || {};
+
+  useEffect(() => {
+    if (routineUpdateTick > 0) {
+      fetchRoutines();
+    }
+  }, [routineUpdateTick, fetchRoutines]);
+
+  useEffect(() => {
+    if (!savedRoutines.length) return;
+
+    const storedRoutineIds = JSON.parse(
+      localStorage.getItem("activeRoutineIds") || "[]"
+    );
+
+    if (!storedRoutineIds.length) return;
+
+    const restoredRoutines = savedRoutines.filter(
+      (routine) =>
+        storedRoutineIds.includes(routine._id)
+    );
+
+    setActiveRoutine(restoredRoutines);
+  }, [savedRoutines]);
 
   const confirmSaveRoutine = async () => {
     const items = scheduledTasks

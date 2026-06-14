@@ -3,6 +3,7 @@ import Task from "../src/models/Task.js";
 import User from "../src/models/User.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
+import { emitToUserRoom } from "../utils/socket.js";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DEFAULT_TASK_PAGE = 1;
@@ -110,6 +111,9 @@ export const createTask = async (req, res) => {
 
     // save task in database
     await newTask.save();
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "task-update");
 
     return res.status(201).json({
       success: true,
@@ -276,6 +280,9 @@ if (
       });
     }
 
+    // emit event to user's room safely
+    emitToUserRoom(userId, "task-update");
+
     return res.status(200).json({
       success: true,
       message: "Task updated successfully",
@@ -328,6 +335,9 @@ export const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "task-update");
 
     return res.status(200).json({
       success: true,
@@ -384,6 +394,9 @@ export const bulkDeleteTasks = async (req, res) => {
         },
       }
     );
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "task-update");
 
     return res.status(200).json({
       success: true,

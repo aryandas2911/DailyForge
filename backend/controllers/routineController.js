@@ -7,6 +7,7 @@ import {
   detectFatigueLevel,
   getAdaptiveDifficulty,
 } from "../utils/routineUtils.js";
+import { emitToUserRoom } from "../utils/socket.js";
 
 // Create routine function
 export const createRoutine = async (req, res) => {
@@ -128,6 +129,9 @@ export const createRoutine = async (req, res) => {
 
     // save routine in collection
     await newRoutine.save();
+    // emit event to user's room safely
+    emitToUserRoom(userId, "routine-update");
+
     return res
       .status(201)
       .json({
@@ -259,6 +263,10 @@ export const duplicateRoutine = async (req, res) => {
     });
 
     await duplicatedRoutine.save();
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "routine-update");
+
     return res.status(201).json({
       success: true,
       message: "Routine duplicated successfully",
@@ -371,6 +379,10 @@ export const updateRoutine = async (req, res) => {
         message: "Routine not found",
       });
     }
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "routine-update");
+
     return res.status(200).json({
       success: true,
       message: "Routine updated successfully",
@@ -412,6 +424,10 @@ export const deleteRoutine = async (req, res) => {
         message: "Routine not found",
       });
     }
+
+    // emit event to user's room safely
+    emitToUserRoom(userId, "routine-update");
+
     return res.status(200).json({
       success: true,
       message: "Routine deleted successfully",

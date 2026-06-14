@@ -10,13 +10,17 @@ import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
 
+import http from "http";
+import { initSocket } from "../utils/socket.js";
+
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
 const PORT = process.env.PORT;
 
 // Initialize express     
 const app = express();
-
+const server = http.createServer(app);
+initSocket(server);
 
 app.use(
   cors({
@@ -57,6 +61,6 @@ app.get("/", (req, res) => {
 });
 
 // Start server on port (in .env file)
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running at port ${PORT}\nhttp://localhost:${PORT}/`);
 });
