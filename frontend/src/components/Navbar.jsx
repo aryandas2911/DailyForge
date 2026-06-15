@@ -15,6 +15,7 @@ import {
   Moon,
   TrendingUp,
   Timer,
+  Info
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
@@ -266,64 +267,94 @@ const Navbar = () => {
         onCancel={handleCancelLogout}
       />
 
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={cn(
-          "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-          scrolled
-            ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm"
-            : "bg-transparent border-b border-transparent",
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo Section with Hover Animation */}
-            <Link
-              to={user ? "/dashboard" : "/login"}
-              className="flex items-center gap-2 group focus:outline-none"
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={cn(
+        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
+        scrolled 
+          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-soft shadow-sm" 
+          : "bg-transparent border-b border-transparent"
+      )}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          
+          {/* Logo Section with Hover Animation */}
+          <Link to={user ? "/dashboard" : "/login"} className="flex items-center gap-2 group focus:outline-none">
+            <motion.div 
+              whileHover={{ rotate: 180 }} 
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
             >
-              <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center shadow-sm"
+              <span className="text-white font-bold text-xl leading-none tracking-tighter">D</span>
+            </motion.div>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
+              DailyForge
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          {user && (
+            <div className="hidden md:flex items-center gap-2">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.name}
+                  to={link.path}
+                  className={({ isActive }) =>
+                    cn(
+                      "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                      isActive
+                        ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
+                        : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                    )
+                  }
+                >
+                  <link.icon size={16} className={cn("transition-transform duration-200")} />
+                  {link.name}
+                </NavLink>
+              ))}
+
+              {/* About link for logged in users  */}
+               <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  cn(
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                    isActive
+                      ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
+                      : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                  )
+                }
               >
-                <span className="text-white font-bold text-xl leading-none tracking-tighter">
-                  D
-                </span>
-              </motion.div>
-              <span className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3]">
-                DailyForge
-              </span>
-            </Link>
+                <Info size={16} />
+                About
+              </NavLink>
 
-            {/* Desktop Navigation */}
-            {user && (
-              <div className="hidden md:flex items-center gap-2">
-                {navLinks.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    className={({ isActive }) =>
-                      cn(
-                        "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
-                        isActive
-                          ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
-                          : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0] dark:text-gray-300 dark:hover:bg-gray-800",
-                      )
-                    }
-                  >
-                    <link.icon
-                      size={16}
-                      className={cn("transition-transform duration-200")}
-                    />
-                    {link.name}
-                  </NavLink>
-                ))}
-              </div>
-            )}
+            </div>
+          )}
 
+          {/* About link for logged out users */}
+          {!user && (
+            <div className="hidden md:flex items-center">
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  cn(
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2",
+                    isActive
+                      ? "bg-[#d0f6e3] text-[#3b8ea0] shadow-sm"
+                      : "text-[#4eb7b3] hover:bg-[#d0f6e3]/50 hover:text-[#3b8ea0]"
+                  )
+                }
+              >
+                <Info size={16} />
+                About
+              </NavLink>
+            </div>
+          )}
+          
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-4">
               {/* Premium Dark Mode Toggle */}
@@ -410,77 +441,66 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Navigation Dropdown */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              id="mobile-navigation-menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
-            >
-              <div className="px-4 pt-2 pb-6 space-y-1">
-                {user &&
-                  navLinks.map((link) => (
-                    <NavLink
-                      key={link.name}
-                      to={link.path}
-                      onClick={() => setIsOpen(false)}
-                      className={({ isActive }) =>
-                        cn(
-                          "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center gap-3 w-full",
-                          isActive
-                            ? "bg-[#d0f6e3] text-[#3b8ea0]"
-                            : "text-[#4eb7b3] dark:text-gray-300 hover:bg-[#d0f6e3]/50 dark:hover:bg-gray-800 hover:text-[#3b8ea0]",
-                        )
-                      }
-                    >
-                      <link.icon size={18} />
-                      {link.name}
-                    </NavLink>
-                  ))}
-
-                <div
-                  className={cn(
-                    "flex flex-col gap-2",
-                    user ? "pt-4 mt-2 border-t border-[#98e1d7]/30" : "pt-2",
-                  )}
-                >
-                  {!user ? (
-                    <>
-                      <Link
-                        to="/login"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
-                      >
-                        <LogIn size={18} />
-                        Login
-                      </Link>
-
-                      <Link
-                        to="/signup"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                      >
-                        <User size={18} />
-                        Signup
-                      </Link>
-                    </>
-                  ) : (
-                    <button
-                      onClick={handleLogoutClick}
-                      className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
-                    >
-                      <LogOut size={18} />
-                      Logout
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      id="mobile-navigation-menu"
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      className="md:hidden border-b border-soft bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+    >
+      {/* Premium Mobile Dark Mode Toggle */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-soft/30 mt-2">
+        <span className="text-sm font-medium text-main">Theme Mode</span>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleTheme}
+          className="p-2 rounded-xl border border-soft text-main hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center gap-2"
+          aria-label="Toggle dark mode"
+        >
+          {theme === "dark" ? (
+            <Moon size={18} className="text-[#3b8ea0] fill-[#3b8ea0]/10" />
+          ) : (
+            <Sun size={18} className="text-yellow-400 fill-yellow-400" />
           )}
-        </AnimatePresence>
+        </motion.button>
+      </div>
+      
+      <div className="px-4 py-2">
+        {!user ? (
+          <div className="flex flex-col gap-2">
+            <Link
+              to="/login"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[#3b8ea0] dark:text-gray-300 font-medium hover:bg-[#d0f6e3] dark:hover:bg-gray-800"
+            >
+              <LogIn size={18} />
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+            >
+              <User size={18} />
+              Signup
+            </Link>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogoutClick}
+            className="w-full flex items-center justify-center gap-2 btn btn-primary py-3"
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        )}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
       </motion.nav>
     </>
   );
