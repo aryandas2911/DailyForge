@@ -2,14 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import {
-  CheckCircle2,
-  Calendar,
-  Flame,
-  ArrowRight,
-  RotateCw,
-  Copy,
-} from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -38,8 +31,12 @@ export default function Dashboard() {
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [profileImage, setProfileImage] = useState(() => {
-    return localStorage.getItem("profileImage") || "https://i.pravatar.cc/100";
-  });
+  return (
+    localStorage.getItem("profileImage") ||
+    "https://i.pravatar.cc/100"
+  );
+});
+  const [todayJournal, setTodayJournal] = useState(null);
 
   const today = new Date();
 
@@ -144,8 +141,25 @@ export default function Dashboard() {
       setLoadingRoutines(false);
     }
   };
+
+  const fetchTodayJournal = async () => {
+    try {
+      const todayStr = new Date().toLocaleDateString("en-CA");
+      const res = await api.get(`/journal/by-date/${todayStr}`);
+      if (res.data.success && res.data.journal) {
+        setTodayJournal(res.data.journal);
+      } else {
+        setTodayJournal(null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch today's journal:", err);
+      setTodayJournal(null);
+    }
+  };
+
   useEffect(() => {
     fetchRoutines();
+    fetchTodayJournal();
   }, []);
 
   useEffect(() => {
@@ -202,49 +216,65 @@ export default function Dashboard() {
       <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-[var(--surface)] gap-6">
         {moreTags ? (
           <div className="flex align-middle">
-          <div
-            className="align-middle mb-2 max-[64] p-3 z-50
+            <div
+              className="align-middle mb-2 max-[64] p-3 z-50
                     bg-white dark:bg-slate-900 
                     border border-slate-200 dark:border-cyan-500/30 
                     rounded-lg shadow-xl text-xs"
-          >
-            {/* Header with Title and Cancel Button */}
-            <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
-              <span className="font-semibold text-slate-500 dark:text-slate-400">
-                All Tags
-              </span>
-              <button
-                onClick={() => setmoreTags(false)}
-                className="text-red-500 hover:text-red-400 font-medium transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-
-            {/* Tags List */}
-            <ul className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto list-none pl-0">
-              {selectedTags.map((tag) => (
-                <li
-                  key={tag}
-                  className="px-2 py-1 rounded bg-slate-100 dark:bg-cyan-500/15 text-slate-700 dark:text-cyan-400"
+            >
+              {/* Header with Title and Cancel Button */}
+              <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+                <span className="font-semibold text-slate-500 dark:text-slate-400">
+                  All Tags
+                </span>
+                <button
+                  onClick={() => setmoreTags(false)}
+                  className="text-red-500 hover:text-red-400 font-medium transition-colors"
                 >
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          </div>
+                  Cancel
+                </button>
+              </div>
+
+              {/* Tags List */}
+              <ul className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto list-none pl-0">
+                {selectedTags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="px-2 py-1 rounded bg-slate-100 dark:bg-cyan-500/15 text-slate-700 dark:text-cyan-400"
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         ) : (
           // Open Fragment here to wrap Left, Middle, and Right columns
           <>
             {/* Left */}
             <div className="flex-1">
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
-                onClick={() => setShowProfilePreview(true)}
-              />
+              <div
+                className="
+    w-20 h-20 
+    rounded-full 
+    overflow-hidden      
+    bg-gradient-to-tr
+    from-[#4eb7b3]
+    to-[#98e1d7]
+    flex items-center justify-center
+    text-white text-3xl font-bold
+    flex-shrink-0 "
+              >
+                {user?.photo ? (
+                  <img
+                    src={user?.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
+              </div>
 
               <LiveClock />
               <h1 className="text-2xl font-semibold text-main leading-tight">
@@ -291,16 +321,20 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Right */}
-            <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
-              <button
-                onClick={() => setShowTagModal(true)}
-                className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-muted hover:text-main hover:border-(--primary) transition"
-              >
-                + Add Tags
-              </button>
-            </div>
-          </> // Close Fragment here
+        {/* Right */}
+        <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
+
+          <img
+            src={profileImage}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
+            onClick={() => setShowProfilePreview(true)}
+          />
+
+          <LiveClock />
+
+        </div>
+          </>
         )}
       </header>
 
@@ -321,6 +355,7 @@ export default function Dashboard() {
 
             <label className="px-4 py-2 bg-white text-black rounded-lg cursor-pointer hover:bg-gray-200 transition text-sm font-medium">
               Change Profile Picture
+
               <input
                 type="file"
                 accept="image/*"
@@ -423,52 +458,118 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              {loadingRoutines ? (
-                <p className="text-sm text-muted">Loading routines…</p>
-              ) : savedRoutines.length === 0 ? (
-                <p className="text-sm text-muted text-center mt-10">
-                  No routines saved yet
-                </p>
-              ) : (
-                <ul className="space-y-3">
-                  {savedRoutines.map((routine) => (
-                    <li
-                      key={routine._id}
-                      onClick={() => navigate("/routine-builder")}
-                      className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+          {loadingRoutines ? (
+            <p className="text-sm text-muted">Loading routines…</p>
+          ) : savedRoutines.length === 0 ? (
+            <p className="text-sm text-muted text-center mt-10">
+              No routines saved yet
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {savedRoutines.map((routine) => (
+                <li
+                  key={routine._id}
+                  onClick={() => navigate("/routine-builder")}
+                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-medium text-main">{routine.name}</p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDuplicateModal(routine);
+                      }}
+                      disabled={duplicatingRoutineId === routine._id}
+                      aria-label={`Duplicate ${routine.name}`}
+                      title="Duplicate routine"
+                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="font-medium text-main">{routine.name}</p>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDuplicateModal(routine);
-                          }}
-                          disabled={duplicatingRoutineId === routine._id}
-                          aria-label={`Duplicate ${routine.name}`}
-                          title="Duplicate routine"
-                          className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                      <Copy size={16} />
+                    </button>
+                  </div>
+                  {routine.description && (
+                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                      {routine.description}
+                    </p>
+                  )}
+                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
+                    {routine.items.length} tasks across{" "}
+                    {new Set(routine.items.map((i) => i.day)).size} day(s)
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Daily Journal */}
+        <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
+          <div className="flex flex-col h-full justify-between">
+            <div>
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={20} className="text-primary" />
+                  <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
+                </div>
+                {todayJournal && (
+                  <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
+                    {todayJournal.mood === "happy" ? "😃" :
+                     todayJournal.mood === "calm" ? "😌" :
+                     todayJournal.mood === "neutral" ? "😐" :
+                     todayJournal.mood === "stressed" ? "🤯" :
+                     todayJournal.mood === "sad" ? "😢" :
+                     todayJournal.mood === "energetic" ? "⚡" : "😴"}
+                  </span>
+                )}
+              </div>
+
+              {/* Body Content */}
+              {todayJournal ? (
+                <div className="space-y-2 text-left">
+                  <h3 className="font-semibold text-main line-clamp-1">
+                    {todayJournal.title || "Untitled Journal"}
+                  </h3>
+                  <p className="text-sm text-muted line-clamp-4 leading-relaxed">
+                    {todayJournal.content}
+                  </p>
+                  {todayJournal.tags && todayJournal.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {todayJournal.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
                         >
-                          <Copy size={16} />
-                        </button>
-                      </div>
-                      {routine.description && (
-                        <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
-                          {routine.description}
-                        </p>
-                      )}
-                      <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
-                        {routine.items.length} tasks across{" "}
-                        {new Set(routine.items.map((i) => i.day)).size} day(s)
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3 mt-4 text-left">
+                  <p className="text-xs text-muted leading-relaxed">
+                    No journal entry logged for today yet. Write down your wins, challenges, and learnings to keep track of your progress.
+                  </p>
+                </div>
               )}
             </div>
-          </section>
-        </>
+
+            {/* Action Button */}
+            <div className="mt-2">
+              <button
+                className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
+                onClick={() => navigate("/daily-journal")}
+              >
+                {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
+                <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      </>
       )}
 
       {routineToDuplicate && (

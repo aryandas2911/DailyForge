@@ -8,6 +8,7 @@ import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import { journalRouter } from "../routes/journalRoutes.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -32,6 +33,7 @@ app.use(
 connectDB();
 
 // Middleware for parsing cookies and request body
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -46,6 +48,9 @@ app.use("/api/routines", routineRouter);
 
 // Router for accessing analytics routes
 app.use("/api/analytics", analyticsRouter);
+
+// Router for accessing journal routes
+app.use("/api/journal", journalRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");
