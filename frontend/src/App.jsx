@@ -134,14 +134,11 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
-          <Route
-            path="/focus-mode"
-            element={
-              <ProtectedRoutes>
-                <Pomodoro />
-              </ProtectedRoutes>
-            }
-          />
+<Route
+  path="/focus-mode"
+  element={<Pomodoro />}
+/>
+          
               <Route
             path="/profile"
             element={
