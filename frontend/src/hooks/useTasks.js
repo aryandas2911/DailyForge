@@ -80,6 +80,22 @@ const useTasks = ({
 
   // update task
   const updateTask = async (id, updates) => {
+        if (String(id).startsWith("routine-")) {
+      try {
+        const existingTasks = JSON.parse(
+          localStorage.getItem("activeRoutineTasks") || "[]"
+        );
+        const updatedTasks = existingTasks.map((t) =>
+          t._id === id ? { ...t, ...updates } : t
+        );
+        localStorage.setItem("activeRoutineTasks", JSON.stringify(updatedTasks));
+        window.dispatchEvent(new Event("storage"));
+      } catch (error) {
+        console.error("Failed to update routine task locally:", error);
+      }
+      return;
+    }
+    
     setTasks((prev) =>
       prev.map((t) => (t._id === id ? { ...t, ...updates } : t)),
     );

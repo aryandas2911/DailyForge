@@ -65,11 +65,55 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
       document.body.style.overflowY = "";
       window.scrollTo({ top: scrollY, behavior: "instant" });
     };
-  }, []);
 
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (submitLockRef.current) return;
+
+      onError?.("");
+
+      if (!title.trim()) return onError?.("Title is required");
+      if (title.trim().length > TITLE_MAX_LENGTH)
+        return onError?.(`Title must be ${TITLE_MAX_LENGTH} characters or less`);
+      if (!priority) return onError?.("Priority is required");
+      if (!dueDate || !dueTime)
+        return onError?.("Due date and time are required");
+
+      // Validate weekly recurrence — must pick at least one day
+      if (recurrenceEnabled && recurrenceFrequency === "weekly" && recurrenceDays.length === 0) {
+        return onError?.("Please select at least one day for weekly recurrence");
+      }
+
+      const selectedDateTime = new Date(`${dueDate}T${dueTime}`);
+      const now = new Date();
+
+      if (!task && selectedDateTime < now) {
+        return onError?.("Due date/time cannot be in the past");
+      }
+      const maxDateTime = new Date(maxDateStr + "T23:59:59");
+      if (selectedDateTime > maxDateTime) {
+        return onError?.("Due date cannot be more than 1 year in the future");
+      }
+
+      try {
+        submitLockRef.current = true;
+        setIsSubmitting(true);
+        await Promise.resolve(
+          onSubmit({
+            title: title.trim(),
+            description: description.trim(),
+            tags: tags,
+            priority,
+            status: task ? task.status : "Due",
+            dueDate: `${dueDate}T${dueTime}:00`,
+            dependsOn: dependsOn || null,
+            recurrence: buildRecurrence(),
+          }),     
+        );
+      } finally {
+        submitLockRef.current = false;
+        setIsSubmitting(false);
+      }
     };
 
     document.addEventListener("keydown", handleKey);
@@ -485,174 +529,269 @@ export default function TaskFormModal({ task, onClose, onSubmit, errorMessage, o
                   const isSelected = tags.includes(tag);
                   return (
                     <button
-                      key={tag}
                       type="button"
-                      onClick={() => toggleTag(tag)}
+                      onClick={addCustomTag}
                       disabled={isSubmitting}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        isSelected
-                          ? "ring-2 ring-offset-1"
-                          : "opacity-60 hover:opacity-100"
-                      }`}
+                      className="btn btn-primary px-3 py-1.5"
                     >
-                      {tag}
+                      Add
                     </button>
-                  );
-                })}
+                  </div>
+                )}
+
+                {/* Show custom tags (non-predefined) */}
+                {customTags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {customTags.map((ct) => (
+                      <div
+                        key={ct}
+                        className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
+                      >
+                        <span className="text-xs font-medium">{ct}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeTag(ct)}
+                          disabled={isSubmitting}
+                          className="text-xs text-red-500 px-1"
+                          aria-label={`Remove tag ${ct}`}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <p className="text-xs text-muted mt-1">
+                  Select one or more tags or choose Other to add a custom tag
+                </p>
               </div>
 
-              {/* Other input */}
-              {showOtherInput && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    type="text"
-                    value={customTagInput}
-                    onChange={(e) => setCustomTagInput(e.target.value)}
-                    disabled={isSubmitting}
-                    className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
-                    placeholder="Enter custom tag (e.g., 'Essay')"
-                  />
+              {/* Priority */}
+              <div>
+                <label className="text-sm font-medium text-main">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full mt-1 p-2 border border-soft rounded-lg
+                          focus:ring-(--primary) focus:border-(--primary)
+                          bg-transparent text-main dark:bg-slate-800"
+                  required
+                >
+                  {priorities.map((p) => (
+                    <option key={p} value={p} className="dark:bg-slate-800">
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Depends On */}
+  <div>
+    <label className="text-sm font-medium text-main">
+      Depends On
+    </label>
+
+    <select
+      value={dependsOn}
+      onChange={(e) => setDependsOn(e.target.value)}
+      disabled={isSubmitting}
+      className="w-full mt-1 p-2 border border-soft rounded-lg
+                focus:ring-(--primary) focus:border-(--primary)
+                bg-transparent text-main dark:bg-slate-800"
+    >
+      <option value="">No Dependency</option>
+
+    {tasks
+    .filter((t) => t._id !== task?._id)
+    .map((t) => (
+      <option
+        key={t._id}
+        value={t._id}
+        className="dark:bg-slate-800"
+      >
+        {t.title}
+      </option>
+    ))}
+
+    </select>
+
+    <p className="text-xs text-muted mt-1">
+      Select a prerequisite task
+    </p>
+  </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="text-sm font-medium text-main">Due Date</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  min={task ? undefined : todayStr}
+                  max={maxDateStr}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full mt-1 p-2 border border-soft rounded-lg
+                focus:ring-(--primary) focus:border-(--primary)
+                bg-transparent text-main"
+                  required
+                />
+              </div>
+
+              {/* Due Time */}
+              <div>
+                <label className="text-sm font-medium text-main">Due Time</label>
+                <input
+                  type="time"
+                  value={dueTime}
+                  onChange={(e) => setDueTime(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full mt-1 p-2 border border-soft rounded-lg
+                focus:ring-(--primary) focus:border-(--primary)
+                bg-transparent text-main"
+                  required
+                />
+              </div>
+
+              {/* ── Repeat Toggle ─────────────────────────────────────────────── */}
+              <div className="border border-soft rounded-lg p-3 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-main">Repeat this task</p>
+                    <p className="text-xs text-muted mt-0.5">
+                      Auto-create this task on a schedule
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    onClick={addCustomTag}
+                    onClick={() => setRecurrenceEnabled((v) => !v)}
                     disabled={isSubmitting}
-                    className="btn btn-primary px-3 py-1.5"
+                    className={`relative w-10 h-5 rounded-full transition-colors flex-shrink-0 ${
+                      recurrenceEnabled
+                        ? "bg-(--primary)"
+                        : "bg-gray-300 dark:bg-slate-600"
+                    }`}
+                    aria-label="Toggle recurrence"
+                    role="switch"
+                    aria-checked={recurrenceEnabled}
                   >
-                    Add
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                        recurrenceEnabled ? "translate-x-[19px]" : "translate-x-0.5"
+                      }`}
+                    />
                   </button>
                 </div>
-              )}
 
-              {/* Show custom tags (non-predefined) */}
-              {customTags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {customTags.map((ct) => (
-                    <div
-                      key={ct}
-                      className="px-3 py-1 rounded-full bg-soft text-main flex items-center gap-2"
-                    >
-                      <span className="text-xs font-medium">{ct}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeTag(ct)}
+                {recurrenceEnabled && (
+                  <div className="space-y-3 pt-1">
+                    {/* Frequency */}
+                    <div>
+                      <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                        Frequency
+                      </label>
+                      <select
+                        value={recurrenceFrequency}
+                        onChange={(e) => {
+                          setRecurrenceFrequency(e.target.value);
+                          setRecurrenceDays([]); // reset days on frequency change
+                        }}
                         disabled={isSubmitting}
-                        className="text-xs text-red-500 px-1"
-                        aria-label={`Remove tag ${ct}`}
+                        className="w-full mt-1 p-2 border border-soft rounded-lg
+                                  bg-transparent text-main dark:bg-slate-800 text-sm"
                       >
-                        ✕
-                      </button>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
                     </div>
-                  ))}
-                </div>
-              )}
 
-              <p className="text-xs text-muted mt-1">
-                Select one or more tags or choose Other to add a custom tag
-              </p>
-            </div>
+                    {/* Weekly — day picker */}
+                    {recurrenceFrequency === "weekly" && (
+                      <div>
+                        <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                          Repeat on
+                        </label>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {WEEK_DAYS.map((day) => (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => toggleRecurrenceDay(day)}
+                              disabled={isSubmitting}
+                              className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                                recurrenceDays.includes(day)
+                                  ? "ring-2 ring-(--primary) bg-(--primary)/10 text-(--primary)"
+                                  : "opacity-60 hover:opacity-100 border border-soft"
+                              }`}
+                            >
+                              {day.slice(0, 3)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-            {/* Priority */}
-            <div>
-              <label className="text-sm font-medium text-main">Priority</label>
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
+                    {/* Monthly — day of month */}
+                    {recurrenceFrequency === "monthly" && (
+                      <div>
+                        <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                          Day of month
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={31}
+                          value={recurrenceMonthDay}
+                          onChange={(e) =>
+                            setRecurrenceMonthDay(Number(e.target.value))
+                          }
+                          disabled={isSubmitting}
+                          className="w-full mt-1 p-2 border border-soft rounded-lg
+                                    bg-transparent text-main dark:bg-slate-800 text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {/* Optional end date */}
+                    <div>
+                      <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                        End date{" "}
+                        <span className="normal-case">(optional)</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={recurrenceEndDate}
+                        min={todayStr}
+                        max={maxDateStr}
+                        onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                        disabled={isSubmitting}
+                        className="w-full mt-1 p-2 border border-soft rounded-lg
+                                  bg-transparent text-main text-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              {/* ── End Repeat Toggle ─────────────────────────────────────────── */}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-                         focus:ring-(--primary) focus:border-(--primary)
-                         bg-transparent text-main dark:bg-slate-800"
-                required
+                className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {priorities.map((p) => (
-                  <option key={p} value={p} className="dark:bg-slate-800">
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Depends On */}
-<div>
-  <label className="text-sm font-medium text-main">
-    Depends On
-  </label>
-
-  <select
-    value={dependsOn}
-    onChange={(e) => setDependsOn(e.target.value)}
-    disabled={isSubmitting}
-    className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main dark:bg-slate-800"
-  >
-    <option value="">No Dependency</option>
-
-   {tasks
-  .filter((t) => t._id !== task?._id)
-  .map((t) => (
-    <option
-      key={t._id}
-      value={t._id}
-      className="dark:bg-slate-800"
-    >
-      {t.title}
-    </option>
-  ))}
-
-  </select>
-
-  <p className="text-xs text-muted mt-1">
-    Select a prerequisite task
-  </p>
-</div>
-
-            {/* Due Date */}
-            <div>
-              <label className="text-sm font-medium text-main">Due Date</label>
-              <input
-                type="date"
-                value={dueDate}
-                min={task ? undefined : todayStr}
-                max={maxDateStr}
-                onChange={(e) => setDueDate(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
-                required
-              />
-            </div>
-
-            {/* Due Time */}
-            <div>
-              <label className="text-sm font-medium text-main">Due Time</label>
-              <input
-                type="time"
-                value={dueTime}
-                onChange={(e) => setDueTime(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full mt-1 p-2 border border-soft rounded-lg
-               focus:ring-(--primary) focus:border-(--primary)
-               bg-transparent text-main"
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting
-                ? task
-                  ? "Updating..."
-                  : "Adding..."
-                : task
-                  ? "Update Task"
-                  : "Add Task"}
-            </button>
-          </form>
+                {isSubmitting
+                  ? task
+                    ? "Updating..."
+                    : "Adding..."
+                  : task
+                    ? "Update Task"
+                    : "Add Task"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>,
