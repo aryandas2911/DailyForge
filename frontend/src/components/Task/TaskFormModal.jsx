@@ -1,8 +1,8 @@
-  import { useState, useEffect, useRef } from "react";
-  import { createPortal } from "react-dom";
-  import { X } from "lucide-react";
-  import { TAGS } from "../../utils/tagUtils";
-  import FormError from "../common/FormError";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
+import { TAGS } from "../../utils/tagUtils";
+import FormError from "../common/FormError";
 
   const priorities = ["Low", "Medium", "High"];
   const DESCRIPTION_MAX_LENGTH = 500;

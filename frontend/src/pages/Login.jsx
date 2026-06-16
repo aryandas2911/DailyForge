@@ -243,13 +243,14 @@ cursor-pointer
               </button>
             </div>
           </div>
+          
           <FormError error={error} />
+          
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer disabled:opacity-50"
+            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
           >
-
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
           <p className="text-center text-sm text-muted">

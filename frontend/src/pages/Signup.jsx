@@ -272,6 +272,7 @@ cursor-pointer
           </div>
 
           {/* Error */}
+          <FormError message={errorMessage} />
           <FormError error={errorMessage} />
 
           {/* Name */}

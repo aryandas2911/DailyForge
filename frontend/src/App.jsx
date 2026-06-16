@@ -166,6 +166,7 @@ const AnimatedRoutes = () => {
         <Route path="/share/routine/:id" element={<ShareRoutine />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
     </AnimatePresence>
   );
 };
