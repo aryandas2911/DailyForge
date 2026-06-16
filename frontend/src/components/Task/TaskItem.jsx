@@ -23,6 +23,18 @@ export default function TaskItem({
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const dependencyId = task.dependsOn?._id || task.dependsOn;
+  const dependencyTask = tasks.find((t) => t._id === dependencyId);
+  const isBlocked = dependencyTask && dependencyTask.status !== "Completed";
+
+  const handleToggleClick = () => {
+    if (!isCompleted && isBlocked) {
+      alert(`Cannot mark this task as completed. Please complete "${dependencyTask.title}" first.`);
+      return;
+    }
+    onToggleComplete(task);
+  };
+
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
     setIsEditModalOpen(false);
@@ -132,7 +144,7 @@ export default function TaskItem({
             {/* Action Buttons */}
             <div className="flex items-center justify-between w-full mt-1 pt-3 border-t border-gray-200/50 dark:border-slate-700/30">
               <button
-                onClick={() => onToggleComplete(task)}
+                onClick={handleToggleClick}
                 className={`
                   w-8 h-8 rounded-lg flex items-center justify-center
                   border border-gray-200 dark:border-slate-700 shrink-0 cursor-pointer
@@ -157,7 +169,7 @@ export default function TaskItem({
                 )}
                 {task.status === "In Progress" && (
                   <button
-                    onClick={() => onToggleComplete(task)}
+                    onClick={handleToggleClick}
                     className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold bg-green-100 hover:bg-green-200 text-green-700 dark:bg-green-950/30 dark:text-green-300 dark:hover:bg-green-950/50 rounded-lg transition-colors cursor-pointer"
                     title="Complete Task"
                   >
@@ -195,7 +207,7 @@ export default function TaskItem({
             />
             {/* Checkbox */}
             <button
-              onClick={() => onToggleComplete(task)}
+              onClick={handleToggleClick}
               className={`
               w-8 h-8 rounded-md flex items-center justify-center
               border-soft shrink-0 cursor-pointer
@@ -209,6 +221,11 @@ export default function TaskItem({
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
+                {isBlocked && (
+                  <span className="inline-flex items-center text-amber-500" title={`Blocked by: ${dependencyTask.title}`}>
+                    🔒
+                  </span>
+                )}
                 <p
                   className={`text-lg font-semibold break-words ${
                     isCompleted ? "line-through text-muted" : "text-main"
@@ -225,12 +242,17 @@ export default function TaskItem({
               </div>
 
               {task.dependsOn && (
-  <p className="text-xs text-muted mt-1">
-    🔗 Depends on: {task.dependsOn.title}
-  </p>
-)}
+                <p className="text-xs text-muted mt-1">
+                  🔗 Depends on: {task.dependsOn.title}
+                </p>
+              )}
 
               <div className="flex items-center gap-4 mt-2 text-xs text-muted flex-wrap">
+                {isBlocked && (
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">
+                    Blocked by: {dependencyTask.title}
+                  </span>
+                )}
                 <span className="uppercase tracking-wide">
                   {task.priority} priority
                 </span>
@@ -282,7 +304,7 @@ export default function TaskItem({
               )}
               {task.status === "In Progress" && (
                 <button
-                  onClick={() => onToggleComplete(task)}
+                  onClick={handleToggleClick}
                   className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition cursor-pointer"
                   title="Complete Task"
                 >
@@ -298,7 +320,7 @@ export default function TaskItem({
                 <Pencil size={18} className="text-main" />
               </button>
 
-              {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
+              {/* Delete Button */}
               <button
                 onClick={() => onDelete(task._id)}
                 className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition cursor-pointer"

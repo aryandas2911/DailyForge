@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { TAGS } from "../../utils/tagUtils";
@@ -71,7 +71,7 @@ import FormError from "../common/FormError";
         setDescription(task.description || "");
         setTags(Array.isArray(task.tags) ? task.tags : []);
         setPriority(task.priority || "Low");
-        setDependsOn(task.dependsOn?._id || "");
+        setDependsOn(task.dependsOn ? (task.dependsOn._id || task.dependsOn) : "");
         if (task?.dueDate) {
           const dt = new Date(task.dueDate);
           const datePart = dt.toISOString().slice(0, 10);
@@ -97,63 +97,119 @@ import FormError from "../common/FormError";
           setRecurrenceMonthDay(1);
           setRecurrenceEndDate("");
         }
+      } else {
+        setDependsOn("");
+        setTitle("");
+        setDescription("");
+        setTags([]);
+        setPriority("Low");
+        setDueDate("");
+        setDueTime("");
       }
       onError?.("");
-    },  [task, onError]);
+    }, [task, onError]);
 
-    /* ---------------- body scroll lock ---------------- */
-    useEffect(() => {
-      const scrollY = window.scrollY;
+    const eligibleDependencies = useMemo(() => {
+    return (tasks || []).filter((t) => {
+      if (task && t._id === task._id) return false;
 
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.overflowY = "scroll";
+      if (
+        task &&
+        ((t.dependsOn?._id || t.dependsOn)?.toString() === task._id.toString())
+      ) {
+        return false;
+      }
 
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.overflowY = "";
-        window.scrollTo({ top: scrollY, behavior: "instant" });
-      };
-    }, []);
+      return t.tags?.some((tag) => tags.includes(tag));
+    });
+  }, [tasks, task, tags]);
 
-    useEffect(() => {
-      const handleKey = (e) => {
-        if (e.key === "Escape") onClose();
-      };
+  /* ---------------- body scroll lock ---------------- */
+  useEffect(() => {
+    const scrollY = window.scrollY;
 
-      document.addEventListener("keydown", handleKey);
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflowY = "scroll";
 
-      return () => document.removeEventListener("keydown", handleKey);
-    }, [onClose]);
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.overflowY = "";
+      window.scrollTo({ top: scrollY, behavior: "instant" });
+    };
+  }, []);
 
-    const toggleRecurrenceDay = (day) => {
-      setRecurrenceDays((prev) =>
-        prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-      );
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
     };
 
-    const buildRecurrence = () => {
-      if (!recurrenceEnabled) return { enabled: false };
-      return {
-        enabled: true,
-        frequency: recurrenceFrequency,
-        days: recurrenceFrequency === "weekly" ? recurrenceDays : [],
-        monthDay:
-          recurrenceFrequency === "monthly" ? recurrenceMonthDay : null,
-        endDate: recurrenceEndDate || null,
-      };
+    document.addEventListener("keydown", handleKey);
+
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const toggleRecurrenceDay = (day) => {
+    setRecurrenceDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+    );
+  };
+
+  const toggleTag = (tagName) => {
+    setDependsOn("");
+    if (tagName === "Other") {
+      // toggle showing the custom input
+      setShowOtherInput((s) => !s);
+      return;
+    }
+    setTags((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName],
+    );
+  };
+
+  const addCustomTag = () => {
+    const raw = customTagInput.trim();
+    if (!raw) return;
+    setDependsOn("");
+    // avoid duplicates (case-insensitive)
+    const lower = raw.toLowerCase();
+    const exists = tags.some((t) => t.toLowerCase() === lower);
+    if (!exists) {
+      setTags((prev) => [...prev, raw]);
+    }
+    setCustomTagInput("");
+    setShowOtherInput(false);
+  };
+
+  const removeTag = (tagName) => {
+    setDependsOn("");
+    setTags((prev) => prev.filter((t) => t !== tagName));
+  };
+
+  const buildRecurrence = () => {
+    if (!recurrenceEnabled) return { enabled: false };
+    return {
+      enabled: true,
+      frequency: recurrenceFrequency,
+      days: recurrenceFrequency === "weekly" ? recurrenceDays : [],
+      monthDay:
+        recurrenceFrequency === "monthly" ? recurrenceMonthDay : null,
+      endDate: recurrenceEndDate || null,
     };
+  };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (submitLockRef.current) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (submitLockRef.current) return;
 
-      onError?.("");
+    onError?.("");
 
       if (!title.trim()) return onError?.("Title is required");
       if (title.trim().length > TITLE_MAX_LENGTH)
@@ -178,6 +234,15 @@ import FormError from "../common/FormError";
         return onError?.("Due date cannot be more than 1 year in the future");
       }
 
+      if (dependsOn) {
+        const depTask = tasks.find((t) => t._id === dependsOn);
+        if (depTask && depTask.dueDate) {
+          if (new Date(dueDate) < new Date(depTask.dueDate)) {
+            return alert(`Due date cannot be earlier than the dependency task's due date (${new Date(depTask.dueDate).toLocaleString()})`);
+          }
+        }
+      }
+
       try {
         submitLockRef.current = true;
         setIsSubmitting(true);
@@ -198,37 +263,6 @@ import FormError from "../common/FormError";
         setIsSubmitting(false);
       }
     };
-
-    const toggleTag = (tagName) => {
-      if (tagName === "Other") {
-        // toggle showing the custom input
-        setShowOtherInput((s) => !s);
-        return;
-      }
-      setTags((prev) =>
-        prev.includes(tagName)
-          ? prev.filter((t) => t !== tagName)
-          : [...prev, tagName],
-      );
-    };
-
-    const addCustomTag = () => {
-      const raw = customTagInput.trim();
-      if (!raw) return;
-      // avoid duplicates (case-insensitive)
-      const lower = raw.toLowerCase();
-      const exists = tags.some((t) => t.toLowerCase() === lower);
-      if (!exists) {
-        setTags((prev) => [...prev, raw]);
-      }
-      setCustomTagInput("");
-      setShowOtherInput(false);
-    };
-
-    const removeTag = (tagName) => {
-      setTags((prev) => prev.filter((t) => t !== tagName));
-    };
-
     // custom tags are tags that are not part of the predefined list (excluding "Other")
     const customTags = tags.filter((t) => !TAGS.includes(t));
 
@@ -608,21 +642,48 @@ import FormError from "../common/FormError";
               </div>
               {/* ── End Repeat Toggle ─────────────────────────────────────────── */}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
+
+            {/* Dependency Dropdown */}
+            <div>
+              <label className="text-sm font-medium text-main">Depends On</label>
+              <select
+                value={dependsOn}
+                onChange={(e) => setDependsOn(e.target.value)}
+                className="w-full mt-1 p-2 border border-soft rounded-lg
+                           focus:ring-(--primary) focus:border-(--primary)
+                           bg-transparent text-main dark:bg-slate-800"
               >
-                {isSubmitting
-                  ? task
-                    ? "Updating..."
-                    : "Adding..."
-                  : task
-                    ? "Update Task"
-                    : "Add Task"}
-              </button>
-            </form>
+                <option value="" className="dark:bg-slate-800">None</option>
+                {eligibleDependencies.map((t) => (
+                  <option key={t._id} value={t._id} className="dark:bg-slate-800">
+                    {t.title}
+                  </option>
+                ))}
+              </select>
+              {tags.length === 0 ? (
+                <p className="text-xs text-muted mt-1">Select a tag first to see eligible tasks.</p>
+              ) : eligibleDependencies.length === 0 ? (
+                <p className="text-xs text-muted mt-1">No other tasks share the selected tags.</p>
+              ) : (
+                <p className="text-xs text-muted mt-1">Select a task that must be completed first.</p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isSubmitting
+                ? task
+                  ? "Updating..."
+                  : "Adding..."
+                : task
+                  ? "Update Task"
+                  : "Add Task"}
+            </button>
+          </form>
           </div>
         </div>
       </div>,

@@ -505,28 +505,28 @@ export const uploadProfileImage = async (req, res) => {
     const cloudinaryResponse = await cloudinary.uploader.upload(fileBase64, {
       folder: "profile_pictures",
       transformation: [
-        { width: 400, height: 400, crop: "fill", gravity: "face" }, 
+        { width: 400, height: 400, crop: "fill", gravity: "face" },
         { quality: "auto" },
-        { fetch_format: "auto" }, 
+        { fetch_format: "auto" },
       ],
     });
 
     const secureUrl = cloudinaryResponse.secure_url;
 
     const updatedUser = await User.findByIdAndUpdate(
-      req.userId, 
+      req.userId,
       { photo: secureUrl },
-      { new: true } 
+      { new: true }
     ).select("-password");
 
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    return res.status(200).json({ 
-      message: "Profile image updated successfully", 
+    return res.status(200).json({
+      message: "Profile image updated successfully",
       imageUrl: secureUrl,
-      user: updatedUser 
+      user: updatedUser
     });
 
   } catch (error) {

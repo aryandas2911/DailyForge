@@ -462,6 +462,7 @@ export default function Tasks() {
                   <TaskItem
                     key={task._id}
                     task={task}
+                    tasks={tasks}
                     onToggleComplete={handleToggle}
                     onDelete={(id) => deleteTask(id)}
                     onEdit={(task) => {
@@ -628,6 +629,7 @@ export default function Tasks() {
       {isModalOpen && (
         <TaskFormModal
           task={editingTask}
+          tasks={tasks}
           onClose={() => {
             setIsModalOpen(false);
             setTaskError("");
