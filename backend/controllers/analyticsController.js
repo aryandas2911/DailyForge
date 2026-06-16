@@ -1,6 +1,7 @@
 import Task from "../src/models/Task.js";
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Journal from "../src/models/Journal.js";
 
 // Helper to format Date to YYYY-MM-DD in user's timezone/local
 const formatDateString = (date) => {
@@ -25,6 +26,7 @@ export const getAnalytics = async (req, res) => {
     // Fetch all user tasks and routines
     const tasks = await Task.find({ userId });
     const routines = await Routine.find({ userId });
+    const totalJournalsCount = await Journal.countDocuments({ userId });
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === "Completed");
@@ -196,6 +198,38 @@ export const getAnalytics = async (req, res) => {
 
     // --- Routine Statistics ---
     const totalRoutines = routines.length;
+      let averageBurnoutScore = 0;
+      let averageConsistencyScore = 0;
+      let recoveryModeCount = 0;
+      let highFatigueCount = 0;
+
+        if (routines.length > 0) {
+
+          const burnoutTotal = routines.reduce((sum, routine) => {
+            return sum + (routine.adaptiveSettings?.burnoutScore || 0);
+          }, 0);
+
+          const consistencyTotal = routines.reduce((sum, routine) => {
+            return sum + (routine.adaptiveSettings?.consistencyScore || 0);
+          }, 0);
+
+          averageBurnoutScore = Math.round(
+            burnoutTotal / routines.length
+          );
+
+          averageConsistencyScore = Math.round(
+            consistencyTotal / routines.length
+          );
+
+          recoveryModeCount = routines.filter(
+            (routine) => routine.adaptiveSettings?.recoveryMode
+          ).length;
+
+          highFatigueCount = routines.filter(
+            (routine) =>
+              routine.adaptiveSettings?.fatigueLevel === "high"
+          ).length;
+        }
     let totalRoutineTasksCount = 0;
     const routineDayDistribution = {
       Monday: 0,
@@ -228,6 +262,7 @@ export const getAnalytics = async (req, res) => {
           overallCompletionRate,
           totalRoutines,
           totalRoutineTasksCount,
+          totalJournalsCount,
         },
         streaks: {
           currentStreak,
@@ -240,6 +275,13 @@ export const getAnalytics = async (req, res) => {
         priorityStats,
         mostFrequentTasks,
         routineDayDistribution,
+
+        adaptiveAnalytics: {
+          averageBurnoutScore,
+          averageConsistencyScore,
+          recoveryModeCount,
+          highFatigueCount,
+        },
       },
     });
   } catch (error) {

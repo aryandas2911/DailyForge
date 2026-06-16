@@ -28,6 +28,15 @@ const taskValidationRules = [
     .optional()
     .trim()
     .escape(),
+
+  body("recurrence").optional(),
+  body("recurrence.enabled").optional().isBoolean(),
+  body("recurrence.frequency")
+    .optional()
+    .isIn(["daily", "weekly", "monthly", null]),
+  body("recurrence.days").optional().isArray(),
+  body("recurrence.monthDay").optional().custom((val) => val === null || (Number.isInteger(val) && val >= 1 && val <= 31)),
+  body("recurrence.endDate").optional().custom((val) => val === null || !isNaN(Date.parse(val))),
 ];
 
 // Partial updates (e.g. status toggle) — only validate fields that are sent
@@ -53,8 +62,17 @@ const taskUpdateValidationRules = [
     .withMessage("Priority must be Low, Medium, or High"),
   body("status")
     .optional()
-    .isIn(["Due", "Completed"])
-    .withMessage("Status must be Due or Completed"),
+    .isIn(["Due", "In Progress", "Completed"])
+    .withMessage("Status must be Due, In Progress, or Completed"),
+
+  body("recurrence").optional(),
+  body("recurrence.enabled").optional().isBoolean(),
+  body("recurrence.frequency")
+    .optional()
+    .isIn(["daily", "weekly", "monthly", null]),
+  body("recurrence.days").optional().isArray(),
+  body("recurrence.monthDay").optional().custom((val) => val === null || (Number.isInteger(val) && val >= 1 && val <= 31)),
+  body("recurrence.endDate").optional().custom((val) => val === null || !isNaN(Date.parse(val))),
 ];
 
 // router object for task

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"No tests specified yet\"",
+    "test": "node --test",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint ."
@@ -15,6 +15,7 @@
   "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
@@ -24,11 +25,14 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.2.0",
     "mongoose": "^9.0.0",
-    "nodemon": "^3.1.11"
+    "multer": "^2.1.1",
+    "nodemon": "^3.1.11",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.3.0",
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
     "globals": "^17.6.0"
   }
 }

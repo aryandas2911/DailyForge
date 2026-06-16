@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { MoreVertical, Trash2, X, Calendar, Layers, Clock, RefreshCw } from "lucide-react";
-import { syncRoutineToGoogleCalendar } from "../../utils/googleCalendar";
+import { MoreVertical, Trash2, X, Calendar, Layers, Clock, Share2, Copy, Download, Loader2 } from "lucide-react";
+import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
 
 export default function RoutineOverviewModal({
   routine,
@@ -12,9 +12,9 @@ export default function RoutineOverviewModal({
   handleDeleteRoutine,
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState(null);
-  const [syncError, setSyncError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -23,68 +23,52 @@ export default function RoutineOverviewModal({
     };
   }, []);
 
-  const handleGoogleSync = async (e) => {
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  const handleCopyLink = async (e) => {
     e.stopPropagation();
     setShowMenu(false);
-    setIsSyncing(true);
-    setSyncMessage("Connecting to Google Calendar...");
-    setSyncError(null);
-
     try {
-      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1041806379102-jn9riq5d68n26dvvumkmqs21tp7kp5t5.apps.googleusercontent.com";
-
-      if (!window.google) {
-        throw new Error("Google Identity Services script failed to load. Please refresh the page.");
-      }
-
-      const client = window.google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: "https://www.googleapis.com/auth/calendar.events",
-        callback: async (response) => {
-          if (response.error) {
-            console.error("Google Auth response error:", response);
-            setSyncError(response.error_description || `Google Authentication error: ${response.error}`);
-            setIsSyncing(false);
-            return;
-          }
-
-          const accessToken = response.access_token;
-          if (!accessToken) {
-            setSyncError("Failed to obtain a valid access token.");
-            setIsSyncing(false);
-            return;
-          }
-
-          setSyncMessage("Syncing tasks to Google Calendar...");
-          try {
-            const { syncedEvents, errors } = await syncRoutineToGoogleCalendar(
-              routine,
-              tasks,
-              accessToken
-            );
-
-            if (errors.length > 0) {
-              console.warn("Some tasks failed to sync:", errors);
-              setSyncError(`Synced ${syncedEvents.length} tasks, but ${errors.length} failed.`);
-            } else {
-              setSyncMessage(`Successfully synced ${syncedEvents.length} tasks to your Google Calendar!`);
-              setTimeout(() => {
-                setSyncMessage(null);
-              }, 6000);
-            }
-          } catch (err) {
-            setSyncError(err.message || "Failed to sync tasks.");
-          } finally {
-            setIsSyncing(false);
-          }
-        },
-      });
-
-      client.requestAccessToken();
+      const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      triggerToast("Share link copied!");
     } catch (err) {
-      console.error("Google Sync initialization error:", err);
-      setSyncError(err.message || "Failed to initialize Google integration.");
-      setIsSyncing(false);
+      console.error(err);
+      alert("Failed to copy share link");
+    }
+  };
+
+  const handleCopySummary = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const summaryText = generateRoutineSummary(routine, tasks);
+      await navigator.clipboard.writeText(summaryText);
+      triggerToast("Routine summary copied!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy summary");
+    }
+  };
+
+  const handleExportPDF = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      setIsExporting(true);
+      await exportRoutineToPDF(routine, tasks);
+      triggerToast("PDF generated!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export PDF");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -100,6 +84,20 @@ export default function RoutineOverviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm px-4 animate-in">
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
+          <div className="rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
+              <div>
+                <p className="text-sm font-semibold text-main">{toastMessage}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-2xl rounded-3xl p-6 bg-white dark:bg-[#1e293b] shadow-2xl border border-soft/50 max-h-[90vh] overflow-y-auto flex flex-col justify-between">
         
         {/* Header */}
@@ -113,24 +111,6 @@ export default function RoutineOverviewModal({
               <p className="text-sm text-muted mt-2 max-w-lg leading-relaxed italic">
                 {routine.description}
               </p>
-            )}
-
-            {/* Syncing status banners */}
-            {isSyncing && (
-              <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 text-xs font-semibold mt-3 animate-pulse">
-                <RefreshCw size={12} className="animate-spin" />
-                {syncMessage}
-              </div>
-            )}
-            {!isSyncing && syncMessage && (
-              <div className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mt-3">
-                ✓ {syncMessage}
-              </div>
-            )}
-            {syncError && (
-              <div className="text-red-500 dark:text-red-400 text-xs font-semibold mt-3">
-                ⚠ {syncError}
-              </div>
             )}
 
             <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold">
@@ -159,16 +139,30 @@ export default function RoutineOverviewModal({
             </button>
 
             {showMenu && (
-              <div className="absolute top-12 right-10 w-52 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+              <div className="absolute top-12 right-10 w-48 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
                 <button
-                  onClick={handleGoogleSync}
-                  disabled={isSyncing}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
+                  onClick={handleCopyLink}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
                 >
-                  <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
-                  Sync to Google Calendar
+                  <Share2 size={16} />
+                  Copy Share Link
                 </button>
-                <div className="h-px bg-soft/20 w-full" />
+                <button
+                  onClick={handleCopySummary}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+                >
+                  <Copy size={16} />
+                  Copy Summary
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
+                >
+                  {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                  Export as PDF
+                </button>
+                <div className="border-t border-soft/20"></div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -181,6 +175,7 @@ export default function RoutineOverviewModal({
                 </button>
               </div>
             )}
+
           
 
             {/* Close */}
