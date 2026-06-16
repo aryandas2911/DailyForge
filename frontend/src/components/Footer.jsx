@@ -1,7 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Github, MessageSquare, BookOpen, Heart } from 'lucide-react';
 
 export default function Footer() {
+  const location = useLocation();
+  if (location.pathname === "/forge" || location.pathname === "/focus") {
+    return null;
+  }
+
   const githubBase = "https://github.com/aryandas2911/DailyForge";
   const navLinks = [
     { label: "Dashboard", path: "/dashboard" },

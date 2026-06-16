@@ -118,7 +118,9 @@ export default function TaskLibrary({ tasks, onAddTask }) {
 
       {/* Task List */}
       <div className="flex-1 space-y-3 pr-1 overflow-y-auto max-h-[350px] md:max-h-[500px]">
-        {filteredTasks?.length ? (
+        {tasks?.length === 0 ? (
+          <EmptyState type="tasks" onAction={onAddTask} />
+        ) : filteredTasks?.length > 0 ? (
           filteredTasks.map((task) => (
             <DraggableTask key={task._id} task={task} />
           ))
@@ -128,7 +130,10 @@ export default function TaskLibrary({ tasks, onAddTask }) {
             onClearSearch={() => setQuery("")}
           />
         ) : (
-          <EmptyState type="tasks" onAction={onAddTask} />
+          <div className="flex flex-col items-center justify-center h-full min-h-[150px] text-center px-4">
+            <p className="text-sm font-medium text-slate-400 mb-1">No tasks found</p>
+            <p className="text-xs text-slate-500">We couldn't find anything matching "{query}"</p>
+          </div>
         )}
       </div>
 
