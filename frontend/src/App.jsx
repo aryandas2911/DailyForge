@@ -17,11 +17,11 @@ import About from "./pages/About.jsx";
 import Profile from "./pages/Profile.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import Pomodoro from "./pages/Pomodoro.jsx";
-import ForgeMode from "./pages/ForgeMode.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
 import DailyJournal from "./pages/DailyJournal.jsx";
+import ForgeMode from "./pages/ForgeMode.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center">
@@ -110,6 +110,16 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/focus-mode"
+          element={
+            <ProtectedRoutes>
+              <PageTransition>
+                <Pomodoro />
+              </PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <ProtectedRoutes>
@@ -134,7 +144,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><DailyJournal /></PageTransition>
+                <PageTransition>
+                  <DailyJournal />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -143,7 +155,9 @@ const AnimatedRoutes = () => {
           path="/forge"
           element={
             <ProtectedRoutes>
-              <PageTransition><ForgeMode /></PageTransition>
+              <PageTransition>
+                <ForgeMode />
+              </PageTransition>
             </ProtectedRoutes>
           }
         />
@@ -151,19 +165,20 @@ const AnimatedRoutes = () => {
           path="/focus"
           element={
             <ProtectedRoutes>
-              <PageTransition><ForgeMode /></PageTransition>
+              <PageTransition>
+                <ForgeMode />
+              </PageTransition>
             </ProtectedRoutes>
           }
         />
         <Route
-          path="/focus-mode"
+          path="/share/routine/:id"
           element={
-            <ProtectedRoutes>
-              <PageTransition><Pomodoro /></PageTransition>
-            </ProtectedRoutes>
+            <PageTransition>
+              <ShareRoutine />
+            </PageTransition>
           }
         />
-        <Route path="/share/routine/:id" element={<ShareRoutine />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
