@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 // Google Icon
 const GoogleIcon = () => (
@@ -187,6 +187,7 @@ const passwordStrength = getPasswordStrength(password);
       {/* Glow blobs */}
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
+
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
 
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
@@ -271,6 +272,7 @@ cursor-pointer
           </div>
 
           {/* Error */}
+          <FormError message={errorMessage} />
           <FormError error={errorMessage} />
 
           {/* Name */}
@@ -463,6 +465,7 @@ cursor-pointer
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
+
 
           {/* Footer */}
           <p className="text-center text-sm text-muted">

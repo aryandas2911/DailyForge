@@ -6,8 +6,8 @@ const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  // Hide the button on login and root pages
-  const isLoginPage = location.pathname === "/login" || location.pathname === "/";
+  // Hide the button on login, root, and forge/focus mode pages
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/" || location.pathname === "/forge" || location.pathname === "/focus";
 
   // Toggle visibility based on scroll position
   const toggleVisibility = () => {
@@ -52,7 +52,6 @@ const ScrollToTop = () => {
       {shouldShow && (
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[var(--primary)] text-white shadow-lg hover:bg-[var(--primary-hover)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2"
           className="p-3 rounded-full bg-[var(--primary)] text-white shadow-lg border border-white/10 dark:border-slate-700 hover:bg-[var(--primary-hover)] transition-all duration-300 transform hover:scale-110 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           aria-label="Scroll to top"
         >
