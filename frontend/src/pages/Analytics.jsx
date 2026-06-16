@@ -271,7 +271,7 @@ export default function Analytics() {
       {/* Grid of Key Metrics */}
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full animate-in delay-100">
         <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+          <div className="p-3 bg-blue-500/10 text-main rounded-xl">
             <BookOpen size={24} />
           </div>
           <div>
@@ -571,7 +571,7 @@ export default function Analytics() {
         {/* Daily Progress Bar Chart */}
         <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft relative">
           <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-blue-500" />
+            <Clock size={18} className="text-main" />
             Daily Tasks Status (Last 7 Days)
           </h3>
           

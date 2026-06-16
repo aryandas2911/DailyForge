@@ -60,6 +60,11 @@ html.dark body {
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+
 @layer utilities {
   .app-bg {
     background-color: var(--bg);
