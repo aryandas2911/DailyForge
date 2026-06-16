@@ -567,34 +567,31 @@ We use labels to organize work. Here's what they mean:
 
 ### 📊 Dashboard Overview
 
-![Dashboard 1](Screenshots/Dashboard-1.png)
-![Dashboard 2](Screenshots/Dashboard-2.png)
-![Dashboard 3](Screenshots/Dashboard-3.png)
+![Dashboard](Screenshots/Dashboard.png)
 
 ### 📋 Tasks Page
 
-![Tasks 1](Screenshots/Tasks-1.png)
-![Tasks 2](Screenshots/Tasks-2.png)
+![Tasks Page](Screenshots/Tasks.png)
 
 ### 🗓️ Drag-and-Drop Routine Builder
 
-![Routine 1](Screenshots/Routine-1.png)
-![Routine 2](Screenshots/Routine-2.png)
+![Routine Builder](Screenshots/Routine.png)
 
 ### 📈 Analytics
 
-![Analytics 1](Screenshots/Analytics-1.png)
-![Analytics 2](Screenshots/Analytics-2.png)
-![Analytics 3](Screenshots/Analytics-3.png)
+![Analytics](Screenshots/Analytics.png)
 
 ### ⏱️ Pomodoro Timer
 
-![Pomodoro](Screenshots/Pomodoro.png)
+![Pomodoro Timer](Screenshots/Pomodoro.png)
+
+### 📔 Daily Journal
+
+![Daily Journal](Screenshots/DailyJournal.png)
 
 ### 👤 Profile Page
 
-![Profile 1](Screenshots/Profile-1.png)
-![Profile 2](Screenshots/Profile-2.png)
+![Profile](Screenshots/Profile.png)
 
 ---
 
