@@ -203,7 +203,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex flex-col text-main transition-colors duration-300">
+      <main className="app-bg min-h-screen pt-24 sm:pt-28 flex flex-col text-main transition-colors duration-300">
         <AnimatedRoutes />
       </main>
       <Footer />
