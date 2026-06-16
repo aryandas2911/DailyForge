@@ -138,8 +138,25 @@ const AnimatedRoutes = () => {
             </ProtectedRoutes>
           }
         />
+        <Route
+          path="/forge"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
     </AnimatePresence>
   );
 };
