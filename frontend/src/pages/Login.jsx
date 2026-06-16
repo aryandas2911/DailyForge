@@ -245,6 +245,7 @@ cursor-pointer
           </div>
           
           <FormError error={error} />
+          
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
