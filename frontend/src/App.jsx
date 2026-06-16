@@ -39,9 +39,9 @@ const AnimatedRoutes = () => {
           path="/"
           element={
             <PublicRoute>
-              <AuthLayout>
-                <Login />
-              </AuthLayout>
+              <PageTransition>
+                <LandingPage />
+              </PageTransition>
             </PublicRoute>
           }
         />
@@ -49,9 +49,11 @@ const AnimatedRoutes = () => {
           path="/login"
           element={
             <PublicRoute>
-              <AuthLayout>
-                <Login />
-              </AuthLayout>
+              <PageTransition>
+                <AuthLayout>
+                  <Login />
+                </AuthLayout>
+              </PageTransition>
             </PublicRoute>
           }
         />
@@ -59,18 +61,22 @@ const AnimatedRoutes = () => {
           path="/signup"
           element={
             <PublicRoute>
-              <AuthLayout>
-                <Signup />
-              </AuthLayout>
+              <PageTransition>
+                <AuthLayout>
+                  <Signup />
+                </AuthLayout>
+              </PageTransition>
             </PublicRoute>
           }
         />
         <Route
           path="/about"
           element={
-            <AuthLayout>
-              <About />
-            </AuthLayout>
+            <PageTransition>
+              <AuthLayout>
+                <About />
+              </AuthLayout>
+            </PageTransition>
           }
         />
         <Route
@@ -179,7 +185,14 @@ const AnimatedRoutes = () => {
             </PageTransition>
           }
         />
-        <Route path="*" element={<NotFound />} />
+        <Route 
+          path="*" 
+          element={
+            <PageTransition>
+              <NotFound />
+            </PageTransition>
+          } 
+        />
       </Routes>
 
     </AnimatePresence>
