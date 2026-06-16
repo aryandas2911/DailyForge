@@ -15,11 +15,8 @@ import {
   Moon,
   TrendingUp,
   Timer,
-<<<<<<< HEAD
   Sparkles,
   ArrowRight,
-=======
->>>>>>> f934c55 (fix: resolve Timer reference error)
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";

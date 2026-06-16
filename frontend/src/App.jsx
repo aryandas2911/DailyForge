@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
-import LandingPage from "./pages/LandingPage";
+import LandingPage from "./pages/LandingPage.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import Login from "./pages/Login.jsx";
@@ -40,9 +40,7 @@ const AnimatedRoutes = () => {
           path="/"
           element={
             <PublicRoute>
-              <AuthLayout>
-                <Login />
-              </AuthLayout>
+              <LandingPage />
             </PublicRoute>
           }
         />
