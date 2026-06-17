@@ -60,7 +60,22 @@ export default function Footer() {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+                    className="
+                    relative
+                    inline-block
+                    text-[#94a3b8]
+                    hover:text-[#f8fafc]
+                    transition-colors
+                    after:absolute
+                    after:left-0
+                    after:-bottom-1
+                    after:h-[2px]
+                    after:w-0
+                    after:bg-[#4eb7b3]
+                    after:transition-all
+                    after:duration-300
+                    hover:after:w-full
+                    "
                   >
                     {link.label}
                   </Link>
@@ -76,17 +91,74 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <a href={githubBase} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={githubBase} target="_blank" rel="noreferrer" 
+                  className="
+                  relative
+                  inline-flex
+                  items-center
+                  gap-2
+                  text-[#94a3b8]
+                  hover:text-[#f8fafc]
+                  transition-colors
+                  after:absolute
+                  after:left-0
+                  after:-bottom-1
+                  after:h-[2px]
+                  after:w-0
+                  after:bg-[#4eb7b3]
+                  after:transition-all
+                  after:duration-300
+                  hover:after:w-full
+                  "
+                >
                   <Github size={14} /> GitHub Repo
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" 
+                  className="
+                  relative
+                  inline-flex
+                  items-center
+                  gap-2
+                  text-[#94a3b8]
+                  hover:text-[#f8fafc]
+                  transition-colors
+                  after:absolute
+                  after:left-0
+                  after:-bottom-1
+                  after:h-[2px]
+                  after:w-0
+                  after:bg-[#4eb7b3]
+                  after:transition-all
+                  after:duration-300
+                  hover:after:w-full
+                  "
+                >
                   <MessageSquare size={14} /> Issues
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" 
+                  className="
+                  relative
+                  inline-flex
+                  items-center
+                  gap-2
+                  text-[#94a3b8]
+                  hover:text-[#f8fafc]
+                  transition-colors
+                  after:absolute
+                  after:left-0
+                  after:-bottom-1
+                  after:h-[2px]
+                  after:w-0
+                  after:bg-[#4eb7b3]
+                  after:transition-all
+                  after:duration-300
+                  hover:after:w-full
+                  "
+                >
                   <BookOpen size={14} /> Contributing
                 </a>
               </li>
