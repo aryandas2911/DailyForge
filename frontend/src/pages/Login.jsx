@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
@@ -51,6 +51,28 @@ const LoadingSpinner = () => (
 );
 
 const Login = () => {
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    card.style.transition = "transform 0.1s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transition = "transform 0.4s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
+  };
 
 
   // two states for inputs
@@ -140,41 +162,35 @@ const Login = () => {
       <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
         <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
         <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-        <form
-          onSubmit={handle2FASubmit}
-          className="surface-bg animate-in-slow w-full max-w-md rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)] hover-lift hover:scale-50 transition-transform duration-500 ease-out"
-        >
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">
-              Two-Factor Auth
-            </h1>
-            <p className="text-sm text-muted">
-              Enter the code from your authenticator app
-            </p>
+        <div className="relative z-10 w-full max-w-md shadow-[0_20px_60px_rgba(0,0,0,0.7)] rounded-[30px]">
+          <div className="rotating-border-card rounded-[30px] w-full">
+            <form
+              onSubmit={handle2FASubmit}
+              className="surface-bg animate-in w-full rounded-[28.5px] px-8 py-10 flex flex-col gap-6 rotating-border-card-inner"
+            >
+              <div className="text-center space-y-2">
+                <h1 className="text-4xl font-bold tracking-tight text-main">Two-Factor Auth</h1>
+                <p className="text-sm text-muted">Enter the code from your authenticator app</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="totp" className="text-sm font-medium text-main">TOTP Code</label>
+                <input
+                  type="text"
+                  id="totp"
+                  placeholder="123456"
+                  required
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value)}
+                  className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200"
+                />
+              </div>
+              <FormError error={error} />
+              <button type="submit" className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer">
+                Verify
+              </button>
+            </form>
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="totp" className="text-sm font-medium text-main">
-              TOTP Code
-            </label>
-            <input
-              type="text"
-              id="totp"
-              placeholder="123456"
-              required
-              value={totpCode}
-              onChange={(e) => setTotpCode(e.target.value)}
-              className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200"
-            />
-          </div>
-          <FormError error={error} />
-          <button
-            type="submit"
-            className="btn btn-primary w-full py-3 rounded-2xl cursor-pointer"
-          >
-
-            Verify
-          </button>
-        </form>
+        </div>
       </div>
     );
   }
@@ -184,17 +200,18 @@ const Login = () => {
       <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
-      <div className="relative z-10 w-full max-w-md animate-in-slow">
-        <form onSubmit={handleSubmit} className="surface-bg hover-lift w-full rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">
-              Welcome Back
-            </h1>
-            <p className="text-sm text-muted">
-              Login to continue your experience
-            </p>
-          </div>
-          <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="
+      <div ref={cardRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="relative z-10 w-full max-w-md will-change-transform transform-gpu shadow-[0_20px_60px_rgba(0,0,0,0.7)] rounded-[30px]">
+        <div className="rotating-border-card rounded-[30px] w-full">
+          <form onSubmit={handleSubmit} className="surface-bg animate-in-slow w-full rounded-[28.5px] px-8 py-10 flex flex-col gap-6 rotating-border-card-inner">
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl font-bold tracking-tight text-main">
+                Welcome Back
+              </h1>
+              <p className="text-sm text-muted">
+                Login to continue your experience
+              </p>
+            </div>
+            <button type="button" onClick={handleGoogleLogin} disabled={isGoogleLoading || isSubmitLoading} className="
 flex items-center justify-center
 w-full px-4 py-3
 rounded-2xl
@@ -216,55 +233,53 @@ disabled:opacity-50
 cursor-pointer
 ">
 
-            {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
-            {isGoogleLoading ? "Connecting..." : "Continue with Google"}
-          </button>
-          <div className="flex items-center">
-            <div className="flex-1 h-px bg-white/20"></div>
-            <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
-              OR
-            </span>
-            <div className="flex-1 h-px bg-white/20"></div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
-            <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1
-                border-slate-200 " />
-          </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-sm font-medium text-main">
-              Password
-            </label>
-            <div className="relative">
-              <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1
-                border-slate-200" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
-                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-              </button>
+              {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
+              {isGoogleLoading ? "Connecting..." : "Continue with Google"}
+            </button>
+            <div className="flex items-center">
+              <div className="flex-1 h-px bg-white/20"></div>
+              <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
+                OR
+              </span>
+              <div className="flex-1 h-px bg-white/20"></div>
             </div>
-          </div>
-          
-          <FormError error={error} />
-          
-          <button
-            type="submit"
-            disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
-          >
-            {isSubmitLoading ? "Logging in..." : "Login"}
-          </button>
-          <p className="text-center text-sm text-muted">
-            Don&apos;t have an account?{" "}
-            <Link
-              to="/signup"
-              className="text-main font-semibold hover:underline"
+            <div className="flex flex-col gap-2">
+              <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
+              <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="password" className="text-sm font-medium text-main">
+                Password
+              </label>
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1 border-slate-200" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                </button>
+              </div>
+            </div>
+            
+            <FormError error={error} />
+            
+            <button
+              type="submit"
+              disabled={isGoogleLoading || isSubmitLoading}
+              className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
             >
-              Sign up
-            </Link>
-          </p>
-        </form>
+              {isSubmitLoading ? "Logging in..." : "Login"}
+            </button>
+            <p className="text-center text-sm text-muted">
+              Don&apos;t have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-main font-semibold hover:underline"
+              >
+                Sign up
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
-
     </div>
   );
 };
