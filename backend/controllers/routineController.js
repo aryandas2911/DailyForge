@@ -286,12 +286,13 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const { name, description, items } = req.body;
+    const { name, description, items, isPublic } = req.body;
 
     const updates = {
       ...(name && { name }),
       ...(description && { description }),
       ...(items && { items }),
+      ...(isPublic !== undefined && { isPublic }),
     };
     const routineId = req.params.id;
 
@@ -430,10 +431,10 @@ export const getPublicRoutine = async (req, res) => {
   try {
     const routineId = req.params.id;
     const routine = await Routine.findById(routineId).populate("items.taskId");
-    if (!routine) {
-      return res.status(404).json({
+    if (!routine || !routine.isPublic) {
+      return res.status(403).json({
         success: false,
-        message: "Routine not found",
+        message: "Routine not found or not public",
       });
     }
     return res.status(200).json({ success: true, routine });

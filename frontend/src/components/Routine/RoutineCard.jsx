@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MoreVertical, Trash2, Share2, Copy, Download, Loader2 } from "lucide-react";
+import { MoreVertical, Trash2, Share2, Copy, Download, Loader2, EyeOff } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
 import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
@@ -36,12 +36,29 @@ export default function RoutineCard({
     e.stopPropagation();
     setShowMenu(false);
     try {
+      if (!routine.isPublic) {
+        await api.put(`/routines/${routine._id}`, { isPublic: true });
+        await fetchRoutines();
+      }
       const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
       await navigator.clipboard.writeText(shareUrl);
       triggerToast("Share Link Copied", "The public routine link was copied to clipboard.");
     } catch (err) {
       console.error(err);
       alert("Failed to copy share link");
+    }
+  };
+
+  const handleRevokeLink = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      await api.put(`/routines/${routine._id}`, { isPublic: false });
+      await fetchRoutines();
+      triggerToast("Link Revoked", "The routine is now private.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to revoke share link");
     }
   };
 
@@ -414,6 +431,15 @@ export default function RoutineCard({
                 <Share2 size={16} />
                 Copy Share Link
               </button>
+              {routine.isPublic && (
+                <button
+                  onClick={handleRevokeLink}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+                >
+                  <EyeOff size={16} />
+                  Revoke Share Link
+                </button>
+              )}
               <button
                 onClick={handleCopySummary}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
