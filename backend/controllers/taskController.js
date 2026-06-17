@@ -36,10 +36,10 @@ export const createTask = async (req, res) => {
   status = "Due",
   dueDate,
 } = req.body;
-    if (!title || !priority || !dueDate) {
+    if (!title || typeof title !== "string" || !priority || !dueDate) {
       return res
         .status(400)
-        .json({ success: false, message: "Please enter all the details" });
+        .json({ success: false, message: "Please enter all the details as strings" });
     }
     
     const dueDateValue = new Date(dueDate);

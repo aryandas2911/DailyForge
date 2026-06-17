@@ -8,14 +8,14 @@ export const signup = async (req, res) => {
     // fetch values from request
     const { name, email, password } = req.body;
 
-    if (!name || name.trim().length < 2) {
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
       return res
         .status(400)
         .json({ message: 'Name must be at least 2 characters long' });
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!password || !passwordRegex.test(password)) {
+    if (!password || typeof password !== "string" || !passwordRegex.test(password)) {
       return res.status(400).json({
         message:
           'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character',
@@ -69,10 +69,10 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     // check if email and password exist in request
-    if (!email || !password) {
+    if (!email || typeof email !== "string" || !password || typeof password !== "string") {
       return res
         .status(400)
-        .json({ message: 'Email and password are required' });
+        .json({ message: 'Email and password must be valid strings' });
     }
 
     // check if user exists or not
@@ -132,6 +132,12 @@ export const updateProfile = async (req, res) => {
   try {
     // fetch values from request body
     const { name, currentPassword, newPassword } = req.body;
+
+    if ((name && typeof name !== "string") ||
+        (currentPassword && typeof currentPassword !== "string") ||
+        (newPassword && typeof newPassword !== "string")) {
+      return res.status(400).json({ success: false, message: "Invalid input types" });
+    }
 
     // fetch current user
     const user = await User.findById(req.userId);
