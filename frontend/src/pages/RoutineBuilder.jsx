@@ -355,7 +355,7 @@ export default function RoutineBuilder() {
                 onChange={(e) => setRoutineName(e.target.value)}
                 placeholder="Routine name"
                 className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm
-                           focus:outline-none bg-transparent text-main"
+                           focus:outline-none bg-transparent text-main dark:placeholder-slate-500"
               />
 
               <textarea
@@ -364,7 +364,7 @@ export default function RoutineBuilder() {
                 placeholder="Add a description (optional)"
                 rows="3"
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
-                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white resize-none"
+                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white dark:placeholder-slate-500 resize-none"
               />
 
               <div className="flex justify-end gap-3">
@@ -414,7 +414,7 @@ export default function RoutineBuilder() {
                     className="text-left p-4 border rounded-xl hover:border-blue-500 transition-colors"
                   >
                     <h4 className="font-bold text-gray-900">{template.title}</h4>
-                    <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{template.description}</p>
                   </button>
                 ))}
               </div>

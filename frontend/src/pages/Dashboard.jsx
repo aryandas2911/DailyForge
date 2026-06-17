@@ -224,7 +224,7 @@ export default function Dashboard() {
             >
               {/* Header with Title and Cancel Button */}
               <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-500 dark:text-slate-300">
                   All Tags
                 </span>
                 <button
@@ -283,7 +283,7 @@ export default function Dashboard() {
 
               <p className="text-sm italic text-primary mt-1">"{quote}"</p>
 
-              <p className="text-sm text-muted mt-2">
+              <p className="text-sm text-muted dark:text-slate-300 mt-2">
                 {new Date()
                   .toLocaleDateString("en-US", {
                     weekday: "long",
@@ -654,7 +654,7 @@ export default function Dashboard() {
                 value={customTag}
                 onChange={(e) => setCustomTag(e.target.value)}
                 placeholder="Create custom tag"
-                className="flex-1 px-3 py-2 rounded-lg border"
+                className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
               />
 
               <button

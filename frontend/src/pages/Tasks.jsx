@@ -364,7 +364,7 @@ export default function Tasks() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search tasks"
-                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
                 />
               </label>
               {/* View Toggle */}
@@ -655,7 +655,7 @@ export default function Tasks() {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted"
+              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
 
