@@ -1,6 +1,7 @@
 import Task from "../src/models/Task.js";
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Journal from "../src/models/Journal.js";
 
 // Helper to format Date to YYYY-MM-DD in user's timezone/local
 const formatDateString = (date) => {
@@ -25,6 +26,7 @@ export const getAnalytics = async (req, res) => {
     // Fetch all user tasks and routines
     const tasks = await Task.find({ userId });
     const routines = await Routine.find({ userId });
+    const totalJournalsCount = await Journal.countDocuments({ userId });
 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.status === "Completed");
@@ -260,6 +262,7 @@ export const getAnalytics = async (req, res) => {
           overallCompletionRate,
           totalRoutines,
           totalRoutineTasksCount,
+          totalJournalsCount,
         },
         streaks: {
           currentStreak,
