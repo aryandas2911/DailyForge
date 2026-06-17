@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
@@ -61,6 +61,31 @@ const LoadingSpinner = () => (
 );
 
 const Signup = () => {
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+
+    card.style.transition = "transform 0.1s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    card.style.transition = "transform 0.4s ease-out";
+    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
+  };
 
 
   // Auth State
@@ -193,25 +218,38 @@ const passwordStrength = getPasswordStrength(password);
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-md animate-in-slow">
-        <form
-          onSubmit={handleSubmit}
-          className="
-            surface-bg
-            hover-lift
-            w-full
-            rounded-[30px]
-            px-8
-            py-10
-            flex
-            flex-col
-            gap-3
-            mt-[-0.3rem]
-            border
-            border-white/10
-            shadow-[0_20px_60px_rgba(0,0,0,0.7)]
-          "
-        >
+      <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="
+          relative
+          z-10
+          w-full
+          max-w-md
+          will-change-transform
+          transform-gpu
+          shadow-[0_20px_60px_rgba(0,0,0,0.7)]
+          rounded-[30px]
+          mt-[3rem]
+        "
+      >
+        <div className="rotating-border-card rounded-[30px] w-full">
+          <form
+            onSubmit={handleSubmit}
+            className="
+              surface-bg
+              animate-in-slow
+              w-full
+              rounded-[28.5px]
+              px-8
+              py-10
+              flex
+              flex-col
+              gap-3
+              rotating-border-card-inner
+            "
+          >
           {/* Heading */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold tracking-tight text-main">
@@ -481,7 +519,8 @@ cursor-pointer
               Login
             </Link>
           </p>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
