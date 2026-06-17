@@ -12,6 +12,10 @@ const routineSchema = mongoose.Schema(
       required: true,
       trim: true
     },
+    isPublic: {
+      type: Boolean,
+      default: false,
+    },
     description: {
       type: String,
       required: false,
