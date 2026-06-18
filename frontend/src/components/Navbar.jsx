@@ -2,6 +2,8 @@ import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
+
+
 import {
   Menu,
   X,
@@ -17,6 +19,7 @@ import {
   Timer,
   Sparkles,
   ArrowRight,
+  BookOpen,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
@@ -252,13 +255,13 @@ const Navbar = () => {
 
   // Navigation Links configuration
   const navLinks = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Tasks", path: "/tasks", icon: CheckSquare },
-    { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
-    { name: "Analytics", path: "/analytics", icon: TrendingUp },
-    { name: "Profile", path: "/profile", icon: User },
-  ];
-
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Tasks", path: "/tasks", icon: CheckSquare },
+  { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
+  { name: "Daily Journal", path: "/daily-journal", icon: BookOpen },
+  { name: "Analytics", path: "/analytics", icon: TrendingUp },
+  { name: "Profile", path: "/profile", icon: User },
+];
 
   if (location.pathname === "/forge" || location.pathname === "/focus") {
     return null;
