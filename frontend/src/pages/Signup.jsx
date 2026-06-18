@@ -106,6 +106,11 @@ const passwordStrength = getPasswordStrength(password);
     setErrorMessage("");
     try {
       localStorage.removeItem("token");
+      if (!auth || !googleProvider) {
+  setErrorMessage("Google login is not configured. Please add Firebase environment variables.");
+  setIsGoogleLoading(false);
+  return;
+}
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await api.post("/auth/google-login", { idToken });

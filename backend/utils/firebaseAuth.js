@@ -75,6 +75,13 @@ export async function verifyFirebaseIdToken(token) {
     process.env.FIREBASE_AUTH_ALLOW_UNVERIFIED === "true" &&
     process.env.NODE_ENV !== "production";
 
+  // Graceful fallback for local development if Project ID is not configured
+if (!projectId) {
+  throw new Error(
+    "Firebase authentication is not configured. Please set FIREBASE_PROJECT_ID in backend environment variables."
+  );
+}
+
   // Fail closed by default. Allow an explicit insecure dev-mode override only when opted in.
   if (!projectId) {
     if (!allowUnverified) {
@@ -98,6 +105,7 @@ export async function verifyFirebaseIdToken(token) {
 
     return decoded;
   }
+
 
   try {
     // 1. Decode token to retrieve JWT header containing 'kid' (Key ID)

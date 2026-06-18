@@ -143,11 +143,11 @@ export const getTasks = async (req, res) => {
 
     const page = Math.max(
       Number.parseInt(req.query.page, 10) || DEFAULT_TASK_PAGE,
-      DEFAULT_TASK_PAGE
+      DEFAULT_TASK_PAGE,
     );
     const limit = Math.max(
       Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
-      MIN_TASK_LIMIT
+      MIN_TASK_LIMIT,
     );
     const skip = (page - 1) * limit;
     const taskQuery = { userId };
@@ -218,9 +218,11 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details, strip protected fields to prevent mass assignment
-    const updates = { ...req.body };
-    delete updates.userId;
-    delete updates._id;
+    const safeUpdates = { ...req.body };
+    delete safeUpdates.userId;
+    delete safeUpdates._id;
+
+    const updates = safeUpdates;
 
     // validate title length if title is being updated
     if (updates.title && updates.title.trim().length > 50) {
@@ -266,7 +268,7 @@ if (
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId },
       { $set: updates },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedTask) {
@@ -382,7 +384,7 @@ export const bulkDeleteTasks = async (req, res) => {
             taskId: { $in: ids },
           },
         },
-      }
+      },
     );
 
     return res.status(200).json({

@@ -83,6 +83,14 @@ const Login = () => {
     setError("");
     try {
       localStorage.removeItem("token");
+
+      if (!auth || !googleProvider) {
+  setError("Google login is not configured. Please add Firebase environment variables.");
+  setIsGoogleLoading(false);
+  return;
+}
+      // 1. Authenticate with Google
+
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await api.post("/auth/google-login", { idToken });

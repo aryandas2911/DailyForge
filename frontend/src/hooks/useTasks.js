@@ -130,6 +130,7 @@ const useTasks = ({
 
   // initial fetch
   useEffect(() => {
+     
     getTasks();
   }, [getTasks]);
 
