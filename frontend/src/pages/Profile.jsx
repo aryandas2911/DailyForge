@@ -51,6 +51,40 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const [confirmTouched, setConfirmTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const getPasswordStrength = (password) => {
+    let score = 0;
+
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score <= 2) {
+      return {
+        text: "Weak",
+        width: "w-1/3",
+        color: "bg-red-500",
+        textColor: "text-red-500",
+      };
+    }
+
+    if (score <= 4) {
+      return {
+        text: "Medium",
+        width: "w-2/3",
+        color: "bg-yellow-500",
+        textColor: "text-yellow-500",
+      };
+    }
+
+    return {
+      text: "Strong",
+      width: "w-full",
+      color: "bg-green-500",
+      textColor: "text-green-500",
+    };
+  };
 
   const timerCurrent = useRef(null);
   const timerNew = useRef(null);
@@ -74,6 +108,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const passwordsMatch = newPassword === confirmPassword;
   const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
+  const passwordStrength = getPasswordStrength(newPassword);
 
   function handleSubmit() {
     setSubmitAttempted(true);
@@ -113,6 +148,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
         <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
       </div>
 
+
       {apiError && (
         <p className="text-red-500 text-xs mb-2">{apiError}</p>
       )}
@@ -129,6 +165,31 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
         />
         <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
       </div>
+      {newPassword && (
+        <div className="mt-2">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-xs text-muted">
+              Password Strength
+            </span>
+
+            <span
+              className={`text-xs font-semibold ${passwordStrength.textColor}`}
+            >
+              {passwordStrength.text}
+            </span>
+          </div>
+
+          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${passwordStrength.width} ${passwordStrength.color}`}
+            />
+          </div>
+          <p className="text-xs text-muted mt-2">
+            Use at least 8 characters with uppercase, lowercase, numbers, and special characters.
+          </p>
+        </div>
+      )}
+
 
       <label className="text-main text-sm font-medium mb-1 mt-3 block">Confirm New Password</label>
       <div className="relative">
@@ -181,7 +242,7 @@ export default function Profile() {
   const [name, setName] = useState(user?.name || '');
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
   const [profileImage, setProfileImage] = useState("");
-  
+
   // password states
   const [passwordError, setPasswordError] = useState("");
   const [passwordResetKey, setPasswordResetKey] = useState(0);
@@ -267,7 +328,7 @@ export default function Profile() {
                     showToast("File is too large! Please choose an image under 3MB.", "error");
                     return;
                   }
-                  
+
                   const formData = new FormData();
                   formData.append("profileImage", file);
 
@@ -296,7 +357,7 @@ export default function Profile() {
             </label>
           </div>
         </div>
-        
+
         <div>
           <h1 className="text-main text-2xl font-bold">Profile Settings</h1>
           <p className="text-muted text-sm">Manage your account details and security</p>
