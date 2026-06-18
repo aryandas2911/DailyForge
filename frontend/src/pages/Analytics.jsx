@@ -14,7 +14,7 @@ import {
   Clock,
   Briefcase
 } from "lucide-react";
-import api from "../api/axios";
+import { cachedGet } from "../utils/apiCache";
 import html2canvas from "html2canvas";
 
 export default function Analytics() {
@@ -28,7 +28,7 @@ export default function Analytics() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/analytics");
+      const res = await cachedGet("/analytics");
       if (res.data.success) {
         setStats(res.data.stats);
       } else {

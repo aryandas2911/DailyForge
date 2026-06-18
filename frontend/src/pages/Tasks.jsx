@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
+import useDebounce from "../hooks/useDebounce";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import KanbanBoard from "../components/Task/KanbanBoard";
@@ -44,6 +45,9 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Filtering is client-side, so debounce the term the filter reads off of —
+  // the input stays instant, but we avoid re-filtering on every keystroke (#11).
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -149,7 +153,7 @@ export default function Tasks() {
   };
 
   const filteredTasks = useMemo(() => {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const normalizedSearchTerm = debouncedSearchTerm.trim().toLowerCase();
 
     return tasks.filter((task) => {
       const title = String(task.title ?? "").toLowerCase();
@@ -171,7 +175,7 @@ export default function Tasks() {
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [searchTerm, selectedCategories, statusFilter, tasks]);
+  }, [debouncedSearchTerm, selectedCategories, statusFilter, tasks]);
 
   const totalPages = pagination.totalPages;
   const hasPreviousPage = page > 1;

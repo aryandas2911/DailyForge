@@ -20,6 +20,8 @@ import {
   AlertTriangle
 } from "lucide-react";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
+import useDebounce from "../hooks/useDebounce";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const MOODS = [
@@ -56,6 +58,8 @@ export default function DailyJournal() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
+  // Server-side search fires per keystroke — debounce the value the request reads (#11)
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   const [moodFilter, setMoodFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -82,9 +86,9 @@ export default function DailyJournal() {
   const fetchJournals = useCallback(async () => {
     try {
       setLoadingList(true);
-      const res = await api.get("/journal", {
+      const res = await cachedGet("/journal", {
         params: {
-          search: searchQuery,
+          search: debouncedSearchQuery,
           mood: moodFilter,
           tag: tagFilter,
           startDate,
@@ -99,7 +103,7 @@ export default function DailyJournal() {
     } finally {
       setLoadingList(false);
     }
-  }, [searchQuery, moodFilter, tagFilter, startDate, endDate]);
+  }, [debouncedSearchQuery, moodFilter, tagFilter, startDate, endDate]);
 
   // Fetch journals on query change
   useEffect(() => {
@@ -112,7 +116,7 @@ export default function DailyJournal() {
       try {
         setErrorMsg("");
         setSuccessMsg("");
-        const res = await api.get(`/journal/by-date/${selectedDate}`);
+        const res = await cachedGet(`/journal/by-date/${selectedDate}`);
         if (res.data.success && res.data.journal) {
           const entry = res.data.journal;
           setTitle(entry.title || "");
@@ -141,7 +145,7 @@ export default function DailyJournal() {
       const fetchAnalytics = async () => {
         try {
           setLoadingAnalytics(true);
-          const res = await api.get("/journal/analytics");
+          const res = await cachedGet("/journal/analytics");
           if (res.data.success) {
             setAnalytics(res.data.analytics);
           }
@@ -187,7 +191,10 @@ export default function DailyJournal() {
         setContent(savedJournal.content || "");
         setMood(savedJournal.mood || "neutral");
         setTags(savedJournal.tags || []);
-        
+
+        // Entry changed — drop cached journal/analytics reads so they refetch fresh
+        invalidate("/journal");
+        invalidate("/analytics");
         fetchJournals();
         setTimeout(() => setSuccessMsg(""), 3000);
       }
@@ -216,6 +223,8 @@ export default function DailyJournal() {
         setTags([]);
         setActiveEntryId(null);
         setIsEditing(false);
+        invalidate("/journal");
+        invalidate("/analytics");
         fetchJournals();
         setTimeout(() => setSuccessMsg(""), 3000);
       }
@@ -281,7 +290,7 @@ export default function DailyJournal() {
   const handleEditExisting = async (date) => {
     setSelectedDate(date);
     try {
-      const res = await api.get(`/journal/by-date/${date}`);
+      const res = await cachedGet(`/journal/by-date/${date}`);
       if (res.data.success && res.data.journal) {
         const entry = res.data.journal;
         setTitle(entry.title || "");
@@ -338,7 +347,7 @@ export default function DailyJournal() {
   // Open editor with current loaded entry values
   const handleStartEdit = async () => {
     try {
-      const res = await api.get(`/journal/by-date/${selectedDate}`);
+      const res = await cachedGet(`/journal/by-date/${selectedDate}`);
       if (res.data.success && res.data.journal) {
         const entry = res.data.journal;
         setTitle(entry.title || "");

@@ -5,6 +5,7 @@ import {
   Settings, Music, Moon, AlertCircle, RefreshCw, Layers 
 } from "lucide-react";
 import api from "../api/axios";
+import { cachedGet, invalidate } from "../utils/apiCache";
 
 // Available copyright-free ambient soundscapes
 const SOUNDSCAPES = [
@@ -52,12 +53,12 @@ export default function ForgeMode() {
       setIsLoading(true);
       try {
         // Fetch user tasks library
-        const tasksRes = await api.get("/tasks");
+        const tasksRes = await cachedGet("/tasks");
         const fetchedTasks = tasksRes.data.tasks || [];
         setTasks(fetchedTasks);
 
         // Fetch routines to search for currently active routine task
-        const routinesRes = await api.get("/routines");
+        const routinesRes = await cachedGet("/routines");
         const fetchedRoutines = routinesRes.data.routines || [];
         
         // Auto-load scheduled task if active routine exists
@@ -237,6 +238,9 @@ export default function ForgeMode() {
             actualDuration: elapsedMinutes
           });
         }
+        // Completing a task here changes the task list + analytics elsewhere
+        invalidate("/tasks");
+        invalidate("/analytics");
       } catch (err) {
         console.error("Failed to log focus task success to MERN backend:", err);
       }

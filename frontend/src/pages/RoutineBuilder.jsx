@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
 import { routineTemplates } from '../utils/routineTemplate';
@@ -120,7 +121,7 @@ export default function RoutineBuilder() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await cachedGet("/routines");
       setSavedRoutines(
         Array.isArray(res.data.routines) ? res.data.routines : []
       );
@@ -151,6 +152,7 @@ export default function RoutineBuilder() {
       });
 
       const createdRoutine = res.data.routine || res.data.routines?.[0];
+      invalidate("/routines");
       if (createdRoutine) {
         setSavedRoutines((prevRoutines) => [
           createdRoutine,

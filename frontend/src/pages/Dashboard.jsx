@@ -10,6 +10,7 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
@@ -132,7 +133,7 @@ export default function Dashboard() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await cachedGet("/routines");
       setSavedRoutines(res.data.routines || []);
     } catch (err) {
       console.error(err);
@@ -145,7 +146,7 @@ export default function Dashboard() {
   const fetchTodayJournal = async () => {
     try {
       const todayStr = new Date().toLocaleDateString("en-CA");
-      const res = await api.get(`/journal/by-date/${todayStr}`);
+      const res = await cachedGet(`/journal/by-date/${todayStr}`);
       if (res.data.success && res.data.journal) {
         setTodayJournal(res.data.journal);
       } else {
@@ -188,6 +189,8 @@ export default function Dashboard() {
       );
 
       const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
+      invalidate("/routines");
 
       // Optimistic UI update
       if (duplicatedRoutine) {
