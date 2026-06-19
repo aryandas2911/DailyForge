@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-
 const shortcuts = [
   { keys: ['Ctrl', 'N'], description: 'New task' },
   { keys: ['Ctrl', 'K'], description: 'Toggle search' },

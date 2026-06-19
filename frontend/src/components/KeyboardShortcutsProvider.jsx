@@ -1,10 +1,8 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsHelp from './KeyboardShortcutsHelp';
 
 const KeyboardShortcutsContext = createContext();
-
-export const useKeyboardShortcutsContext = () => useContext(KeyboardShortcutsContext);
 
 const KeyboardShortcutsProvider = ({ children }) => {
   const [showHelp, setShowHelp] = useState(false);
