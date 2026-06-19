@@ -1,7 +1,7 @@
 import TaskItem from "./TaskItem";
 
-const Column = ({ title, columnTasks, status, onToggleComplete, onDelete, onEdit, onUpdate, selectedIds, onSelect, viewmode }) => (
-  <div className="flex flex-col bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800/60 rounded-2xl p-4 min-h-[500px] transition-colors duration-300">
+const Column = ({ title, columnTasks, status, onToggleComplete, onDelete, onEdit, onUpdate, selectedIds, onSelect, viewMode }) => (
+  <div className="flex flex-col bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 min-h-[500px]">
     <div className="flex items-center justify-between mb-4">
       <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide">{title}</h3>
       <span className="bg-slate-200/60 dark:bg-slate-800 text-xs px-2.5 py-0.5 rounded-full font-semibold text-slate-600 dark:text-slate-400 border border-slate-300/30 dark:border-slate-700">
@@ -19,7 +19,7 @@ const Column = ({ title, columnTasks, status, onToggleComplete, onDelete, onEdit
           onUpdate={onUpdate}
           isSelected={selectedIds.includes(task._id)}
           onSelect={onSelect}
-          viewmode={viewmode}
+          viewMode={viewMode}
         />
       ))}
       {columnTasks.length === 0 && (
@@ -32,7 +32,7 @@ const Column = ({ title, columnTasks, status, onToggleComplete, onDelete, onEdit
 );
 
 export default function KanbanBoard({
-  viewmode,
+  viewMode,
   tasks,
   onToggleComplete,
   onDelete,
@@ -52,7 +52,7 @@ export default function KanbanBoard({
     onUpdate,
     selectedIds,
     onSelect,
-    viewmode
+    viewMode
   };
 
   return (

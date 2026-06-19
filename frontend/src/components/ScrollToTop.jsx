@@ -6,7 +6,8 @@ const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  const isLoginPage = location.pathname === "/login" || location.pathname === "/";
+  // Hide the button on login, root, and forge/focus mode pages
+  const isLoginPage = location.pathname === "/login" || location.pathname === "/" || location.pathname === "/forge" || location.pathname === "/focus";
 
   const toggleVisibility = () => {
     if (window.scrollY > 100) {

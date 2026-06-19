@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 const GoogleIcon = () => (
   <svg
@@ -159,11 +159,30 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 relative overflow-hidden transition-colors duration-300">
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/5 blur-3xl rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#4eb7b3]/10 dark:bg-[#4eb7b3]/5 blur-3xl rounded-full pointer-events-none" />
-      
-      <div className="relative z-10 w-full max-w-md animate-in">
+    <div
+      className="
+        auth-page-bg
+        min-h-screen
+        w-full
+        flex
+        items-center
+        justify-center
+        px-6
+        py-10
+        overflow-hidden
+        relative
+      "
+    >
+      {/* Glow blobs */}
+      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
+
+
+      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
+
+      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
+
+      {/* Card */}
+      <div className="relative z-10 w-full max-w-md animate-in-slow">
         <form
           onSubmit={handleSubmit}
           className="w-full rounded-3xl p-8 flex flex-col gap-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl box-border"
@@ -195,6 +214,8 @@ const Signup = () => {
             <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
           </div>
 
+          {/* Error */}
+          <FormError message={errorMessage} />
           <FormError error={errorMessage} />
 
           <div className="flex flex-col gap-1.5">
@@ -297,7 +318,9 @@ const Signup = () => {
             {isLoading ? "Signing up..." : "Sign Up"}
           </button>
 
-          <p className="text-center text-sm text-slate-500 dark:text-slate-400 font-medium">
+
+          {/* Footer */}
+          <p className="text-center text-sm text-muted">
             Already have an account?{" "}
             <Link
               to="/login"

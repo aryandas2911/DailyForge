@@ -3,9 +3,9 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import FormError from "../components/common/FormError";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 mr-2.5 shrink-0" viewBox="0 0 24 24" fill="none">
@@ -230,11 +230,13 @@ const Login = () => {
               </button>
             </div>
           </div>
+          
           <FormError error={error} />
+          
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
-            className="w-full py-3 bg-[#3b8ea0] hover:bg-[#337d8f] text-white font-semibold rounded-2xl transition-colors cursor-pointer disabled:opacity-50"
+            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
           >
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
@@ -249,6 +251,7 @@ const Login = () => {
           </p>
         </form>
       </div>
+
     </div>
   );
 };

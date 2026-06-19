@@ -1,8 +1,9 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 
-const FormError = ({ error }) => {
-  if (!error) return null;
+const FormError = ({ error, message }) => {
+  const displayError = error || message;
+  if (!displayError) return null;
 
   return (
     <div 
@@ -16,4 +17,4 @@ const FormError = ({ error }) => {
   );
 };
 
-export default FormError;
+export default FormError;https://github.com/aryandas2911/DailyForge/pull/1520/conflict?name=frontend%252Fsrc%252Fpages%252FAnalytics.jsx&ancestor_oid=cf140c51dceb63b791743678214103bcf7fd8404&base_oid=2e52402859e4d98a6214fe2d60da256030deff19&head_oid=bbe40fbe775e1f9af2917def194769012822fcbb
