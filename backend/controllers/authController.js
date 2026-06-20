@@ -78,6 +78,26 @@ const getAuthCookieOptions = () => {
   return cookieOptions;
 };
 
+//reduces redudancy as this peice of code is being called in login, signup and googellogin
+const sendAuthResponse = (res, statusCode, user, message) => {
+  const jwtSecret = getJwtSecret(res);
+  if (!jwtSecret) return; // Error already handled in getJwtSecret
+
+  const token = jwt.sign({ userId: user._id }, jwtSecret, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    algorithm: JWT_ALGORITHM,
+  });
+
+  return res
+    .status(statusCode)
+    .cookie('token', token, getAuthCookieOptions())
+    .json({
+      message,
+      user: { _id: user._id, name: user.name, email: user.email },
+    });
+};
+
+// sign up function
 // ─── Sign up ──────────────────────────────────────────────────────────────────
 export const signup = async (req, res) => {
   try {
@@ -106,6 +126,10 @@ export const signup = async (req, res) => {
     const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
+    return sendAuthResponse(res, 201, newUser, 'User registered successfully');
+  } catch (error) {
+    // error handling
+    console.error('Signup error:', error);
     const jwtSecret = getJwtSecret(res);
     if (!jwtSecret) return;
 
@@ -143,6 +167,10 @@ export const login = async (req, res) => {
         .json({ message: "Email and password are required" });
     }
 
+    // check if user exists or not
+    //if the user has signed up with abc@gmail.com and in phone by mistake he write Abc@gmail.com then it could be login
+    const emailToLower=email.toLowerCase();
+    const user = await User.findOne({ email:emailToLower });
     const user = await User.findOne({ email });
     if (!user) {
       // Do NOT reveal whether the user exists
@@ -154,6 +182,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    return sendAuthResponse(res, 200, user, 'Login successful');
+  } catch (error) {
+    // error handling
+    console.log('Login error: ', error);
     // If 2FA is enabled, ask client to submit TOTP before issuing JWT
     if (user.twoFactorEnabled) {
       return res.status(200).json({
@@ -465,6 +497,10 @@ export const googleLogin = async (req, res) => {
     } else {
       console.log(`[GOOGLE AUTH] Logged in existing user: ${email}`);
     }
+    return sendAuthResponse(res, 200, user, 'Google sign-in successful');
+    
+  } catch (error) {
+    console.error('[GOOGLE AUTH] Controller error:', error);
 
     const jwtSecret = getJwtSecret(res);
     if (!jwtSecret) return;
