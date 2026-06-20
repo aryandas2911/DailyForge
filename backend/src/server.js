@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import sanitizeMiddleware from "../middlewares/sanitize.js";
 import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
@@ -36,6 +37,9 @@ connectDB();
 
 app.use(cookieParser());
 app.use(express.json());
+
+// Middleware for sanitizing incoming payload against no-sql injection
+app.use(sanitizeMiddleware);
 
 // Router for accessing auth routes
 app.use("/api/auth", authRouter);
