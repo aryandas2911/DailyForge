@@ -222,9 +222,45 @@ export default function RoutineBuilder() {
     if (!task) return;
     const { day, startTime } = over.data.current;
 
+    // Check if the target slot is already occupied by a different task
+    const isOccupied = scheduledTasks.some(
+      (t) => normalizeDay(t.day) === normalizeDay(day) && t.startTime === startTime && t.taskId !== task._id
+    );
+
+    let targetStartTime = startTime;
+
+    if (isOccupied) {
+      // Find the nearest unoccupied slot on the same day
+      const dayTasks = scheduledTasks.filter(
+        (t) => normalizeDay(t.day) === normalizeDay(day) && t.taskId !== task._id
+      );
+      const occupiedTimes = new Set(dayTasks.map((t) => t.startTime));
+
+      // Scan all possible half-hourly slots to find the closest empty one
+      let nearest = null;
+      let minDiff = Infinity;
+
+      // Check all slots from 06:00 (360 min) to 22:00 (1320 min) in 30 min increments
+      let currentMin = 6 * 60;
+      while (currentMin <= 22 * 60) {
+        if (!occupiedTimes.has(currentMin)) {
+          const diff = Math.abs(currentMin - startTime);
+          if (diff < minDiff) {
+            minDiff = diff;
+            nearest = currentMin;
+          }
+        }
+        currentMin += 30; // check half-hourly increments
+      }
+
+      if (nearest !== null) {
+        targetStartTime = nearest;
+      }
+    }
+
     setScheduledTasks((prev) => [
-      ...prev.filter((t) => !(t.taskId === task._id && t.day === day)),
-      { taskId: task._id, title: task.title, day, startTime, duration: 60 },
+      ...prev.filter((t) => !(t.taskId === task._id && normalizeDay(t.day) === normalizeDay(day))),
+      { taskId: task._id, title: task.title, day, startTime: targetStartTime, duration: 60 },
     ]);
   };
 
@@ -294,6 +330,7 @@ export default function RoutineBuilder() {
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
               innerRef={gridRef}
+              activeTask={activeTask}
             />
           </section>
         </div>

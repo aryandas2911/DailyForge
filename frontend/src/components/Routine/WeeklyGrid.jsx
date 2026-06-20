@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { Save } from "lucide-react";
+import { Save, HelpCircle } from "lucide-react";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -12,29 +13,23 @@ const DAYS = [
   "Sunday",
 ];
 
-/* Generate hourly slots: 06:00 → 22:00 */
-const generateTimeSlots = () => {
-  const slots = [];
-  let hour = 6;
-  while (hour <= 22) {
-    slots.push(`${String(hour).padStart(2, "0")}:00`);
-    hour++;
-  }
-  return slots;
-};
-
-const TIME_SLOTS = generateTimeSlots();
-
-const normalizeDay = (day) => String(day || "").trim().toLowerCase();
-
 /* Convert HH:mm → minutes */
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
 
+/* Convert minutes → HH:mm */
+const minutesToTime = (minutes) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
+
+const normalizeDay = (day) => String(day || "").trim().toLowerCase();
+
 /* ---------------- Droppable Cell ---------------- */
-function DroppableCell({ day, time, tasks, onDeleteTask }) {
+function DroppableCell({ day, time, tasks, onDeleteTask, activeTask, isRecommended }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `${day}-${time}`,
     data: {
@@ -46,10 +41,12 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
   return (
     <div
       ref={setNodeRef}
-      className={`h-full min-h-[3rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
+      className={`h-full min-h-[3.5rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
         isOver 
           ? "bg-cyan-500/10 dark:bg-cyan-500/20" 
-          : "bg-white/40 dark:bg-slate-800/20 hover:bg-white/60 dark:hover:bg-slate-800/30"
+          : isRecommended && activeTask
+            ? "bg-[#4eb7b3]/5 dark:bg-[#4eb7b3]/10 border border-dashed border-[#4eb7b3]/40"
+            : "bg-white/40 dark:bg-slate-800/20 hover:bg-white/60 dark:hover:bg-slate-800/30"
       }`}
       role="region"
       aria-label={`${day} at ${time} - Drop zone for scheduling tasks`}
@@ -75,15 +72,118 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
           </button>
         </div>
       ))}
+
+      {/* Ghost preview for recommended empty slot during drag */}
+      {isRecommended && activeTask && tasks.length === 0 && (
+        <div className="border border-dashed border-[#4eb7b3]/60 bg-[#4eb7b3]/15 text-[#3b8ea0] dark:text-[#4eb7b3] rounded-lg text-[9px] sm:text-xs font-medium px-2 py-1.5 flex items-center justify-between opacity-80 animate-pulse select-none">
+          <span className="truncate pr-1">{activeTask.title}</span>
+          <span className="text-[7px] sm:text-[8px] bg-[#4eb7b3]/20 px-1 py-0.5 rounded font-bold shrink-0">Suggested</span>
+        </div>
+      )}
     </div>
   );
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef }) {
+export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef, activeTask }) {
+  const [timeIncrement, setTimeIncrement] = useState(60); // 60 min or 30 min snap increments
+
+  /* Generate dynamic hourly or half-hourly slots */
+  const generateTimeSlots = () => {
+    const slots = [];
+    let hour = 6;
+    while (hour <= 22) {
+      slots.push(`${String(hour).padStart(2, "0")}:00`);
+      if (timeIncrement === 30 && hour < 22) {
+        slots.push(`${String(hour).padStart(2, "0")}:30`);
+      }
+      hour++;
+    }
+    return slots;
+  };
+
+  const TIME_SLOTS = generateTimeSlots();
+
+  /* Calculate smart recommendations for a specific day based on active dragging task */
+  const getRecommendedSlots = (day) => {
+    if (!activeTask) return [];
+
+    const dayTasks = scheduledTasks.filter(
+      (t) => normalizeDay(t.day) === normalizeDay(day)
+    );
+    const occupiedTimes = new Set(dayTasks.map((t) => t.startTime));
+    const recommendations = [];
+
+    for (const time of TIME_SLOTS) {
+      const timeMin = timeToMinutes(time);
+      if (!occupiedTimes.has(timeMin)) {
+        let score = 100;
+        const hr = Math.floor(timeMin / 60);
+
+        // Boost slots between 09:00 and 17:00 (prime study/work hours)
+        if (hr >= 9 && hr <= 17) score += 20;
+
+        // Boost slots adjacent to already scheduled tasks (minimizing schedule fragmentation)
+        const prevMin = timeMin - timeIncrement;
+        const nextMin = timeMin + timeIncrement;
+        if (occupiedTimes.has(prevMin) || occupiedTimes.has(nextMin)) {
+          score += 15;
+        }
+
+        recommendations.push({ time, score });
+      }
+    }
+
+    // Sort by score descending and return the top 2 recommended slots
+    return recommendations
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2)
+      .map((r) => r.time);
+  };
+
   return (
     <div className="card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in" ref={innerRef}>
-      <h2 className="text-lg font-semibold text-main mb-4 px-6.5 pt-3">Weekly Schedule</h2>
+      {/* Grid Controls (Snap Settings & Info) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 px-6.5 pt-3">
+        <h2 className="text-lg font-semibold text-main">Weekly Schedule</h2>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Snap toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-muted">Grid Snap:</span>
+            <div className="flex rounded-lg bg-soft/30 dark:bg-slate-800 p-0.5 border border-soft/60">
+              <button
+                onClick={() => setTimeIncrement(60)}
+                className={`px-2.5 py-1 text-[10px] sm:text-xs font-semibold rounded-md transition cursor-pointer ${
+                  timeIncrement === 60 
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-cyan-600 dark:text-cyan-400" 
+                    : "text-muted hover:text-main"
+                }`}
+              >
+                60 min
+              </button>
+              <button
+                onClick={() => setTimeIncrement(30)}
+                className={`px-2.5 py-1 text-[10px] sm:text-xs font-semibold rounded-md transition cursor-pointer ${
+                  timeIncrement === 30 
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-cyan-600 dark:text-cyan-400" 
+                    : "text-muted hover:text-main"
+                }`}
+              >
+                30 min
+              </button>
+            </div>
+          </div>
+
+          {/* AI Helper tool tip */}
+          {activeTask && (
+            <div className="flex items-center gap-1.5 bg-[#4eb7b3]/10 text-[#3b8ea0] dark:text-[#4eb7b3] px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-medium animate-pulse">
+              <HelpCircle size={12} />
+              <span>AI recommendations active</span>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div
         className="grid w-full overflow-x-auto sm:overflow-visible"
@@ -123,35 +223,44 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
           </div>
         ))}
         {/* ===== Time Rows ===== */}
-        {TIME_SLOTS.map((time) => (
-          <div key={time} className="contents">
-            {/* Time label */}
-            <div className="flex items-start justify-end pt-2 pr-2.5 text-[10px] sm:text-xs text-muted font-medium">
-              {time}
-            </div>
-
-            {/* Cells */}
-            {DAYS.map((day, dayIndex) => (
-              <div
-                key={`${day}-${time}`}
-                className={`min-w-0 border-b border-soft/20 border-r border-soft/20 ${
-                  dayIndex === 0 ? "border-l border-soft/20" : ""
-                }`}
-              >
-                <DroppableCell
-                  day={day}
-                  time={time}
-                  tasks={scheduledTasks.filter(
-                    (t) =>
-                      normalizeDay(t.day) === normalizeDay(day) &&
-                      t.startTime === timeToMinutes(time)
-                  )}
-                  onDeleteTask={onDeleteTask}
-                />
+        {TIME_SLOTS.map((time) => {
+          return (
+            <div key={time} className="contents">
+              {/* Time label */}
+              <div className="flex items-start justify-end pt-2 pr-2.5 text-[10px] sm:text-xs text-muted font-medium">
+                {time}
               </div>
-            ))}
-          </div>
-        ))}
+
+              {/* Cells */}
+              {DAYS.map((day, dayIndex) => {
+                const recommendedTimes = getRecommendedSlots(day);
+                const isRecommended = recommendedTimes.includes(time);
+
+                return (
+                  <div
+                    key={`${day}-${time}`}
+                    className={`min-w-0 border-b border-soft/20 border-r border-soft/20 ${
+                      dayIndex === 0 ? "border-l border-soft/20" : ""
+                    }`}
+                  >
+                    <DroppableCell
+                      day={day}
+                      time={time}
+                      tasks={scheduledTasks.filter(
+                        (t) =>
+                          normalizeDay(t.day) === normalizeDay(day) &&
+                          t.startTime === timeToMinutes(time)
+                      )}
+                      onDeleteTask={onDeleteTask}
+                      activeTask={activeTask}
+                      isRecommended={isRecommended}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
