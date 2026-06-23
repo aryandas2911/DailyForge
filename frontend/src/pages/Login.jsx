@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
@@ -49,6 +50,19 @@ const LoadingSpinner = () => (
     />
   </svg>
 );
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+};
 
 const Login = () => {
 
@@ -137,10 +151,13 @@ const Login = () => {
 
   if (tempUserId) {
     return (
-      <div className="auth-page-bg min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center px-6 pt-10 pb-24 md:pb-32 overflow-hidden relative">
-        <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
-        <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
-        <form
+      <div className="auth-page-bg min-h-screen w-full flex items-center justify-center px-6 py-10 overflow-hidden relative">
+        <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl animate-float-slow"></div>
+        <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl animate-float-medium"></div>
+        <motion.form
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           onSubmit={handle2FASubmit}
           className="surface-bg animate-in-slow w-full max-w-md rounded-[30px] px-8 py-10 flex flex-col gap-6 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.7)] hover-lift hover:scale-50 transition-transform duration-500 ease-out"
         >
@@ -173,8 +190,8 @@ const Login = () => {
           >
 
             Verify
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
       </div>
     );
   }
@@ -218,15 +235,15 @@ cursor-pointer
 
             {isGoogleLoading ? <LoadingSpinner /> : <GoogleIcon />}
             {isGoogleLoading ? "Connecting..." : "Continue with Google"}
-          </button>
-          <div className="flex items-center">
+          </motion.button>
+          <motion.div variants={itemVariants} className="flex items-center">
             <div className="flex-1 h-px bg-white/20"></div>
             <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
               OR
             </span>
             <div className="flex-1 h-px bg-white/20"></div>
-          </div>
-          <div className="flex flex-col gap-2">
+          </motion.div>
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
             <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1
                 border-slate-200 " />
@@ -252,8 +269,8 @@ cursor-pointer
             className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
           >
             {isSubmitLoading ? "Logging in..." : "Login"}
-          </button>
-          <p className="text-center text-sm text-muted">
+          </motion.button>
+          <motion.p variants={itemVariants} className="text-center text-sm text-muted">
             Don&apos;t have an account?{" "}
             <Link
               to="/signup"

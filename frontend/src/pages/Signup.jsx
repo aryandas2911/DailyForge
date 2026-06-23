@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
@@ -59,6 +60,26 @@ const LoadingSpinner = () => (
     />
   </svg>
 );
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+};
+
+const calculateStrength = (password) => {
+  let score = 0;
+  if (!password) return score;
+  if (password.length >= 8) score += 1;
+  if (/[A-Z]/.test(password)) score += 1;
+  if (/[0-9]/.test(password)) score += 1;
+  if (/[^A-Za-z0-9]/.test(password)) score += 1;
+  return score;
+};
 
 const Signup = () => {
 
@@ -190,7 +211,8 @@ const passwordStrength = getPasswordStrength(password);
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
 
-      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl"></div>
+      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl animate-float-medium"></div>
+      <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl animate-float-fast"></div>
 
       {/* Card */}
       <div className="relative z-10 w-full max-w-md animate-in-slow">
@@ -213,7 +235,7 @@ const passwordStrength = getPasswordStrength(password);
           "
         >
           {/* Heading */}
-          <div className="text-center space-y-2">
+          <motion.div variants={itemVariants} className="text-center space-y-2">
             <h1 className="text-4xl font-bold tracking-tight text-main">
               Create Account
             </h1>
@@ -221,10 +243,11 @@ const passwordStrength = getPasswordStrength(password);
             <p className="text-sm text-muted">
               Sign up to get started
             </p>
-          </div>
+          </motion.div>
 
           {/* Google */}
-          <button
+          <motion.button
+            variants={itemVariants}
             type="button"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
@@ -258,10 +281,10 @@ cursor-pointer
             {isGoogleLoading
               ? "Connecting..."
               : "Continue with Google"}
-          </button>
+          </motion.button>
 
           {/* Divider */}
-          <div className="flex items-center">
+          <motion.div variants={itemVariants} className="flex items-center">
             <div className="flex-1 h-px bg-white/20"></div>
 
             <span className="px-4 text-xs font-semibold tracking-[0.2em] uppercase text-muted">
@@ -269,14 +292,14 @@ cursor-pointer
             </span>
 
             <div className="flex-1 h-px bg-white/20"></div>
-          </div>
+          </motion.div>
 
           {/* Error */}
           <FormError message={errorMessage} />
           <FormError error={errorMessage} />
 
           {/* Name */}
-          <div className="flex flex-col gap-2">
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label
               htmlFor="name"
               className="text-sm font-medium text-main"
@@ -305,7 +328,7 @@ cursor-pointer
           </div>
 
           {/* Email */}
-          <div className="flex flex-col gap-2">
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label
               htmlFor="email"
               className="text-sm font-medium text-main"
@@ -333,7 +356,7 @@ cursor-pointer
           </div>
 
           {/* Password */}
-          <div className="flex flex-col gap-2">
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label
               htmlFor="password"
               className="text-sm font-medium text-main"
@@ -341,6 +364,7 @@ cursor-pointer
               Password
             </label>
             <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -351,9 +375,9 @@ cursor-pointer
                 className="
                   input-modern
                   w-full
-                  px-4
-                  py-3
+                  pl-11
                   pr-11
+                  py-3
                   rounded-2xl
                   text-sm
                   border-1
@@ -399,7 +423,7 @@ cursor-pointer
           </div>
 
           {/* Confirm Password */}
-          <div className="flex flex-col gap-2">
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label
               htmlFor="confirmPassword"
               className="text-sm font-medium text-main"
@@ -407,6 +431,7 @@ cursor-pointer
               Confirm Password
             </label>
             <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
@@ -417,9 +442,9 @@ cursor-pointer
                 className="
                   input-modern
                   w-full
-                  px-4
-                  py-3
+                  pl-11
                   pr-11
+                  py-3
                   rounded-2xl
                   text-sm
                   border-1
@@ -451,7 +476,8 @@ cursor-pointer
           </div>
 
           {/* Submit */}
-          <button
+          <motion.button
+            variants={itemVariants}
             type="submit"
             disabled={isLoading || isGoogleLoading}
             className="
@@ -464,11 +490,11 @@ cursor-pointer
             "
           >
             {isLoading ? "Signing up..." : "Sign Up"}
-          </button>
+          </motion.button>
 
 
           {/* Footer */}
-          <p className="text-center text-sm text-muted">
+          <motion.p variants={itemVariants} className="text-center text-sm text-muted">
             Already have an account?{" "}
             <Link
               to="/login"
@@ -480,8 +506,8 @@ cursor-pointer
             >
               Login
             </Link>
-          </p>
-        </form>
+          </motion.p>
+        </motion.form>
       </div>
     </div>
   );
