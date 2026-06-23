@@ -1,9 +1,10 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -81,32 +82,7 @@ const calculateStrength = (password) => {
 };
 
 const Signup = () => {
-  // Tilt
-  const cardRef = useRef(null);
 
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-
-    card.style.transition = "transform 0.1s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-  };
-
-  const handleMouseLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    card.style.transition = "transform 0.4s ease-out";
-    card.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)`;
-  };
 
   // Auth State
   const [name, setName] = useState("");
@@ -230,32 +206,21 @@ const passwordStrength = getPasswordStrength(password);
       "
     >
       {/* Glow blobs */}
-      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl animate-float-slow"></div>
+      <div className="absolute top-[-120px] left-[-80px] w-[340px] h-[570px] rounded-full bg-indigo-500/20 blur-3xl"></div>
+
+
+      <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-sky-500/20 blur-3xl animate-float-medium"></div>
       <div className="absolute top-[-140px] right-[-80px] w-[550px] h-[350px] rounded-full bg-violet-500/20 blur-3xl animate-float-fast"></div>
 
       {/* Card */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="
-          relative
-          z-10
-          w-full
-          max-w-md
-          will-change-transform
-          transform-gpu
-        "
-      >
-        <motion.form
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      <div className="relative z-10 w-full max-w-md animate-in-slow">
+        <form
           onSubmit={handleSubmit}
           className="
             surface-bg
+            hover-lift
             w-full
             rounded-[30px]
             px-8
@@ -263,7 +228,7 @@ const passwordStrength = getPasswordStrength(password);
             flex
             flex-col
             gap-3
-            mt-[3rem]
+            mt-[-0.3rem]
             border
             border-white/10
             shadow-[0_20px_60px_rgba(0,0,0,0.7)]
@@ -287,22 +252,26 @@ const passwordStrength = getPasswordStrength(password);
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
             className="
-              flex items-center justify-center
-              w-full
-              px-4 py-3
-              rounded-2xl
-              border border-soft
-              bg-white/70
-              dark:bg-slate-900/50
-              text-slate-700
-              dark:text-slate-100
-              font-medium
-              transition-all duration-200
-              hover:-translate-y-[1px]
-              hover:shadow-md
-              disabled:opacity-50
-              cursor-pointer
-            "
+flex items-center justify-center
+w-full px-4 py-3
+rounded-2xl
+!bg-white
+!text-black
+!border
+!border-gray-300
+font-medium
+shadow-sm
+transition-all duration-200
+hover:bg-gray-50
+hover:border-gray-400
+hover:-translate-y-[1px]
+hover:shadow-md
+dark:bg-slate-900/50
+dark:border-slate-700
+dark:text-slate-100
+disabled:opacity-50
+cursor-pointer
+"
           >
             {isGoogleLoading ? (
               <LoadingSpinner />
@@ -326,22 +295,8 @@ const passwordStrength = getPasswordStrength(password);
           </motion.div>
 
           {/* Error */}
-          {errorMessage && (
-            <motion.div
-              variants={itemVariants}
-              className="
-                px-4 py-3
-                rounded-2xl
-                text-sm
-                border
-                bg-red-500/10
-                border-red-500/20
-                text-red-500
-              "
-            >
-              {errorMessage}
-            </motion.div>
-          )}
+          <FormError message={errorMessage} />
+          <FormError error={errorMessage} />
 
           {/* Name */}
           <motion.div variants={itemVariants} className="flex flex-col gap-2">
@@ -351,30 +306,26 @@ const passwordStrength = getPasswordStrength(password);
             >
               Name
             </label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
-              <input
-                type="text"
-                id="name"
-                placeholder="Full Name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  pl-11
-                  pr-4
-                  py-3
-                  rounded-2xl
-                  text-sm
-                "
-              />
-            </div>
-            {errors.name && (
-              <span className="text-red-500 text-xs">{errors.name}</span>
-            )}
-          </motion.div>
+            <input
+              type="text"
+              id="name"
+              placeholder="Full Name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="
+                input-modern
+                w-full
+                px-4
+                py-3
+                rounded-2xl
+                border-1
+                border-slate-200
+                text-sm
+              "
+            />
+            <FormError error={errors.name} />
+          </div>
 
           {/* Email */}
           <motion.div variants={itemVariants} className="flex flex-col gap-2">
@@ -384,27 +335,25 @@ const passwordStrength = getPasswordStrength(password);
             >
               Email
             </label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
-              <input
-                type="email"
-                id="email"
-                placeholder="user@email.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="
-                  input-modern
-                  w-full
-                  pl-11
-                  pr-4
-                  py-3
-                  rounded-2xl
-                  text-sm
-                "
-              />
-            </div>
-          </motion.div>
+            <input
+              type="email"
+              id="email"
+              placeholder="user@email.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="
+                input-modern
+                w-full
+                px-4
+                py-3
+                rounded-2xl
+                text-sm
+                border-1
+                border-slate-200
+              "
+            />
+          </div>
 
           {/* Password */}
           <motion.div variants={itemVariants} className="flex flex-col gap-2">
@@ -431,6 +380,8 @@ const passwordStrength = getPasswordStrength(password);
                   py-3
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -454,27 +405,7 @@ const passwordStrength = getPasswordStrength(password);
                 )}
               </button>
             </div>
-            
-            {/* Password Strength Indicator */}
-            <div className="mt-1 flex gap-1 h-1.5 w-full">
-              {[...Array(4)].map((_, i) => {
-                const strength = calculateStrength(password);
-                let bgColor = "bg-white/10";
-                if (i < strength) {
-                  if (strength === 1) bgColor = "bg-red-500";
-                  else if (strength === 2) bgColor = "bg-orange-500";
-                  else if (strength === 3) bgColor = "bg-yellow-500";
-                  else bgColor = "bg-primary";
-                }
-                return (
-                  <div key={i} className={`flex-1 rounded-full transition-colors duration-300 ${bgColor}`}></div>
-                );
-              })}
-            </div>
-
-            {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password}</span>
-            )}
+            <FormError error={errors.password} />
 
             <p className="text-xs text-gray-500">
               Use at least 8 characters, including 1 uppercase letter,
@@ -488,7 +419,8 @@ const passwordStrength = getPasswordStrength(password);
                 Password Strength: {passwordStrength.text}
               </span>
             )}
-          </motion.div>
+
+          </div>
 
           {/* Confirm Password */}
           <motion.div variants={itemVariants} className="flex flex-col gap-2">
@@ -515,6 +447,8 @@ const passwordStrength = getPasswordStrength(password);
                   py-3
                   rounded-2xl
                   text-sm
+                  border-1
+                  border-slate-200
                 "
               />
               <button
@@ -538,10 +472,8 @@ const passwordStrength = getPasswordStrength(password);
                 )}
               </button>
             </div>
-            {errors.confirmPassword && (
-              <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
-            )}
-          </motion.div>
+            <FormError error={errors.confirmPassword} />
+          </div>
 
           {/* Submit */}
           <motion.button
@@ -559,6 +491,7 @@ const passwordStrength = getPasswordStrength(password);
           >
             {isLoading ? "Signing up..." : "Sign Up"}
           </motion.button>
+
 
           {/* Footer */}
           <motion.p variants={itemVariants} className="text-center text-sm text-muted">
