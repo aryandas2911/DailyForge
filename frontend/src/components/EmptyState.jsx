@@ -58,11 +58,11 @@ export default function EmptyState({ type = "tasks", onAction }) {
         {cfg.icon}
       </div>
 
-      <h2 className="m-0 text-xl font-bold text-blue-900 dark:text-blue-400 tracking-tight">
+      <h2 className="m-0 text-xl font-bold text-main tracking-tight">
         {cfg.heading}
       </h2>
 
-      <p className="m-0 text-sm text-blue-900 dark:text-blue-200 leading-relaxed max-w-[300px]">
+      <p className="m-0 text-sm text-muted leading-relaxed max-w-[300px]">
         {cfg.subtext}
       </p>
 
