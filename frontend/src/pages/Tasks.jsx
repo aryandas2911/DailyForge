@@ -484,6 +484,8 @@ export default function Tasks() {
                     setIsModalOpen(true);
                   }}
                   onUpdate={updateTask}
+                  selectedIds={selectedIds}
+                  onSelect={handleSelect}
                 />
               )
             ) : tasks.length > 0 ? (

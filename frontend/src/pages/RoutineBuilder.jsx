@@ -25,7 +25,14 @@ export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scheduledTasks, setScheduledTasks] = useState([]);
+  const [scheduledTasks, setScheduledTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("draftScheduledTasks");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
@@ -87,6 +94,10 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("draftScheduledTasks", JSON.stringify(scheduledTasks));
+  }, [scheduledTasks]);
 
   useEffect(() => {
 
