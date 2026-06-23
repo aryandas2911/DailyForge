@@ -60,6 +60,11 @@ html.dark body {
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+
 @layer utilities {
   .app-bg {
     background-color: var(--bg);
@@ -134,11 +139,16 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+      opacity 0.3s ease-in-out,
+      background-color 0.3s ease-in-out;
+    will-change: transform;
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-6px) scale(1.015);
+    opacity: 0.9;
+    animation-timing-function: ease-in-out;
   }
 }
 
@@ -245,10 +255,23 @@ html.dark body {
   .nav-links a { width: 100%; display: block; padding: 0.5rem 0; }
 }
 
->>>>>>> a243f84 (fix: improve input border visibility in light mode)
+/* Hide default browser reveal buttons to stop overlapping */
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-type-password-toggle {
+  display: none !important;
+}
+
 * {
   transition:
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
-  }
+}
+
+footer {
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+}
