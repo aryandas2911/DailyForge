@@ -158,6 +158,7 @@ export const getRoutines = async (req, res) => {
 
     // fetch routines from database
     const routines = await Routine.find({ userId: userId }).sort({
+      orderIndex: 1,
       createdAt: -1,
     });
 
@@ -444,3 +445,34 @@ export const getPublicRoutine = async (req, res) => {
       .json({ success: false, message: "Error fetching public routine" });
   }
 };
+// Reorder routine items function
+export const reorderRoutine = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { routineIds } = req.body;
+
+    if (!routineIds || !Array.isArray(routineIds)) {
+      return res.status(400).json({ success: false, message: "routineIds array is required" });
+    }
+
+    // Update orderIndex for each routine using bulkWrite
+    const bulkOps = routineIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id, userId },
+        update: { $set: { orderIndex: index } }
+      }
+    }));
+
+
+    await Routine.bulkWrite(bulkOps);
+
+    return res.status(200).json({
+      success: true,
+      message: "Routines reordered successfully"
+    });
+  } catch (error) {
+    console.log("Error reordering routines", error);
+    return res.status(500).json({ success: false, message: "Error reordering routines" });
+  }
+};
+

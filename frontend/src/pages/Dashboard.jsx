@@ -2,13 +2,14 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
+import { LogOut, ArrowRight, CheckCircle2, RotateCw, Calendar, Copy, Flame, BookOpen } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
 import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
+import RoutineList from "../components/Routine/RoutineList";
 import api from "../api/axios.js";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
@@ -458,118 +459,86 @@ export default function Dashboard() {
                 </button>
               </div>
 
-          {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
-          ) : savedRoutines.length === 0 ? (
-            <p className="text-sm text-muted text-center mt-10">
-              No routines saved yet
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-main">{routine.name}</p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDuplicateModal(routine);
-                      }}
-                      disabled={duplicatingRoutineId === routine._id}
-                      aria-label={`Duplicate ${routine.name}`}
-                      title="Duplicate routine"
-                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-                    >
-                      <Copy size={16} />
-                    </button>
-                  </div>
-                  {routine.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
-                      {routine.description}
-                    </p>
-                  )}
-                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
-                    {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Daily Journal */}
-        <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              {/* Header */}
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                  <BookOpen size={20} className="text-primary" />
-                  <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
-                </div>
-                {todayJournal && (
-                  <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
-                    {todayJournal.mood === "happy" ? "😃" :
-                     todayJournal.mood === "calm" ? "😌" :
-                     todayJournal.mood === "neutral" ? "😐" :
-                     todayJournal.mood === "stressed" ? "🤯" :
-                     todayJournal.mood === "sad" ? "😢" :
-                     todayJournal.mood === "energetic" ? "⚡" : "😴"}
-                  </span>
-                )}
-              </div>
-
-              {/* Body Content */}
-              {todayJournal ? (
-                <div className="space-y-2 text-left">
-                  <h3 className="font-semibold text-main line-clamp-1">
-                    {todayJournal.title || "Untitled Journal"}
-                  </h3>
-                  <p className="text-sm text-muted line-clamp-4 leading-relaxed">
-                    {todayJournal.content}
-                  </p>
-                  {todayJournal.tags && todayJournal.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {todayJournal.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              {loadingRoutines ? (
+                <p className="text-sm text-muted">Loading routines…</p>
               ) : (
-                <div className="space-y-3 mt-4 text-left">
-                  <p className="text-xs text-muted leading-relaxed">
-                    No journal entry logged for today yet. Write down your wins, challenges, and learnings to keep track of your progress.
-                  </p>
-                </div>
+                <RoutineList
+                  routines={savedRoutines}
+                  setRoutines={setSavedRoutines}
+                  fetchRoutines={fetchRoutines}
+                  onNavigate={() => navigate("/routine-builder")}
+                  onDuplicate={(routine) => openDuplicateModal(routine)}
+                />
               )}
             </div>
 
-            {/* Action Button */}
-            <div className="mt-2">
-              <button
-                className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
-                onClick={() => navigate("/daily-journal")}
-              >
-                {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
-                <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
-              </button>
+            {/* Daily Journal */}
+            <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  {/* Header */}
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={20} className="text-primary" />
+                      <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
+                    </div>
+                    {todayJournal && (
+                      <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
+                        {todayJournal.mood === "happy" ? "😃" :
+                         todayJournal.mood === "calm" ? "😌" :
+                         todayJournal.mood === "neutral" ? "😐" :
+                         todayJournal.mood === "stressed" ? "🤯" :
+                         todayJournal.mood === "sad" ? "😢" :
+                         todayJournal.mood === "energetic" ? "⚡" : "😴"}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body Content */}
+                  {todayJournal ? (
+                    <div className="space-y-2 text-left">
+                      <h3 className="font-semibold text-main line-clamp-1">
+                        {todayJournal.title || "Untitled Journal"}
+                      </h3>
+                      <p className="text-sm text-muted line-clamp-4 leading-relaxed">
+                        {todayJournal.content}
+                      </p>
+                      {todayJournal.tags && todayJournal.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {todayJournal.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3 mt-4 text-left">
+                      <p className="text-xs text-muted leading-relaxed">
+                        No journal entry logged for today yet. Write down your wins, challenges, and learnings to keep track of your progress.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button */}
+                <div className="mt-2">
+                  <button
+                    className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
+                    onClick={() => navigate("/daily-journal")}
+                  >
+                    {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
+                    <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-      </>
+          </section>
+        </>
       )}
 
       {routineToDuplicate && (

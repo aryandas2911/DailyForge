@@ -18,6 +18,7 @@ import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import RoutineList from "../components/Routine/RoutineList";
 import { routineTemplates } from '../utils/routineTemplate';
 
 export default function RoutineBuilder() {
@@ -317,8 +318,12 @@ export default function RoutineBuilder() {
               onAction={handleOpenModal}
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedRoutines.map((routine) => (
+            <RoutineList
+              routines={savedRoutines}
+              setRoutines={setSavedRoutines}
+              fetchRoutines={fetchRoutines}
+              isGrid={true}
+              renderItem={(routine) => (
                 <RoutineCard
                   key={routine._id}
                   routine={routine}
@@ -327,8 +332,8 @@ export default function RoutineBuilder() {
                   setActiveRoutine={setActiveRoutine}
                   fetchRoutines={fetchRoutines}
                 />
-              ))}
-            </div>
+              )}
+            />
           )}
         </section>
 

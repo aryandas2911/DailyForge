@@ -6,6 +6,7 @@ import {
   getRoutines,
   updateRoutine,
   getPublicRoutine,
+  reorderRoutine,
 } from "../controllers/routineController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import mongoose from "mongoose";
@@ -34,6 +35,10 @@ routineRouter.get("/", authMiddleware, asyncHandler(getRoutines));
 // Route for duplicating routine
 routineRouter.post("/:id/duplicate", authMiddleware, duplicateRoutine);
 
+// Route for reordering routine items (must be before /:id to avoid routing conflict)
+
+routineRouter.put("/reorder", authMiddleware, asyncHandler(reorderRoutine));
+
 // Route for updating routine
 routineRouter.put("/:id", authMiddleware, validateObjectId, asyncHandler(updateRoutine));
 
@@ -41,4 +46,4 @@ routineRouter.put("/:id", authMiddleware, validateObjectId, asyncHandler(updateR
 routineRouter.delete("/:id", authMiddleware, validateObjectId, asyncHandler(deleteRoutine));
 
 // Route for fetching public routine (unauthenticated)
-routineRouter.get("/public/:id", validateObjectId, asyncHandler(getPublicRoutine));
+routineRouter.get("/public/:id", validateObjectId, asyncHandler(getPublicRoutine));
