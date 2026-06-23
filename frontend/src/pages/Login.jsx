@@ -243,6 +243,9 @@ cursor-pointer
               </button>
             </div>
           </div>
+          <p className="text-right text-sm">
+            <Link to="/forgot-password" className="text-main hover:underline">Forgot password?</Link>
+          </p>
           
           <FormError error={error} />
           
