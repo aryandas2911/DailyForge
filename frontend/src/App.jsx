@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -13,13 +14,16 @@ import Analytics from "./pages/Analytics.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import About from "./pages/About.jsx";
-import Profile from './pages/Profile.jsx';
+import Profile from "./pages/Profile.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import Pomodoro from "./pages/Pomodoro.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
+import ShareRoutine from "./pages/ShareRoutine.jsx";
+import DailyJournal from "./pages/DailyJournal.jsx";
 
 const AuthLayout = ({ children }) => (
-  <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center px-4">
+  <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center">
     {children}
   </div>
 );
@@ -30,16 +34,52 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-        <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-        <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
-        <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <AuthLayout>
+                <Login />
+              </AuthLayout>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <AuthLayout>
+                <Login />
+              </AuthLayout>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <AuthLayout>
+                <Signup />
+              </AuthLayout>
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <AuthLayout>
+              <About />
+            </AuthLayout>
+          }
+        />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><Dashboard /></PageTransition>
+                <PageTransition>
+                  <Dashboard />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -49,7 +89,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><Tasks /></PageTransition>
+                <PageTransition>
+                  <Tasks />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -59,7 +101,9 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoutes>
               <ErrorBoundary>
-                <PageTransition><RoutineBuilder /></PageTransition>
+                <PageTransition>
+                  <RoutineBuilder />
+                </PageTransition>
               </ErrorBoundary>
             </ProtectedRoutes>
           }
@@ -68,7 +112,9 @@ const AnimatedRoutes = () => {
           path="/profile"
           element={
             <ProtectedRoutes>
-              <PageTransition><Profile /></PageTransition>
+              <PageTransition>
+                <Profile />
+              </PageTransition>
             </ProtectedRoutes>
           }
         />
@@ -76,12 +122,41 @@ const AnimatedRoutes = () => {
           path="/analytics"
           element={
             <ProtectedRoutes>
-              <PageTransition><Analytics /></PageTransition>
+              <PageTransition>
+                <Analytics />
+              </PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/daily-journal"
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary>
+                <PageTransition><DailyJournal /></PageTransition>
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/forge"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoutes>
+              <PageTransition><ForgeMode /></PageTransition>
             </ProtectedRoutes>
           }
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
     </AnimatePresence>
   );
 };
@@ -90,12 +165,46 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
-      <main className="app-bg min-h-screen pt-15 flex flex-col">
+      <main className="app-bg min-h-screen pt-24 sm:pt-28 flex flex-col text-main transition-colors duration-300">
         <Routes>
-          <Route path="/"       element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-          <Route path="/login"  element={<PublicRoute><AuthLayout><Login /></AuthLayout></PublicRoute>} />
-          <Route path="/signup" element={<PublicRoute><AuthLayout><Signup /></AuthLayout></PublicRoute>} />
-          <Route path="/about"  element={<AuthLayout><About /></AuthLayout>} />
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <AuthLayout>
+                  <Login />
+                </AuthLayout>
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <AuthLayout>
+                  <Login />
+                </AuthLayout>
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <AuthLayout>
+                  <Signup />
+                </AuthLayout>
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <AuthLayout>
+                <About />
+              </AuthLayout>
+            }
+          />
           <Route
             path="/dashboard"
             element={
@@ -121,6 +230,14 @@ const App = () => {
             }
           />
           <Route
+            path="/focus-mode"
+            element={
+              <ProtectedRoutes>
+                <Pomodoro />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
             path="/profile"
             element={
               <ProtectedRoutes>
@@ -136,6 +253,15 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+          <Route
+            path="/daily-journal"
+            element={
+              <ProtectedRoutes>
+                <DailyJournal />
+              </ProtectedRoutes>
+            }
+          />
+          <Route path="/share/routine/:id" element={<ShareRoutine />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
