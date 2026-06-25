@@ -570,6 +570,104 @@ We use labels to organize work. Here's what they mean:
 ![Routine Builder](Screenshots/Routine.png)
 
 ---
+---
+
+# 🔄 Project Setup Flow Diagram
+
+```mermaid
+graph TD
+    A[User Opens App] --> B[React Frontend]
+    B --> C[API Request]
+    C --> D[Express Server]
+    D --> E[Controllers]
+    E --> F[MongoDB Database]
+    F --> G[JSON Response]
+    G --> H[React State Update]
+    H --> I[UI Re-render]
+```
+
+---
+
+# 🏗️ System Architecture
+
+| Layer | Technology | Responsibility |
+|------|-----------|---------------|
+| Frontend | React + Vite | User Interface |
+| Backend | Express.js | API Services |
+| Database | MongoDB | Data Storage |
+| Authentication | Firebase | User Login |
+| State Management | Context API | UI State |
+
+---
+
+# 📂 Project Structure
+
+```text
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   └── context/
+
+backend/
+├── controllers/
+├── routes/
+├── models/
+└── middleware/
+```
+
+---
+
+# ⚡ Request Lifecycle
+
+1. User performs an action.
+2. React captures the event.
+3. API request is sent.
+4. Express routes receive the request.
+5. Controller processes logic.
+6. Database is queried.
+7. Response is returned.
+8. React updates the interface.
+
+---
+
+# 🚀 Contribution Workflow
+
+```mermaid
+graph LR
+    A[Fork Repository]
+    B[Create Branch]
+    C[Make Changes]
+    D[Commit Changes]
+    E[Push Branch]
+    F[Open Pull Request]
+
+    A --> B --> C --> D --> E --> F
+```
+
+---
+
+# 🛠 Development Workflow
+
+```bash
+git clone repository
+npm install
+npm run dev
+```
+
+---
+
+# 💡 Why This Section Matters
+
+- Helps new contributors understand the codebase.
+- Makes onboarding easier.
+- Improves debugging.
+- Explains frontend and backend interaction.
+- Reduces confusion for first-time contributors.
+- Improves GSSoC contributor experience.
+
+---
 
 ## 📬 Getting Help
 
