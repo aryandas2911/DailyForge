@@ -199,6 +199,70 @@ DailyForge/
 
 ---
 
+🔄 Project Setup Flow
+
+Understanding the application flow makes it much easier for new contributors to navigate the codebase, debug issues, and add new features. The diagram below illustrates how a request travels through the application.
+
+📊 High-Level Architecture
+
+flowchart LR
+    A["👤 User"] --> B["⚛️ React Frontend"]
+    B --> C["🌐 Axios API Requests"]
+    C --> D["🚀 Express.js Backend"]
+    D --> E["🧩 Controllers"]
+    E --> F["📦 Mongoose Models"]
+    F --> G["🍃 MongoDB Atlas"]
+    G --> H["📤 JSON Response"]
+    H --> I["🔄 React State Update"]
+    I --> J["🖥️ Updated UI"]
+
+---
+
+⚙️ Request Lifecycle
+
+Step| Description
+👤 1. User Interaction| The user creates, edits, deletes, or schedules a task from the React frontend.
+🌐 2. API Communication| Axios sends an HTTP request to the Express backend API.
+🚀 3. Route Handling| Express routes forward the request to the appropriate controller.
+🧩 4. Business Logic| Controllers validate input, apply business rules, and prepare database operations.
+📦 5. Database Layer| Mongoose communicates with MongoDB Atlas to store or retrieve application data.
+📤 6. Server Response| The backend returns a JSON response containing the requested or updated data.
+🔄 7. UI Update| React updates the application state and refreshes the interface instantly.
+
+---
+
+📂 Developer Workflow
+
+Fork Repository
+        │
+        ▼
+Clone Repository
+        │
+        ▼
+Install Dependencies
+        │
+        ▼
+Configure Environment Variables
+        │
+        ▼
+Start Backend Server
+        │
+        ▼
+Start Frontend Server
+        │
+        ▼
+Build • Test • Contribute 🚀
+
+---
+
+💡 Why This Diagram?
+
+- 🚀 Helps first-time contributors understand the project architecture.
+- 📖 Provides a clear overview of the frontend → backend → database workflow.
+- 🛠️ Makes debugging and feature development easier.
+- 🤝 Improves onboarding for GSSoC and open-source contributors.
+- 📚 Serves as a quick reference for the application's request lifecycle.
+
 ## ⚡ Quick Start
 
 **Prerequisites:** Node.js v18+, npm v9+, a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account
