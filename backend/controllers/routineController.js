@@ -1,5 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Task from "../src/models/Task.js";
 import {
   checkOverlap,
   calculateBurnoutScore,
