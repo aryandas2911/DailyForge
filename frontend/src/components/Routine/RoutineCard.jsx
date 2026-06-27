@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Share2, Copy, Download, Loader2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
+import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
+
 
 export default function RoutineCard({
   routine,
@@ -15,8 +17,62 @@ export default function RoutineCard({
   const [showMenu, setShowMenu] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showOverlapError, setShowOverlapError] = useState(false);
+  const [toastTitle, setToastTitle] = useState("Routine Started");
+  const [toastDesc, setToastDesc] = useState("Tasks were added to today's workflow.");
+  const [isExporting, setIsExporting] = useState(false);
 
   const menuRef = useRef(null);
+
+  const triggerToast = (title, desc) => {
+    setToastTitle(title);
+    setToastDesc(desc);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  const handleCopyLink = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      triggerToast("Share Link Copied", "The public routine link was copied to clipboard.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy share link");
+    }
+  };
+
+  const handleCopySummary = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      const summaryText = generateRoutineSummary(routine, tasks);
+      await navigator.clipboard.writeText(summaryText);
+      triggerToast("Summary Copied", "The routine summary text was copied to clipboard.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy routine summary");
+    }
+  };
+
+  const handleExportPDF = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      setIsExporting(true);
+      await exportRoutineToPDF(routine, tasks);
+      triggerToast("PDF Downloaded", "The routine PDF was generated and downloaded successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export routine as PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
 
   const isRoutineStarted =
   activeRoutine.some(
@@ -160,11 +216,7 @@ export default function RoutineCard({
     ])
   );
 
-  setShowToast(true);
-
-  setTimeout(() => {
-    setShowToast(false);
-  }, 3000);
+  triggerToast("Routine Started", "Tasks were added to today's workflow.");
 };
 
  
@@ -261,11 +313,11 @@ export default function RoutineCard({
 
               <div>
                 <p className="text-sm font-semibold text-main">
-                  Routine Started
+                  {toastTitle}
                 </p>
 
                 <p className="text-xs text-muted mt-1">
-                  Tasks were added to today's workflow.
+                  {toastDesc}
                 </p>
               </div>
 
@@ -276,90 +328,122 @@ export default function RoutineCard({
         </div>
       )}
 
+
       {/* Card */}
       <div
         onClick={() => setIsOpen(true)}
-        className="relative card card-primary hover:shadow-md transition p-4 cursor-pointer hover-lift"
+        className={`relative card card-primary hover:shadow-lg transition-all p-5 cursor-pointer hover-lift border border-soft/50 bg-white dark:bg-[#1e293b] flex flex-col justify-between ${
+          isRoutineStarted ? "ring-2 ring-[#4eb7b3] ring-offset-2 dark:ring-offset-slate-900" : ""
+        }`}
       >
+        <div>
+          {/* Header row */}
+          <div className="flex items-start justify-between gap-4 mb-3 pr-8">
+            <h3 className="font-semibold text-main text-base leading-snug">
+              {routine.name}
+            </h3>
+            {isRoutineStarted && (
+              <span className="shrink-0 rounded-full bg-[#d0f6e3] dark:bg-cyan-950/60 px-2 py-0.5 text-[10px] font-bold text-[#3b8ea0] dark:text-cyan-400 border border-[#98e1d7]/30">
+                Active
+              </span>
+            )}
+          </div>
 
-        {/* 3-dot menu */}
+          {routine.description && (
+            <p className="text-xs text-muted mb-4 italic line-clamp-2">
+              {routine.description}
+            </p>
+          )}
+
+          <div className="space-y-3">
+            {Object.keys(tasksByDay).map((day) => (
+              <div key={day} className="border-t border-soft/20 pt-2.5 first:border-0 first:pt-0">
+                <p className="text-xs font-bold text-main uppercase tracking-wider mb-1">
+                  {day}
+                </p>
+                <ul className="space-y-1">
+                  {tasksByDay[day]
+                    .sort((a, b) => a.startTime - b.startTime)
+                    .map((task) => {
+                      const hours = String(
+                        Math.floor(task.startTime / 60)
+                      ).padStart(2, "0");
+
+                      const minutes = String(
+                        task.startTime % 60
+                      ).padStart(2, "0");
+
+                      return (
+                        <li key={task.taskId} className="text-xs text-muted flex items-center gap-1.5 truncate">
+                          <span className="font-semibold text-main/80 shrink-0">{hours}:{minutes}</span>
+                          <span className="text-main/50 shrink-0">•</span>
+                          <span className="truncate">{task.title}</span>
+                        </li>
+                      );
+                    })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3-dot menu absolute */}
         <div
           ref={menuRef}
-          className="absolute top-3 right-3"
+          className="absolute top-4 right-4"
         >
-
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowMenu((prev) => !prev);
             }}
-            className="rounded-lg p-2 hover:bg-white/10 transition"
+            className="rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-muted hover:text-main"
+            aria-label="Routine options"
+            aria-haspopup="true"
+            aria-expanded={showMenu}
           >
-            <MoreVertical size={18} />
+            <MoreVertical size={16} />
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-2 w-44 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
-
+            <div className="absolute right-0 mt-1 w-48 rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-xl overflow-hidden z-50 animate-in fade-in duration-200">
+              <button
+                onClick={handleCopyLink}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+              >
+                <Share2 size={16} />
+                Copy Share Link
+              </button>
+              <button
+                onClick={handleCopySummary}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+              >
+                <Copy size={16} />
+                Copy Summary
+              </button>
+              <button
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer disabled:opacity-50"
+              >
+                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                Export as PDF
+              </button>
+              <div className="border-t border-soft/20"></div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteRoutine();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition font-medium cursor-pointer"
               >
                 <Trash2 size={16} />
                 Delete Routine
               </button>
-
             </div>
           )}
 
         </div>
-
-        <h3 className="font-medium text-main mb-2">
-          {routine.name}
-        </h3>
-
-        {routine.description && (
-          <p className="text-xs text-muted mb-3 italic">
-            {routine.description}
-          </p>
-        )}
-
-        {Object.keys(tasksByDay).map((day) => (
-          <div key={day} className="mb-2">
-
-            <p className="text-sm font-semibold text-main">
-              {day}
-            </p>
-
-            <ul className="text-xs text-muted ml-3">
-
-              {tasksByDay[day]
-                .sort((a, b) => a.startTime - b.startTime)
-                .map((task) => {
-
-                  const hours = String(
-                    Math.floor(task.startTime / 60)
-                  ).padStart(2, "0");
-
-                  const minutes = String(
-                    task.startTime % 60
-                  ).padStart(2, "0");
-
-                  return (
-                    <li key={task.taskId}>
-                      {hours}:{minutes} – {task.title}
-                    </li>
-                  );
-                })}
-
-            </ul>
-
-          </div>
-        ))}
-
       </div>
 
       {/* Modal */}
