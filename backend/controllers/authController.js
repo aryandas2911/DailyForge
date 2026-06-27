@@ -156,7 +156,23 @@ export const updateProfile = async (req, res) => {
     }
 
     // update password if provided
-    if (currentPassword && newPassword) {
+    if (currentPassword || newPassword) {
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Both current password and new password are required to update password',
+        });
+      }
+
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+      if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            'Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character',
+        });
+      }
+
       // compare current password
       const passwordCheck = await bcrypt.compare(
         currentPassword,
