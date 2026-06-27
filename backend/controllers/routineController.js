@@ -1,6 +1,12 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
-import { checkOverlap } from "../utils/routineUtils.js";
+import {
+  checkOverlap,
+  calculateBurnoutScore,
+  calculateConsistencyScore,
+  detectFatigueLevel,
+  getAdaptiveDifficulty,
+} from "../utils/routineUtils.js";
 
 // Create routine function
 export const createRoutine = async (req, res) => {
@@ -16,10 +22,18 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
+    }
+    // check if routine with same name already exists for this user
+    const existingRoutine = await Routine.findOne({ userId, name });
+    if (existingRoutine) {
+      return res.status(400).json({
+        success: false,
+        message: "A routine with this name already exists",
+      });
     }
 
     // calculate endtime for each task
@@ -70,23 +84,56 @@ export const createRoutine = async (req, res) => {
     }
 
     // create new routine document
+    const completedDays = items.length;
+
+    const missedDays = 0;
+
+    const burnoutScore = calculateBurnoutScore(
+     missedDays,
+     completedDays
+    );
+
+    const consistencyScore = calculateConsistencyScore(
+      completedDays,
+      missedDays
+    );
+
+    const fatigueLevel = detectFatigueLevel(
+      burnoutScore
+    );
+
+    const difficultyLevel = getAdaptiveDifficulty(
+      consistencyScore
+      );
+
     const newRoutine = new Routine({
-      userId,
-      name,
-      description,
-      items,
-    });
+     userId,
+     name,
+     description,
+     items,
+
+     adaptiveSettings: {
+     adaptiveEnabled: true,
+     difficultyLevel,
+     burnoutScore,
+     consistencyScore,
+     fatigueLevel,
+     recoveryMode: false,
+     recoveryDays: 0,
+     missedDaysCount: 0,
+     completedDaysCount: completedDays,
+     sustainabilityScore: 100,
+   },
+ });
 
     // save routine in collection
     await newRoutine.save();
-    
-    //Spotted Bug - Bundled newRoutine into the response object-->
     return res
-      .status(200)
-      .json({ 
-        success: true, 
-        message: "Routine added successfully", 
-        routine: newRoutine 
+      .status(201)
+      .json({
+        success: true,
+        message: "Routine added successfully",
+        routine: newRoutine.toObject()
       });
   } catch (error) {
     // error handling
@@ -113,10 +160,8 @@ export const getRoutines = async (req, res) => {
     const routines = await Routine.find({ userId: userId }).sort({
       createdAt: -1,
     });
-    if (routines.length == 0) {
-      return res.status(200).json({ success: true, routines: [] });
-    }
-    return res.status(200).json({ success: true, routines });
+
+    return res.status(200).json({ success: true, routines: routines || [] });
   } catch (error) {
     // error handling
     console.log("Error fetching routine", error);
@@ -171,19 +216,24 @@ export const duplicateRoutine = async (req, res) => {
       duration: item.duration,
     }));
 
-    if (targetDay) {
-      const formatted = duplicatedItems
-        .map((item) => ({
-          day: item.day,
-          startTime: item.startTime,
-          endTime: Number(item.startTime) + Number(item.duration),
-        }))
-        .sort((a, b) => a.startTime - b.startTime);
+    const formatted = duplicatedItems.map((item) => ({
+      day: item.day,
+      startTime: item.startTime,
+      endTime: item.startTime + item.duration,
+    }));
 
-      if (checkOverlap(formatted)) {
+    const dayGroups = {};
+    for (const task of formatted) {
+      if (!dayGroups[task.day]) dayGroups[task.day] = [];
+      dayGroups[task.day].push(task);
+    }
+
+    for (const day in dayGroups) {
+      const sorted = dayGroups[day].sort((a, b) => a.startTime - b.startTime);
+      if (checkOverlap(sorted)) {
         return res.status(400).json({
           success: false,
-          message: `Copied tasks overlap on ${targetDay}`,
+          message: `Copied tasks overlap on ${day}`,
         });
       }
     }
@@ -236,10 +286,32 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const updates = req.body;
+    const { name, description, items } = req.body;
+
+    const updates = {
+      ...(name && { name }),
+      ...(description && { description }),
+      ...(items && { items }),
+    };
     const routineId = req.params.id;
 
     if (updates.items) {
+      // validate each item
+      for (const item of updates.items) {
+        if (!item.day || item.startTime === undefined || !item.duration) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task must have a day, startTime, and duration",
+          });
+        }
+        if (item.duration < 10) {
+          return res.status(400).json({
+            success: false,
+            message: "Each task duration must be at least 10 minutes",
+          });
+        }
+      }
+
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
@@ -295,12 +367,14 @@ export const updateRoutine = async (req, res) => {
     );
     if (!updatedRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Routine updated successfully",
-      routine: updatedRoutine,
+      routine: updatedRoutine.toObject(),
     });
   } catch (error) {
     // error handling
@@ -327,16 +401,19 @@ export const deleteRoutine = async (req, res) => {
     const routineId = req.params.id;
 
     // fetch routine to be deleted from database
-    const deleteRoutine = await Routine.findOneAndDelete({
+    const deletedRoutine = await Routine.findOneAndDelete({
       _id: routineId,
       userId: userId,
     });
-    if (!deleteRoutine) {
+
+    if (!deletedRoutine) {
       return res.status(404).json({
+        success: false,
         message: "Routine not found",
       });
     }
     return res.status(200).json({
+      success: true,
       message: "Routine deleted successfully",
     });
   } catch (error) {
@@ -345,5 +422,25 @@ export const deleteRoutine = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Error deleting routine" });
+  }
+};
+
+// Fetch public routine function (unauthenticated)
+export const getPublicRoutine = async (req, res) => {
+  try {
+    const routineId = req.params.id;
+    const routine = await Routine.findById(routineId).populate("items.taskId");
+    if (!routine) {
+      return res.status(404).json({
+        success: false,
+        message: "Routine not found",
+      });
+    }
+    return res.status(200).json({ success: true, routine });
+  } catch (error) {
+    console.log("Error fetching public routine", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error fetching public routine" });
   }
 };
