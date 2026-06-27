@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,16 +13,25 @@ import TaskFormModal from "../components/Task/TaskFormModal";
 import RoutineCard from "../components/Routine/RoutineCard.jsx";
 import useTasks from "../hooks/useTasks.js";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Loader2 } from "lucide-react";
+import { toPng } from "html-to-image";
 import api from "../api/axios.js";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
+import { routineTemplates } from '../utils/routineTemplate';
 
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scheduledTasks, setScheduledTasks] = useState([]);
+  const [scheduledTasks, setScheduledTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("draftScheduledTasks");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
@@ -31,6 +40,33 @@ export default function RoutineBuilder() {
   const [activeRoutine, setActiveRoutine] = useState([]);
   const [description, setDescription] = useState("");
   const [activeTask, setActiveTask] = useState(null);
+  const [isImageExporting, setIsImageExporting] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
+  const gridRef = useRef(null);
+ 
+
+  const exportToImage = async () => {
+    if (!gridRef.current) return;
+    try {
+      setIsImageExporting(true);
+      // html-to-image handles CSS variables and Google Fonts without CORS issues
+      const url = await toPng(gridRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = "My_Weekly_Routine.png";
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export routine as image.");
+    } finally {
+      setIsImageExporting(false);
+    }
+  };
+
+  const normalizeDay = (day) => String(day || "").trim().toLowerCase();
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -57,6 +93,10 @@ export default function RoutineBuilder() {
   useEffect(() => {
     fetchRoutines();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("draftScheduledTasks", JSON.stringify(scheduledTasks));
+  }, [scheduledTasks]);
 
   useEffect(() => {
 
@@ -97,17 +137,26 @@ export default function RoutineBuilder() {
       .filter((task) => task.day === selectedDay)
       .map((task) => ({
         taskId: task.taskId,
+        title: task.title,
         day: selectedDay,
         startTime: task.startTime,
         duration: task.duration,
       }));
 
     try {
-      await api.post("/routines", {
+      const res = await api.post("/routines", {
         name: routineName,
         description,
         items,
       });
+
+      const createdRoutine = res.data.routine || res.data.routines?.[0];
+      if (createdRoutine) {
+        setSavedRoutines((prevRoutines) => [
+          createdRoutine,
+          ...prevRoutines.filter((routine) => routine._id !== createdRoutine._id),
+        ]);
+      }
 
       setIsSaveModalOpen(false);
       setRoutineName("");
@@ -117,7 +166,8 @@ export default function RoutineBuilder() {
       await fetchRoutines();
     } catch (err) {
       console.error(err);
-      alert("Failed to save routine");
+      const errorMessage = err.response?.data?.message || "Failed to save routine";
+      alert(errorMessage);
     }
   };
 
@@ -138,9 +188,32 @@ export default function RoutineBuilder() {
 
     //filtering out 
     setScheduledTasks((prev) =>
-      prev.filter((task) => !(task.taskId === taskId && task.day === day))
+      prev.filter(
+        (task) =>
+          !(
+            task.taskId === taskId &&
+            normalizeDay(task.day) === normalizeDay(day)
+          )
+      )
     );
   };
+  const handleAdoptTemplate = (template) => {
+    let currentHour = 9; 
+    const hydratedTasks = template.tasks.map((task, index) => {
+      const hour = currentHour + index;
+      const formattedTime = `${hour < 10 ? '0' : ''}${hour}:00`;
+      return {
+        taskId: `temp_${crypto.randomUUID()}`, 
+        title: task.title,
+        day: selectedTemplateDay,
+        startTime: formattedTime,
+        duration: task.duration
+      };
+    });
+    setScheduledTasks((prev) => [...prev, ...hydratedTasks]);
+    setIsTemplateModalOpen(false);
+  };
+  
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -167,35 +240,52 @@ export default function RoutineBuilder() {
       <div className="app-bg min-h-screen px-6 py-8 pb-40">
 
         {/* Header */}
-        <header className="mb-8 flex items-start gap-4 animate-in delay-100">
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in delay-100">
+          <div className="flex items-start gap-4">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="mt-1 rounded-lg p-2 border border-soft text-muted
+                         hover:bg-white transition cursor-pointer"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <h1 className="text-3xl font-semibold text-main">
+                Routine Builder
+              </h1>
+              <p className="mt-1 text-muted">Design your week</p>
+            </div>
+          </div>
           <button
-            onClick={() => navigate("/dashboard")}
-            className="mt-1 rounded-lg p-2 border border-soft text-muted
-                       hover:bg-white transition cursor-pointer"
+            onClick={exportToImage}
+            disabled={isImageExporting}
+            className="btn btn-primary flex items-center gap-2 cursor-pointer hover-lift disabled:opacity-50"
           >
-            <ArrowLeft size={16} />
+            {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            {isImageExporting ? "Exporting..." : "Export as PNG"}
           </button>
-          <div>
-            <h1 className="text-3xl font-semibold text-main">
-              Routine Builder
-            </h1>
-            <p className="mt-1 text-muted">Design your week</p>
+          <div className="flex items-center gap-3">
+            <button
+            onClick={() => setIsTemplateModalOpen(true)}
+            className="btn btn-secondary flex items-center gap-2 cursor-pointer hover-lift border border-gray-300 px-4 py-2 rounded-lg"
+            >
+            Start from Template
+            </button>
           </div>
         </header>
 
         {/* Main Layout */}
         <div className="grid grid-cols-12 gap-6 animate-in delay-200">
           <aside className="col-span-12 md:col-span-3">
-            <TaskLibrary
-  tasks={tasks}
-  onAddTask={() => setIsModalOpen(true)}
-/>
             {/*
              * TaskLibrary's "Add Task" button opens the modal directly
              * (user is already at the top section of the page, no scroll needed).
              * Use openModal instead of handleOpenModal here.
              */}
-            <TaskLibrary onAddTask={openModal} />
+            <TaskLibrary
+              tasks={tasks}
+              onAddTask={openModal}
+            />
           </aside>
 
           <section className="col-span-12 md:col-span-9">
@@ -203,6 +293,7 @@ export default function RoutineBuilder() {
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
+              innerRef={gridRef}
             />
           </section>
         </div>
@@ -273,7 +364,7 @@ export default function RoutineBuilder() {
                 placeholder="Add a description (optional)"
                 rows="3"
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
-                           focus:ring-primary bg-transparent text-main resize-none"
+                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white resize-none"
               />
 
               <div className="flex justify-end gap-3">
@@ -294,11 +385,47 @@ export default function RoutineBuilder() {
             </div>
           </div>
         )}
+        {isTemplateModalOpen && (
+          <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in">
+            <div className="card card-primary w-full max-w-2xl animate-in delay-100 bg-white p-6 rounded-xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-main">Choose a Template</h3>
+                <button onClick={() => setIsTemplateModalOpen(false)} className="text-gray-500 hover:text-black">✕</button>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Target Day</label>
+                <select 
+                  value={selectedTemplateDay}
+                  onChange={(e) => setSelectedTemplateDay(e.target.value)}
+                  className="w-full border-soft rounded-lg px-3 py-2 bg-transparent"
+                >
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {routineTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => handleAdoptTemplate(template)}
+                    className="text-left p-4 border rounded-xl hover:border-blue-500 transition-colors"
+                  >
+                    <h4 className="font-bold text-gray-900">{template.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
-            <div className="rounded-xl bg-white p-3 shadow-xl border border-gray-200">
+            <div className="rounded-xl bg-white dark:text-black p-3 shadow-xl border border-gray-200">
               {activeTask.title}
             </div>
           ) : null}
