@@ -34,7 +34,9 @@ export const createRoutine = async (req, res) => {
         });
       }
 
-      const endTime = item.startTime + item.duration;
+      const startTime = Number(item.startTime);
+      const duration = Number(item.duration);
+      const endTime = startTime + duration;
       formatted.push({
         day: item.day,
         startTime: item.startTime,
@@ -174,7 +176,7 @@ export const duplicateRoutine = async (req, res) => {
         .map((item) => ({
           day: item.day,
           startTime: item.startTime,
-          endTime: item.startTime + item.duration,
+          endTime: Number(item.startTime) + Number(item.duration),
         }))
         .sort((a, b) => a.startTime - b.startTime);
 
@@ -249,7 +251,9 @@ export const updateRoutine = async (req, res) => {
           });
         }
 
-        const endTime = item.startTime + item.duration;
+        const startTime = Number(item.startTime);
+        const duration = Number(item.duration);
+        const endTime = startTime + duration;
         formatted.push({
           day: item.day,
           startTime: item.startTime,
