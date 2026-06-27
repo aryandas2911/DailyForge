@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -45,13 +45,21 @@ const userSchema = new mongoose.Schema(
     },
     primaryColor: {
       type: String,
-      default: '#3b82f6',
+      default: "#3b82f6",
     },
     // ────────────────────────────────────────────────────────────────────────
+    telegramChatId: {
+      type: String,
+      default: null,
+    },
+    telegramLinkCode: {
+      type: String,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
