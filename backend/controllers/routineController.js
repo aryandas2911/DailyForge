@@ -1,5 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Task from "../src/models/Task.js";
 import { checkOverlap } from "../utils/routineUtils.js";
 
 // Create routine function
@@ -16,10 +17,25 @@ export const createRoutine = async (req, res) => {
 
     // fetch routine details from request body
     const { name, description, items } = req.body;
-    if (!name || items.length == 0 || !items) {
+    if (!name || !items || items.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "Please enter required details" });
+    }
+
+    const taskIds = items.map((item) => item.taskId);
+    const uniqueTaskIds = [...new Set(taskIds.filter(Boolean))];
+
+    const userTasksCount = await Task.countDocuments({
+      _id: { $in: uniqueTaskIds },
+      userId: userId,
+    });
+
+    if (userTasksCount !== uniqueTaskIds.length) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more tasks are invalid or do not belong to you",
+      });
     }
 
     // calculate endtime for each task
@@ -234,10 +250,30 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const updates = req.body;
+    const allowedKeys = ["name", "description", "items"];
+    const updates = {};
+    for (const key of allowedKeys) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
     const routineId = req.params.id;
 
     if (updates.items) {
+      const taskIds = updates.items.map((item) => item.taskId);
+      const uniqueTaskIds = [...new Set(taskIds.filter(Boolean))];
+
+      const userTasksCount = await Task.countDocuments({
+        _id: { $in: uniqueTaskIds },
+        userId: userId,
+      });
+
+      if (userTasksCount !== uniqueTaskIds.length) {
+        return res.status(400).json({
+          success: false,
+          message: "One or more tasks are invalid or do not belong to you",
+        });
+      }
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {

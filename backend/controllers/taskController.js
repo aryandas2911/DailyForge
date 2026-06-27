@@ -141,7 +141,21 @@ export const updateTask = async (req, res) => {
     }
 
     // fetch update task details
-    const updates = req.body;
+    const allowedKeys = [
+      "title",
+      "description",
+      "tags",
+      "priority",
+      "status",
+      "dueDate",
+      "actualDuration",
+    ];
+    const updates = {};
+    for (const key of allowedKeys) {
+      if (req.body[key] !== undefined) {
+        updates[key] = req.body[key];
+      }
+    }
     const taskId = req.params.id;
 
     // fetch task from database and update
