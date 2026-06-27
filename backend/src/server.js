@@ -4,11 +4,13 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "../config/db.js";
+import "./cronJobs.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
+import { telegramRouter } from "../routes/telegramRoutes.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -51,6 +53,10 @@ app.use("/api/analytics", analyticsRouter);
 
 // Router for accessing journal routes
 app.use("/api/journal", journalRouter);
+
+
+// ...
+app.use("/api/telegram", telegramRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");
