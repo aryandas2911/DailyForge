@@ -310,12 +310,12 @@ export default function Dashboard() {
                 ))}
 
                 {/* Show 'More..' button only when list is closed and there are more than 3 tags */}
-                {!moreTags && selectedTags.length > 3 && (
+                !moreTags && selectedTags.length > 3 && (
                   <button
                     onClick={() => setmoreTags(true)}
                     className="text-sm font-medium text-cyan-500 hover:text-cyan-400 transition-colors self-center"
                   >
-                    +{selectedTags.length - 3} More..
+                  '+{electedTags.length - 3} More..
                   </button>
                 )}
               </div>
@@ -330,8 +330,6 @@ export default function Dashboard() {
             className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
             onClick={() => setShowProfilePreview(true)}
           />
-
-          <LiveClock />
 
         </div>
           </>
