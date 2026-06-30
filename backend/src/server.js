@@ -16,7 +16,28 @@ const PORT = process.env.PORT;
 
 // Initialize express     
 const app = express();
+const requiredEnv = ["MONGO_URI", "JWT_SECRET"];
 
+//env validation 
+const missing = requiredEnv.filter((key) => !process.env[key]);
+
+if (missing.length) {
+  console.error(
+    `[FATAL] Missing required environment variables: ${missing.join(", ")}`
+  );
+  console.error(
+    "Copy backend/.env.example to backend/.env and fill in the values."
+  );
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  console.error(
+    "[FATAL] JWT_SECRET must be at least 32 characters long."
+  );
+  console.error("Generate one with: openssl rand -hex 32");
+  process.exit(1);
+}
 
 app.use(
   cors({
