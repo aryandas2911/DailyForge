@@ -136,7 +136,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   )}
 
                   {/*Disply Remaining Time */}
-                  {task.dueDate && (
+                  {task.dueDate && task.status !== "Completed" && (
                     <span className="text-[11px] text-red-500 font-medium">
                       {isOverdue 
                         ? "Overdue"
