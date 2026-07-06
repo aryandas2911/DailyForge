@@ -318,3 +318,5 @@ If you receive feedback, act on it. If you disagree, discuss it professionally i
 *Built with ❤️ for GSSoC 2026 — DailyForge*
 
 </div>
+
+# TODO: issue #1648
