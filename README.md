@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: [bug] deleting a task does not clear dependson references in sibling tasks, causing silent broken foreign keys (#1574)
