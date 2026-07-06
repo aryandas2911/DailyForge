@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: [ux/ui] improve first-time user onboarding by displaying the welcome tour popup at the initial viewport (#1538)
