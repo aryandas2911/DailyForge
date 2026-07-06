@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: bug: clicking a template in "start from template" adds tasks to state but they never appear on the weekly grid (#1647)
