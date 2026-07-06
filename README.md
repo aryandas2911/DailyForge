@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: improve profile settings card layout and remove excess empty space (#1547)
