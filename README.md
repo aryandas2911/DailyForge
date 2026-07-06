@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: [bug] render free-tier cold start not handled — users see a blank screen with no feedback (#1462)
