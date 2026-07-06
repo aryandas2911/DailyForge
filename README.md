@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: [bug/dx]: cors origin hardcoded in server.js - breaks every contributor's local setup (#1599)
