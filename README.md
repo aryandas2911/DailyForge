@@ -365,3 +365,4 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+# TODO: [bug] quick notes are stored in localstorage only — data lost on cache clear and doesn't sync across devices problem (#1654)
