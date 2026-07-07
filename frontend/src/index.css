@@ -140,3 +140,5 @@
     }
   }
 }
+
+/* fix: [Bug/DX]: CORS Origin Hardcoded in server.js - Breaks Every  (#1599) */

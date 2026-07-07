@@ -365,3 +365,5 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+
+# TODO: security - [Bug/DX]: CORS Origin Hardcoded in server.js - Breaks Every  (#1599)
