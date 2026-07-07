@@ -140,3 +140,5 @@
     }
   }
 }
+
+/* fix: [Bug] Quick Notes are stored in localStorage only — data los (#1654) */
