@@ -140,3 +140,5 @@
     }
   }
 }
+
+/* fix: Bug: Export CSV and Export PNG buttons permanently disappear (#1648) */
