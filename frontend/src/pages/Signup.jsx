@@ -74,6 +74,7 @@ const Signup = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
 
   const getPasswordStrength = (password) => {
   if (!password) return null;
@@ -347,6 +348,8 @@ cursor-pointer
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
                 className="
                   input-modern
                   w-full
@@ -382,10 +385,12 @@ cursor-pointer
             </div>
             <FormError error={errors.password} />
 
-            <p className="text-xs text-gray-500">
-              Use at least 8 characters, including 1 uppercase letter,
-              1 lowercase letter, 1 number, and 1 special character.
-            </p>
+            {passwordFocused && (
+              <p className="text-xs text-gray-500">
+                Use at least 8 characters, including 1 uppercase letter,
+                1 lowercase letter, 1 number, and 1 special character.
+              </p>
+            )}
 
             {passwordStrength && (
               <span
