@@ -365,3 +365,5 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+
+# TODO: fix for #1647: Bug: Clicking a template in "Start from Template" adds tasks to state but they n
