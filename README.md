@@ -365,3 +365,5 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+
+# TODO: fix for #1641: [Feature] Create a custom 404 "Page Not Found" component for invalid routes
