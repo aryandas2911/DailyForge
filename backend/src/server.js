@@ -11,8 +11,13 @@ import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
 
 // dotenv config
-dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+ dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
 const PORT = process.env.PORT;
+
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
+  console.error("FATAL: JWT_SECRET must be set to a secure value (min 16 chars)");
+  process.exit(1);
+}
 
 // Initialize express     
 const app = express();
