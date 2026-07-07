@@ -365,3 +365,5 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+
+<!-- fix: Add GSSoC Community Social Links to Footer (#1541) -->
