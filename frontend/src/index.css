@@ -140,3 +140,5 @@
     }
   }
 }
+
+/* fix: bug: `<AnimatedRoutes>` component is defined but never rende (#1501) */
