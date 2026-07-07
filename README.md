@@ -365,3 +365,5 @@ Have questions, ideas, or want to connect with other contributors?
 If DailyForge helped you, consider giving it a ⭐ — it helps more contributors find the project!
 
 </div>
+
+# TODO: fix for #1511: Feature Enhancement: Add Custom Time Input Support to Pomodoro Timer
