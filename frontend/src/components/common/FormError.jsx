@@ -13,8 +13,6 @@ const FormError = ({ error, message }) => {
     >
       <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
       <span className="font-medium">{displayError}</span>
-      <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" aria-hidden="true" />
-      <span className="font-medium leading-relaxed">{displayError}</span>
     </div>
   );
 };
