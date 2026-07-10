@@ -18,14 +18,24 @@ const PORT = process.env.PORT;
 const app = express();
 
 
+// Build the list of allowed CORS origins from environment variables.
+// CORS_ORIGIN supports a comma-separated list for multiple origins.
+// Falls back to localhost:5173 for local development and the
+// deployed frontend URL as a safe production default.
+const allowedOrigins = [
+  ...(process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : []),
+  process.env.CLIENT_ORIGIN,
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://dailyforge-frontend-lhjq.onrender.com",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      "https://dailyforge-frontend-lhjq.onrender.com",
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      process.env.CLIENT_ORIGIN,
-    ].filter(Boolean), 
+    origin: allowedOrigins,
     credentials: true,
   })
 );
