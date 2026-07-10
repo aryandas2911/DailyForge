@@ -76,9 +76,7 @@ const Login = () => {
 
 
   const handleGoogleLogin = async () => {
-    console.log("auth:", auth);
-    console.log("googleProvider:", googleProvider);
-
+        
     setIsGoogleLoading(true);
     setError("");
     try {

@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
     try {
       await api.post("/auth/logout");
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     setUser(null);
     localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
