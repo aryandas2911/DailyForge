@@ -48,8 +48,7 @@ export default function FeedbackForm({ onClose }) {
     setLoading(true);
     // Simulated submission — connect to backend/email API later
     await new Promise((res) => setTimeout(res, 1000));
-    console.log("Feedback submitted:", form);
-    setLoading(false);
+        setLoading(false);
     setSubmitted(true);
   };
 
