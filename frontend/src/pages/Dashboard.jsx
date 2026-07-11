@@ -30,12 +30,6 @@ export default function Dashboard() {
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
-  const [profileImage, setProfileImage] = useState(() => {
-  return (
-    localStorage.getItem("profileImage") ||
-    "https://i.pravatar.cc/100"
-  );
-});
   const [todayJournal, setTodayJournal] = useState(null);
 
   const today = new Date();
@@ -320,20 +314,6 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-
-        {/* Right */}
-        <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
-
-          <img
-            src={profileImage}
-            alt="Profile"
-            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
-            onClick={() => setShowProfilePreview(true)}
-          />
-
-          <LiveClock />
-
-        </div>
           </>
         )}
       </header>
