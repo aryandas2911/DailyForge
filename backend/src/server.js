@@ -9,9 +9,11 @@ import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
+import { validateEnv } from "../utils/envValidator.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+validateEnv();
 const PORT = process.env.PORT;
 
 // Initialize express     

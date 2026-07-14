@@ -395,6 +395,14 @@ export const updateProfile = async (req, res) => {
           .status(401)
           .json({ success: false, message: "Current password is incorrect" });
       }
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+      if (!newPassword || !passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character",
+        });
+      }
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
