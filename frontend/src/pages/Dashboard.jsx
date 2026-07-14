@@ -212,6 +212,56 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       <OnboardingModal />
+
+        {/* Get Started */}
+        <section className="w-full animate-in delay-75">
+    <div className="card p-6 sm:p-8 rounded-3xl border border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-sm">
+       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+         <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-2">
+                Getting Started
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-main">
+               New here? Learn DailyForge in a few quick steps.
+            </h2>
+            <p className="mt-3 text-muted leading-relaxed">
+              DailyForge helps you plan tasks, build routines, and track your progress in one place.
+              Start with one task, set its priority, and use the dashboard to stay consistent.
+           </p>
+          </div>
+
+      <button
+        onClick={() => navigate("/tasks")}
+        className="px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition"
+      >
+        Create your first task
+      </button>
+    </div>
+
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      {[
+        { title: "Add a task", desc: "Write down what you need to do." },
+        { title: "Set priority", desc: "Mark what matters most first." },
+        { title: "Build routine", desc: "Drag tasks into your weekly flow." },
+        { title: "Track progress", desc: "See streaks and analytics over time." },
+      ].map((item) => (
+        <div
+          key={item.title}
+          className="rounded-2xl bg-white/60 dark:bg-slate-800/60 p-4 border border-white/10"
+        >
+          <h3 className="text-main font-semibold">{item.title}</h3>
+          <p className="text-sm text-muted mt-1 leading-relaxed">{item.desc}</p>
+        </div>
+      ))}
+      <h3 className="text-lg font-semibold text-main whitespace-nowrap">
+        Want to know more about DailyForge and about its features?
+        <a href="/About" className="text-primary hover:text-primary/80">
+          About us
+        </a>
+      </h3>
+    </div>
+  </div>
+</section>
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-[var(--surface)] gap-6">
         {moreTags ? (
