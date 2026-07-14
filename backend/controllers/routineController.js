@@ -436,7 +436,9 @@ export const getPublicRoutine = async (req, res) => {
         message: "Routine not found",
       });
     }
-    return res.status(200).json({ success: true, routine });
+    const objectRoutine = routine.toObject();
+    const {userId, adaptiveSettings, ...result} = objectRoutine; // Exclude userId and adaptiveSettings from the response
+    return res.status(200).json({ success: true, result });
   } catch (error) {
     console.log("Error fetching public routine", error);
     return res
