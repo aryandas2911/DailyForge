@@ -9,9 +9,11 @@ import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
+import { validateEnv } from "../utils/envValidator.js";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+validateEnv();
 const PORT = process.env.PORT;
 
 // Initialize express     
@@ -65,6 +67,31 @@ app.use("/api/journal", journalRouter);
 app.get("/", (req, res) => {
   res.send("Server running");
 });
+
+// ─── Startup Environment Validation ─────────────────────────────────────────
+// Fail fast if required environment variables are missing or insecure.
+// This prevents the server from running silently with broken authentication.
+const REQUIRED_ENV_VARS = ["MONGO_URI", "JWT_SECRET"];
+
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.error("\n[FATAL] Missing required environment variables:");
+  missingVars.forEach((key) => console.error(`  - ${key}`));
+  console.error(
+    "\nCopy backend/.env.example to backend/.env and fill in the values.\n"
+  );
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  console.error(
+    "[FATAL] JWT_SECRET must be at least 32 characters for security."
+  );
+  console.error("Generate one with: openssl rand -hex 32");
+  process.exit(1);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
