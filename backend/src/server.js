@@ -68,6 +68,31 @@ app.get("/", (req, res) => {
   res.send("Server running");
 });
 
+// ─── Startup Environment Validation ─────────────────────────────────────────
+// Fail fast if required environment variables are missing or insecure.
+// This prevents the server from running silently with broken authentication.
+const REQUIRED_ENV_VARS = ["MONGO_URI", "JWT_SECRET"];
+
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.error("\n[FATAL] Missing required environment variables:");
+  missingVars.forEach((key) => console.error(`  - ${key}`));
+  console.error(
+    "\nCopy backend/.env.example to backend/.env and fill in the values.\n"
+  );
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  console.error(
+    "[FATAL] JWT_SECRET must be at least 32 characters for security."
+  );
+  console.error("Generate one with: openssl rand -hex 32");
+  process.exit(1);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Start server on port (in .env file)
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}\nhttp://localhost:${PORT}/`);
