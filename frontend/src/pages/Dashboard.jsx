@@ -29,7 +29,6 @@ export default function Dashboard() {
   const [moreTags, setmoreTags] = useState(false);
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
-  const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [todayJournal, setTodayJournal] = useState(null);
 
   const today = new Date();
