@@ -222,9 +222,14 @@ npm install
 **Create your `.env` file from the given template** (see the [Environment Variables](#-environment-variables) section below):
 
 ```bash
-# Inside the /backend directory
-
+# macOS / Linux
 cp .env.example .env
+
+# Windows (Command Prompt)
+copy .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
 ```
 
 Then fill in your values (see the next section for what each variable means).
@@ -438,17 +443,14 @@ No. DailyForge uses MongoDB Atlas, so you only need a free Atlas account and a v
 
 Make sure:
 
-- Backend CORS origin is set to:
-
-```js
-origin: "http://localhost:5173";
-```
-
-- Frontend `.env` contains:
+- Your backend is running on `http://localhost:5000`. The server already allows `http://localhost:5173` by default — **no code changes needed**.
+- Your frontend `.env` contains:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
+
+- If you are still seeing CORS errors, set `CORS_ORIGIN=http://localhost:5173` in your `backend/.env` and restart the server.
 
 ---
 
