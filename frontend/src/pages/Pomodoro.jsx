@@ -99,7 +99,7 @@ const Pomodoro = () => {
                     </div>
                 </div>
 
-                {showPopUp && <div className='fixed inset-0 z-30 flex items-center justify-center'>
+                {showPopUp && <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
                         <div className='border border-[#4eb7b3] bg-[#0f172a] rounded-xl p-6 shadow-3xl flex flex-col items-center gap-4'>
                             <h1 className='text-3xl font-bold text-[#4eb7b3] text-center'>Session Complete!</h1>
                             <p className='text-center text-md text-[#4eb7b3]'>Great work. Take a break!</p>
