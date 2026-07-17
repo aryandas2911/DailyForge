@@ -10,7 +10,9 @@ import {
   getUser,
   updateProfile,
   logout,
-  googleLogin,
+  googleLogin, 
+  resetPassword,
+  forgotPasswordRequest,
   uploadProfileImage,
   uploadMiddleware
 } from '../controllers/authController.js';
@@ -29,6 +31,23 @@ const twoFALimiter = rateLimit({
 });
 // ──────────────────────────────────────────────────────────────────────────────
 
+// Rate limiter for forgot password requests
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 3 requests per 15 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many password reset requests from this IP, please try again after 15 minutes.' },
+});
+
+// Rate limiter for password reset attempts (using a token)
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 attempts per 15 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many password reset attempts from this IP, please try again after 15 minutes.' },
+});
 // Public routes
 router.post('/signup', signup);
 router.post('/login', login);
@@ -47,5 +66,9 @@ router.post('/logout', authMiddleware, logout);
 router.post('/setup-2fa', authMiddleware, twoFALimiter, setup2FA);
 router.post('/verify-2fa', authMiddleware, twoFALimiter, verify2FA);
 router.post('/disable-2fa', authMiddleware, twoFALimiter, disable2FA);
+
+// Forgot Password Routes
+router.post('/forgot-password', forgotPasswordLimiter, forgotPasswordRequest); // Request reset link
+router.post('/reset-password', resetPasswordLimiter, resetPassword); // Use reset link to set new password
 
 export { router as authRouter };
