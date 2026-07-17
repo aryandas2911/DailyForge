@@ -8,33 +8,50 @@ export const AuthContext = createContext(null);
 // provider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [isLoading, setIsLoading] = useState(true);
 
   // logout function
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.error(e);
+    }
     setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
+    localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
+    
   };
 
   // restore session on app load
   useEffect(() => {
-    if (token) {
-      // fetch logged-in user
-      api
-        .get("/auth/me")
-        .then((res) => {
-          setUser(res.data.user);
-        })
-        .catch(() => {
-          // token invalid or expired
-          logout();
-        });
+    api
+      .get("/auth/me")
+      .then((res) => {
+        setUser(res.data.user);
+      })
+      .catch(() => {
+        // token invalid or expired
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    // Check if the user has a custom color that is not the default
+    if (user?.primaryColor && user.primaryColor.toLowerCase() !== '#4eb7b3') {
+      root.style.setProperty('--primary', user.primaryColor);
+      root.setAttribute('data-theme-custom', 'true');
+    } else {
+      root.style.removeProperty('--primary');
+      root.removeAttribute('data-theme-custom');
     }
-  }, [token]);
+  }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, token, setUser, setToken, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,30 +1,52 @@
 import express from "express";
 import dotenv from "dotenv";
+import path from "path";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "../config/db.js";
 import { authRouter } from "../routes/authRoutes.js";
 import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
+import { analyticsRouter } from "../routes/analyticsRoutes.js";
+import { journalRouter } from "../routes/journalRoutes.js";
+import { validateEnv } from "../utils/envValidator.js";
 
 // dotenv config
-dotenv.config();
+dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
+validateEnv();
 const PORT = process.env.PORT;
 
-// Initialize express app
+// Initialize express     
 const app = express();
 
-// Intialize cors
+
+// Build the list of allowed CORS origins from environment variables.
+// CORS_ORIGIN supports a comma-separated list for multiple origins.
+// Falls back to localhost:5173 for local development and the
+// deployed frontend URL as a safe production default.
+const allowedOrigins = [
+  ...(process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : []),
+  process.env.CLIENT_ORIGIN,
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://dailyforge-frontend-lhjq.onrender.com",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "https://dailyforge-frontend-lhjq.onrender.com",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
-
 // Connect to MongoDB using mongoose
 connectDB();
 
-// Middleware for parsing request body
+// Middleware for parsing cookies and request body
+
+app.use(cookieParser());
 app.use(express.json());
 
 // Router for accessing auth routes
@@ -36,9 +58,40 @@ app.use("/api/tasks", taskRouter);
 // Router for accessing routine routes
 app.use("/api/routines", routineRouter);
 
+// Router for accessing analytics routes
+app.use("/api/analytics", analyticsRouter);
+
+// Router for accessing journal routes
+app.use("/api/journal", journalRouter);
+
 app.get("/", (req, res) => {
   res.send("Server running");
 });
+
+// ─── Startup Environment Validation ─────────────────────────────────────────
+// Fail fast if required environment variables are missing or insecure.
+// This prevents the server from running silently with broken authentication.
+const REQUIRED_ENV_VARS = ["MONGO_URI", "JWT_SECRET"];
+
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+
+if (missingVars.length > 0) {
+  console.error("\n[FATAL] Missing required environment variables:");
+  missingVars.forEach((key) => console.error(`  - ${key}`));
+  console.error(
+    "\nCopy backend/.env.example to backend/.env and fill in the values.\n"
+  );
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  console.error(
+    "[FATAL] JWT_SECRET must be at least 32 characters for security."
+  );
+  console.error("Generate one with: openssl rand -hex 32");
+  process.exit(1);
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
