@@ -166,8 +166,6 @@ input::-webkit-credentials-type-password-toggle {
     border-color 0.25s ease,
     color 0.25s ease;
   }
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-@import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -346,8 +344,6 @@ input::-webkit-credentials-type-password-toggle {
   --text-muted: #94a3b8;
   --border: #334155;
 }
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-@import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
