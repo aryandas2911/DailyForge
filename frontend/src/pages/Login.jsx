@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 
@@ -61,6 +62,8 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [totpCode, setTotpCode] = useState("");
+  const [forgotPasswordError, setForgotPasswordError] = useState(""); // State for errors from the ChangePasswordModal
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [tempUserId, setTempUserId] = useState(null);
 
   // useNavigate object
@@ -76,9 +79,7 @@ const Login = () => {
 
 
   const handleGoogleLogin = async () => {
-    console.log("auth:", auth);
-    console.log("googleProvider:", googleProvider);
-
+        
     setIsGoogleLoading(true);
     setError("");
     try {
@@ -98,6 +99,20 @@ const Login = () => {
       );
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  // Function to handle the forgot password request (sending email)
+  const handleForgotPasswordRequest = async ({ email }) => {
+    setForgotPasswordError(""); // Clear any previous errors
+    try {
+      // Assuming your backend has an endpoint for requesting password reset
+      // This endpoint should send an email with a reset link
+      await api.post("/auth/forgot-password", { email });
+      // The modal will handle the success message internally
+    } catch (err) {
+      setForgotPasswordError(err.response?.data?.message || "Failed to request password reset. Please try again.");
+      throw new Error(err.response?.data?.message || "Failed to request password reset."); // Re-throw to be caught by modal's handleSubmit
     }
   };
 
@@ -242,6 +257,9 @@ cursor-pointer
                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
+            <button type="button" onClick={() => setIsChangePasswordModalOpen(true)} className="text-sm text-gray-400 hover:underline text-left mt-1">
+              Forgot password?
+            </button>
           </div>
           
           <FormError error={error} />
@@ -264,7 +282,17 @@ cursor-pointer
           </p>
         </form>
       </div>
-
+      {isChangePasswordModalOpen && (
+        <ChangePasswordModal
+          onClose={() => {
+            setIsChangePasswordModalOpen(false);
+            setForgotPasswordError(""); // Clear error when closing modal
+          }}
+          onSubmit={handleForgotPasswordRequest} // Pass the new handler for email submission
+          errorMessage={forgotPasswordError}
+          onError={setForgotPasswordError}
+        />
+      )}
     </div>
   );
 };
