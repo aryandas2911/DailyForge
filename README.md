@@ -199,6 +199,70 @@ DailyForge/
 
 ---
 
+🔄 Project Setup Flow
+
+Understanding the application flow makes it much easier for new contributors to navigate the codebase, debug issues, and add new features. The diagram below illustrates how a request travels through the application.
+
+📊 High-Level Architecture
+
+flowchart LR
+    A["👤 User"] --> B["⚛️ React Frontend"]
+    B --> C["🌐 Axios API Requests"]
+    C --> D["🚀 Express.js Backend"]
+    D --> E["🧩 Controllers"]
+    E --> F["📦 Mongoose Models"]
+    F --> G["🍃 MongoDB Atlas"]
+    G --> H["📤 JSON Response"]
+    H --> I["🔄 React State Update"]
+    I --> J["🖥️ Updated UI"]
+
+---
+
+⚙️ Request Lifecycle
+
+Step| Description
+👤 1. User Interaction| The user creates, edits, deletes, or schedules a task from the React frontend.
+🌐 2. API Communication| Axios sends an HTTP request to the Express backend API.
+🚀 3. Route Handling| Express routes forward the request to the appropriate controller.
+🧩 4. Business Logic| Controllers validate input, apply business rules, and prepare database operations.
+📦 5. Database Layer| Mongoose communicates with MongoDB Atlas to store or retrieve application data.
+📤 6. Server Response| The backend returns a JSON response containing the requested or updated data.
+🔄 7. UI Update| React updates the application state and refreshes the interface instantly.
+
+---
+
+📂 Developer Workflow
+
+Fork Repository
+        │
+        ▼
+Clone Repository
+        │
+        ▼
+Install Dependencies
+        │
+        ▼
+Configure Environment Variables
+        │
+        ▼
+Start Backend Server
+        │
+        ▼
+Start Frontend Server
+        │
+        ▼
+Build • Test • Contribute 🚀
+
+---
+
+💡 Why This Diagram?
+
+- 🚀 Helps first-time contributors understand the project architecture.
+- 📖 Provides a clear overview of the frontend → backend → database workflow.
+- 🛠️ Makes debugging and feature development easier.
+- 🤝 Improves onboarding for GSSoC and open-source contributors.
+- 📚 Serves as a quick reference for the application's request lifecycle.
+
 ## ⚡ Quick Start
 
 **Prerequisites:** Node.js v18+, npm v9+, a free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account
@@ -610,6 +674,104 @@ We use labels to organize work. Here's what they mean:
 ### 🗓️ Drag-and-Drop Routine Builder
 
 ![Routine Builder](Screenshots/Routine.png)
+
+---
+---
+
+# 🔄 Project Setup Flow Diagram
+
+```mermaid
+graph TD
+    A[User Opens App] --> B[React Frontend]
+    B --> C[API Request]
+    C --> D[Express Server]
+    D --> E[Controllers]
+    E --> F[MongoDB Database]
+    F --> G[JSON Response]
+    G --> H[React State Update]
+    H --> I[UI Re-render]
+```
+
+---
+
+# 🏗️ System Architecture
+
+| Layer | Technology | Responsibility |
+|------|-----------|---------------|
+| Frontend | React + Vite | User Interface |
+| Backend | Express.js | API Services |
+| Database | MongoDB | Data Storage |
+| Authentication | Firebase | User Login |
+| State Management | Context API | UI State |
+
+---
+
+# 📂 Project Structure
+
+```text
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   └── context/
+
+backend/
+├── controllers/
+├── routes/
+├── models/
+└── middleware/
+```
+
+---
+
+# ⚡ Request Lifecycle
+
+1. User performs an action.
+2. React captures the event.
+3. API request is sent.
+4. Express routes receive the request.
+5. Controller processes logic.
+6. Database is queried.
+7. Response is returned.
+8. React updates the interface.
+
+---
+
+# 🚀 Contribution Workflow
+
+```mermaid
+graph LR
+    A[Fork Repository]
+    B[Create Branch]
+    C[Make Changes]
+    D[Commit Changes]
+    E[Push Branch]
+    F[Open Pull Request]
+
+    A --> B --> C --> D --> E --> F
+```
+
+---
+
+# 🛠 Development Workflow
+
+```bash
+git clone repository
+npm install
+npm run dev
+```
+
+---
+
+# 💡 Why This Section Matters
+
+- Helps new contributors understand the codebase.
+- Makes onboarding easier.
+- Improves debugging.
+- Explains frontend and backend interaction.
+- Reduces confusion for first-time contributors.
+- Improves GSSoC contributor experience.
 
 ---
 
