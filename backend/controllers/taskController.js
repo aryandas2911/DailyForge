@@ -329,6 +329,18 @@ export const deleteTask = async (req, res) => {
       });
     }
 
+    // Clean up routine task references
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: taskId,
+          },
+        },
+      }
+    );
+
     return res.status(200).json({
       success: true,
       message: "Task deleted successfully",
