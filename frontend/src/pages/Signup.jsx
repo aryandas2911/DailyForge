@@ -214,7 +214,7 @@ const passwordStrength = getPasswordStrength(password);
         >
           {/* Heading */}
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-main">
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
               Create Account
             </h1>
 
@@ -272,7 +272,6 @@ cursor-pointer
           </div>
 
           {/* Error */}
-          <FormError message={errorMessage} />
           <FormError error={errorMessage} />
 
           {/* Name */}
