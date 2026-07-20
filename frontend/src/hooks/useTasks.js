@@ -122,7 +122,7 @@ const useTasks = ({
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
+    // Optimistic UI update
     setTasks((prev) => prev.filter((t) => t._id !== id));
     invalidateTasks();
     await getTasks(page);

@@ -261,8 +261,7 @@ export default function RoutineCard({
   const handleDeleteRoutine = async () => {
 
   try {
-    console.log("DELETE CLICKED");
-    await api.delete(
+        await api.delete(
       `/routines/${routine._id}`
     );
 

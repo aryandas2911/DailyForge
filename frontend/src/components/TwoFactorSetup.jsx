@@ -58,7 +58,7 @@ const TwoFactorSetup = () => {
             value={totpCode}
             onChange={(e) => setTotpCode(e.target.value)}
             maxLength={6}
-            className="w-full px-3 py-2.5 text-sm surface-bg border-soft rounded-sm shadow-xs input-focus"
+            className="w-full px-3 py-2.5 text-sm surface-bg border-soft rounded-sm shadow-xs input-focus dark:placeholder-slate-500"
           />
           <button onClick={verifyAndEnable} className="btn btn-primary cursor-pointer hover-lift">
             Verify & Activate
