@@ -20,14 +20,16 @@ import {
   AlertTriangle
 } from "lucide-react";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
+import useDebounce from "../hooks/useDebounce";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const MOODS = [
   { value: "happy", label: "Happy", emoji: "😃", color: "bg-green-500/10 text-green-500 border-green-500/20", glow: "shadow-[0_0_15px_rgba(34,197,94,0.4)] border-green-500 scale-105" },
   { value: "calm", label: "Calm", emoji: "😌", color: "bg-teal-500/10 text-teal-500 border-teal-500/20", glow: "shadow-[0_0_15px_rgba(20,184,166,0.4)] border-teal-500 scale-105" },
-  { value: "neutral", label: "Neutral", emoji: "😐", color: "bg-slate-500/10 text-slate-500 border-slate-500/20", glow: "shadow-[0_0_15px_rgba(100,116,139,0.4)] border-slate-500 scale-105" },
+  { value: "neutral", label: "Neutral", emoji: "😐", color: "bg-slate-500/10 text-slate-500 dark:text-slate-300 border-slate-500/20", glow: "shadow-[0_0_15px_rgba(100,116,139,0.4)] border-slate-500 scale-105" },
   { value: "stressed", label: "Stressed", emoji: "🤯", color: "bg-orange-500/10 text-orange-500 border-orange-500/20", glow: "shadow-[0_0_15px_rgba(249,115,22,0.4)] border-orange-500 scale-105" },
-  { value: "sad", label: "Sad", emoji: "😢", color: "bg-blue-500/10 text-blue-500 border-blue-500/20", glow: "shadow-[0_0_15px_rgba(59,130,246,0.4)] border-blue-500 scale-105" },
+  { value: "sad", label: "Sad", emoji: "😢", color: "bg-blue-500/10 text-blue-500 dark:text-slate-200 border-blue-500/20", glow: "shadow-[0_0_15px_rgba(59,130,246,0.4)] border-blue-500 scale-105" },
   { value: "energetic", label: "Energetic", emoji: "⚡", color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20", glow: "shadow-[0_0_15px_rgba(234,179,8,0.4)] border-yellow-500 scale-105" },
   { value: "tired", label: "Tired", emoji: "😴", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", glow: "shadow-[0_0_15px_rgba(99,102,241,0.4)] border-indigo-500 scale-105" },
 ];
@@ -56,6 +58,8 @@ export default function DailyJournal() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
+  // Server-side search fires per keystroke — debounce the value the request reads (#11)
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   const [moodFilter, setMoodFilter] = useState("");
   const [tagFilter, setTagFilter] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -82,9 +86,9 @@ export default function DailyJournal() {
   const fetchJournals = useCallback(async () => {
     try {
       setLoadingList(true);
-      const res = await api.get("/journal", {
+      const res = await cachedGet("/journal", {
         params: {
-          search: searchQuery,
+          search: debouncedSearchQuery,
           mood: moodFilter,
           tag: tagFilter,
           startDate,
@@ -99,7 +103,7 @@ export default function DailyJournal() {
     } finally {
       setLoadingList(false);
     }
-  }, [searchQuery, moodFilter, tagFilter, startDate, endDate]);
+  }, [debouncedSearchQuery, moodFilter, tagFilter, startDate, endDate]);
 
   // Fetch journals on query change
   useEffect(() => {
@@ -112,7 +116,7 @@ export default function DailyJournal() {
       try {
         setErrorMsg("");
         setSuccessMsg("");
-        const res = await api.get(`/journal/by-date/${selectedDate}`);
+        const res = await cachedGet(`/journal/by-date/${selectedDate}`);
         if (res.data.success && res.data.journal) {
           const entry = res.data.journal;
           setTitle(entry.title || "");
@@ -141,7 +145,7 @@ export default function DailyJournal() {
       const fetchAnalytics = async () => {
         try {
           setLoadingAnalytics(true);
-          const res = await api.get("/journal/analytics");
+          const res = await cachedGet("/journal/analytics");
           if (res.data.success) {
             setAnalytics(res.data.analytics);
           }
@@ -187,7 +191,10 @@ export default function DailyJournal() {
         setContent(savedJournal.content || "");
         setMood(savedJournal.mood || "neutral");
         setTags(savedJournal.tags || []);
-        
+
+        // Entry changed — drop cached journal/analytics reads so they refetch fresh
+        invalidate("/journal");
+        invalidate("/analytics");
         fetchJournals();
         setTimeout(() => setSuccessMsg(""), 3000);
       }
@@ -216,6 +223,8 @@ export default function DailyJournal() {
         setTags([]);
         setActiveEntryId(null);
         setIsEditing(false);
+        invalidate("/journal");
+        invalidate("/analytics");
         fetchJournals();
         setTimeout(() => setSuccessMsg(""), 3000);
       }
@@ -281,7 +290,7 @@ export default function DailyJournal() {
   const handleEditExisting = async (date) => {
     setSelectedDate(date);
     try {
-      const res = await api.get(`/journal/by-date/${date}`);
+      const res = await cachedGet(`/journal/by-date/${date}`);
       if (res.data.success && res.data.journal) {
         const entry = res.data.journal;
         setTitle(entry.title || "");
@@ -338,7 +347,7 @@ export default function DailyJournal() {
   // Open editor with current loaded entry values
   const handleStartEdit = async () => {
     try {
-      const res = await api.get(`/journal/by-date/${selectedDate}`);
+      const res = await cachedGet(`/journal/by-date/${selectedDate}`);
       if (res.data.success && res.data.journal) {
         const entry = res.data.journal;
         setTitle(entry.title || "");
@@ -525,7 +534,7 @@ export default function DailyJournal() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: "2.5rem" }}
-                className="w-full pr-4 py-2.5 bg-white/50 dark:bg-slate-800/50 border border-(--border) rounded-xl text-sm focus:outline-none focus:border-primary text-main transition"
+                className="w-full pr-4 py-2.5 bg-white/50 dark:bg-slate-800/50 border border-(--border) rounded-xl text-sm focus:outline-none focus:border-primary text-main transition dark:placeholder-slate-500"
               />
               {searchQuery && (
                 <button
@@ -779,7 +788,7 @@ export default function DailyJournal() {
                     placeholder="What best summarizes today?"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 border border-(--border) rounded-xl text-base focus:outline-none focus:border-primary text-main transition font-medium placeholder:text-muted/60"
+                    className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 border border-(--border) rounded-xl text-base focus:outline-none focus:border-primary text-main transition font-medium placeholder:text-muted/60 dark:placeholder-slate-500"
                   />
                 </div>
 
@@ -793,7 +802,7 @@ export default function DailyJournal() {
                     placeholder="Write down your journal entry..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="w-full flex-1 px-4 py-3 bg-white/40 dark:bg-slate-800/40 border border-(--border) rounded-xl text-sm focus:outline-none focus:border-primary text-main transition resize-none placeholder:text-muted/60 leading-relaxed"
+                    className="w-full flex-1 px-4 py-3 bg-white/40 dark:bg-slate-800/40 border border-(--border) rounded-xl text-sm focus:outline-none focus:border-primary text-main transition resize-none placeholder:text-muted/60 leading-relaxed dark:placeholder-slate-500"
                   />
                 </div>
 
@@ -830,7 +839,7 @@ export default function DailyJournal() {
                             handleAddTag();
                           }
                         }}
-                        className="bg-transparent text-xs text-main border-none focus:outline-none w-full"
+                        className="bg-transparent text-xs text-main border-none focus:outline-none w-full dark:placeholder-slate-500"
                       />
                       {currentTagInput.trim() && (
                         <button
@@ -1001,7 +1010,7 @@ export default function DailyJournal() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                 
                 <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:shadow-md border-l-4 border-l-blue-500 hover:scale-[1.01] transition-all duration-300">
-                  <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                  <div className="p-3 bg-blue-500/10 text-blue-500 dark:text-slate-200 rounded-xl">
                     <BookOpen size={24} />
                   </div>
                   <div>

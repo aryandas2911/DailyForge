@@ -4,7 +4,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--primary);
+  --color-primary: var(--color-primary);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
 }
 
 * {
@@ -21,6 +23,8 @@
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
+
+  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -38,9 +42,11 @@
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #f8fafc;
+  --text-main: #e2e8f0;
   --text-muted: #94a3b8;
   --border: #334155;
+
+  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -48,7 +54,8 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
@@ -172,7 +179,9 @@ input::-webkit-credentials-type-password-toggle {
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--primary);
+  --color-primary: var(--color-primary);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
 }
 
 * {
@@ -189,6 +198,8 @@ input::-webkit-credentials-type-password-toggle {
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
+
+  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -206,9 +217,11 @@ input::-webkit-credentials-type-password-toggle {
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #f8fafc;
+  --text-main: #e2e8f0;
   --text-muted: #94a3b8;
   --border: #334155;
+
+  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -216,7 +229,8 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
@@ -352,7 +366,9 @@ input::-webkit-credentials-type-password-toggle {
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--primary);
+  --color-primary: var(--color-primary);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
 }
 
 * {
@@ -369,6 +385,8 @@ input::-webkit-credentials-type-password-toggle {
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
+
+  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -386,9 +404,11 @@ input::-webkit-credentials-type-password-toggle {
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #f8fafc;
+  --text-main: #e2e8f0;
   --text-muted: #94a3b8;
   --border: #334155;
+
+  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -396,7 +416,8 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
@@ -530,4 +551,19 @@ input::-webkit-credentials-type-password-toggle {
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
+}
+
+html.dark .text-main,
+html.dark [class*="text-main"] {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-muted,
+html.dark [class*="text-muted"] {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-primary,
+html.dark [class*="text-primary"] {
+  color: #7dd3fc !important;
 }
