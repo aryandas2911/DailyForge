@@ -12,6 +12,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
 import { validateEnv } from "../utils/envValidator.js";
+import { rateLimit } from "express-rate-limit";
 
 // dotenv config
 dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
@@ -103,6 +104,15 @@ if (process.env.JWT_SECRET.length < 32) {
   process.exit(1);
 }
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Global Error Handler
+app.use((err, req, res, _next) => {
+  console.error("Unhandled error:", err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "An unexpected error occurred. Please try again later.",
+  });
+});
 
 // Start server on port (in .env file)
 app.listen(PORT, () => {
