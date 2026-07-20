@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import api from "../api/axios";
+import { clearCache } from "../utils/apiCache";
 
 // create context component
 // eslint-disable-next-line react-refresh/only-export-components
@@ -15,11 +16,11 @@ const AuthProvider = ({ children }) => {
     try {
       await api.post("/auth/logout");
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     setUser(null);
     localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
-    
+    clearCache(); // drop cached API data so the next user starts clean
   };
 
   // restore session on app load

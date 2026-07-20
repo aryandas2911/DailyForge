@@ -62,7 +62,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
             Log out of DailyForge?
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-7">
+          <p className="text-sm text-slate-500 dark:text-slate-300 leading-relaxed mb-7">
             You'll need to log back in to access your dashboard, tasks, and
             routines.
           </p>
