@@ -473,6 +473,46 @@ Authorization: Bearer <token>
 
 ---
 
+
+## 🔄 System Flow Overview
+
+This section shows how the frontend, API requests, backend, and database interact during common actions like creating a task or scheduling a routine.
+
+### 1. User Action (Frontend)
+- The user creates a task or drags it into the routine grid.
+- The React UI handles this using components in `frontend/src/components/` (e.g. TaskCard, RoutineGrid).
+- State is managed via Context API / hooks.
+
+### 2. API Request
+- The frontend sends an HTTP request (Axios/fetch) to the backend:
+  - `POST /api/tasks` for new tasks
+  - `POST /api/routines` for routine changes
+- Requests include the necessary payload (task details, routine metadata, user ID).
+
+### 3. Backend Processing
+- An Express route receives the request in `backend/routes/`.
+- The corresponding controller (e.g. `taskController.js`, `routineController.js`) validates and processes the data.
+- Business logic (conflicts, schedule rules, etc.) is handled here before hitting the database.
+
+### 4. Database Layer
+- Mongoose models (e.g. `Task.js`, `Routine.js`, `User.js`) define the schema.
+- MongoDB stores tasks, routines, and user data.
+- On success, the database returns the updated/created documents to the backend.
+
+### 5. Response to Frontend
+- The backend returns a JSON response with the latest task/routine state.
+- The React app updates UI state (Context/hooks), so the grid and lists stay in sync with the backend.
+
+### 💡 Why this section exists
+- Helps new contributors see the full end-to-end flow quickly.
+- Makes it easier to debug issues (know where to look: component → API → controller → model).
+- Improves onboarding for new contributors (e.g. GSSoC participants).
+
+
+
+---
+
+
 ## ❓ FAQ
 
 ### Why is the app slow on first load?
