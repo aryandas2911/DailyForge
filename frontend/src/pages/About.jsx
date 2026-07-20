@@ -94,6 +94,38 @@ export default function About() {
             and follow through with less mental clutter.
           </p>
         </div>
+      {/* Features */}
+<section className="max-w-6xl mx-auto">
+  <h2 className="text-2xl font-bold text-main text-center mb-10">
+    What you can do here
+  </h2>
+
+  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    {[
+      "Add tasks with title, priority and deadline",
+      "Organize your day with a clean task structure",
+      "Create and manage weekly routines easily",
+      "Drag and drop tasks into your schedule",
+      "Track completed work and priority load clearly",
+      "Simple navigation for faster planning",
+      "Forge Mode- A focused Pomodoro timer with ambient sounds and task sessions.",
+      "Daily Journal-Track your mood and reflect on the day.",
+      "Analytics Dashboard- View streaks, progress, and productivity charts.",
+      "Kanban Board- Organize tasks visually with a drag-and-drop board.",
+      "Dark Mode- Switch themes for a comfortable viewing experience.",
+      "Routine Builder- Build weekly routines by dragging tasks into your schedule."
+
+    ].map((item, i) => (
+      <div
+        key={i}
+        className="card p-8 min-h-[140px] flex items-center transition-all duration-300 hover:scale-[1.04] hover:bg-primary/10 hover:shadow-lg"
+      >
+        <p className="text-main text-base md:text-lg leading-relaxed">
+          {item}
+        </p>
+      </div>
+    ))}
 
         <div className="card">
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">

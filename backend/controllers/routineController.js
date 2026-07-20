@@ -1,5 +1,6 @@
 import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
+import Task from "../src/models/Task.js";
 import {
   checkOverlap,
   calculateBurnoutScore,
@@ -33,6 +34,21 @@ export const createRoutine = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "A routine with this name already exists",
+      });
+    }
+
+    const taskIds = items.map((item) => item.taskId);
+    const uniqueTaskIds = [...new Set(taskIds.filter(Boolean))];
+
+    const userTasksCount = await Task.countDocuments({
+      _id: { $in: uniqueTaskIds },
+      userId: userId,
+    });
+
+    if (userTasksCount !== uniqueTaskIds.length) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more tasks are invalid or do not belong to you",
       });
     }
 
@@ -436,7 +452,9 @@ export const getPublicRoutine = async (req, res) => {
         message: "Routine not found",
       });
     }
-    return res.status(200).json({ success: true, routine });
+    const objectRoutine = routine.toObject();
+    const {userId, adaptiveSettings, ...result} = objectRoutine; // Exclude userId and adaptiveSettings from the response
+    return res.status(200).json({ success: true, result });
   } catch (error) {
     console.log("Error fetching public routine", error);
     return res

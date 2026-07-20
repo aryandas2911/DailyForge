@@ -48,8 +48,7 @@ export default function FeedbackForm({ onClose }) {
     setLoading(true);
     // Simulated submission — connect to backend/email API later
     await new Promise((res) => setTimeout(res, 1000));
-    console.log("Feedback submitted:", form);
-    setLoading(false);
+        setLoading(false);
     setSubmitted(true);
   };
 
@@ -61,49 +60,72 @@ export default function FeedbackForm({ onClose }) {
 
   if (submitted) {
     return (
-      <div style={styles.overlay}>
-        <div style={styles.modal}>
-          <div style={styles.successIcon}>✓</div>
-          <h2 style={styles.successTitle}>Thank you!</h2>
-          <p style={styles.successMsg}>
-            Your feedback has been received. We'll look into it shortly.
-          </p>
-          <div style={styles.successActions}>
-            <button style={styles.btnPrimary} onClick={handleReset}>
-              Submit another
-            </button>
-            {onClose && (
-              <button style={styles.btnSecondary} onClick={onClose}>
-                Close
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
+<div className="card surface-bg w-full max-w-md rounded-2xl p-8 shadow-2xl">
+
+    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl font-bold text-green-600 dark:bg-green-900 dark:text-green-300">
+      ✓
+    </div>
+
+    <h2 className="mb-2 text-center text-2xl font-semibold text-main">
+    Thank you!
+    </h2>
+
+    <p className="mb-6 text-center text-sm text-muted">
+      Your feedback has been received. We'll look into it shortly.
+    </p>
+
+    <div className="flex justify-center gap-3">
+      <button
+            onClick={handleReset}
+            className="btn btn-primary px-5 py-2.5"
+            >
+        Submit another
+      </button>
+
+      {onClose && (
+        <button
+        onClick={onClose}
+        className="btn border-soft surface-bg text-main hover-lift"
+         >
+            Close
+        </button>
+      )}
+    </div>
+
+  </div>
+</div>
     );
   }
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4">
+<div className="card surface-bg w-full max-w-md rounded-2xl p-8 shadow-2xl">
         {/* Header */}
-        <div style={styles.header}>
+        <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 style={styles.title}>Feedback & Bug Report</h2>
-            <p style={styles.subtitle}>Help us improve DailyForge</p>
+            <h2 className="text-xl font-semibold text-main">Feedback & Bug Report</h2>
+            <p className="mt-1 text-sm text-muted">Help us improve DailyForge</p>
           </div>
           {onClose && (
-            <button style={styles.closeBtn} onClick={onClose} aria-label="Close">
-              ✕
+           <button
+            onClick={onClose}
+           aria-label="Close"
+            className="rounded-md p-2 text-muted hover:bg-[var(--accent)]"
+                >
+                   ✕
             </button>
-          )}
+         )}
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Email */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="email">
-              Your Email <span style={styles.required}>*</span>
+          <div className="mb-5">
+            <label
+              htmlFor="email"
+             className="mb-2 block text-sm font-medium text-main"
+              >
+              Your Email <span className="text-red-500">*</span>
             </label>
             <input
               id="email"
@@ -112,232 +134,98 @@ export default function FeedbackForm({ onClose }) {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              style={{
-                ...styles.input,
-                ...(errors.email ? styles.inputError : {}),
-              }}
+              className={`w-full rounded-lg border px-4 py-2 surface-bg text-main focus:outline-none focus:ring-2 ${
+              errors.email
+              ? "border-red-500"
+              : "border-soft"
+}`}
             />
-            {errors.email && <p style={styles.errorMsg}>{errors.email}</p>}
+            {errors.email && (
+           <p className="mt-1 text-sm text-red-500">
+                 {errors.email}
+           </p>
+)}
           </div>
 
-          {/* Feedback Type */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="type">
-              Type of Feedback <span style={styles.required}>*</span>
-            </label>
-            <select
-              id="type"
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              style={{
-                ...styles.input,
-                ...styles.select,
-                ...(errors.type ? styles.inputError : {}),
-              }}
-            >
-              <option value="">Select a type...</option>
-              {FEEDBACK_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-            {errors.type && <p style={styles.errorMsg}>{errors.type}</p>}
-          </div>
+         {/* Feedback Type */}
+        <div className="mb-5">
+        <label
+  htmlFor="type"
+  className="mb-2 block text-sm font-medium text-main"
+>
+  Type of Feedback <span className="text-red-500">*</span>
+</label>
 
-          {/* Message */}
-          <div style={styles.field}>
-            <label style={styles.label} htmlFor="message">
-              Message <span style={styles.required}>*</span>
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              placeholder="Describe your feedback or bug in detail..."
-              rows={5}
-              style={{
-                ...styles.input,
-                ...styles.textarea,
-                ...(errors.message ? styles.inputError : {}),
-              }}
-            />
-            {errors.message && <p style={styles.errorMsg}>{errors.message}</p>}
-          </div>
+  <select
+    id="type"
+    name="type"
+    value={form.type}
+    onChange={handleChange}
+    className={`w-full rounded-lg border px-4 py-2 surface-bg text-main focus:outline-none focus:ring-2 ${
+    errors.type ? "border-red-500" : "border-soft"
+}`} 
+  >
+    <option value="">Select a type...</option>
+    {FEEDBACK_TYPES.map((t) => (
+      <option key={t} value={t}>
+        {t}
+      </option>
+    ))}
+  </select>
 
-          {/* Actions */}
-          <div style={styles.actions}>
-            <button
-              type="submit"
-              style={{ ...styles.btnPrimary, opacity: loading ? 0.7 : 1 }}
-              disabled={loading}
-            >
-              {loading ? "Submitting..." : "Submit Feedback"}
-            </button>
-            <button
-              type="button"
-              style={styles.btnSecondary}
-              onClick={handleReset}
-              disabled={loading}
-            >
-              Clear
-            </button>
-          </div>
+  {errors.type && (
+    <p className="mt-1 text-sm text-red-500">{errors.type}</p>
+  )}
+</div>
+
+{/* Message */}
+<div className="mb-5">
+ <label
+  htmlFor="message"
+  className="mb-2 block text-sm font-medium text-main"
+>
+  Message <span className="text-red-500">*</span>
+</label>
+
+  <textarea
+    id="message"
+    name="message"
+    value={form.message}
+    onChange={handleChange}
+    placeholder="Describe your feedback or bug in detail..."
+    rows={5}
+    className={`w-full rounded-lg border px-4 py-2 surface-bg text-main focus:outline-none focus:ring-2 ${
+    errors.message ? "border-red-500" : "border-soft"
+}`}
+  />
+
+  {errors.message && (
+    <p className="mt-1 text-sm text-red-500">{errors.message}</p>
+  )}
+</div>
+
+{/* Actions */}
+
+<div className="mt-6 flex gap-3">
+  <button
+    type="submit"
+    disabled={loading}
+    className="btn btn-primary flex-1 disabled:opacity-70"
+  >
+    {loading ? "Submitting..." : "Submit Feedback"}
+  </button>
+
+  <button
+    type="button"
+    onClick={handleReset}
+    disabled={loading}
+   className="btn border-soft surface-bg text-main hover-lift"
+  >
+    Clear
+  </button>
+</div>
         </form>
       </div>
     </div>
   );
 }
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-    padding: "16px",
-  },
-  modal: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    padding: "32px",
-    width: "100%",
-    maxWidth: "480px",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "24px",
-  },
-  title: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#111827",
-  },
-  subtitle: {
-    margin: "4px 0 0",
-    fontSize: "14px",
-    color: "#6b7280",
-  },
-  closeBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "18px",
-    color: "#9ca3af",
-    cursor: "pointer",
-    padding: "4px 8px",
-    borderRadius: "6px",
-    lineHeight: 1,
-  },
-  field: {
-    marginBottom: "20px",
-  },
-  label: {
-    display: "block",
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: "6px",
-  },
-  required: {
-    color: "#ef4444",
-  },
-  input: {
-    width: "100%",
-    padding: "10px 14px",
-    fontSize: "14px",
-    border: "1.5px solid #e5e7eb",
-    borderRadius: "8px",
-    outline: "none",
-    color: "#111827",
-    backgroundColor: "#f9fafb",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s",
-  },
-  inputError: {
-    borderColor: "#ef4444",
-    backgroundColor: "#fff5f5",
-  },
-  select: {
-    appearance: "none",
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 14px center",
-    cursor: "pointer",
-  },
-  textarea: {
-    resize: "vertical",
-    minHeight: "100px",
-    lineHeight: "1.6",
-  },
-  errorMsg: {
-    margin: "6px 0 0",
-    fontSize: "12px",
-    color: "#ef4444",
-  },
-  actions: {
-    display: "flex",
-    gap: "12px",
-    marginTop: "8px",
-  },
-  btnPrimary: {
-    flex: 1,
-    padding: "11px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "background-color 0.2s",
-  },
-  btnSecondary: {
-    padding: "11px 20px",
-    backgroundColor: "#f3f4f6",
-    color: "#374151",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: "500",
-    cursor: "pointer",
-  },
-  successIcon: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "50%",
-    backgroundColor: "#d1fae5",
-    color: "#059669",
-    fontSize: "28px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 16px",
-  },
-  successTitle: {
-    textAlign: "center",
-    fontSize: "22px",
-    fontWeight: "600",
-    color: "#111827",
-    margin: "0 0 8px",
-  },
-  successMsg: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#6b7280",
-    margin: "0 0 24px",
-  },
-  successActions: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "center",
-  },
-};
