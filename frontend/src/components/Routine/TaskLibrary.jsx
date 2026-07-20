@@ -117,7 +117,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
       />
 
       {/* Task List */}
-      <div className="flex-1 space-y-3 pr-1 overflow-y-auto max-h-[350px] md:max-h-[500px]">
+      <div className="space-y-3 pr-1 overflow-y-auto max-h-[350px] md:max-h-[500px]">
         {tasks?.length === 0 ? (
           <EmptyState type="tasks" onAction={onAddTask} />
         ) : filteredTasks?.length > 0 ? (

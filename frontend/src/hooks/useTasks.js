@@ -111,15 +111,36 @@ const useTasks = ({
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
+    // Optimistic UI update
     setTasks((prev) => prev.filter((t) => t._id !== id));
-    await getTasks(page);
+
+    try {
+      await api.delete(`/tasks/${id}`);
+      await getTasks(page);
+      return { success: true };
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to delete task");
+      // Revert UI update by re-fetching
+      await getTasks(page);
+      return { success: false, message: error?.response?.data?.message || "Failed to delete task" };
+    }
   };
 
   // bulk delete tasks
   const bulkDelete = async (ids) => {
-    await api.post("/tasks/bulk-delete", { ids });
-    await getTasks(page);
+    // Optimistic UI update
+    setTasks((prev) => prev.filter((t) => !ids.includes(t._id)));
+
+    try {
+      await api.post("/tasks/bulk-delete", { ids });
+      await getTasks(page);
+      return { success: true };
+    } catch (error) {
+      console.log(error?.response?.data?.message || "Failed to bulk delete tasks");
+      // Revert UI update by re-fetching
+      await getTasks(page);
+      return { success: false, message: error?.response?.data?.message || "Failed to bulk delete tasks" };
+    }
   };
 
   // bulk edit tasks

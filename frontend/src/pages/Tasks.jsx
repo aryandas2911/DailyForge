@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskItem from "../components/Task/TaskItem";
@@ -25,6 +25,19 @@ import NotesWidget from "../components/Task/NotesWidget";
 
 const TASKS_PER_PAGE = 10;
 
+// toast popup component - shows at bottom right
+function Toast({ message, type }) {
+  if (!message) return null;
+  return (
+    <div
+      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-600" : "bg-red-600"
+      }`}
+    >
+      {message}
+    </div>
+  );
+}
 export default function Tasks() {
   const navigate = useNavigate();
   const {
@@ -60,9 +73,34 @@ export default function Tasks() {
     );
   };
 
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  const handleDeleteTask = async (id) => {
+    const res = await deleteTask(id);
+    if (res?.success) {
+      showToast("Task deleted successfully!", "success");
+    } else if (res) {
+      showToast(res.message, "error");
+    }
+  };
+
   const handleBulkDelete = async () => {
-    await bulkDelete(selectedIds);
+    const res = await bulkDelete(selectedIds);
     setSelectedIds([]);
+    if (res?.success) {
+      showToast("Selected tasks deleted successfully!", "success");
+    } else if (res) {
+      showToast(res.message, "error");
+    }
   };
 
   const handleBulkEdit = async () => {
@@ -463,7 +501,7 @@ export default function Tasks() {
                     key={task._id}
                     task={task}
                     onToggleComplete={handleToggle}
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={handleDeleteTask}
                     onEdit={(task) => {
                       setEditingTask(task);
                       setIsModalOpen(true);
@@ -478,7 +516,7 @@ export default function Tasks() {
                   viewMode="board"
                   tasks={filteredTasks}
                   onToggleComplete={handleToggle}
-                  onDelete={(id) => deleteTask(id)}
+                  onDelete={handleDeleteTask}
                   onEdit={(task) => {
                     setEditingTask(task);
                     setIsModalOpen(true);
@@ -680,6 +718,8 @@ export default function Tasks() {
           </div>
         </div>
       )}
+
+      <Toast message={toast.message} type={toast.type} />
     </div>
   );
 }

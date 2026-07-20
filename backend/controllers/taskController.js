@@ -35,15 +35,15 @@ export const createTask = async (req, res) => {
     }
 
     // fetch details for task from request body
-   const {
-  title,
-  description,
-  tags,
-  priority,
-  status,
-  dueDate,
-  dependsOn,
-} = req.body;
+    const {
+      title,
+      description,
+      tags,
+      priority,
+      status,
+      dueDate,
+      dependsOn,
+    } = req.body;
 
     if (!title || !priority || !status || !dueDate) {
       return res.status(400).json({
@@ -154,11 +154,11 @@ export const getTasks = async (req, res) => {
 
     // fetch paginated tasks from database
     const [tasks, totalTasks] = await Promise.all([
-    Task.find(taskQuery)
-  .populate("dependsOn", "title status")
-  .sort({ createdAt: -1 })
-  .skip(skip)
-  .limit(limit),
+      Task.find(taskQuery)
+        .populate("dependsOn", "title status")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
       Task.countDocuments(taskQuery),
     ]);
 
@@ -233,27 +233,27 @@ export const updateTask = async (req, res) => {
 
 
     const existingTask = await Task.findOne({
-  _id: taskId,
-  userId,
-}).populate("dependsOn");
+      _id: taskId,
+      userId,
+    }).populate("dependsOn");
 
-if (!existingTask) {
-  return res.status(404).json({
-    success: false,
-    message: "Task not found",
-  });
-}
+    if (!existingTask) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
 
-if (
-  updates.status === "Completed" &&
-  existingTask.dependsOn &&
-  existingTask.dependsOn.status !== "Completed"
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Complete prerequisite task first",
-  });
-}
+    if (
+      updates.status === "Completed" &&
+      existingTask.dependsOn &&
+      existingTask.dependsOn.status !== "Completed"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Complete prerequisite task first",
+      });
+    }
 
     // Auto-manage completedAt timestamp based on status change
     if (updates.status === "Completed") {
@@ -328,6 +328,18 @@ export const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    // Clean up routines that might reference this task
+    await Routine.updateMany(
+      { userId },
+      {
+        $pull: {
+          items: {
+            taskId: taskId,
+          },
+        },
+      }
+    );
 
     return res.status(200).json({
       success: true,

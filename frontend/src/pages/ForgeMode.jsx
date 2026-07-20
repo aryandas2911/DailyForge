@@ -212,7 +212,7 @@ export default function ForgeMode() {
       chime.volume = volume;
       chime.play();
     } catch (e) {
-      console.log("Failed to play completion chime:", e);
+      console.error("Failed to play completion chime:", e);
     }
 
     // Write to database to log task execution analytics
