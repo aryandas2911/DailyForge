@@ -135,24 +135,24 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Tasks Done:</span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.tasksCompleted} / {hoveredDay.tasksTotal}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Routines Completed:</span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {hoveredDay.routinesCompleted}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                    <div className="flex justify-between text-slate-500 dark:text-slate-300">
                       <span>Productivity:</span>
                       <span className={`font-bold ${
                         hoveredDay.score === 3 ? "text-emerald-600 dark:text-emerald-400 text-glow" :
                         hoveredDay.score === 2 ? "text-cyan-600 dark:text-cyan-400" :
-                        hoveredDay.score === 1 ? "text-teal-600 dark:text-teal-500" : "text-slate-500"
+                        hoveredDay.score === 1 ? "text-teal-600 dark:text-teal-505" : "text-slate-500 dark:text-slate-300"
                       }`}>
                         {getProductivityColorDetails(hoveredDay.score).label.split(" (")[0]}
                       </span>
@@ -169,7 +169,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                         ⚡ Keep it going!
                       </span>
                     ) : (
-                      <span className="text-slate-500 font-bold">No active completions</span>
+                      <span className="text-slate-500 dark:text-slate-300 font-bold">No active completions</span>
                     )}
                   </div>
                 </div>
@@ -198,7 +198,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
               Live Tracker
             </span>
           </div>
-          <p className="text-xs font-semibold text-slate-700 dark:text-slate-400 mt-1">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
             Tracking real routines & task completions from your live daily workflow.
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.currentStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Keep the fire burning!</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Keep the fire burning!</p>
           </div>
         </div>
 
@@ -231,7 +231,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.longestStreak} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Your peak productivity</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Your peak productivity</p>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.totalProductiveDays} <span className="text-xs font-bold text-slate-700 dark:text-slate-400">days</span>
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Days with active completions</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Days with active completions</p>
           </div>
         </div>
 
@@ -259,7 +259,7 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
             <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 mt-0.5">
               {stats.yearlyPercentage}%
             </h3>
-            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 mt-0.5">Average daily task completion rate</p>
+            <p className="text-[9px] font-bold text-slate-600 dark:text-slate-300 mt-0.5">Average daily task completion rate</p>
           </div>
         </div>
       </div>

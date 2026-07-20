@@ -51,6 +51,40 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const [confirmTouched, setConfirmTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const getPasswordStrength = (password) => {
+    let score = 0;
+
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score <= 2) {
+      return {
+        text: "Weak",
+        width: "w-1/3",
+        color: "bg-red-500",
+        textColor: "text-red-500",
+      };
+    }
+
+    if (score <= 4) {
+      return {
+        text: "Medium",
+        width: "w-2/3",
+        color: "bg-yellow-500",
+        textColor: "text-yellow-500",
+      };
+    }
+
+    return {
+      text: "Strong",
+      width: "w-full",
+      color: "bg-green-500",
+      textColor: "text-green-500",
+    };
+  };
 
   const timerCurrent = useRef(null);
   const timerNew = useRef(null);
@@ -74,6 +108,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const passwordsMatch = newPassword === confirmPassword;
   const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
+  const passwordStrength = getPasswordStrength(newPassword);
 
   function handleSubmit() {
     setSubmitAttempted(true);
@@ -97,7 +132,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
   return (
     <div className="surface-bg rounded-2xl border border-soft p-7 flex flex-col gap-1">
       <h2 className="text-main text-lg font-bold mb-1">Change Password</h2>
-      <p className="text-muted text-sm mb-5">Update your password to keep your account secure</p>
+      <p className="text-muted text-sm mb-5 dark:text-slate-300">Update your password to keep your account secure</p>
 
       <label className="text-main text-sm font-medium mb-1 block">Current Password</label>
       <div className="relative mb-1">
@@ -107,11 +142,12 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => handleCurrentPasswordChange(e.target.value)}
           onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
           placeholder="Enter current password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
             ${apiError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
       </div>
+
 
       {apiError && (
         <p className="text-red-500 text-xs mb-2">{apiError}</p>
@@ -125,10 +161,35 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => setNewPassword(e.target.value)}
           onBlur={() => handleBlur(setShowNew, timerNew)}
           placeholder="Enter new password"
-          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent"
+          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400"
         />
         <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
       </div>
+      {newPassword && (
+        <div className="mt-2">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-xs text-muted">
+              Password Strength
+            </span>
+
+            <span
+              className={`text-xs font-semibold ${passwordStrength.textColor}`}
+            >
+              {passwordStrength.text}
+            </span>
+          </div>
+
+          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${passwordStrength.width} ${passwordStrength.color}`}
+            />
+          </div>
+          <p className="text-xs text-muted mt-2">
+            Use at least 8 characters with uppercase, lowercase, numbers, and special characters.
+          </p>
+        </div>
+      )}
+
 
       <label className="text-main text-sm font-medium mb-1 mt-3 block">Confirm New Password</label>
       <div className="relative">
@@ -141,7 +202,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
             handleBlur(setShowConfirm, timerConfirm);
           }}
           placeholder="Re-enter new password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
             ${showMatchError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
@@ -181,7 +242,7 @@ export default function Profile() {
   const [name, setName] = useState(user?.name || '');
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
   const [profileImage, setProfileImage] = useState("");
-  
+
   // password states
   const [passwordError, setPasswordError] = useState("");
   const [passwordResetKey, setPasswordResetKey] = useState(0);
@@ -267,7 +328,7 @@ export default function Profile() {
                     showToast("File is too large! Please choose an image under 3MB.", "error");
                     return;
                   }
-                  
+
                   const formData = new FormData();
                   formData.append("profileImage", file);
 
@@ -296,7 +357,7 @@ export default function Profile() {
             </label>
           </div>
         </div>
-        
+
         <div>
           <h1 className="text-main text-2xl font-bold">Profile Settings</h1>
           <p className="text-muted text-sm">Manage your account details and security</p>
@@ -307,13 +368,13 @@ export default function Profile() {
 
         {/* name card */}
         <div className="surface-bg rounded-2xl border border-soft p-7">
-          <p className="text-muted text-sm mb-4">Change how your name appears across DailyForge</p>
+          <p className="text-muted text-sm mb-4 dark:text-slate-300">Change how your name appears across DailyForge</p>
           <label className="text-main text-sm font-medium mb-1 block">Display Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4"
+            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4 dark:placeholder-slate-400"
           />
           <button
             onClick={handleNameUpdate}
@@ -332,8 +393,8 @@ export default function Profile() {
 
         {/* theme card */}
         <div className="surface-bg rounded-2xl border border-soft p-7">
-          <h2 className="text-main text-lg font-bold mb-1">Theme Settings</h2>
-          <p className="text-muted text-sm mb-5">Personalize your interface with a custom primary color</p>
+          <h2 className="text-main text-lg font-bold mb-1 dark:text-slate-200">Theme Settings</h2>
+          <p className="text-muted text-sm mb-5 dark:text-slate-400">Personalize your interface with a custom primary color</p>
           <label className="text-main text-sm font-medium mb-2 block">Primary Color</label>
           <div className="flex items-center gap-3 mb-5">
             <input

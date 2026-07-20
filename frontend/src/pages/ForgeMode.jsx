@@ -5,6 +5,7 @@ import {
   Settings, Music, Moon, AlertCircle, RefreshCw, Layers 
 } from "lucide-react";
 import api from "../api/axios";
+import { cachedGet, invalidate } from "../utils/apiCache";
 
 // Available copyright-free ambient soundscapes
 const SOUNDSCAPES = [
@@ -52,12 +53,12 @@ export default function ForgeMode() {
       setIsLoading(true);
       try {
         // Fetch user tasks library
-        const tasksRes = await api.get("/tasks");
+        const tasksRes = await cachedGet("/tasks");
         const fetchedTasks = tasksRes.data.tasks || [];
         setTasks(fetchedTasks);
 
         // Fetch routines to search for currently active routine task
-        const routinesRes = await api.get("/routines");
+        const routinesRes = await cachedGet("/routines");
         const fetchedRoutines = routinesRes.data.routines || [];
         
         // Auto-load scheduled task if active routine exists
@@ -212,7 +213,7 @@ export default function ForgeMode() {
       chime.volume = volume;
       chime.play();
     } catch (e) {
-      console.log("Failed to play completion chime:", e);
+      console.error("Failed to play completion chime:", e);
     }
 
     // Write to database to log task execution analytics
@@ -237,6 +238,9 @@ export default function ForgeMode() {
             actualDuration: elapsedMinutes
           });
         }
+        // Completing a task here changes the task list + analytics elsewhere
+        invalidate("/tasks");
+        invalidate("/analytics");
       } catch (err) {
         console.error("Failed to log focus task success to MERN backend:", err);
       }
@@ -396,7 +400,7 @@ export default function ForgeMode() {
                 selectedTask.priority === "High" 
                   ? "bg-red-500/10 text-red-400 border-red-500/20" 
                   : selectedTask.priority === "Medium"
-                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                  ? "bg-blue-500/10 text-blue-400 dark:text-slate-300 border-blue-500/20"
                   : "bg-slate-500/10 text-slate-400 border-slate-500/20"
               }`}>
                 {selectedTask.priority || "Medium"} Priority
@@ -513,7 +517,7 @@ export default function ForgeMode() {
 
           {soundscapeMenuOpen && (
             <div className="absolute left-0 bottom-full mb-2 w-48 bg-[#0d152c] border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in duration-200">
-              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-3 py-1.5">Ambient Audio</div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-wider px-3 py-1.5">Ambient Audio</div>
               {SOUNDSCAPES.map(sound => (
                 <button
                   key={sound.id}
@@ -562,7 +566,7 @@ export default function ForgeMode() {
         )}
 
         {/* Exit Hint */}
-        <p className="text-[10px] text-slate-500 tracking-wider font-medium">
+        <p className="text-[10px] text-slate-500 dark:text-slate-300 tracking-wider font-medium">
           PRO-TIP: Turn off notifications to promote deep flow states.
         </p>
       </footer>
@@ -603,7 +607,7 @@ export default function ForgeMode() {
               </div>
             ) : (
               <div className="mb-6 p-4 rounded-2xl border border-white/5 bg-white/2">
-                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Routine Status</div>
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest mb-1">Routine Status</div>
                 <p className="text-xs text-slate-400">No active routine task scheduled for this hour. Select one below or input custom focus.</p>
               </div>
             )}
@@ -618,7 +622,7 @@ export default function ForgeMode() {
                   placeholder="What are you working on?"
                   value={customTaskTitle}
                   onChange={(e) => setCustomTaskTitle(e.target.value)}
-                  className="flex-1 p-3 rounded-xl border border-white/10 bg-slate-950 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#4eb7b3]/60 transition-colors"
+                  className="flex-1 p-3 rounded-xl border border-white/10 bg-slate-950 text-xs text-white placeholder-slate-500 dark:placeholder-slate-500 focus:outline-none focus:border-[#4eb7b3]/60 transition-colors"
                 />
                 <button
                   onClick={handleCustomTaskAdd}
@@ -634,9 +638,9 @@ export default function ForgeMode() {
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Or Select From Library</label>
               <div className="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                 {isLoading ? (
-                  <p className="text-xs text-slate-500 italic py-2">Loading library...</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 italic py-2">Loading library...</p>
                 ) : tasks.filter(t => t.status !== "Completed").length === 0 ? (
-                  <p className="text-xs text-slate-500 italic py-2">No due tasks in your library.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300 italic py-2">No due tasks in your library.</p>
                 ) : (
                   tasks.filter(t => t.status !== "Completed").map(task => (
                     <button
@@ -649,7 +653,7 @@ export default function ForgeMode() {
                       className="w-full text-left p-3 rounded-xl border border-white/5 bg-slate-900/40 hover:bg-slate-900 text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between cursor-pointer group"
                     >
                       <span className="font-medium truncate group-hover:translate-x-0.5 transition-transform">{task.title}</span>
-                      <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-500 px-2 py-0.5 bg-slate-950 rounded-md border border-white/5">
+                      <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300 px-2 py-0.5 bg-slate-950 rounded-md border border-white/5">
                         {task.priority}
                       </span>
                     </button>
