@@ -236,7 +236,11 @@ export const forgotPasswordRequest = async (req, res) => {
       });
 
       // Construct the reset URL for the frontend
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+      const resetUrl = `${
+        process.env.NODE_ENV === 'production'
+        ? process.env.CLIENT_ORIGIN
+        : process.env.FRONTEND_URL || 'http://localhost:5173'
+      }/reset-password?token=${resetToken}`;
 
       const mailOptions = {
         to: user.email,
