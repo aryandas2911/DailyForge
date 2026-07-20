@@ -97,7 +97,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
   return (
     <div className="surface-bg rounded-2xl border border-soft p-7 flex flex-col gap-1">
       <h2 className="text-main text-lg font-bold mb-1">Change Password</h2>
-      <p className="text-muted text-sm mb-5">Update your password to keep your account secure</p>
+      <p className="text-muted text-sm mb-5 dark:text-slate-300">Update your password to keep your account secure</p>
 
       <label className="text-main text-sm font-medium mb-1 block">Current Password</label>
       <div className="relative mb-1">
@@ -107,7 +107,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => handleCurrentPasswordChange(e.target.value)}
           onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
           placeholder="Enter current password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
             ${apiError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
@@ -125,7 +125,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => setNewPassword(e.target.value)}
           onBlur={() => handleBlur(setShowNew, timerNew)}
           placeholder="Enter new password"
-          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent"
+          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400"
         />
         <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
       </div>
@@ -141,7 +141,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
             handleBlur(setShowConfirm, timerConfirm);
           }}
           placeholder="Re-enter new password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
             ${showMatchError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
@@ -307,13 +307,13 @@ export default function Profile() {
 
         {/* name card */}
         <div className="surface-bg rounded-2xl border border-soft p-7">
-          <p className="text-muted text-sm mb-4">Change how your name appears across DailyForge</p>
+          <p className="text-muted text-sm mb-4 dark:text-slate-300">Change how your name appears across DailyForge</p>
           <label className="text-main text-sm font-medium mb-1 block">Display Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4"
+            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4 dark:placeholder-slate-400"
           />
           <button
             onClick={handleNameUpdate}
@@ -332,8 +332,8 @@ export default function Profile() {
 
         {/* theme card */}
         <div className="surface-bg rounded-2xl border border-soft p-7">
-          <h2 className="text-main text-lg font-bold mb-1">Theme Settings</h2>
-          <p className="text-muted text-sm mb-5">Personalize your interface with a custom primary color</p>
+          <h2 className="text-main text-lg font-bold mb-1 dark:text-slate-200">Theme Settings</h2>
+          <p className="text-muted text-sm mb-5 dark:text-slate-400">Personalize your interface with a custom primary color</p>
           <label className="text-main text-sm font-medium mb-2 block">Primary Color</label>
           <div className="flex items-center gap-3 mb-5">
             <input
