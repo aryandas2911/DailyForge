@@ -5,6 +5,9 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api/" : "https://dailyforge-backend.onrender.com/api/"),
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 15000, // updated 15s as default
   withCredentials: true,
+  headers: {
+    "X-Requested-With": "XMLHttpRequest",
+  },
 });
 
 // Handle response errors, including timeout
