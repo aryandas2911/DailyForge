@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api/axios";
+import { cachedGet, invalidate } from "../utils/apiCache";
+
+// Mutations to tasks can change analytics-derived data too, so invalidate both.
+const invalidateTasks = () => {
+  invalidate("/tasks");
+  invalidate("/analytics");
+};
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 100;
@@ -23,7 +30,7 @@ const useTasks = ({
     async (pageToFetch = page) => {
       try {
         setLoading(true);
-        const response = await api.get("/tasks", {
+        const response = await cachedGet("/tasks", {
           params: {
             page: pageToFetch,
             limit: initialLimit,
@@ -60,6 +67,8 @@ const useTasks = ({
       const response = await api.post("/tasks", taskData);
 
       console.log("Task added:", response.data);
+
+      invalidateTasks();
 
       if (page === DEFAULT_PAGE) {
         await getTasks(DEFAULT_PAGE);
@@ -102,23 +111,29 @@ const useTasks = ({
 
     try {
       await api.put(`/tasks/${id}`, updates);
+      invalidateTasks();
       await getTasks(page);
     } catch (error) {
       console.log(error?.response?.data?.message || "Failed to update task");
+      invalidateTasks();
       await getTasks(page);
     }
   };
 
   // delete task
   const deleteTask = async (id) => {
-    await api.delete(`/tasks/${id}`);
+    // Optimistic UI update
     setTasks((prev) => prev.filter((t) => t._id !== id));
+    invalidateTasks();
     await getTasks(page);
   };
 
   // bulk delete tasks
   const bulkDelete = async (ids) => {
     await api.post("/tasks/bulk-delete", { ids });
+    // bulk delete also pulls tasks out of routines on the backend
+    invalidateTasks();
+    invalidate("/routines");
     await getTasks(page);
   };
 

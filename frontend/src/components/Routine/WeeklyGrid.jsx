@@ -80,10 +80,22 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef }) {
+export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef, highlight }) {
   return (
-    <div className="card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in" ref={innerRef}>
-      <h2 className="text-lg font-semibold text-main mb-4 px-6.5 pt-3">Weekly Schedule</h2>
+    <div
+      className={`card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in transition-shadow duration-500 ${
+        highlight ? "ring-2 ring-cyan-400 shadow-[0_0_0_6px_rgba(34,211,238,0.15)]" : ""
+      }`}
+      ref={innerRef}
+    >
+      <h2 className="text-lg font-semibold text-main mb-1 px-6.5 pt-3">Weekly Schedule</h2>
+      {highlight ? (
+        <p className="text-xs text-cyan-600 dark:text-cyan-400 px-6.5 mb-3 animate-pulse">
+          Drag a task from your library onto the grid to start building a routine
+        </p>
+      ) : (
+        <div className="mb-3" />
+      )}
 
       <div
         className="grid w-full overflow-x-auto sm:overflow-visible"

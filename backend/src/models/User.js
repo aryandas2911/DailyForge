@@ -48,6 +48,9 @@ const userSchema = new mongoose.Schema(
       default: '#3b82f6',
     },
     // ────────────────────────────────────────────────────────────────────────
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    resetPasswordUsed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
