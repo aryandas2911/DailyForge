@@ -278,7 +278,7 @@ import FormError from "../common/FormError";
                   disabled={isSubmitting}
                   className="w-full mt-1 p-2 border border-soft rounded-lg
                           focus:ring-(--primary) focus:border-(--primary)
-                          bg-transparent text-main dark:bg-slate-800"
+                          bg-transparent text-main dark:bg-slate-800 dark:placeholder-slate-500"
                   placeholder="Task title"
                   maxLength={TITLE_MAX_LENGTH}
                   required
@@ -307,7 +307,7 @@ import FormError from "../common/FormError";
                   disabled={isSubmitting}
                   className="w-full mt-1 p-2 border border-soft rounded-lg
                           focus:ring-(--primary) focus:border-(--primary)
-                          bg-transparent text-main dark:bg-slate-800"
+                          bg-transparent text-main dark:bg-slate-800 dark:placeholder-slate-500"
                   placeholder="Optional task description"
                   rows={3}
                   maxLength={DESCRIPTION_MAX_LENGTH}
@@ -357,7 +357,7 @@ import FormError from "../common/FormError";
                       value={customTagInput}
                       onChange={(e) => setCustomTagInput(e.target.value)}
                       disabled={isSubmitting}
-                      className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800"
+                      className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 dark:placeholder-slate-500"
                       placeholder="Enter custom tag (e.g., 'Essay')"
                     />
                     <button

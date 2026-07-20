@@ -11,10 +11,8 @@ const FormError = ({ error, message }) => {
       aria-live="assertive"
       className="flex items-center gap-2 p-3 my-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg animate-in"
     >
-      <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-      <span className="font-medium">{displayError}</span>
-      <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" aria-hidden="true" />
-      <span className="font-medium leading-relaxed">{displayError}</span>
+    <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" aria-hidden="true" />
+    <span className="font-medium leading-relaxed">{displayError}</span>
     </div>
   );
 };

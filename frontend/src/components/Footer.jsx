@@ -76,17 +76,17 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4 text-sm">
               <li>
-                <a href={githubBase} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={githubBase} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
                   <Github size={14} /> GitHub Repo
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={`${githubBase}/issues`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
                   <MessageSquare size={14} /> Issues
                 </a>
               </li>
               <li>
-                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
+                <a href={`${githubBase}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors">
                   <BookOpen size={14} /> Contributing
                 </a>
               </li>

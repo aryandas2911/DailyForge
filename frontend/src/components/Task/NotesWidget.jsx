@@ -106,7 +106,7 @@ export default function NotesWidget() {
               }}
               rows={1}
               placeholder="Write a note..."
-              className="w-full bg-transparent outline-none text-base resize-none overflow-hidden"
+              className="w-full bg-transparent outline-none text-base resize-none overflow-hidden dark:placeholder-slate-500"
               style={{
                 color: note.completed ? "var(--text-muted)" : "var(--text-main)",
                 textDecoration: note.completed ? "line-through" : "none",
