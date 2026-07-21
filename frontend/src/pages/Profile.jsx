@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useContext } from "react";
 import { Eye, EyeOff, Upload } from "lucide-react";
 import axios from "../api/axios";
+import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { AuthContext } from '../context/AuthContext';
 
 // toast popup component - shows at bottom right
@@ -241,7 +242,7 @@ export default function Profile() {
   // states
   const [name, setName] = useState(user?.name || '');
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
-  const [profileImage, setProfileImage] = useState("");
+  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
 
   // password states
   const [passwordError, setPasswordError] = useState("");
@@ -302,59 +303,25 @@ export default function Profile() {
       <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
         <div className="flex items-center gap-5">
           <div className="flex flex-row gap-4 align-baseline">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0">
-              {user?.photo || profileImage ? (
+            <div
+              className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
+              onClick={() => setShowProfilePictureModal(true)}
+            >
+              {user?.photo ? (
                 <img
-                  src={profileImage || user?.photo}
+                  src={user?.photo}
                   alt="Profile"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
                 />
               ) : (
-                user?.name?.charAt(0).toUpperCase() || 'S'
+                <span className="transition-opacity duration-300 group-hover:opacity-70">
+                  {user?.name?.charAt(0).toUpperCase()}
+                </span>
               )}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Upload size={24} className="text-white" />
+              </div>
             </div>
-            <label className="mt-10 bg-transparent dark:text-white text-black rounded-lg cursor-pointer transition text-sm font-medium hover:text-[#3b82f6]">
-              <Upload />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={async (e) => {
-                  const file = e.target.files[0];
-                  if (!file) return;
-
-                  const maxAllowedSize = 3 * 1024 * 1024;
-                  if (file.size > maxAllowedSize) {
-                    showToast("File is too large! Please choose an image under 3MB.", "error");
-                    return;
-                  }
-
-                  const formData = new FormData();
-                  formData.append("profileImage", file);
-
-                  try {
-                    const response = await axios.post(
-                      "/auth/upload-profile",
-                      formData,
-                      {
-                        headers: {
-                          "Content-Type": "multipart/form-data",
-                        },
-                      }
-                    );
-
-                    if (response.data?.imageUrl) {
-                      setProfileImage(response.data.imageUrl);
-                      setUser(response.data.user);
-                      showToast("Profile picture updated successfully!", "success");
-                    }
-                  } catch (error) {
-                    console.error("Upload failed:", error);
-                    showToast(error.response?.data?.error || "Error uploading image", "error");
-                  }
-                }}
-              />
-            </label>
           </div>
         </div>
 
@@ -422,6 +389,10 @@ export default function Profile() {
         </div>
 
       </div>
+      <ProfilePictureUploadModal
+        isOpen={showProfilePictureModal}
+        onClose={() => setShowProfilePictureModal(false)}
+      />
     </div>
   );
 }

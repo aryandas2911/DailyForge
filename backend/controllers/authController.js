@@ -15,12 +15,6 @@ dotenv.config();
 // ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_API_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
 
 if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY, "hex").length !== 32) {
   throw new Error("TWO_FACTOR_ENCRYPTION_KEY must be a 32-byte hex key");
