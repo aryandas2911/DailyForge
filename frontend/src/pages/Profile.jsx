@@ -1,22 +1,8 @@
-import { useState, useRef, useEffect, useCallback, useContext } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import { Eye, EyeOff, Upload } from "lucide-react";
 import axios from "../api/axios";
 import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { AuthContext } from '../context/AuthContext';
-
-// toast popup component - shows at bottom right
-function Toast({ message, type }) {
-  if (!message) return null;
-  const base =
-    "fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300";
-  const color = type === "success" ? "bg-green-500" : "bg-red-500";
-  return <div className={`${base} ${color}`}>{message}</div>;
-}
-
-function startAutoHide(setShow, timerRef) {
-  clearTimeout(timerRef.current);
-  timerRef.current = setTimeout(() => setShow(false), 5000);
-}
 
 function handleToggle(e, show, setShow, timerRef) {
   e.preventDefault();
@@ -225,19 +211,8 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 }
 
 // main profile page
-export default function Profile() {
+export default function Profile({ showToast }) {
   const { user, setUser } = useContext(AuthContext);
-
-  const [toast, setToast] = useState({ message: "", type: "success" });
-  const toastTimer = useRef(null);
-
-  const showToast = useCallback((message, type = "success") => {
-    clearTimeout(toastTimer.current);
-    setToast({ message, type });
-    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
-  }, []);
-
-  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   // states
   const [name, setName] = useState(user?.name || '');
@@ -297,8 +272,6 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen page-bg px-6 py-10">
-      <Toast message={toast.message} type={toast.type} />
-
       {/* Merged Header: Avatar Upload (main) + Layout (feat) */}
       <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
         <div className="flex items-center gap-5">

@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
 import FormError from "../components/common/FormError";
 
-const ResetPasswordPage = () => {
+const ResetPasswordPage = ({ showToast }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -58,11 +58,13 @@ const ResetPasswordPage = () => {
         newPassword,
         confirmNewPassword,
       });
+      showToast(res.data.message || "Password reset successfully!", "success");
       setSuccessMessage(res.data.message || "Password reset successfully!");
       setTimeout(() => {
         navigate("/login"); // Redirect to login page after a short delay
       }, 3000);
     } catch (err) {
+      showToast(err.response?.data?.message || "Failed to reset password. Please try again.", "error");
       setError(err.response?.data?.message || "Failed to reset password. Please try again.");
     } finally {
       setIsLoading(false);

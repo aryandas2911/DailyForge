@@ -18,7 +18,7 @@ import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal";
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
-export default function Dashboard() {
+export default function Dashboard({ showToast }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -202,7 +202,7 @@ export default function Dashboard() {
       closeDuplicateModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to duplicate routine");
+      showToast("Failed to duplicate routine", "error");
     } finally {
       setDuplicatingRoutineId(null);
     }

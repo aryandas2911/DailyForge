@@ -5,7 +5,7 @@ import api from "../api/axios.js";
 import LoadingSpinner from "../components/common/LoadingSpinner.jsx";
 import { exportRoutineToPDF, generateRoutineSummary } from "../utils/routineExport.js";
 
-export default function ShareRoutine() {
+export default function ShareRoutine({ showToast }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [routine, setRoutine] = useState(null);
@@ -44,7 +44,7 @@ export default function ShareRoutine() {
       setTimeout(() => setShowCopyToast(false), 3000);
     } catch (err) {
       console.error("Failed to copy summary:", err);
-      alert("Failed to copy routine summary.");
+      showToast("Failed to copy routine summary.", "error");
     }
   };
 
@@ -55,7 +55,7 @@ export default function ShareRoutine() {
       await exportRoutineToPDF(routine, []);
     } catch (err) {
       console.error("PDF export failed:", err);
-      alert("Failed to export routine as PDF.");
+      showToast("Failed to export routine as PDF.", "error");
     } finally {
       setIsExporting(false);
     }

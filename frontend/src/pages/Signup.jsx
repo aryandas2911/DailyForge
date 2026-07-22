@@ -60,7 +60,7 @@ const LoadingSpinner = () => (
   </svg>
 );
 
-const Signup = () => {
+const Signup = ({ showToast }) => {
 
 
   // Auth State
@@ -121,6 +121,7 @@ const passwordStrength = getPasswordStrength(password);
           err.message ||
           "Failed to authenticate with Google."
         );
+        showToast(err.response?.data?.message || "Failed to authenticate with Google.", "error");
       }
     } finally {
       setIsGoogleLoading(false);
@@ -158,6 +159,7 @@ const passwordStrength = getPasswordStrength(password);
       if (error.response?.status === 409) {
         setErrorMessage("An account with this email already exists. Please try logging in instead.");
       } else {
+        showToast(error.response?.data?.message || "Signup failed. Please try again.", "error");
         setErrorMessage(
           error.response?.data?.message ||
           error.message ||

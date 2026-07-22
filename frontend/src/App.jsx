@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
@@ -23,6 +23,7 @@ import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
 import DailyJournal from "./pages/DailyJournal.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import CustomToast from "./components/CustomToast.jsx"; // Import the new CustomToast
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center">
@@ -170,16 +171,32 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => {
+
+  // Centralized Toast Notification Sytem for Complete Application
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => {
+    return () => clearTimeout(toastTimer.current);
+  }, []);
+
   return (
     <KeyboardShortcutsProvider>
     <BrowserRouter>
       <Navbar />
+      {/* Pass showToast to components that need it */}
       <main className="app-bg min-h-screen pt-24 sm:pt-28 flex flex-col text-main transition-colors duration-300">
         <Routes>
           <Route
             path="/"
             element={
-              <LandingPage />
+              <LandingPage showToast={showToast} />
             }
           />
           <Route
@@ -187,7 +204,7 @@ const App = () => {
             element={
               <PublicRoute>
                 <AuthLayout>
-                  <Login />
+                  <Login showToast={showToast} />
                 </AuthLayout>
               </PublicRoute>
             }
@@ -197,7 +214,7 @@ const App = () => {
             element={
               <PublicRoute>
                 <AuthLayout>
-                  <Signup />
+                  <Signup showToast={showToast} />
                 </AuthLayout>
               </PublicRoute>
             }
@@ -206,7 +223,7 @@ const App = () => {
             path="/about"
             element={
               <AuthLayout>
-                <About />
+                <About showToast={showToast} />
               </AuthLayout>
             }
           />
@@ -214,7 +231,7 @@ const App = () => {
             path="/dashboard"
             element={
               <ProtectedRoutes>
-                <Dashboard />
+              <Dashboard showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -222,7 +239,7 @@ const App = () => {
             path="/tasks"
             element={
               <ProtectedRoutes>
-                <Tasks />
+                <Tasks showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -230,7 +247,7 @@ const App = () => {
             path="/routine-builder"
             element={
               <ProtectedRoutes>
-                <RoutineBuilder />
+                <RoutineBuilder showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -238,7 +255,7 @@ const App = () => {
             path="/focus-mode"
             element={
               <ProtectedRoutes>
-                <Pomodoro />
+                <Pomodoro showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -246,7 +263,7 @@ const App = () => {
             path="/profile"
             element={
               <ProtectedRoutes>
-                <Profile />
+                <Profile showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -254,7 +271,7 @@ const App = () => {
             path="/analytics"
             element={
               <ProtectedRoutes>
-                <Analytics />
+                <Analytics showToast={showToast} />
               </ProtectedRoutes>
             }
           />
@@ -262,7 +279,7 @@ const App = () => {
             path="/daily-journal"
             element={
               <ProtectedRoutes>
-                <DailyJournal />
+                <DailyJournal showToast={showToast}  />
               </ProtectedRoutes>
             }
           />
@@ -271,7 +288,7 @@ const App = () => {
             element={
               <PublicRoute>
                 <AuthLayout>
-                  <ResetPasswordPage />
+                  <ResetPasswordPage showToast={showToast}/>
                 </AuthLayout>
               </PublicRoute>
             }
@@ -281,6 +298,7 @@ const App = () => {
         </Routes>
       </main>
       <Footer />
+      <CustomToast message={toast.message} type={toast.type} />
       <ScrollToTop />
     </BrowserRouter>
     </KeyboardShortcutsProvider>

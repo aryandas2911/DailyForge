@@ -21,7 +21,7 @@ import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
 import { routineTemplates } from '../utils/routineTemplate';
 
-export default function RoutineBuilder() {
+export default function RoutineBuilder({ showToast }) {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -186,7 +186,7 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
+      showToast("Routine saved successfully!", "success"); // Use global toast
       await fetchRoutines();
     } catch (err) {
       console.error(err);
