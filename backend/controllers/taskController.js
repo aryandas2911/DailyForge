@@ -8,6 +8,7 @@ const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DEFAULT_TASK_PAGE = 1;
 const DEFAULT_TASK_LIMIT = 10;
 const MIN_TASK_LIMIT = 1;
+const MAX_TASK_LIMIT = 50;
 
 // Create task function
 export const createTask = async (req, res) => {
@@ -145,9 +146,12 @@ export const getTasks = async (req, res) => {
       Number.parseInt(req.query.page, 10) || DEFAULT_TASK_PAGE,
       DEFAULT_TASK_PAGE
     );
-    const limit = Math.max(
-      Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
-      MIN_TASK_LIMIT
+    const limit = Math.min(
+      Math.max(
+        Number.parseInt(req.query.limit, 10) || DEFAULT_TASK_LIMIT,
+        MIN_TASK_LIMIT
+      ),
+      MAX_TASK_LIMIT
     );
     const skip = (page - 1) * limit;
     const taskQuery = { userId };

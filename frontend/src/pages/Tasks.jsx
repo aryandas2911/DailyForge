@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
+import useDebounce from "../hooks/useDebounce";
 import TaskItem from "../components/Task/TaskItem";
 import TaskFormModal from "../components/Task/TaskFormModal";
 import KanbanBoard from "../components/Task/KanbanBoard";
@@ -57,6 +58,9 @@ export default function Tasks() {
   const [taskError, setTaskError] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Filtering is client-side, so debounce the term the filter reads off of —
+  // the input stays instant, but we avoid re-filtering on every keystroke (#11).
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -187,7 +191,7 @@ export default function Tasks() {
   };
 
   const filteredTasks = useMemo(() => {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+    const normalizedSearchTerm = debouncedSearchTerm.trim().toLowerCase();
 
     return tasks.filter((task) => {
       const title = String(task.title ?? "").toLowerCase();
@@ -209,7 +213,7 @@ export default function Tasks() {
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [searchTerm, selectedCategories, statusFilter, tasks]);
+  }, [debouncedSearchTerm, selectedCategories, statusFilter, tasks]);
 
   const totalPages = pagination.totalPages;
   const hasPreviousPage = page > 1;
@@ -313,7 +317,7 @@ export default function Tasks() {
 {isNotesOpen && (
   <>
     {/* Mobile View - No Overlap */}
-    <div className="block md:hidden w-full mt-4">
+    <div className="block md:hidden w-full mt-4 max-h-[50vh] overflow-y-auto notes-scroll">
       <NotesWidget />
     </div>
 
@@ -326,6 +330,7 @@ export default function Tasks() {
         bg-white dark:bg-slate-900
         shadow-2xl rounded-2xl overflow-hidden
         border border-gray-100 dark:border-slate-800
+        max-h-[70vh] overflow-y-auto notes-scroll
       "
     >
       <NotesWidget />
@@ -402,7 +407,7 @@ export default function Tasks() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search tasks"
-                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
+                  className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
                 />
               </label>
               {/* View Toggle */}
@@ -693,7 +698,7 @@ export default function Tasks() {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted"
+              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
 

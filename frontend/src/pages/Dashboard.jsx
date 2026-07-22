@@ -1,8 +1,8 @@
 import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
+import { AuthContext } from "../context/AuthContext"; 
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -10,9 +10,11 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
+import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
@@ -26,6 +28,7 @@ export default function Dashboard() {
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
+  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
   const [moreTags, setmoreTags] = useState(false);
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
@@ -125,7 +128,7 @@ export default function Dashboard() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await cachedGet("/routines");
       setSavedRoutines(res.data.routines || []);
     } catch (err) {
       console.error(err);
@@ -138,7 +141,7 @@ export default function Dashboard() {
   const fetchTodayJournal = async () => {
     try {
       const todayStr = new Date().toLocaleDateString("en-CA");
-      const res = await api.get(`/journal/by-date/${todayStr}`);
+      const res = await cachedGet(`/journal/by-date/${todayStr}`);
       if (res.data.success && res.data.journal) {
         setTodayJournal(res.data.journal);
       } else {
@@ -181,6 +184,8 @@ export default function Dashboard() {
       );
 
       const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
+
+      invalidate("/routines");
 
       // Optimistic UI update
       if (duplicatedRoutine) {
@@ -267,7 +272,7 @@ export default function Dashboard() {
             >
               {/* Header with Title and Cancel Button */}
               <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-500 dark:text-slate-300">
                   All Tags
                 </span>
                 <button
@@ -297,26 +302,23 @@ export default function Dashboard() {
             {/* Left */}
             <div className="flex-1">
               <div
-                className="
-    w-20 h-20 
-    rounded-full 
-    overflow-hidden      
-    bg-gradient-to-tr
-    from-[#4eb7b3]
-    to-[#98e1d7]
-    flex items-center justify-center
-    text-white text-3xl font-bold
-    flex-shrink-0 "
+                className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
+                onClick={() => setShowProfilePictureModal(true)}
               >
                 {user?.photo ? (
                   <img
                     src={user?.photo}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
                   />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  <span className="transition-opacity duration-300 group-hover:opacity-70">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
                 )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Upload size={24} className="text-white" />
+                </div>
               </div>
 
               <LiveClock />
@@ -326,7 +328,7 @@ export default function Dashboard() {
 
               <p className="text-sm italic text-primary mt-1">"{quote}"</p>
 
-              <p className="text-sm text-muted mt-2">
+              <p className="text-sm text-muted dark:text-slate-300 mt-2">
                 {new Date()
                   .toLocaleDateString("en-US", {
                     weekday: "long",
@@ -644,7 +646,7 @@ export default function Dashboard() {
                 value={customTag}
                 onChange={(e) => setCustomTag(e.target.value)}
                 placeholder="Create custom tag"
-                className="flex-1 px-3 py-2 rounded-lg border"
+                className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
               />
 
               <button
@@ -672,6 +674,11 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <ProfilePictureUploadModal
+        isOpen={showProfilePictureModal}
+        onClose={() => setShowProfilePictureModal(false)}
+      />
     </div>
   );
 }

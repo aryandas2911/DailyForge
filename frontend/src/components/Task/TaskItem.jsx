@@ -48,7 +48,7 @@ export default function TaskItem({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => onSelect(task._id)}
-                  className="w-4 h-4 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 accent-(--primary)"
+                  className="w-4 h-4 cursor-pointer rounded border-gray-300 text-blue-600 dark:text-slate-100 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 accent-(--primary)"
                 />
                 <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-white/70 dark:bg-slate-800/70 text-main shadow-xs border border-soft">
                   {task.priority}
@@ -148,7 +148,7 @@ export default function TaskItem({
                 {task.status === "Due" && (
                   <button
                     onClick={() => onUpdate(task._id, { status: "In Progress" })}
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 rounded-lg transition-colors cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:text-slate-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors cursor-pointer"
                     title="Start Task"
                   >
                     <Play size={11} className="fill-current shrink-0" />
@@ -273,7 +273,7 @@ export default function TaskItem({
               {task.status === "Due" && (
                 <button
                   onClick={() => onUpdate(task._id, { status: "In Progress" })}
-                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition cursor-pointer"
+                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-slate-100 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition cursor-pointer"
                   title="Start Task"
                 >
                   <Play size={14} />{" "}
