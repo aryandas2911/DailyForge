@@ -162,11 +162,6 @@ export default function Dashboard() {
     localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
   }, [selectedTags]);
 
-  const openDuplicateModal = (routine) => {
-    setRoutineToDuplicate(routine);
-    setDuplicateTargetDay(routine.items[0]?.day || DAYS_OF_WEEK[0]);
-  };
-
   const closeDuplicateModal = () => {
     setRoutineToDuplicate(null);
     setDuplicateTargetDay(DAYS_OF_WEEK[0]);
@@ -449,6 +444,7 @@ export default function Dashboard() {
                   <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
                 </button>
               </div>
+            </div>
 
               {loadingRoutines ? (
                 <p className="text-sm text-muted">Loading routines…</p>

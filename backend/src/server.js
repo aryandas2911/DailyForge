@@ -20,7 +20,7 @@ dotenv.config({ path: path.resolve(import.meta.dirname, "../.env") });
 validateEnv();
 const PORT = process.env.PORT;
 
-// Initialize express     
+// Initialize express
 const app = express();
 
 
@@ -43,7 +43,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 // Connect to MongoDB using mongoose
 connectDB();

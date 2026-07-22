@@ -5,8 +5,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { verifyFirebaseIdToken } from "../utils/firebaseAuth.js";
 import crypto from "crypto";
-import { generateRecurringTasks } from '../utils/generateRecurringTasks.js';
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
+import { generateRecurringTasks } from "../utils/generateRecurringTasks.js";
 import multer from "multer";
 import nodemailer from "nodemailer"; // Added for email sending
 import dotenv from "dotenv";
@@ -114,6 +115,8 @@ export const signup = async (req, res) => {
       .cookie("token", token, getAuthCookieOptions())
       .json({
         message: "User registered successfully",
+        user: { _id: newUser._id, name: newUser.name, email: newUser.email },
+        // eslint-disable-next-line no-dupe-keys
         user: {
           _id: newUser._id,
           name: newUser.name,
@@ -166,13 +169,15 @@ export const login = async (req, res) => {
     });
     // fire-and-forget — does NOT block login response
     generateRecurringTasks(user._id).catch((err) =>
-      console.error("[RecurringTasks] generation error:", err)
+      console.error("[RecurringTasks] generation error:", err),
     );
     return res
       .status(200)
       .cookie("token", token, getAuthCookieOptions())
       .json({
         message: "Login successful",
+        user: { _id: user._id, name: user.name, email: user.email },
+        // eslint-disable-next-line no-dupe-keys
         user: {
           _id: user._id,
           name: user.name,
@@ -356,6 +361,8 @@ export const loginWith2FA = async (req, res) => {
       .cookie("token", jwtToken, getAuthCookieOptions())
       .json({
         message: "Login successful",
+        user: { _id: user._id, name: user.name, email: user.email },
+        // eslint-disable-next-line no-dupe-keys
         user: {
           _id: user._id,
           name: user.name,
@@ -498,7 +505,7 @@ export const getUser = async (req, res) => {
 // ─── Update profile ───────────────────────────────────────────────────────────
 export const updateProfile = async (req, res) => {
   try {
-    const { name, currentPassword, newPassword } = req.body;
+    const { name, profileImage, currentPassword, newPassword } = req.body;
     const user = await User.findById(req.userId);
 
     if (!user) {
@@ -509,6 +516,11 @@ export const updateProfile = async (req, res) => {
 
     if (name) user.name = name;
     if (req.body.primaryColor) user.primaryColor = req.body.primaryColor;
+
+    // Update profile image URL
+    if (profileImage !== undefined) {
+      user.profileImage = profileImage;
+    }
 
     if (currentPassword && newPassword) {
       const passwordCheck = await bcrypt.compare(
@@ -540,6 +552,7 @@ export const updateProfile = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        profileImage: user.profileImage,
         primaryColor: user.primaryColor,
       },
     });
@@ -548,6 +561,56 @@ export const updateProfile = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Server error while updating profile" });
+  }
+};
+
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image uploaded",
+      });
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: "dailyforge-profiles",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+
+      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+    });
+
+    user.profileImage = result.secure_url;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile image uploaded successfully",
+      profileImage: result.secure_url,
+    });
+  } catch (error) {
+    console.error("Profile image upload error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to upload profile image",
+    });
   }
 };
 
@@ -574,10 +637,16 @@ export const googleLogin = async (req, res) => {
 
       return res.status(401).json({
         message: "Invalid or expired Firebase token",
+        error: verifyError.message,
       });
     }
 
     const { email, name } = decodedToken;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ message: "Email is missing from the Google identity token" });
+    }
 
     const normalizedEmail = email.toLowerCase().trim();
 
@@ -612,6 +681,8 @@ export const googleLogin = async (req, res) => {
       .cookie("token", token, getAuthCookieOptions())
       .json({
         message: "Google sign-in successful",
+        user: { _id: user._id, name: user.name, email: user.email },
+        // eslint-disable-next-line no-dupe-keys
         user: {
           _id: user._id,
           name: user.name,
@@ -627,48 +698,7 @@ export const googleLogin = async (req, res) => {
   }
 };
 
-export const uploadProfileImage = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded or file exceeds size limit" });
-    }
-
-    const fileBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-
-    const cloudinaryResponse = await cloudinary.uploader.upload(fileBase64, {
-      folder: "profile_pictures",
-      transformation: [
-        { width: 400, height: 400, crop: "fill", gravity: "face" }, 
-        { quality: "auto" },
-        { fetch_format: "auto" }, 
-      ],
-    });
-
-    const secureUrl = cloudinaryResponse.secure_url;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userId, 
-      { photo: secureUrl },
-      { new: true } 
-    ).select("-password");
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    return res.status(200).json({ 
-      message: "Profile image updated successfully", 
-      imageUrl: secureUrl,
-      user: updatedUser 
-    });
-
-  } catch (error) {
-    console.error("Cloudinary upload error:", error);
-    return res.status(500).json({ error: "Internal server error during upload" });
-  }
-};
-
 export const uploadMiddleware = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 3 * 1024 * 1024 },
-}).single("profileImage"); 
+}).single("profileImage");

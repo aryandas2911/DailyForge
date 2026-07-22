@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -14,10 +15,17 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
+    profileImage: {
+      type: String,
+      default: "",
+    },
+
     photo: {
       type: String,
       required: false,
@@ -28,33 +36,37 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // Encrypted (AES-256-CBC) base32 TOTP secret — stored as "iv:encryptedHex"
+
+    // Encrypted (AES-256-CBC) base32 TOTP secret
     twoFactorSecret: {
       type: String,
       default: null,
     },
-    // Temporary encrypted secret during setup — cleared after verification
+
+    // Temporary encrypted secret during setup
     twoFactorTempSecret: {
       type: String,
       default: null,
     },
-    // bcrypt-hashed one-time backup codes (shown to user once on 2FA enable)
+
+    // bcrypt-hashed backup codes
     backupCodes: {
       type: [String],
       default: [],
     },
+
     primaryColor: {
       type: String,
-      default: '#3b82f6',
+      default: "#3b82f6",
     },
     // ────────────────────────────────────────────────────────────────────────
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     resetPasswordUsed: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
