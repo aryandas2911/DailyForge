@@ -45,7 +45,7 @@ const LandingPage = () => {
           Why DailyForge?
         </h2>
 
-        <p className="text-center text-slate-500 dark:text-slate-400 mb-14 max-w-2xl mx-auto">
+        <p className="text-center text-slate-500 dark:text-slate-300 mb-14 max-w-2xl mx-auto">
           Everything you need to organize your tasks, build routines and stay
           productive every single week.
         </p>
@@ -74,7 +74,7 @@ const LandingPage = () => {
               Smart Task Management
             </h3>
 
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
               Create tasks with categories, priorities and durations. Keep your
               workflow organized without clutter.
             </p>
@@ -103,7 +103,7 @@ const LandingPage = () => {
               Visual Routine Builder
             </h3>
 
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
               Drag and drop tasks into a weekly planner and build routines that
               fit your lifestyle and goals.
             </p>
@@ -132,7 +132,7 @@ const LandingPage = () => {
               Productivity Insights
             </h3>
 
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
               Track streaks, completion rates and consistency with beautiful
               analytics and contribution heatmaps.
             </p>

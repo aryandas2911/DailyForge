@@ -171,7 +171,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg text-black"
+              className="w-full p-2 border border-soft rounded-lg text-black dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
             <div className="flex justify-end gap-3 mt-5">
