@@ -90,7 +90,8 @@ const Login = () => {
       setUser(res.data.user);
       navigate(redirectPath, { replace: true });
     } catch (err) {
-      console.error(err);
+      console.error("Google login failed", err);
+     
 
       setError(
         err.response?.data?.message ||
