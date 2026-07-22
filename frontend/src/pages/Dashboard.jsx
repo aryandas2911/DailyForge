@@ -1,8 +1,8 @@
 import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
+import { AuthContext } from "../context/AuthContext"; 
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -10,9 +10,11 @@ import DashboardTasks from "../components/Dashboard/DashboardTasks";
 import ReflectionSummary from "../components/Dashboard/ReflectionSummary";
 import ContributionHeatmap from "../components/Dashboard/ContributionHeatmap";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
+import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
@@ -26,16 +28,10 @@ export default function Dashboard() {
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
+  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
   const [moreTags, setmoreTags] = useState(false);
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
-  const [showProfilePreview, setShowProfilePreview] = useState(false);
-  const [profileImage, setProfileImage] = useState(() => {
-  return (
-    localStorage.getItem("profileImage") ||
-    "https://i.pravatar.cc/100"
-  );
-});
   const [todayJournal, setTodayJournal] = useState(null);
 
   const today = new Date();
@@ -132,7 +128,7 @@ export default function Dashboard() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await cachedGet("/routines");
       setSavedRoutines(res.data.routines || []);
     } catch (err) {
       console.error(err);
@@ -145,7 +141,7 @@ export default function Dashboard() {
   const fetchTodayJournal = async () => {
     try {
       const todayStr = new Date().toLocaleDateString("en-CA");
-      const res = await api.get(`/journal/by-date/${todayStr}`);
+      const res = await cachedGet(`/journal/by-date/${todayStr}`);
       if (res.data.success && res.data.journal) {
         setTodayJournal(res.data.journal);
       } else {
@@ -189,6 +185,8 @@ export default function Dashboard() {
 
       const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
 
+      invalidate("/routines");
+
       // Optimistic UI update
       if (duplicatedRoutine) {
         setSavedRoutines((prevRoutines) => [
@@ -212,6 +210,56 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-6 py-8 space-y-8 animate-in">
       <OnboardingModal />
+
+        {/* Get Started */}
+        <section className="w-full animate-in delay-75">
+    <div className="card p-6 sm:p-8 rounded-3xl border border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-sm">
+       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+         <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-2">
+                Getting Started
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-main">
+               New here? Learn DailyForge in a few quick steps.
+            </h2>
+            <p className="mt-3 text-muted leading-relaxed">
+              DailyForge helps you plan tasks, build routines, and track your progress in one place.
+              Start with one task, set its priority, and use the dashboard to stay consistent.
+           </p>
+          </div>
+
+      <button
+        onClick={() => navigate("/tasks")}
+        className="px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition"
+      >
+        Create your first task
+      </button>
+    </div>
+
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      {[
+        { title: "Add a task", desc: "Write down what you need to do." },
+        { title: "Set priority", desc: "Mark what matters most first." },
+        { title: "Build routine", desc: "Drag tasks into your weekly flow." },
+        { title: "Track progress", desc: "See streaks and analytics over time." },
+      ].map((item) => (
+        <div
+          key={item.title}
+          className="rounded-2xl bg-white/60 dark:bg-slate-800/60 p-4 border border-white/10"
+        >
+          <h3 className="text-main font-semibold">{item.title}</h3>
+          <p className="text-sm text-muted mt-1 leading-relaxed">{item.desc}</p>
+        </div>
+      ))}
+      <h3 className="text-lg font-semibold text-main whitespace-nowrap">
+        Want to know more about DailyForge and about its features?
+        <a href="/About" className="text-primary hover:text-primary/80">
+          About us
+        </a>
+      </h3>
+    </div>
+  </div>
+</section>
       {/* Header */}
       <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-[var(--surface)] gap-6">
         {moreTags ? (
@@ -224,7 +272,7 @@ export default function Dashboard() {
             >
               {/* Header with Title and Cancel Button */}
               <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-500 dark:text-slate-300">
                   All Tags
                 </span>
                 <button
@@ -254,26 +302,23 @@ export default function Dashboard() {
             {/* Left */}
             <div className="flex-1">
               <div
-                className="
-    w-20 h-20 
-    rounded-full 
-    overflow-hidden      
-    bg-gradient-to-tr
-    from-[#4eb7b3]
-    to-[#98e1d7]
-    flex items-center justify-center
-    text-white text-3xl font-bold
-    flex-shrink-0 "
+                className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
+                onClick={() => setShowProfilePictureModal(true)}
               >
                 {user?.photo ? (
                   <img
                     src={user?.photo}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
                   />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  <span className="transition-opacity duration-300 group-hover:opacity-70">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
                 )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Upload size={24} className="text-white" />
+                </div>
               </div>
 
               <LiveClock />
@@ -283,7 +328,7 @@ export default function Dashboard() {
 
               <p className="text-sm italic text-primary mt-1">"{quote}"</p>
 
-              <p className="text-sm text-muted mt-2">
+              <p className="text-sm text-muted dark:text-slate-300 mt-2">
                 {new Date()
                   .toLocaleDateString("en-US", {
                     weekday: "long",
@@ -320,62 +365,9 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-
-        {/* Right */}
-        <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
-
-          <img
-            src={profileImage}
-            alt="Profile"
-            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
-            onClick={() => setShowProfilePreview(true)}
-          />
-
-          <LiveClock />
-
-        </div>
           </>
         )}
       </header>
-
-      {showProfilePreview && (
-        <div
-          className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50 px-4"
-          onClick={() => setShowProfilePreview(false)}
-        >
-          <div
-            className="flex flex-col items-center gap-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={profileImage}
-              alt="Profile Preview"
-              className="w-72 h-72 rounded-full object-cover border-4 border-white shadow-2xl"
-            />
-
-            <label className="px-4 py-2 bg-white text-black rounded-lg cursor-pointer hover:bg-gray-200 transition text-sm font-medium">
-              Change Profile Picture
-
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-
-                  if (file) {
-                    const imageUrl = URL.createObjectURL(file);
-
-                    setProfileImage(imageUrl);
-
-                    localStorage.setItem("profileImage", imageUrl);
-                  }
-                }}
-              />
-            </label>
-          </div>
-        </div>
-      )}
 
       {tasksLoading ? (
         <LoadingSpinner />
@@ -458,118 +450,118 @@ export default function Dashboard() {
                 </button>
               </div>
 
-          {loadingRoutines ? (
-            <p className="text-sm text-muted">Loading routines…</p>
-          ) : savedRoutines.length === 0 ? (
-            <p className="text-sm text-muted text-center mt-10">
-              No routines saved yet
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {savedRoutines.map((routine) => (
-                <li
-                  key={routine._id}
-                  onClick={() => navigate("/routine-builder")}
-                  className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium text-main">{routine.name}</p>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDuplicateModal(routine);
-                      }}
-                      disabled={duplicatingRoutineId === routine._id}
-                      aria-label={`Duplicate ${routine.name}`}
-                      title="Duplicate routine"
-                      className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-                    >
-                      <Copy size={16} />
-                    </button>
-                  </div>
-                  {routine.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
-                      {routine.description}
-                    </p>
-                  )}
-                  <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
-                    {routine.items.length} tasks across{" "}
-                    {new Set(routine.items.map((i) => i.day)).size} day(s)
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Daily Journal */}
-        <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              {/* Header */}
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                  <BookOpen size={20} className="text-primary" />
-                  <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
-                </div>
-                {todayJournal && (
-                  <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
-                    {todayJournal.mood === "happy" ? "😃" :
-                     todayJournal.mood === "calm" ? "😌" :
-                     todayJournal.mood === "neutral" ? "😐" :
-                     todayJournal.mood === "stressed" ? "🤯" :
-                     todayJournal.mood === "sad" ? "😢" :
-                     todayJournal.mood === "energetic" ? "⚡" : "😴"}
-                  </span>
-                )}
-              </div>
-
-              {/* Body Content */}
-              {todayJournal ? (
-                <div className="space-y-2 text-left">
-                  <h3 className="font-semibold text-main line-clamp-1">
-                    {todayJournal.title || "Untitled Journal"}
-                  </h3>
-                  <p className="text-sm text-muted line-clamp-4 leading-relaxed">
-                    {todayJournal.content}
-                  </p>
-                  {todayJournal.tags && todayJournal.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {todayJournal.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              {loadingRoutines ? (
+                <p className="text-sm text-muted">Loading routines…</p>
+              ) : savedRoutines.length === 0 ? (
+                <p className="text-sm text-muted text-center mt-10">
+                  No routines saved yet
+                </p>
               ) : (
-                <div className="space-y-3 mt-4 text-left">
-                  <p className="text-xs text-muted leading-relaxed">
-                    No journal entry logged for today yet. Write down your wins, challenges, and learnings to keep track of your progress.
-                  </p>
-                </div>
+                <ul className="space-y-3">
+                  {savedRoutines.map((routine) => (
+                    <li
+                      key={routine._id}
+                      onClick={() => navigate("/routine-builder")}
+                      className="border-l-4 border-primary rounded-xl p-4 bg-white/80 hover:bg-white dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:border-gray-700/60 shadow-sm hover:shadow-md transition-all duration-200 animate-in cursor-pointer hover-lift"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-medium text-main">{routine.name}</p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDuplicateModal(routine);
+                          }}
+                          disabled={duplicatingRoutineId === routine._id}
+                          aria-label={`Duplicate ${routine.name}`}
+                          title="Duplicate routine"
+                          className="shrink-0 rounded-lg p-2 text-muted hover:text-primary hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                        >
+                          <Copy size={16} />
+                        </button>
+                      </div>
+                      {routine.description && (
+                        <p className="text-xs text-muted mt-0.5 line-clamp-2 italic">
+                          {routine.description}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-muted/80 mt-1 uppercase tracking-wider">
+                        {routine.items.length} tasks across{" "}
+                        {new Set(routine.items.map((i) => i.day)).size} day(s)
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
 
-            {/* Action Button */}
-            <div className="mt-2">
-              <button
-                className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
-                onClick={() => navigate("/daily-journal")}
-              >
-                {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
-                <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
-              </button>
+            {/* Daily Journal */}
+            <div className="card animate-in delay-300 flex flex-col h-[340px] relative justify-between">
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  {/* Header */}
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={20} className="text-primary" />
+                      <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
+                    </div>
+                    {todayJournal && (
+                      <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
+                        {todayJournal.mood === "happy" ? "😃" :
+                          todayJournal.mood === "calm" ? "😌" :
+                            todayJournal.mood === "neutral" ? "😐" :
+                              todayJournal.mood === "stressed" ? "🤯" :
+                                todayJournal.mood === "sad" ? "😢" :
+                                  todayJournal.mood === "energetic" ? "⚡" : "😴"}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body Content */}
+                  {todayJournal ? (
+                    <div className="space-y-2 text-left">
+                      <h3 className="font-semibold text-main line-clamp-1">
+                        {todayJournal.title || "Untitled Journal"}
+                      </h3>
+                      <p className="text-sm text-muted line-clamp-4 leading-relaxed">
+                        {todayJournal.content}
+                      </p>
+                      {todayJournal.tags && todayJournal.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {todayJournal.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-500 dark:text-cyan-400"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3 mt-4 text-left">
+                      <p className="text-xs text-muted leading-relaxed">
+                        No journal entry logged for today yet. Write down your wins, challenges, and learnings to keep track of your progress.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button */}
+                <div className="mt-2">
+                  <button
+                    className="group flex gap-2 w-full justify-center items-center px-4 py-2 rounded-lg bg-(--primary) text-white text-sm font-medium hover:opacity-85 active:scale-95 transition-all duration-150 cursor-pointer"
+                    onClick={() => navigate("/daily-journal")}
+                  >
+                    {todayJournal ? "Edit Today's Journal" : "Write Today's Entry"}
+                    <ArrowRight className="transition-transform duration-150 group-hover:translate-x-1" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-      </>
+          </section>
+        </>
       )}
 
       {routineToDuplicate && (
@@ -654,7 +646,7 @@ export default function Dashboard() {
                 value={customTag}
                 onChange={(e) => setCustomTag(e.target.value)}
                 placeholder="Create custom tag"
-                className="flex-1 px-3 py-2 rounded-lg border"
+                className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
               />
 
               <button
@@ -682,6 +674,11 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <ProfilePictureUploadModal
+        isOpen={showProfilePictureModal}
+        onClose={() => setShowProfilePictureModal(false)}
+      />
     </div>
   );
 }

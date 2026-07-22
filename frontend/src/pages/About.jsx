@@ -37,7 +37,14 @@ export default function About() {
       "Create and manage weekly routines easily",
       "Drag and drop tasks into your schedule",
       "Track completed work and priority load clearly",
-      "Simple navigation for faster planning"
+      "Simple navigation for faster planning",
+      "Forge Mode- A focused Pomodoro timer with ambient sounds and task sessions.",
+      "Daily Journal-Track your mood and reflect on the day.",
+      "Analytics Dashboard- View streaks, progress, and productivity charts.",
+      "Kanban Board- Organize tasks visually with a drag-and-drop board.",
+      "Dark Mode- Switch themes for a comfortable viewing experience.",
+      "Routine Builder- Build weekly routines by dragging tasks into your schedule."
+
     ].map((item, i) => (
       <div
         key={i}
