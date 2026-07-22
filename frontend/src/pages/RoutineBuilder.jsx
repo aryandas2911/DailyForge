@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Download, Loader2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import api from "../api/axios.js";
+import { cachedGet, invalidate } from "../utils/apiCache";
 import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
 import { routineTemplates } from '../utils/routineTemplate';
@@ -43,6 +44,7 @@ export default function RoutineBuilder() {
   const [isImageExporting, setIsImageExporting] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
+  const [highlightGrid, setHighlightGrid] = useState(false);
   const gridRef = useRef(null);
  
 
@@ -79,6 +81,27 @@ export default function RoutineBuilder() {
   const closeModal = useCallback(() => setIsModalOpen(false), []);
 
   const handleOpenModal = useScrollThenOpen(openModal, 0);
+
+  // Triggered by the "Saved Routines" empty state CTA.
+  // A routine is built by scheduling existing tasks onto the grid, so this
+  // should never open the Task form — that form already has its own CTA in
+  // the Task Library's empty state. Instead:
+  //  - if the library already has tasks, scroll up and pulse the grid so the
+  //    user sees where to drag tasks from
+  //  - if the library is empty too, open the Task form, since the user needs
+  //    at least one task before they can schedule anything
+  const pulseGrid = useScrollThenOpen(() => {
+    setHighlightGrid(true);
+    setTimeout(() => setHighlightGrid(false), 1600);
+  }, 0);
+
+  const handleStartRoutine = useCallback(() => {
+    if (tasks?.length > 0) {
+      pulseGrid();
+    } else {
+      handleOpenModal();
+    }
+  }, [tasks, pulseGrid, handleOpenModal]);
 
   const handleSubmit = async (data) => {
     try {
@@ -120,7 +143,7 @@ export default function RoutineBuilder() {
   const fetchRoutines = async () => {
     try {
       setLoadingRoutines(true);
-      const res = await api.get("/routines");
+      const res = await cachedGet("/routines");
       setSavedRoutines(
         Array.isArray(res.data.routines) ? res.data.routines : []
       );
@@ -151,6 +174,7 @@ export default function RoutineBuilder() {
       });
 
       const createdRoutine = res.data.routine || res.data.routines?.[0];
+      invalidate("/routines");
       if (createdRoutine) {
         setSavedRoutines((prevRoutines) => [
           createdRoutine,
@@ -184,7 +208,7 @@ export default function RoutineBuilder() {
 
   /* ---------------- DRAG END HANDLER ---------------- */
   // Removing Schedule task after drag
-  const removeScheduledTask = (taskId, day) => {
+  const removeScheduledTask = (taskId, day, startTime) => {
 
     //filtering out 
     setScheduledTasks((prev) =>
@@ -192,7 +216,8 @@ export default function RoutineBuilder() {
         (task) =>
           !(
             task.taskId === taskId &&
-            normalizeDay(task.day) === normalizeDay(day)
+            normalizeDay(task.day) === normalizeDay(day) &&
+            task.startTime === startTime
           )
       )
     );
@@ -294,6 +319,7 @@ export default function RoutineBuilder() {
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
               innerRef={gridRef}
+              highlight={highlightGrid}
             />
           </section>
         </div>
@@ -308,13 +334,14 @@ export default function RoutineBuilder() {
             <p className="text-sm text-muted">Loading routines…</p>
           ) : savedRoutines.length === 0 ? (
             /*
-             * EmptyState is deep in the page — clicking "Create Your First
-             * Routine" here triggers handleOpenModal, which scrolls to the
-             * top first, then opens the modal once the scroll settles.
+             * EmptyState is deep in the page. Clicking "Create Your First
+             * Routine" should guide the user toward the actual routine flow
+             * (drag a task onto the weekly grid), not open the Task form —
+             * that form belongs to the Task Library's own empty state.
              */
             <EmptyState
               type="routines"
-              onAction={handleOpenModal}
+              onAction={handleStartRoutine}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -355,7 +382,7 @@ export default function RoutineBuilder() {
                 onChange={(e) => setRoutineName(e.target.value)}
                 placeholder="Routine name"
                 className="w-full mb-4 rounded-xl border-soft px-3 py-2 text-sm
-                           focus:outline-none bg-transparent text-main"
+                           focus:outline-none bg-transparent text-main dark:placeholder-slate-500"
               />
 
               <textarea
@@ -364,7 +391,7 @@ export default function RoutineBuilder() {
                 placeholder="Add a description (optional)"
                 rows="3"
                 className="w-full mb-4 rounded-lg border-soft px-3 py-2 text-sm
-                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white resize-none"
+                           focus:ring-primary dark:focus:ring-primary bg-transparent text-main dark:text-white dark:placeholder-slate-500 resize-none"
               />
 
               <div className="flex justify-end gap-3">
@@ -414,7 +441,7 @@ export default function RoutineBuilder() {
                     className="text-left p-4 border rounded-xl hover:border-blue-500 transition-colors"
                   >
                     <h4 className="font-bold text-gray-900">{template.title}</h4>
-                    <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{template.description}</p>
                   </button>
                 ))}
               </div>
