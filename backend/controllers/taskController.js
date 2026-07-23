@@ -92,6 +92,22 @@ export const createTask = async (req, res) => {
       });
     }
 
+    if (dependsOn) {
+      if (!mongoose.Types.ObjectId.isValid(dependsOn)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid dependsOn task ID format",
+        });
+      }
+      const prerequisiteTask = await Task.findOne({ _id: dependsOn, userId });
+      if (!prerequisiteTask) {
+        return res.status(400).json({
+          success: false,
+          message: "Prerequisite task not found or does not belong to you",
+        });
+      }
+    }
+
     // new task object
     const { recurrence } = req.body;
 
@@ -228,6 +244,28 @@ export const updateTask = async (req, res) => {
         success: false,
         message: "Title must be 50 characters or less",
       });
+    }
+
+    if (updates.dependsOn) {
+      if (!mongoose.Types.ObjectId.isValid(updates.dependsOn)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid dependsOn task ID format",
+        });
+      }
+      if (String(updates.dependsOn) === String(taskId)) {
+        return res.status(400).json({
+          success: false,
+          message: "A task cannot depend on itself",
+        });
+      }
+      const prerequisiteTask = await Task.findOne({ _id: updates.dependsOn, userId });
+      if (!prerequisiteTask) {
+        return res.status(400).json({
+          success: false,
+          message: "Prerequisite task not found or does not belong to you",
+        });
+      }
     }
 
 

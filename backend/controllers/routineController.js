@@ -328,6 +328,22 @@ export const updateRoutine = async (req, res) => {
         }
       }
 
+      // validate task ownership for routine items
+      const taskIds = updates.items.map((item) => item.taskId);
+      const uniqueTaskIds = [...new Set(taskIds.filter(Boolean))];
+
+      const userTasksCount = await Task.countDocuments({
+        _id: { $in: uniqueTaskIds },
+        userId: userId,
+      });
+
+      if (userTasksCount !== uniqueTaskIds.length) {
+        return res.status(400).json({
+          success: false,
+          message: "One or more tasks are invalid or do not belong to you",
+        });
+      }
+
       // calculate endtime for each task
       const formatted = [];
       for (const item of updates.items) {
