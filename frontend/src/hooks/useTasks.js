@@ -89,13 +89,15 @@ const useTasks = ({
 
   // update task
   const updateTask = async (id, updates) => {
-        if (String(id).startsWith("routine-")) {
+    const taskId = String(id);
+
+    if (taskId.startsWith("routine-")) {
       try {
         const existingTasks = JSON.parse(
           localStorage.getItem("activeRoutineTasks") || "[]"
         );
         const updatedTasks = existingTasks.map((t) =>
-          t._id === id ? { ...t, ...updates } : t
+          String(t._id) === taskId ? { ...t, ...updates } : t
         );
         localStorage.setItem("activeRoutineTasks", JSON.stringify(updatedTasks));
         window.dispatchEvent(new Event("storage"));
@@ -106,11 +108,11 @@ const useTasks = ({
     }
     
     setTasks((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, ...updates } : t)),
+      prev.map((t) => (String(t._id) === taskId ? { ...t, ...updates } : t)),
     );
 
     try {
-      await api.put(`/tasks/${id}`, updates);
+      await api.put(`/tasks/${taskId}`, updates);
       invalidateTasks();
       await getTasks(page);
     } catch (error) {
