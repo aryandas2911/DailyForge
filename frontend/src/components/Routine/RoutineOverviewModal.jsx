@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { MoreVertical, Trash2, X, Calendar, Layers, Clock, Share2, Copy, Download, Loader2 } from "lucide-react";
 import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
+import api from "../../api/axios.js";
+import { invalidate } from "../../utils/apiCache";
 
 export default function RoutineOverviewModal({
   routine,
@@ -10,6 +12,7 @@ export default function RoutineOverviewModal({
   handleStartRoutine,
   handleStopRoutine,
   handleDeleteRoutine,
+  fetchRoutines,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -35,9 +38,14 @@ export default function RoutineOverviewModal({
     e.stopPropagation();
     setShowMenu(false);
     try {
+      await api.put(`/routines/${routine._id}`, { isPublic: true });
+      invalidate(`/routines`);
+      if (fetchRoutines) {
+        await fetchRoutines();
+      }
       const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
       await navigator.clipboard.writeText(shareUrl);
-      triggerToast("Share link copied!");
+      triggerToast("Share link copied & routine made public!");
     } catch (err) {
       console.error(err);
       alert("Failed to copy share link");
@@ -114,6 +122,11 @@ export default function RoutineOverviewModal({
             )}
 
             <div className="flex flex-wrap items-center gap-3 mt-4 text-xs font-semibold">
+              {routine.isPublic && (
+                <span className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-3 py-1 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/40">
+                  Shared Publicly
+                </span>
+              )}
               <span className="flex items-center gap-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/40 px-3 py-1 text-cyan-600 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-800/40">
                 <Layers size={12} />
                 {routine.items.length} Tasks

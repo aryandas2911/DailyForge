@@ -48,6 +48,10 @@ const routineSchema = mongoose.Schema(
         },
       },
     ],
+    isPublic: {
+      type: Boolean,
+      default: false,
+    },
     adaptiveSettings: {
       adaptiveEnabled: {
         type: Boolean,

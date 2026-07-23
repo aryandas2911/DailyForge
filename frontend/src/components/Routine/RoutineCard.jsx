@@ -37,9 +37,14 @@ export default function RoutineCard({
     e.stopPropagation();
     setShowMenu(false);
     try {
+      await api.put(`/routines/${routine._id}`, { isPublic: true });
+      invalidate(`/routines`);
+      if (fetchRoutines) {
+        await fetchRoutines();
+      }
       const shareUrl = `${window.location.origin}/share/routine/${routine._id}`;
       await navigator.clipboard.writeText(shareUrl);
-      triggerToast("Share Link Copied", "The public routine link was copied to clipboard.");
+      triggerToast("Share Link Copied", "The routine was marked as public and link copied to clipboard.");
     } catch (err) {
       console.error(err);
       alert("Failed to copy share link");
@@ -341,14 +346,21 @@ export default function RoutineCard({
         <div>
           {/* Header row */}
           <div className="flex items-start justify-between gap-4 mb-3 pr-8">
-            <h3 className="font-semibold text-main text-base leading-snug">
+            <h3 className="font-semibold text-main text-base leading-snug truncate">
               {routine.name}
             </h3>
-            {isRoutineStarted && (
-              <span className="shrink-0 rounded-full bg-[#d0f6e3] dark:bg-cyan-950/60 px-2 py-0.5 text-[10px] font-bold text-[#3b8ea0] dark:text-cyan-400 border border-[#98e1d7]/30">
-                Active
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {routine.isPublic && (
+                <span className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/40">
+                  Shared
+                </span>
+              )}
+              {isRoutineStarted && (
+                <span className="shrink-0 rounded-full bg-[#d0f6e3] dark:bg-cyan-950/60 px-2 py-0.5 text-[10px] font-bold text-[#3b8ea0] dark:text-cyan-400 border border-[#98e1d7]/30">
+                  Active
+                </span>
+              )}
+            </div>
           </div>
 
           {routine.description && (
@@ -460,6 +472,7 @@ export default function RoutineCard({
           showMenu={showMenu}
           setShowMenu={setShowMenu}
           handleDeleteRoutine={handleDeleteRoutine}
+          fetchRoutines={fetchRoutines}
         />
       )}
 
