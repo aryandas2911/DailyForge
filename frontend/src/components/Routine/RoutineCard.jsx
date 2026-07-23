@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MoreVertical, Trash2, Share2, Copy, Download, Loader2 } from "lucide-react";
 import RoutineOverviewModal from "./RoutineOverviewModal";
 import api from "../../api/axios.js";
+import { invalidate } from "../../utils/apiCache";
 import { exportRoutineToPDF, generateRoutineSummary } from "../../utils/routineExport.js";
 
 
@@ -263,6 +264,8 @@ export default function RoutineCard({
         await api.delete(
       `/routines/${routine._id}`
     );
+
+    invalidate("/routines");
 
     if (isRoutineStarted) {
 

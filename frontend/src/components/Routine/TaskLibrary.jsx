@@ -113,7 +113,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
         placeholder="Search tasks..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm bg-transparent text-main placeholder:text-muted dark:bg-slate-800 dark:text-white dark:border-gray-700 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]"
+        className="mb-4 rounded-xl border border-soft/80 px-3 py-2 text-sm bg-transparent text-main placeholder:text-muted dark:bg-slate-800 dark:text-white dark:border-gray-700 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#4eb7b3]"
       />
 
       {/* Task List */}
@@ -132,7 +132,7 @@ export default function TaskLibrary({ tasks, onAddTask }) {
         ) : (
           <div className="flex flex-col items-center justify-center h-full min-h-[150px] text-center px-4">
             <p className="text-sm font-medium text-slate-400 mb-1">No tasks found</p>
-            <p className="text-xs text-slate-500">We couldn't find anything matching "{query}"</p>
+            <p className="text-xs text-slate-500 dark:text-slate-300">We couldn't find anything matching "{query}"</p>
           </div>
         )}
       </div>
