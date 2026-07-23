@@ -34,6 +34,18 @@ export const authMiddleware = (req, res, next) => {
 
     // attach payload id to request (handle both 'id' and 'userId' for backward compatibility)
     req.userId = verify.id || verify.userId;
+    
+    // CSRF Protection: Require custom header for state-changing methods
+    const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+    if (!safeMethods.includes(req.method)) {
+      if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
+        return res.status(403).json({
+          success: false,
+          message: "CSRF protection: X-Requested-With header missing or invalid",
+        });
+      }
+    }
+    
     next();
   } catch (error) {
     // error handling
