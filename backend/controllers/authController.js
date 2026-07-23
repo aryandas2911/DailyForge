@@ -321,8 +321,15 @@ export const loginWith2FA = async (req, res) => {
   try {
     const { tempUserId, token } = req.body;
 
-    // Validate TOTP format first — must be exactly 6 digits
-    if (!token || !/^\d{6}$/.test(token)) {
+    if (!token || typeof token !== "string") {
+      return res.status(400).json({ message: "Invalid code format" });
+    }
+
+    const cleanedToken = token.trim().toUpperCase();
+    const isTotp = /^\d{6}$/.test(cleanedToken);
+    const isBackupCode = /^[0-9A-F]{10}$/.test(cleanedToken);
+
+    if (!isTotp && !isBackupCode) {
       return res.status(400).json({ message: "Invalid code format" });
     }
 
@@ -332,15 +339,36 @@ export const loginWith2FA = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials or code" });
     }
 
-    const verified = speakeasy.totp.verify({
-      secret: decrypt(user.twoFactorSecret), // decrypt before verifying
-      encoding: "base32",
-      token,
-      window: 1,
-    });
+    let verified = false;
+    let isBackupUsed = false;
+    let matchingBackupIndex = -1;
+
+    if (isTotp) {
+      verified = speakeasy.totp.verify({
+        secret: decrypt(user.twoFactorSecret), // decrypt before verifying
+        encoding: "base32",
+        token: cleanedToken,
+        window: 1,
+      });
+    } else if (isBackupCode) {
+      for (let i = 0; i < user.backupCodes.length; i++) {
+        const isMatch = await bcrypt.compare(cleanedToken, user.backupCodes[i]);
+        if (isMatch) {
+          verified = true;
+          isBackupUsed = true;
+          matchingBackupIndex = i;
+          break;
+        }
+      }
+    }
 
     if (!verified) {
       return res.status(401).json({ message: "Invalid credentials or code" });
+    }
+
+    if (isBackupUsed) {
+      user.backupCodes.splice(matchingBackupIndex, 1);
+      await user.save();
     }
 
     const jwtSecret = getJwtSecret(res);
@@ -445,8 +473,15 @@ export const disable2FA = async (req, res) => {
   try {
     const { token } = req.body;
 
-    // Validate TOTP format — must be exactly 6 digits
-    if (!token || !/^\d{6}$/.test(token)) {
+    if (!token || typeof token !== "string") {
+      return res.status(400).json({ message: "Invalid or missing TOTP code" });
+    }
+
+    const cleanedToken = token.trim().toUpperCase();
+    const isTotp = /^\d{6}$/.test(cleanedToken);
+    const isBackupCode = /^[0-9A-F]{10}$/.test(cleanedToken);
+
+    if (!isTotp && !isBackupCode) {
       return res.status(400).json({ message: "Invalid or missing TOTP code" });
     }
 
@@ -455,12 +490,24 @@ export const disable2FA = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials or code" });
     }
 
-    const verified = speakeasy.totp.verify({
-      secret: decrypt(user.twoFactorSecret), // decrypt before verifying
-      encoding: "base32",
-      token,
-      window: 1,
-    });
+    let verified = false;
+
+    if (isTotp) {
+      verified = speakeasy.totp.verify({
+        secret: decrypt(user.twoFactorSecret), // decrypt before verifying
+        encoding: "base32",
+        token: cleanedToken,
+        window: 1,
+      });
+    } else if (isBackupCode) {
+      for (let i = 0; i < user.backupCodes.length; i++) {
+        const isMatch = await bcrypt.compare(cleanedToken, user.backupCodes[i]);
+        if (isMatch) {
+          verified = true;
+          break;
+        }
+      }
+    }
 
     if (!verified) {
       return res.status(401).json({ message: "Invalid credentials or code" });

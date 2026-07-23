@@ -164,17 +164,17 @@ const Login = () => {
               Two-Factor Auth
             </h1>
             <p className="text-sm text-muted">
-              Enter the code from your authenticator app
+              Enter your authenticator app code or a backup recovery code
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="totp" className="text-sm font-medium text-main">
-              TOTP Code
+              TOTP or Backup Code
             </label>
             <input
               type="text"
               id="totp"
-              placeholder="123456"
+              placeholder="123456 or ABC123DEF4"
               required
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
