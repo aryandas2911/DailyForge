@@ -1,16 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--color-primary);
-  --color-main: var(--text-main);
-  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
 }
 
 * {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 :root {
@@ -23,8 +21,6 @@
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
-
-  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -42,11 +38,9 @@
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #e2e8f0;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
-
-  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -54,14 +48,12 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
+  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
 html.dark,
 html.dark body {
-  
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -141,7 +133,9 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .hover-lift:hover {
@@ -172,20 +166,18 @@ input::-webkit-credentials-type-password-toggle {
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
-  }
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+}
+
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--color-primary);
-  --color-main: var(--text-main);
-  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
 }
 
 * {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 :root {
@@ -198,8 +190,6 @@ input::-webkit-credentials-type-password-toggle {
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
-
-  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -217,11 +207,9 @@ input::-webkit-credentials-type-password-toggle {
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #e2e8f0;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
-
-  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -229,14 +217,12 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
+  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
 html.dark,
 html.dark body {
-
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -316,7 +302,8 @@ html.dark body {
   }
 
   .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+    transition:
+      transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
       opacity 0.3s ease-in-out,
       background-color 0.3s ease-in-out;
     will-change: transform;
@@ -353,26 +340,24 @@ input::-webkit-credentials-type-password-toggle {
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
-  }
+}
 
-  footer {
+footer {
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
 }
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: var(--color-primary);
-  --color-main: var(--text-main);
-  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
 }
 
 * {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 :root {
@@ -385,8 +370,6 @@ input::-webkit-credentials-type-password-toggle {
   --text-muted: #4eb7b3;
   --border: #98e1d7;
   --radius: 0.75rem;
-
-  --color-primary: var(--primary);
 }
 
 :root[data-theme-custom="true"] {
@@ -404,11 +387,9 @@ input::-webkit-credentials-type-password-toggle {
   --primary: #4eb7b3;
   --primary-hover: #5ec7c3;
   --accent: #1e2e30;
-  --text-main: #e2e8f0;
+  --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
-
-  --color-primary: #7dd3fc;
 }
 
 html.dark[data-theme-custom="true"] {
@@ -416,14 +397,12 @@ html.dark[data-theme-custom="true"] {
   --bg: color-mix(in srgb, var(--primary) 10%, #0f172a);
   --surface: color-mix(in srgb, var(--primary) 15%, #1e293b);
   --accent: color-mix(in srgb, var(--primary) 25%, #1e293b);
-  --text-main: #e2e8f0;
-  --text-muted: #94a3b8;
+  --text-muted: color-mix(in srgb, var(--primary) 50%, #94a3b8);
   --border: color-mix(in srgb, var(--primary) 30%, #334155);
 }
 
 html.dark,
 html.dark body {
-
   background-color: var(--bg);
   color: var(--text-main);
   color-scheme: dark;
@@ -508,7 +487,8 @@ html {
   }
 
   .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+    transition:
+      transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
       opacity 0.3s ease-in-out,
       background-color 0.3s ease-in-out;
     will-change: transform;
@@ -545,25 +525,27 @@ input::-webkit-credentials-type-password-toggle {
     background-color 0.25s ease,
     border-color 0.25s ease,
     color 0.25s ease;
-  }
+}
 
-  footer {
+footer {
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
 }
-
-html.dark .text-main,
-html.dark [class*="text-main"] {
-  color: #e2e8f0 !important;
+/* Custom scrollbar for Quick Notes panel */
+.notes-scroll::-webkit-scrollbar {
+  width: 6px;
 }
 
-html.dark .text-muted,
-html.dark [class*="text-muted"] {
-  color: #94a3b8 !important;
+.notes-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-html.dark .text-primary,
-html.dark [class*="text-primary"] {
-  color: #7dd3fc !important;
+.notes-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+}
+
+.notes-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
 }

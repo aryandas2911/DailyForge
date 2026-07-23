@@ -63,7 +63,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
           <button
             onClick={(e) => {
               e.stopPropagation(); // prevents drag from triggering
-              onDeleteTask(task.taskId, task.day);
+              onDeleteTask(task.taskId, task.day, task.startTime);
             }}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full 
              bg-red-500 text-white text-[9px] font-bold
