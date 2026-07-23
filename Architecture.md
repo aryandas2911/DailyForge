@@ -35,7 +35,7 @@ DailyForge is structured as a client-server web application separating the front
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Tier (Browser)"]
+    subgraph Client["Client Tier (Browser)"]
         UI["React SPA"]
         Context["AuthContext / ThemeContext"]
         Hooks["useTasks / useMixedTasks"]
@@ -46,19 +46,19 @@ flowchart TD
         Hooks --> Axios
     end
 
-    subgraph Development ["Local Dev Environment"]
+    subgraph Development["Local Dev Environment"]
         ViteDev["Vite Dev Server (Port 5173)"]
         ExpressDev["Express API Server (Port 5000)"]
-        Axios -->|Direct API Call| ExpressDev
+        Axios -->|"Direct API Call"| ExpressDev
     end
 
-    subgraph Production ["Containerized Setup"]
+    subgraph Production["Containerized Setup"]
         Nginx["Nginx Container (Port 80)"]
         ExpressProd["Express Container (Port 5000)"]
-        Nginx -->|Proxy /api| ExpressProd
+        Nginx -->|"Proxy /api"| ExpressProd
     end
 
-    subgraph Server ["Backend Handlers"]
+    subgraph Server["Backend Handlers"]
         Routes["Express Routers"]
         AuthMW["authMiddleware"]
         Controllers["Controllers"]
@@ -67,7 +67,7 @@ flowchart TD
         AuthMW --> Controllers
     end
 
-    subgraph Persistence ["Data & External Services"]
+    subgraph Persistence["Data & External Services"]
         Mongoose["Mongoose Models"]
         MongoDB[("MongoDB Database")]
         Firebase["Google Public x509 Certs"]
@@ -75,8 +75,8 @@ flowchart TD
         
         Controllers --> Mongoose
         Mongoose --> MongoDB
-        Controllers -->|Verify Token| Firebase
-        Controllers -->|Upload Avatars| Cloudinary
+        Controllers -->|"Verify Token"| Firebase
+        Controllers -->|"Upload Avatars"| Cloudinary
     end
 ```
 
@@ -148,12 +148,12 @@ The `useTasks` hook ([`frontend/src/hooks/useTasks.js`](frontend/src/hooks/useTa
 
 ```mermaid
 flowchart LR
-    Component["UI Component"] -->|Calls addTask / updateTask / deleteTask| Hook["useTasks Hook"]
-    Hook -->|Reads via cachedGet| Cache["apiCache Memory"]
-    Hook -->|API Requests| Axios["Axios Client"]
-    Axios -->|POST / PUT / DELETE| Backend["Express Backend"]
-    Backend -->|Success Response| Hook
-    Hook -->|invalidateTasks| Cache
+    Component["UI Component"] -->|"Calls addTask, updateTask, deleteTask"| Hook["useTasks Hook"]
+    Hook -->|"Reads via cachedGet"| Cache["apiCache Memory"]
+    Hook -->|"API Requests"| Axios["Axios Client"]
+    Axios -->|"POST, PUT, DELETE"| Backend["Express Backend"]
+    Backend -->|"Success Response"| Hook
+    Hook -->|"invalidateTasks"| Cache
 ```
 
 #### Key Responsibilities
@@ -203,10 +203,10 @@ DailyForge supports local email/password login, Google OAuth via Firebase, and T
 sequenceDiagram
     autonumber
     actor User
-    participant Frontend as React App
-    participant Backend as Express API
-    participant Firebase as Google Certs API
-    participant DB as MongoDB
+    participant Frontend as "React App"
+    participant Backend as "Express API"
+    participant Firebase as "Google Certs API"
+    participant DB as "MongoDB"
 
     alt Local Authentication
         User->>Frontend: Enter Credentials
@@ -267,7 +267,7 @@ erDiagram
     USER ||--o{ TASK : "owns"
     USER ||--o{ ROUTINE : "owns"
     USER ||--o{ JOURNAL : "owns"
-    TASK ||--o{ TASK : "dependsOn / parentTaskId"
+    TASK ||--o{ TASK : "dependsOn, parentTaskId"
     ROUTINE ||--o{ TASK : "references items"
 
     USER {
@@ -325,14 +325,14 @@ The diagram below traces an API request (adding a task) from UI interaction to d
 sequenceDiagram
     autonumber
     actor User
-    participant UI as Task UI
-    participant Hook as useTasks
-    participant Axios as Axios Client
-    participant Server as Express Server
-    participant MW as authMiddleware
-    participant Controller as taskController
-    participant Model as Task Model
-    participant DB as MongoDB
+    participant UI as "Task UI"
+    participant Hook as "useTasks"
+    participant Axios as "Axios Client"
+    participant Server as "Express Server"
+    participant MW as "authMiddleware"
+    participant Controller as "taskController"
+    participant Model as "Task Model"
+    participant DB as "MongoDB"
 
     User->>UI: Submit Task Form
     UI->>Hook: addTask(taskData)
@@ -373,31 +373,31 @@ DailyForge includes **Docker Compose** configurations for containerized setups:
 
 ```mermaid
 flowchart LR
-    subgraph Host ["Host Machine"]
+    subgraph Host["Host Machine"]
         Port5173["Host Port 5173"]
         Port5000["Host Port 5000"]
 
-        subgraph Docker ["Docker Compose Environment"]
-            subgraph FrontendApp ["frontend container"]
+        subgraph Docker["Docker Compose Environment"]
+            subgraph FrontendApp["frontend container"]
                 Nginx["Nginx Server (Port 80)"]
                 Dist["Static Dist Files"]
                 Nginx --- Dist
             end
 
-            subgraph BackendApp ["backend container"]
+            subgraph BackendApp["backend container"]
                 NodeApp["Express Server (Port 5000)"]
             end
 
-            subgraph DatabaseApp ["mongo container"]
+            subgraph DatabaseApp["mongo container"]
                 MongoService["MongoDB Server (Port 27017)"]
             end
         end
     end
 
-    Port5173 -->|Web Traffic| Nginx
-    Port5000 -->|Direct API Traffic| NodeApp
-    Nginx -->|Proxy /api| NodeApp
-    NodeApp -->|Database Connection| MongoService
+    Port5173 -->|"Web Traffic"| Nginx
+    Port5000 -->|"Direct API Traffic"| NodeApp
+    Nginx -->|"Proxy /api"| NodeApp
+    NodeApp -->|"Database Connection"| MongoService
 ```
 
 ### Container Configuration
