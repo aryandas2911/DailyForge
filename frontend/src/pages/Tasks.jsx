@@ -317,7 +317,7 @@ export default function Tasks() {
 {isNotesOpen && (
   <>
     {/* Mobile View - No Overlap */}
-    <div className="block md:hidden w-full mt-4">
+    <div className="block md:hidden w-full mt-4 max-h-[50vh] overflow-y-auto notes-scroll">
       <NotesWidget />
     </div>
 
@@ -330,6 +330,7 @@ export default function Tasks() {
         bg-white dark:bg-slate-900
         shadow-2xl rounded-2xl overflow-hidden
         border border-gray-100 dark:border-slate-800
+        max-h-[70vh] overflow-y-auto notes-scroll
       "
     >
       <NotesWidget />

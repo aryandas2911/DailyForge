@@ -208,7 +208,7 @@ export default function RoutineBuilder() {
 
   /* ---------------- DRAG END HANDLER ---------------- */
   // Removing Schedule task after drag
-  const removeScheduledTask = (taskId, day) => {
+  const removeScheduledTask = (taskId, day, startTime) => {
 
     //filtering out 
     setScheduledTasks((prev) =>
@@ -216,7 +216,8 @@ export default function RoutineBuilder() {
         (task) =>
           !(
             task.taskId === taskId &&
-            normalizeDay(task.day) === normalizeDay(day)
+            normalizeDay(task.day) === normalizeDay(day) &&
+            task.startTime === startTime
           )
       )
     );
