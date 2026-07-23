@@ -64,7 +64,11 @@ const taskUpdateValidationRules = [
     .optional()
     .isIn(["Due", "In Progress", "Completed"])
     .withMessage("Status must be Due, In Progress, or Completed"),
-
+  body("actualDuration")
+    .optional({ values: "null" })
+    .toInt()
+    .isInt({ min: 1 })
+    .withMessage("Actual duration must be a positive number"),
   body("recurrence").optional(),
   body("recurrence.enabled").optional().isBoolean(),
   body("recurrence.frequency")

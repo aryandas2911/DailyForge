@@ -191,6 +191,9 @@ import FormError from "../common/FormError";
             dueDate: `${dueDate}T${dueTime}:00`,
             dependsOn: dependsOn || null,
             recurrence: buildRecurrence(),
+            ...(task?.status === "Completed" && task.actualDuration != null)
+              ? { actualDuration: task.actualDuration }
+              : {}),
           }),     
         );
       } finally {

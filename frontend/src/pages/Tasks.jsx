@@ -155,6 +155,10 @@ export default function Tasks() {
       setActualDuration("");
     } catch (error) {
       console.error("Failed to update task:", error);
+      alert(
+        error?.response?.data?.message ||
+          "Could not save completion. Please try again.",
+      );
     }
   };
 
