@@ -22,7 +22,7 @@ export const createRoutine = async (req, res) => {
     }
 
     // fetch routine details from request body
-    const { name, description, items } = req.body;
+    const { name, description, items, isPublic } = req.body;
     if (!name || !items || items.length === 0) {
       return res
         .status(400)
@@ -127,6 +127,7 @@ export const createRoutine = async (req, res) => {
      name,
      description,
      items,
+     isPublic: isPublic ?? false,
 
      adaptiveSettings: {
      adaptiveEnabled: true,
@@ -302,12 +303,13 @@ export const updateRoutine = async (req, res) => {
     }
 
     // fetch updated routine details
-    const { name, description, items } = req.body;
+    const { name, description, items, isPublic } = req.body;
 
     const updates = {
       ...(name && { name }),
       ...(description && { description }),
       ...(items && { items }),
+      ...(isPublic !== undefined && { isPublic }),
     };
     const routineId = req.params.id;
 
@@ -445,11 +447,11 @@ export const deleteRoutine = async (req, res) => {
 export const getPublicRoutine = async (req, res) => {
   try {
     const routineId = req.params.id;
-    const routine = await Routine.findById(routineId).populate("items.taskId");
+    const routine = await Routine.findOne({ _id: routineId, isPublic: true }).populate("items.taskId", "title");
     if (!routine) {
       return res.status(404).json({
         success: false,
-        message: "Routine not found",
+        message: "Routine not found or is private",
       });
     }
     const objectRoutine = routine.toObject();
