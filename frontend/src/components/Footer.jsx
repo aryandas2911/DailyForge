@@ -67,7 +67,7 @@ export default function Footer() {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+                    className="text-[#94a3b8] hover:text-[#f8fafc] transition-colors relative inline-block after:block after:h-[2px] after:bg-[#4eb7b3] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
                   >
                     {link.label}
                   </Link>
@@ -87,9 +87,10 @@ export default function Footer() {
                   href={githubBase}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors relative group"
                 >
-                  <Github size={14} /> GitHub Repo
+                  <Github size={14} />
+                  <span className="relative inline-block after:block after:h-[2px] after:bg-[#4eb7b3] after:w-0 after:transition-all after:duration-300 group-hover:after:w-full">GitHub Repo</span>
                 </a>
               </li>
               <li>
@@ -97,9 +98,10 @@ export default function Footer() {
                   href={`${githubBase}/issues`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors relative group"
                 >
-                  <MessageSquare size={14} /> Issues
+                  <MessageSquare size={14} />
+                  <span className="relative inline-block after:block after:h-[2px] after:bg-[#4eb7b3] after:w-0 after:transition-all after:duration-300 group-hover:after:w-full">Issues</span>
                 </a>
               </li>
               <li>
@@ -107,9 +109,10 @@ export default function Footer() {
                   href={`${githubBase}/blob/main/CONTRIBUTING.md`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors"
+                  className="flex items-center gap-2 text-[#94a3b8] hover:text-[#f8fafc] transition-colors relative group"
                 >
-                  <BookOpen size={14} /> Contributing
+                  <BookOpen size={14} />
+                  <span className="relative inline-block after:block after:h-[2px] after:bg-[#4eb7b3] after:w-0 after:transition-all after:duration-300 group-hover:after:w-full">Contributing</span>
                 </a>
               </li>
             </ul>
