@@ -305,10 +305,10 @@ const Navbar = () => {
               <motion.div
                 whileHover={{ rotate: -8, scale: 1.06 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
-                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#162033] via-[#256a78] to-[#76e4d0] shadow-[0_12px_30px_rgba(78,183,179,0.36)] ring-1 ring-white/50 dark:from-[#0b1020] dark:via-[#173c52] dark:to-[#4eb7b3] dark:ring-white/12"
+                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#162033] via-[#256a78] to-[#76e4d0] shadow-[0_8px_28px_rgba(78,183,179,0.40),0_2px_8px_rgba(78,183,179,0.16)] ring-1 ring-white/50 ring-white/30 dark:from-[#0b1020] dark:via-[#173c52] dark:to-[#4eb7b3] dark:ring-white/12"
               >
-                <span className="absolute inset-1 rounded-full bg-white/12 blur-[1px]" />
-                <span className="relative text-white font-black text-xl leading-none tracking-tighter">
+                <span className="absolute inset-[3px] rounded-full bg-gradient-to-br from-white/20 to-transparent" />
+                <span className="relative text-white font-black text-xl leading-none tracking-tighter drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                   D
                 </span>
               </motion.div>
