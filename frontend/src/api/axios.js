@@ -10,6 +10,15 @@ const api = axios.create({
   },
 });
 
+// Attach auth token from localStorage as fallback for environments where cookies are not sent
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Handle response errors, including timeout
 api.interceptors.response.use(
   (response) => response, // success — pass through unchanged
