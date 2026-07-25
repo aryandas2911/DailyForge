@@ -409,6 +409,9 @@ Authorization: Bearer <token>
 
 ---
 
+For detailed request and response examples, see [API Guide](docs/API_guide.md).
+
+---
 ## ❓ FAQ
 
 ### Why is the app slow on first load?
