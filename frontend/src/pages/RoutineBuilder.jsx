@@ -206,6 +206,14 @@ export default function RoutineBuilder() {
     setIsSaveModalOpen(true);
   };
 
+  const handleResetDay = (day) => {
+    setScheduledTasks((prev) => prev.filter((task) => task.day !== day));
+  };
+
+  const handleResetAll = () => {
+    setScheduledTasks([]);
+  };
+
   /* ---------------- DRAG END HANDLER ---------------- */
   // Removing Schedule task after drag
   const removeScheduledTask = (taskId, day, startTime) => {
@@ -289,6 +297,12 @@ export default function RoutineBuilder() {
             {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
             {isImageExporting ? "Exporting..." : "Export as PNG"}
           </button>
+          <button
+            onClick={handleResetAll}
+            className="btn btn-secondary flex items-center gap-2 cursor-pointer hover-lift border border-gray-300 px-4 py-2 rounded-lg"
+          >
+            Reset All
+          </button>
           <div className="flex items-center gap-3">
             <button
             onClick={() => setIsTemplateModalOpen(true)}
@@ -318,6 +332,7 @@ export default function RoutineBuilder() {
               scheduledTasks={scheduledTasks}
               onSaveDay={openSaveRoutineModal}
               onDeleteTask={removeScheduledTask}
+              onResetDay={handleResetDay}
               innerRef={gridRef}
               highlight={highlightGrid}
             />

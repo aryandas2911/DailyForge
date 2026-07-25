@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import { Save } from "lucide-react";
+import { Save, RotateCcw } from "lucide-react";
 
 /* ---------------- Constants ---------------- */
 const DAYS = [
@@ -80,7 +80,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
 }
 
 /* ---------------- Weekly Grid ---------------- */
-export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, innerRef, highlight }) {
+export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, onResetDay, innerRef, highlight }) {
   return (
     <div
       className={`card card-primary !pl-2.5 !pr-2.5 !py-3 animate-in transition-shadow duration-500 ${
@@ -106,7 +106,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
         {/* ===== Save Buttons Row ===== */}
         <div /> {/* empty time column */}
         {DAYS.map((day) => (
-          <div key={`save-${day}`} className="flex justify-center pb-2">
+          <div key={`save-${day}`} className="flex justify-center items-center gap-1.5 pb-2">
             <button
               onClick={() => onSaveDay(day)}
               title={`Save ${day} Routine`}
@@ -114,6 +114,13 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
             >
               <Save size={10} className="sm:w-3 sm:h-3" />
               <span className="hidden sm:inline">Save</span>
+            </button>
+            <button
+              onClick={() => onResetDay(day)}
+              title={`Reset ${day}`}
+              className="flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 p-1 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-200 dark:hover:border-red-800 hover:text-red-500 transition-all duration-200"
+            >
+              <RotateCcw size={9} className="sm:w-2.5 sm:h-2.5" />
             </button>
           </div>
         ))}
