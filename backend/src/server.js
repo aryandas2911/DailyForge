@@ -11,6 +11,7 @@ import { taskRouter } from "../routes/taskRoutes.js";
 import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
+import { healthRouter } from "../routes/healthRoutes.js";
 import { validateEnv } from "../utils/envValidator.js";
 import connectCloudinary from "../config/cloudinary.js";
 import { rateLimit } from "express-rate-limit";
@@ -79,6 +80,9 @@ app.use("/api/analytics", analyticsRouter);
 
 // Router for accessing journal routes
 app.use("/api/journal", journalRouter);
+
+// Health check endpoint for monitoring tools
+app.use("/health", healthRouter);
 
 app.get("/", (req, res) => {
   res.send("Server running");
