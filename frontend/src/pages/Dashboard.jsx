@@ -618,11 +618,11 @@ export default function Dashboard() {
             className="bg-(--surface) p-6 rounded-xl w-[400px]"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold mb-4">Select Tags</h3>
+            <h3 className="text-lg font-semibold mb-4 text-main">Select Tags</h3>
 
             <div className="space-y-2">
               {availableTags.map((tag) => (
-                <label key={tag} className="flex items-center gap-2">
+                <label key={tag} className="flex items-center gap-2 text-main">
                   <input
                     type="checkbox"
                     checked={selectedTags.includes(tag)}
@@ -646,7 +646,7 @@ export default function Dashboard() {
                 value={customTag}
                 onChange={(e) => setCustomTag(e.target.value)}
                 placeholder="Create custom tag"
-                className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
+                className="flex-1 px-3 py-2 rounded-lg border border-soft bg-transparent text-main dark:bg-slate-800 dark:placeholder-slate-500 dark:text-white"
               />
 
               <button
