@@ -45,6 +45,7 @@ export default function RoutineBuilder() {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
   const [highlightGrid, setHighlightGrid] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const gridRef = useRef(null);
  
 
@@ -166,6 +167,7 @@ export default function RoutineBuilder() {
         duration: task.duration,
       }));
 
+    setIsSaving(true);
     try {
       const res = await api.post("/routines", {
         name: routineName,
@@ -186,12 +188,13 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
       await fetchRoutines();
     } catch (err) {
       console.error(err);
       const errorMessage = err.response?.data?.message || "Failed to save routine";
       alert(errorMessage);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -402,11 +405,18 @@ export default function RoutineBuilder() {
                   Cancel
                 </button>
                 <button
-                  className="btn btn-primary cursor-pointer"
+                  className="btn btn-primary cursor-pointer flex items-center gap-2"
                   onClick={confirmSaveRoutine}
-                  disabled={!routineName.trim()}
+                  disabled={!routineName.trim() || isSaving}
                 >
-                  Save Routine
+                  {isSaving ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Routine"
+                  )}
                 </button>
               </div>
             </div>
