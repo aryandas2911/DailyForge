@@ -57,6 +57,18 @@ export default function RoutineOverviewModal({
     }
   };
 
+  const handleCopyName = async (e) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    try {
+      await navigator.clipboard.writeText(routine.name);
+      triggerToast("Routine name copied!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to copy routine name");
+    }
+  };
+
   const handleExportPDF = async (e) => {
     e.stopPropagation();
     setShowMenu(false);
@@ -146,6 +158,13 @@ export default function RoutineOverviewModal({
                 >
                   <Share2 size={16} />
                   Copy Share Link
+                </button>
+                <button
+                  onClick={handleCopyName}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium cursor-pointer"
+                >
+                  <Copy size={16} />
+                  Copy Name
                 </button>
                 <button
                   onClick={handleCopySummary}
