@@ -224,6 +224,7 @@ hover:bg-gray-50
 hover:border-gray-400
 hover:-translate-y-[1px]
 hover:shadow-md
+active:scale-95 active:translate-y-0
 dark:bg-slate-900/50
 dark:border-slate-700
 dark:text-slate-100
@@ -267,7 +268,7 @@ cursor-pointer
           <button
             type="submit"
             disabled={isGoogleLoading || isSubmitLoading}
-            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift"
+            className="btn btn-primary w-full py-3 mt-1 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover-lift active:scale-95 active:translate-y-0 transition-transform duration-150"
           >
             {isSubmitLoading ? "Logging in..." : "Login"}
           </button>
