@@ -243,6 +243,7 @@ hover:bg-gray-50
 hover:border-gray-400
 hover:-translate-y-[1px]
 hover:shadow-md
+active:scale-95 active:translate-y-0
 dark:bg-slate-900/50
 dark:border-slate-700
 dark:text-slate-100
@@ -460,6 +461,8 @@ cursor-pointer
               rounded-2xl
               cursor-pointer
               disabled:opacity-50
+              active:scale-95 active:translate-y-0
+              transition-transform duration-150
             "
           >
             {isLoading ? "Signing up..." : "Sign Up"}
