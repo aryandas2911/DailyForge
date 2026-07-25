@@ -339,8 +339,8 @@ import FormError from "../common/FormError";
                         disabled={isSubmitting}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                           isSelected
-                            ? "ring-2 ring-offset-1"
-                            : "opacity-60 hover:opacity-100"
+                            ? "ring-2 ring-offset-1 ring-indigo-500 dark:ring-indigo-400"
+                            : "opacity-60 hover:opacity-100 text-slate-700 dark:text-slate-300"
                         }`}
                       >
                         {tag}
