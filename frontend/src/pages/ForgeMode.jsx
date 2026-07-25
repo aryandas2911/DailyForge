@@ -35,7 +35,10 @@ export default function ForgeMode() {
   
   // Ambient audio state
   const [currentSound, setCurrentSound] = useState("none");
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem("forgeMode_volume");
+    return saved !== null ? Number(saved) : 0.5;
+  });
   const [isMuted, setIsMuted] = useState(false);
   const [soundscapeMenuOpen, setSoundscapeMenuOpen] = useState(false);
   
@@ -168,6 +171,11 @@ export default function ForgeMode() {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted, currentSound]);
+
+  // Persist volume preference to localStorage
+  useEffect(() => {
+    localStorage.setItem("forgeMode_volume", String(volume));
+  }, [volume]);
 
   // Format MM:SS
   const formatTime = (secs) => {
