@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
+import KeyboardShortcutsProvider from "./components/KeyboardShortcutsProvider.jsx";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -21,6 +22,7 @@ import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import PageTransition from "./components/PageTransition.jsx";
 import ShareRoutine from "./pages/ShareRoutine.jsx";
 import DailyJournal from "./pages/DailyJournal.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] flex items-center justify-center">
@@ -37,11 +39,7 @@ const AnimatedRoutes = () => {
         <Route
           path="/"
           element={
-            <PublicRoute>
-              <AuthLayout>
-                <Login />
-              </AuthLayout>
-            </PublicRoute>
+            <LandingPage />
           }
         />
         <Route
@@ -154,6 +152,16 @@ const AnimatedRoutes = () => {
             </ProtectedRoutes>
           }
         />
+        <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <AuthLayout>
+                  <ResetPasswordPage />
+                </AuthLayout>
+              </PublicRoute>
+            }
+          />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
@@ -163,6 +171,7 @@ const AnimatedRoutes = () => {
 
 const App = () => {
   return (
+    <KeyboardShortcutsProvider>
     <BrowserRouter>
       <Navbar />
       <main className="app-bg min-h-screen pt-24 sm:pt-28 flex flex-col text-main transition-colors duration-300">
@@ -170,11 +179,7 @@ const App = () => {
           <Route
             path="/"
             element={
-              <PublicRoute>
-                <AuthLayout>
-                  <Login />
-                </AuthLayout>
-              </PublicRoute>
+              <LandingPage />
             }
           />
           <Route
@@ -261,6 +266,16 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <AuthLayout>
+                  <ResetPasswordPage />
+                </AuthLayout>
+              </PublicRoute>
+            }
+          />
           <Route path="/share/routine/:id" element={<ShareRoutine />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -268,6 +283,7 @@ const App = () => {
       <Footer />
       <ScrollToTop />
     </BrowserRouter>
+    </KeyboardShortcutsProvider>
   );
 };
 
