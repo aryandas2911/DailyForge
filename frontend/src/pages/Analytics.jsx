@@ -234,7 +234,7 @@ export default function Analytics() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="rounded-lg p-2 border border-soft text-muted hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition cursor-pointer"
+              className="rounded-lg p-2 border border-soft text-muted hover:bg-primary/20 dark:hover:bg-primary/20 transition cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
@@ -555,7 +555,7 @@ export default function Analytics() {
                         {task.title}
                       </span>
                     </div>
-                    <span className="text-xs bg-primary/20 text-[#3b8ea0] px-2 py-0.5 rounded-full font-semibold">
+                    <span className="text-xs bg-primary/20 text-primary dark:text-primary px-2 py-0.5 rounded-full font-semibold">
                       {task.count}x
                     </span>
                   </li>
