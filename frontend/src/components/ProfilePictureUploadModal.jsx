@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { createPortal } from "react-dom"; // Import createPortal
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, User } from "lucide-react";
 import axios from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
@@ -146,7 +146,7 @@ const ProfilePictureUploadModal = ({ isOpen, onClose }) => {
             {previewUrl ? (
               <img src={previewUrl} alt="Profile Preview" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-5xl text-gray-500 dark:text-gray-400">👤</span>
+              <User size={48} className="text-gray-400 dark:text-gray-500" />
             )}
           </div>
 
