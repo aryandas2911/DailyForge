@@ -15,7 +15,7 @@ export default function ReflectionSummary({
     return "Small wins build habits — try completing one focused task.";
   })();
 
-  const weeklyText = weeklyCompletionPercent >= 70 ? "Strong consistency this week 🔥" : "Keep building momentum";
+  const weeklyText = weeklyCompletionPercent >= 70 ? "Strong consistency this week" : "Keep building momentum";
 
   return (
     <div className="w-full animate-in delay-150">
