@@ -6,18 +6,23 @@ const TwoFactorSetup = () => {
   const [totpCode, setTotpCode] = useState("");
   const [message, setMessage] = useState("");
   const [enabled, setEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const startSetup = async () => {
+    setIsLoading(true);
     try {
       const res = await api.post("/auth/2fa/setup");
       setQrCode(res.data.qrCodeUrl);
       setMessage("");
     } catch {
       setMessage("Error starting 2FA setup.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const verifyAndEnable = async () => {
+    setIsLoading(true);
     try {
       const res = await api.post("/auth/2fa/verify", { token: totpCode });
       setMessage(res.data.message);
@@ -25,16 +30,21 @@ const TwoFactorSetup = () => {
       setQrCode(null);
     } catch {
       setMessage("Invalid code, try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const disable2FA = async () => {
+    setIsLoading(true);
     try {
       const res = await api.post("/auth/2fa/disable");
       setMessage(res.data.message);
       setEnabled(false);
     } catch {
       setMessage("Error disabling 2FA.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,8 +53,8 @@ const TwoFactorSetup = () => {
       <h2 className="text-xl font-bold text-main">Two-Factor Authentication</h2>
 
       {!qrCode && !enabled && (
-        <button onClick={startSetup} className="btn btn-primary cursor-pointer hover-lift">
-          Enable 2FA
+        <button onClick={startSetup} disabled={isLoading} className="btn btn-primary cursor-pointer hover-lift disabled:opacity-60 disabled:cursor-not-allowed">
+          {isLoading ? "Enabling..." : "Enable 2FA"}
         </button>
       )}
 
@@ -60,15 +70,15 @@ const TwoFactorSetup = () => {
             maxLength={6}
             className="w-full px-3 py-2.5 text-sm surface-bg border-soft rounded-sm shadow-xs input-focus dark:placeholder-slate-500"
           />
-          <button onClick={verifyAndEnable} className="btn btn-primary cursor-pointer hover-lift">
-            Verify & Activate
+          <button onClick={verifyAndEnable} disabled={isLoading} className="btn btn-primary cursor-pointer hover-lift disabled:opacity-60 disabled:cursor-not-allowed">
+            {isLoading ? "Verifying..." : "Verify & Activate"}
           </button>
         </>
       )}
 
       {enabled && (
-        <button onClick={disable2FA} className="btn cursor-pointer hover-lift text-red-500">
-          Disable 2FA
+        <button onClick={disable2FA} disabled={isLoading} className="btn cursor-pointer hover-lift text-red-500 disabled:opacity-60 disabled:cursor-not-allowed">
+          {isLoading ? "Disabling..." : "Disable 2FA"}
         </button>
       )}
 
