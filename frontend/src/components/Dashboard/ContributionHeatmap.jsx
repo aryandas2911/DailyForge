@@ -162,11 +162,11 @@ export default function ContributionHeatmap({ tasks = [], routineTasks = [] }) {
                   <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800 text-[10px]">
                     {hoveredDay.score === 3 ? (
                       <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold animate-pulse">
-                        🔥 Perfect productivity streak active!
+                        Perfect productivity streak active!
                       </span>
                     ) : hoveredDay.score > 0 ? (
                       <span className="text-teal-600 dark:text-teal-400 flex items-center gap-1 font-bold">
-                        ⚡ Keep it going!
+                        Keep it going!
                       </span>
                     ) : (
                       <span className="text-slate-500 dark:text-slate-300 font-bold">No active completions</span>
