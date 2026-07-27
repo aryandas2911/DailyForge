@@ -178,7 +178,7 @@ const Login = () => {
               required
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
-              className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200"
+              className="input-modern w-full px-4 py-3 rounded-2xl text-sm border border-slate-200"
             />
           </div>
           <FormError error={error} />
@@ -243,16 +243,14 @@ cursor-pointer
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-medium text-main">Email</label>
-            <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1
-                border-slate-200 " />
+            <input type="email" id="email" placeholder="user@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-modern w-full px-4 py-3 rounded-2xl text-sm border border-slate-200" />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="password" className="text-sm font-medium text-main">
               Password
             </label>
             <div className="relative">
-              <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1
-                border-slate-200" />
+              <input type={showPassword ? "text" : "password"} id="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border border-slate-200" />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
                 {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
