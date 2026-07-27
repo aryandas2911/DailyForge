@@ -2,7 +2,7 @@ import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; 
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload, Smile, Coffee, Meh, AlertTriangle, CloudRain, Zap, Moon } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -506,13 +506,13 @@ export default function Dashboard() {
                       <h2 className="text-lg font-semibold text-main text-left">Daily Journal</h2>
                     </div>
                     {todayJournal && (
-                      <span className="text-2xl" title={`Mood: ${todayJournal.mood}`}>
-                        {todayJournal.mood === "happy" ? "😃" :
-                          todayJournal.mood === "calm" ? "😌" :
-                            todayJournal.mood === "neutral" ? "😐" :
-                              todayJournal.mood === "stressed" ? "🤯" :
-                                todayJournal.mood === "sad" ? "😢" :
-                                  todayJournal.mood === "energetic" ? "⚡" : "😴"}
+                      <span title={`Mood: ${todayJournal.mood}`} className="text-main">
+                        {todayJournal.mood === "happy" ? <Smile size={24} className="text-green-500" /> :
+                          todayJournal.mood === "calm" ? <Coffee size={24} className="text-teal-500" /> :
+                            todayJournal.mood === "neutral" ? <Meh size={24} className="text-slate-400" /> :
+                              todayJournal.mood === "stressed" ? <AlertTriangle size={24} className="text-orange-500" /> :
+                                todayJournal.mood === "sad" ? <CloudRain size={24} className="text-blue-500" /> :
+                                  todayJournal.mood === "energetic" ? <Zap size={24} className="text-yellow-500" /> : <Moon size={24} className="text-indigo-500" />}
                       </span>
                     )}
                   </div>
