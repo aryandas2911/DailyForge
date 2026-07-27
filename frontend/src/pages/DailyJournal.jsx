@@ -17,7 +17,12 @@ import {
   Tag,
   BarChart2,
   Edit2,
-  AlertTriangle
+  AlertTriangle,
+  Coffee,
+  Meh,
+  CloudRain,
+  Zap,
+  Moon
 } from "lucide-react";
 import api from "../api/axios.js";
 import { cachedGet, invalidate } from "../utils/apiCache";
@@ -25,13 +30,13 @@ import useDebounce from "../hooks/useDebounce";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const MOODS = [
-  { value: "happy", label: "Happy", emoji: "😃", color: "bg-green-500/10 text-green-500 border-green-500/20", glow: "shadow-[0_0_15px_rgba(34,197,94,0.4)] border-green-500 scale-105" },
-  { value: "calm", label: "Calm", emoji: "😌", color: "bg-teal-500/10 text-teal-500 border-teal-500/20", glow: "shadow-[0_0_15px_rgba(20,184,166,0.4)] border-teal-500 scale-105" },
-  { value: "neutral", label: "Neutral", emoji: "😐", color: "bg-slate-500/10 text-slate-500 dark:text-slate-300 border-slate-500/20", glow: "shadow-[0_0_15px_rgba(100,116,139,0.4)] border-slate-500 scale-105" },
-  { value: "stressed", label: "Stressed", emoji: "🤯", color: "bg-orange-500/10 text-orange-500 border-orange-500/20", glow: "shadow-[0_0_15px_rgba(249,115,22,0.4)] border-orange-500 scale-105" },
-  { value: "sad", label: "Sad", emoji: "😢", color: "bg-blue-500/10 text-blue-500 dark:text-slate-200 border-blue-500/20", glow: "shadow-[0_0_15px_rgba(59,130,246,0.4)] border-blue-500 scale-105" },
-  { value: "energetic", label: "Energetic", emoji: "⚡", color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20", glow: "shadow-[0_0_15px_rgba(234,179,8,0.4)] border-yellow-500 scale-105" },
-  { value: "tired", label: "Tired", emoji: "😴", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", glow: "shadow-[0_0_15px_rgba(99,102,241,0.4)] border-indigo-500 scale-105" },
+  { value: "happy", label: "Happy", icon: Smile, iconColor: "text-green-500", color: "bg-green-500/10 text-green-500 border-green-500/20", glow: "shadow-[0_0_15px_rgba(34,197,94,0.4)] border-green-500 scale-105" },
+  { value: "calm", label: "Calm", icon: Coffee, iconColor: "text-teal-500", color: "bg-teal-500/10 text-teal-500 border-teal-500/20", glow: "shadow-[0_0_15px_rgba(20,184,166,0.4)] border-teal-500 scale-105" },
+  { value: "neutral", label: "Neutral", icon: Meh, iconColor: "text-slate-400 dark:text-slate-300", color: "bg-slate-500/10 text-slate-500 dark:text-slate-300 border-slate-500/20", glow: "shadow-[0_0_15px_rgba(100,116,139,0.4)] border-slate-500 scale-105" },
+  { value: "stressed", label: "Stressed", icon: AlertTriangle, iconColor: "text-orange-500", color: "bg-orange-500/10 text-orange-500 border-orange-500/20", glow: "shadow-[0_0_15px_rgba(249,115,22,0.4)] border-orange-500 scale-105" },
+  { value: "sad", label: "Sad", icon: CloudRain, iconColor: "text-blue-500", color: "bg-blue-500/10 text-blue-500 dark:text-slate-200 border-blue-500/20", glow: "shadow-[0_0_15px_rgba(59,130,246,0.4)] border-blue-500 scale-105" },
+  { value: "energetic", label: "Energetic", icon: Zap, iconColor: "text-yellow-500", color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20", glow: "shadow-[0_0_15px_rgba(234,179,8,0.4)] border-yellow-500 scale-105" },
+  { value: "tired", label: "Tired", icon: Moon, iconColor: "text-indigo-500", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", glow: "shadow-[0_0_15px_rgba(99,102,241,0.4)] border-indigo-500 scale-105" },
 ];
 
 export default function DailyJournal() {
@@ -616,7 +621,7 @@ export default function DailyJournal() {
                         : "bg-white/5 border-(--border) text-muted hover:text-main"
                     }`}
                   >
-                    <span>{m.emoji}</span>
+                    <m.icon size={12} className={m.iconColor} />
                     <span>{m.label}</span>
                   </button>
                 ))}
@@ -665,7 +670,7 @@ export default function DailyJournal() {
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border flex items-center gap-1 ${entryMood.color}`}
                         >
-                          <span>{entryMood.emoji}</span>
+                          <entryMood.icon size={10} className={entryMood.iconColor} />
                           <span>{entryMood.label}</span>
                         </span>
                       </div>
