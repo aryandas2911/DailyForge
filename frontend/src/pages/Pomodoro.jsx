@@ -71,9 +71,9 @@ const Pomodoro = () => {
             </div>
 
             <div className='absolute inset-0 flex flex-col items-center justify-center z-10 gap-5'>
-                <h1 className='font-bold text-3xl mb-3 p-3 flex justify-center text-center text-[#4eb7b3]'>Complete your tasks with a pomodoro timer.</h1>
-                <div className='w-[280px] h-[280px] rounded-full bg-white backdrop-blur-xl border border-white/20 shadow-xl flex items-center justify-center'>
-                    <h1 className='text-7xl font-bold text-[#4eb7b3]'>{formatTime()}</h1>
+                <h1 className='font-bold text-3xl mb-3 p-3 flex justify-center text-center text-main'>Complete your tasks with a pomodoro timer.</h1>
+                <div className='w-[280px] h-[280px] rounded-full surface-bg backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl flex items-center justify-center'>
+                    <h1 className='text-7xl font-bold text-main'>{formatTime()}</h1>
                 </div>
 
                 <div className='mt-5 z-20'>
@@ -99,10 +99,10 @@ const Pomodoro = () => {
                     </div>
                 </div>
 
-                {showPopUp && <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30'>
-                        <div className='border border-[#4eb7b3] bg-[#0f172a] rounded-xl p-6 shadow-3xl flex flex-col items-center gap-4'>
-                            <h1 className='text-3xl font-bold text-[#4eb7b3] text-center'>Session Complete!</h1>
-                            <p className='text-center text-md text-[#4eb7b3]'>Great work. Take a break!</p>
+                {showPopUp && <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm'>
+                        <div className='border border-primary surface-bg rounded-xl p-6 shadow-3xl flex flex-col items-center gap-4'>
+                            <h1 className='text-3xl font-bold text-main text-center'>Session Complete!</h1>
+                            <p className='text-center text-md text-muted'>Great work. Take a break!</p>
 
                             <button className='btn btn-primary cursor-pointer' onClick={()=> {finRef.current.pause(); finRef.current.currentTime=0; setShowPopUp(false)}}>
                                 Close
