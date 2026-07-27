@@ -295,7 +295,7 @@ cursor-pointer
                 px-4
                 py-3
                 rounded-2xl
-                border-1
+                border
                 border-slate-200
                 text-sm
               "
@@ -325,7 +325,7 @@ cursor-pointer
                 py-3
                 rounded-2xl
                 text-sm
-                border-1
+                border
                 border-slate-200
               "
             />
@@ -355,7 +355,7 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
-                  border-1
+                  border
                   border-slate-200
                 "
               />
@@ -421,7 +421,7 @@ cursor-pointer
                   pr-11
                   rounded-2xl
                   text-sm
-                  border-1
+                  border
                   border-slate-200
                 "
               />
