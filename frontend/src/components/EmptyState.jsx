@@ -8,19 +8,21 @@ const CONFIG = {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: 80, height: 80 }}
+      className="dark:fill-blue-400/30 dark:stroke-blue-400"
     >
-      <rect x="10" y="18" width="60" height="8" rx="4" fill="#1d4ed8" opacity="0.18" />
-      <rect x="10" y="34" width="45" height="8" rx="4" fill="#1d4ed8" opacity="0.13" />
-      <rect x="10" y="50" width="52" height="8" rx="4" fill="#1d4ed8" opacity="0.10" />
-      <circle cx="56" cy="52" r="18" fill="#1d4ed8" opacity="0.15" />
+      <rect x="10" y="18" width="60" height="8" rx="4" fill="currentColor" opacity="0.18" className="fill-[#1d4ed8] dark:fill-blue-400" />
+      <rect x="10" y="34" width="45" height="8" rx="4" fill="currentColor" opacity="0.13" className="fill-[#1d4ed8] dark:fill-blue-400" />
+      <rect x="10" y="50" width="52" height="8" rx="4" fill="currentColor" opacity="0.10" className="fill-[#1d4ed8] dark:fill-blue-400" />
+      <circle cx="56" cy="52" r="18" fill="currentColor" opacity="0.15" className="fill-[#1d4ed8] dark:fill-blue-400" />
       <path
         d="M46 52l6 6 12-12"
-        stroke="#1d4ed8"
+        stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="stroke-[#1d4ed8] dark:stroke-blue-400"
       />
-      <rect x="10" y="10" width="32" height="4" rx="2" fill="#1d4ed8" opacity="0.35" />
+      <rect x="10" y="10" width="32" height="4" rx="2" fill="currentColor" opacity="0.35" className="fill-[#1d4ed8] dark:fill-blue-400" />
     </svg>
   ),
   heading: "No tasks yet",
@@ -30,15 +32,15 @@ const CONFIG = {
   routines: {
     icon: (
       <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 80, height: 80 }}>
-        <circle cx="40" cy="40" r="28" stroke="#6366f1" strokeWidth="3" opacity="0.2" />
-        <circle cx="40" cy="40" r="28" stroke="#6366f1" strokeWidth="3" strokeDasharray="44 132" strokeLinecap="round" opacity="0.7" />
-        <circle cx="40" cy="40" r="3" fill="#6366f1" />
-        <path d="M40 40 V20" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M40 40 L54 48" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-        <circle cx="40" cy="12" r="3" fill="#6366f1" opacity="0.4" />
-        <circle cx="68" cy="40" r="3" fill="#6366f1" opacity="0.25" />
-        <circle cx="12" cy="40" r="3" fill="#6366f1" opacity="0.25" />
-        <circle cx="40" cy="68" r="3" fill="#6366f1" opacity="0.25" />
+        <circle cx="40" cy="40" r="28" stroke="currentColor" strokeWidth="3" opacity="0.2" className="stroke-[#6366f1] dark:stroke-indigo-400" />
+        <circle cx="40" cy="40" r="28" stroke="currentColor" strokeWidth="3" strokeDasharray="44 132" strokeLinecap="round" opacity="0.7" className="stroke-[#6366f1] dark:stroke-indigo-400" />
+        <circle cx="40" cy="40" r="3" fill="currentColor" className="fill-[#6366f1] dark:fill-indigo-400" />
+        <path d="M40 40 V20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="stroke-[#6366f1] dark:stroke-indigo-400" />
+        <path d="M40 40 L54 48" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" className="stroke-[#6366f1] dark:stroke-indigo-400" />
+        <circle cx="40" cy="12" r="3" fill="currentColor" opacity="0.4" className="fill-[#6366f1] dark:fill-indigo-400" />
+        <circle cx="68" cy="40" r="3" fill="currentColor" opacity="0.25" className="fill-[#6366f1] dark:fill-indigo-400" />
+        <circle cx="12" cy="40" r="3" fill="currentColor" opacity="0.25" className="fill-[#6366f1] dark:fill-indigo-400" />
+        <circle cx="40" cy="68" r="3" fill="currentColor" opacity="0.25" className="fill-[#6366f1] dark:fill-indigo-400" />
       </svg>
     ),
     heading: "No routines saved",
