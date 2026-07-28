@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import api from "../api/axios";
+import { clearCache } from "../utils/apiCache";
 
 // create context component
 // eslint-disable-next-line react-refresh/only-export-components
@@ -15,9 +16,11 @@ const AuthProvider = ({ children }) => {
     try {
       await api.post("/auth/logout");
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     setUser(null);
+    localStorage.removeItem("activeRoutineTasks"); // specifically requested in issue #882
+    clearCache(); // drop cached API data so the next user starts clean
   };
 
   // restore session on app load
@@ -35,6 +38,18 @@ const AuthProvider = ({ children }) => {
         setIsLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    // Check if the user has a custom color that is not the default
+    if (user?.primaryColor && user.primaryColor.toLowerCase() !== '#4eb7b3') {
+      root.style.setProperty('--primary', user.primaryColor);
+      root.setAttribute('data-theme-custom', 'true');
+    } else {
+      root.style.removeProperty('--primary');
+      root.removeAttribute('data-theme-custom');
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
