@@ -235,12 +235,6 @@ export default function TaskItem({
                   {task.priority} priority
                 </span>
 
-                {task.dueDate && (
-                  <span className="flex items-center gap-1">
-                    <Calendar size={12} />
-                    {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                )}
                 {isCompleted && task.actualDuration != null && (
                   <span>Actual: {task.actualDuration}m</span>
                 )}
@@ -266,6 +260,13 @@ export default function TaskItem({
                   </div>
                 )}
               </div>
+
+              {task.dueDate && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs font-medium text-main">
+                  <Calendar size={13} className="opacity-70" />
+                  <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                </div>
+              )}
             </div>
 
             {/* Actions */}
