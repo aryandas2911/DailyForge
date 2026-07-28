@@ -141,7 +141,7 @@ export default function Tasks() {
     const durationValue = Number(actualDuration);
 
     if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
+      showToast("Please enter a valid duration in minutes", "error");
       return;
     }
 
