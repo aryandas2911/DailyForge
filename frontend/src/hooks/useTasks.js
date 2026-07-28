@@ -52,7 +52,7 @@ const useTasks = ({
           limit: data.limit || initialLimit,
         });
       } catch (error) {
-        console.log(error?.response?.data?.message || "Failed to load tasks");
+        // removed debug logging
         setTasks([]);
       } finally {
         setLoading(false);
@@ -66,7 +66,7 @@ const useTasks = ({
     try {
       const response = await api.post("/tasks", taskData);
 
-      console.log("Task added:", response.data);
+      // removed debug logging
 
       invalidateTasks();
 
@@ -76,13 +76,7 @@ const useTasks = ({
         setPage(DEFAULT_PAGE);
       }
     } catch (error) {
-      console.log("FULL ERROR:", error);
-      console.log(
-        error?.response?.data?.message ||
-          error?.response?.data ||
-          error.message,
-      );
-      alert(error?.response?.data?.message || "Failed to create task");
+      // removed debug logging
       throw error;
     }
   };
@@ -114,7 +108,7 @@ const useTasks = ({
       invalidateTasks();
       await getTasks(page);
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
+      // removed debug logging
       invalidateTasks();
       await getTasks(page);
     }
