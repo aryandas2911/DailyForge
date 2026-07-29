@@ -1,5 +1,5 @@
 import OnboardingModal from "../components/OnboardingModal";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; 
 import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
@@ -18,6 +18,19 @@ import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal";
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
+function Toast({ message, type }) {
+  if (!message) return null;
+  return (
+    <div
+      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-600" : "bg-red-600"
+      }`}
+    >
+      {message}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -33,6 +46,16 @@ export default function Dashboard() {
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [todayJournal, setTodayJournal] = useState(null);
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   const today = new Date();
 
@@ -202,7 +225,7 @@ export default function Dashboard() {
       closeDuplicateModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to duplicate routine");
+      showToast("Failed to duplicate routine", "error");
     } finally {
       setDuplicatingRoutineId(null);
     }
@@ -679,6 +702,7 @@ export default function Dashboard() {
         isOpen={showProfilePictureModal}
         onClose={() => setShowProfilePictureModal(false)}
       />
+      <Toast message={toast.message} type={toast.type} />
     </div>
   );
 }
