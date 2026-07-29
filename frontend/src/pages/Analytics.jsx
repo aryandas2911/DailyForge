@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -17,6 +17,19 @@ import {
 import { cachedGet } from "../utils/apiCache";
 import html2canvas from "html2canvas";
 
+function Toast({ message, type }) {
+  if (!message) return null;
+  return (
+    <div
+      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-600" : "bg-red-600"
+      }`}
+    >
+      {message}
+    </div>
+  );
+}
+
 export default function Analytics() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -24,6 +37,16 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   const fetchAnalytics = async () => {
     try {
@@ -118,7 +141,7 @@ export default function Analytics() {
       document.body.removeChild(link);
     } catch (err) {
       console.error("Failed to export image:", err);
-      alert("Failed to export dashboard as image");
+      showToast("Failed to export dashboard as image", "error");
     }
   };
 
@@ -859,6 +882,7 @@ export default function Analytics() {
           </div>
         </div>
       </section>
+      <Toast message={toast.message} type={toast.type} />
     </div>
   );
 }
