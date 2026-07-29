@@ -1,3 +1,5 @@
+import { Flame } from "lucide-react";
+
 export default function ReflectionSummary({
   completedToday,
   totalToday,
@@ -15,7 +17,7 @@ export default function ReflectionSummary({
     return "Small wins build habits — try completing one focused task.";
   })();
 
-  const weeklyText = weeklyCompletionPercent >= 70 ? "Strong consistency this week 🔥" : "Keep building momentum";
+  const strongWeek = weeklyCompletionPercent >= 70;
 
   return (
     <div className="w-full animate-in delay-150">
@@ -31,7 +33,16 @@ export default function ReflectionSummary({
         <div className="card p-6">
           <p className="text-xs text-muted dark:text-slate-300 uppercase tracking-wide">Weekly Momentum</p>
           <p className="text-2xl font-semibold text-main mt-1">{weeklyCompletionPercent}%</p>
-          <p className="text-xs text-muted dark:text-slate-400 mt-1">{weeklyText}</p>
+          <p className="text-xs text-muted dark:text-slate-400 mt-1 flex items-center gap-1">
+            {strongWeek ? (
+              <>
+                <Flame size={12} className="text-orange-500 fill-orange-500" />
+                <span>Strong consistency this week</span>
+              </>
+            ) : (
+              <span>Keep building momentum</span>
+            )}
+          </p>
         </div>
 
         {/* Productivity Insight */}
