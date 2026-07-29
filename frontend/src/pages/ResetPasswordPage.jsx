@@ -88,7 +88,7 @@ const ResetPasswordPage = () => {
           <div className="flex flex-col gap-2">
             <label htmlFor="newPassword" className="text-sm font-medium text-main">New Password</label>
             <div className="relative">
-              <input type={showNewPassword ? "text" : "password"} id="newPassword" placeholder="••••••••" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1 border-slate-200" />
+              <input type={showNewPassword ? "text" : "password"} id="newPassword" placeholder="••••••••" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border border-slate-200" />
               <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
                 {showNewPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
@@ -98,7 +98,7 @@ const ResetPasswordPage = () => {
           <div className="flex flex-col gap-2">
             <label htmlFor="confirmNewPassword" className="text-sm font-medium text-main">Confirm New Password</label>
             <div className="relative">
-              <input type={showConfirmNewPassword ? "text" : "password"} id="confirmNewPassword" placeholder="••••••••" required value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border-1 border-slate-200" />
+              <input type={showConfirmNewPassword ? "text" : "password"} id="confirmNewPassword" placeholder="••••••••" required value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="input-modern w-full px-4 py-3 pr-11 rounded-2xl text-sm border border-slate-200" />
               <button type="button" onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors cursor-pointer">
                 {showConfirmNewPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
