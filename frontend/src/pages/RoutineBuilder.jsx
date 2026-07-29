@@ -21,6 +21,19 @@ import EmptyState from "../components/EmptyState";
 import { useScrollThenOpen } from "../hooks/useScrollThenOpen.js";
 import { routineTemplates } from '../utils/routineTemplate';
 
+function Toast({ message, type }) {
+  if (!message) return null;
+  return (
+    <div
+      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${
+        type === "success" ? "bg-green-600" : "bg-red-600"
+      }`}
+    >
+      {message}
+    </div>
+  );
+}
+
 export default function RoutineBuilder() {
   const { addTask, tasks } = useTasks();
   const navigate = useNavigate();
@@ -44,6 +57,16 @@ export default function RoutineBuilder() {
   const [isImageExporting, setIsImageExporting] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
   const [highlightGrid, setHighlightGrid] = useState(false);
   const gridRef = useRef(null);
  
@@ -62,7 +85,7 @@ export default function RoutineBuilder() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Failed to export routine as image.");
+      showToast("Failed to export routine as image.", "error");
     } finally {
       setIsImageExporting(false);
     }
@@ -109,7 +132,7 @@ export default function RoutineBuilder() {
       closeModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to add task");
+      showToast("Failed to add task", "error");
     }
   };
 
@@ -186,19 +209,19 @@ export default function RoutineBuilder() {
       setRoutineName("");
       setDescription("");
       setSelectedDay(null);
-      alert("Routine saved successfully");
+      showToast("Routine saved successfully", "success");
       await fetchRoutines();
     } catch (err) {
       console.error(err);
       const errorMessage = err.response?.data?.message || "Failed to save routine";
-      alert(errorMessage);
+      showToast(errorMessage, "error");
     }
   };
 
   const openSaveRoutineModal = (day) => {
     const hasTasks = scheduledTasks.some((t) => t.day === day);
     if (!hasTasks) {
-      alert(`No tasks scheduled for ${day}`);
+      showToast(`No tasks scheduled for ${day}`, "error");
       return;
     }
     setSelectedDay(day);
@@ -459,6 +482,7 @@ export default function RoutineBuilder() {
         </DragOverlay>
 
       </div>
+      <Toast message={toast.message} type={toast.type} />
     </DndContext>
   );
 }
