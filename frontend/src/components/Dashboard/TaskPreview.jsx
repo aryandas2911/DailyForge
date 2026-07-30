@@ -166,13 +166,13 @@ export default function TaskPreview({ tasks , updateTask}) {
       )}
 
       {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold mb-2 text-black/90">
+        <div className="fixed inset-0 bg-black/10 dark:bg-black/40 flex items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold mb-2 text-main">
               Complete Task
             </h2>
 
-            <p className="text-sm mb-4 text-black">
+            <p className="text-sm mb-4 text-muted">
               How long did you actually take to complete "
               {durationModalTask.title}"?
             </p>
@@ -181,7 +181,7 @@ export default function TaskPreview({ tasks , updateTask}) {
               min="1"
               value={actualDuration}
               onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg text-black dark:placeholder-slate-500"
+              className="w-full p-2 border border-soft rounded-lg text-gray-900 dark:text-white dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
             <div className="flex justify-end gap-3 mt-5">
@@ -190,7 +190,7 @@ export default function TaskPreview({ tasks , updateTask}) {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
+                className="px-4 py-2 rounded-lg border border-soft text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 Cancel
               </button>
