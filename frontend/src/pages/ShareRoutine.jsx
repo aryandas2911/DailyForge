@@ -13,6 +13,8 @@ export default function ShareRoutine() {
   const [error, setError] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorToastMessage, setErrorToastMessage] = useState("");
 
   useEffect(() => {
     const fetchPublicRoutine = async () => {
@@ -44,7 +46,9 @@ export default function ShareRoutine() {
       setTimeout(() => setShowCopyToast(false), 3000);
     } catch (err) {
       console.error("Failed to copy summary:", err);
-      alert("Failed to copy routine summary.");
+      setErrorToastMessage("Failed to copy routine summary.");
+      setShowErrorToast(true);
+      setTimeout(() => setShowErrorToast(false), 3000);
     }
   };
 
@@ -55,7 +59,9 @@ export default function ShareRoutine() {
       await exportRoutineToPDF(routine, []);
     } catch (err) {
       console.error("PDF export failed:", err);
-      alert("Failed to export routine as PDF.");
+      setErrorToastMessage("Failed to export routine as PDF.");
+      setShowErrorToast(true);
+      setTimeout(() => setShowErrorToast(false), 3000);
     } finally {
       setIsExporting(false);
     }
@@ -102,6 +108,20 @@ export default function ShareRoutine() {
   return (
     <div className="min-h-screen w-full max-w-[1000px] mx-auto app-bg px-6 py-10 space-y-8 animate-in pb-40">
       
+      {/* Error Toast Notification */}
+      {showErrorToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
+          <div className="rounded-2xl border border-red-500/30 bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 h-3 w-3 rounded-full bg-red-500" />
+              <div>
+                <p className="text-sm font-semibold text-main">{errorToastMessage}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {showCopyToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
