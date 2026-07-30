@@ -15,6 +15,7 @@ export default function RoutineOverviewModal({
   const [isExporting, setIsExporting] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [toastIsError, setToastIsError] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -23,8 +24,9 @@ export default function RoutineOverviewModal({
     };
   }, []);
 
-  const triggerToast = (msg) => {
+  const triggerToast = (msg, isError = false) => {
     setToastMessage(msg);
+    setToastIsError(isError);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
@@ -40,7 +42,7 @@ export default function RoutineOverviewModal({
       triggerToast("Share link copied!");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy share link");
+      triggerToast("Failed to copy share link", true);
     }
   };
 
@@ -53,7 +55,7 @@ export default function RoutineOverviewModal({
       triggerToast("Routine summary copied!");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy summary");
+      triggerToast("Failed to copy summary", true);
     }
   };
 
@@ -66,7 +68,7 @@ export default function RoutineOverviewModal({
       triggerToast("PDF generated!");
     } catch (err) {
       console.error(err);
-      alert("Failed to export PDF");
+      triggerToast("Failed to export PDF", true);
     } finally {
       setIsExporting(false);
     }
@@ -89,7 +91,7 @@ export default function RoutineOverviewModal({
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
           <div className="rounded-2xl border border-soft bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
             <div className="flex items-start gap-3">
-              <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
+              <div className={`mt-1 h-3 w-3 rounded-full ${toastIsError ? "bg-red-500" : "bg-green-500"}`} />
               <div>
                 <p className="text-sm font-semibold text-main">{toastMessage}</p>
               </div>
