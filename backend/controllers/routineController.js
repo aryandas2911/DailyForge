@@ -464,3 +464,65 @@ export const getPublicRoutine = async (req, res) => {
       .json({ success: false, message: "Error fetching public routine" });
   }
 };
+
+// Reorder routines / routine items function
+export const reorderRoutines = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized, user not logged in" });
+    }
+
+    const { items, routineId } = req.body;
+    if (!Array.isArray(items)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Items array is required for reordering" });
+    }
+
+    if (routineId) {
+      const routine = await Routine.findOne({ _id: routineId, userId });
+      if (!routine) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Routine not found" });
+      }
+
+      items.forEach((item, index) => {
+        const target = routine.items.id(item.id || item._id) || routine.items[index];
+        if (target) {
+          target.orderIndex = item.orderIndex !== undefined ? item.orderIndex : index;
+        }
+      });
+
+      await routine.save();
+      return res.status(200).json({
+        success: true,
+        message: "Routine items reordered successfully",
+        routine,
+      });
+    }
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      await Routine.updateOne(
+        { _id: item.id || item._id, userId },
+        { $set: { orderIndex: item.orderIndex !== undefined ? item.orderIndex : i } }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Routines reordered successfully",
+    });
+  } catch (error) {
+    console.log("Error reordering routines", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error reordering routines" });
+  }
+};
+

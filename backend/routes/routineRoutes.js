@@ -6,6 +6,7 @@ import {
   getRoutines,
   updateRoutine,
   getPublicRoutine,
+  reorderRoutines,
 } from "../controllers/routineController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
@@ -13,6 +14,9 @@ import validateObjectId from "../middlewares/validateObjectId.js";
 
 // router object for routine
 export const routineRouter = express.Router();
+
+// Route for reordering routines / routine items
+routineRouter.put("/reorder", authMiddleware, asyncHandler(reorderRoutines));
 
 // Route for creating routine
 routineRouter.post("/", authMiddleware, asyncHandler(createRoutine));

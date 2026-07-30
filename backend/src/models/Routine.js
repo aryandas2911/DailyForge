@@ -46,8 +46,16 @@ const routineSchema = mongoose.Schema(
           required: true,
           min: 10,
         },
+        orderIndex: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
+    orderIndex: {
+      type: Number,
+      default: 0,
+    },
     adaptiveSettings: {
       adaptiveEnabled: {
         type: Boolean,
