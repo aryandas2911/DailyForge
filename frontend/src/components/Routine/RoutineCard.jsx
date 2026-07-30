@@ -20,13 +20,15 @@ export default function RoutineCard({
   const [showOverlapError, setShowOverlapError] = useState(false);
   const [toastTitle, setToastTitle] = useState("Routine Started");
   const [toastDesc, setToastDesc] = useState("Tasks were added to today's workflow.");
+  const [isToastError, setIsToastError] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const menuRef = useRef(null);
 
-  const triggerToast = (title, desc) => {
+  const triggerToast = (title, desc, isError = false) => {
     setToastTitle(title);
     setToastDesc(desc);
+    setIsToastError(isError);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
@@ -42,7 +44,7 @@ export default function RoutineCard({
       triggerToast("Share Link Copied", "The public routine link was copied to clipboard.");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy share link");
+      triggerToast("Error", "Failed to copy share link", true);
     }
   };
 
@@ -55,7 +57,7 @@ export default function RoutineCard({
       triggerToast("Summary Copied", "The routine summary text was copied to clipboard.");
     } catch (err) {
       console.error(err);
-      alert("Failed to copy routine summary");
+      triggerToast("Error", "Failed to copy routine summary", true);
     }
   };
 
@@ -68,7 +70,7 @@ export default function RoutineCard({
       triggerToast("PDF Downloaded", "The routine PDF was generated and downloaded successfully.");
     } catch (err) {
       console.error(err);
-      alert("Failed to export routine as PDF");
+      triggerToast("Error", "Failed to export routine as PDF", true);
     } finally {
       setIsExporting(false);
     }
@@ -280,7 +282,7 @@ export default function RoutineCard({
   } catch (err) {
 
     console.error(err);
-    alert("Failed to delete routine");
+    triggerToast("Error", "Failed to delete routine", true);
   }
  };
 
@@ -311,7 +313,7 @@ export default function RoutineCard({
 
             <div className="flex items-start gap-3">
 
-              <div className="mt-1 h-3 w-3 rounded-full bg-green-500" />
+              <div className={`mt-1 h-3 w-3 rounded-full ${isToastError ? "bg-red-500" : "bg-green-500"}`} />
 
               <div>
                 <p className="text-sm font-semibold text-main">
