@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-
-export default function TaskPreview({ tasks , updateTask}) {
+const TaskPreview = ({ tasks, updateTask }) => {
+const TaskPreview = ({ tasks, updateTask }) => {
   const navigate = useNavigate();
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
-
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -19,15 +18,21 @@ export default function TaskPreview({ tasks , updateTask}) {
   }, []);
 
   const priorityBorder = {
-    Low: "border-green-400",
-    Medium: "border-yellow-400",
-    High: "border-red-500",
+    Low: "border-emerald-400 dark:border-emerald-500",
+    Medium: "border-amber-400 dark:border-amber-500",
+    High: "border-rose-500",
+    Low: "border-emerald-400 dark:border-emerald-500",
+    Medium: "border-amber-400 dark:border-amber-500",
+    High: "border-rose-500",
   };
 
   const priorityBadge = {
-    Low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    Medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    High: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    Low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+    Medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+    High: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
+    Low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+    Medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+    High: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
   };
 
   const handleCheckboxChange = async (task) => {
@@ -160,21 +165,27 @@ export default function TaskPreview({ tasks , updateTask}) {
           })}
         </div>
       ) : (
-        <p className="text-sm text-muted dark:text-gray-300 text-center py-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">
           No upcoming tasks.
         </p>
       )}
 
       {durationModalTask && (
-        <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-xl font-semibold mb-2 text-black/90">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 animate-in fade-in duration-200 px-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transition-all transform scale-100">
+            <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 animate-in fade-in duration-200 px-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transition-all transform scale-100">
+            <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
               Complete Task
             </h2>
 
-            <p className="text-sm mb-4 text-black">
+            <p className="text-sm mb-4 text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm mb-4 text-slate-500 dark:text-slate-400 leading-relaxed">
               How long did you actually take to complete "
-              {durationModalTask.title}"?
+              <span className="font-semibold text-slate-800 dark:text-slate-200">{durationModalTask.title}</span>"?
+              <span className="font-semibold text-slate-800 dark:text-slate-200">{durationModalTask.title}</span>"?
             </p>
             <input
               type="number"
@@ -184,19 +195,22 @@ export default function TaskPreview({ tasks , updateTask}) {
               className="w-full p-2 border border-soft rounded-lg text-black dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
-            <div className="flex justify-end gap-3 mt-5">
+            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
-                className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleActualDurationSubmit}
-                className="btn btn-primary px-4 py-2"
+                className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
               >
                 Mark Completed
               </button>
@@ -206,4 +220,8 @@ export default function TaskPreview({ tasks , updateTask}) {
       )}
     </div>
   );
-}
+};
+};
+
+export default TaskPreview;
+export default TaskPreview;

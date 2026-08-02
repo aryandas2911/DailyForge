@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -24,12 +23,10 @@ import gsap from "gsap";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-// Utility for merging tailwind classes safely
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-//logout modal
 const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
   <AnimatePresence>
     {isOpen && (
@@ -53,12 +50,10 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
           className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--border)]/30 dark:border-slate-700 p-8 w-full max-w-sm text-center shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Icon */}
           <div className="w-14 h-14 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center mx-auto mb-5">
             <LogOut size={26} className="text-orange-500" />
           </div>
 
-          {/* Text */}
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
             Log out of DailyForge?
           </h2>
@@ -67,7 +62,6 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => (
             routines.
           </p>
 
-          {/* Buttons */}
           <div className="flex gap-3">
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -101,8 +95,6 @@ const Navbar = () => {
   const toggleRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-
-  // Handle scroll effect for premium glassmorphism transition
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -111,16 +103,14 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu automatically on route change
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [location.pathname]);
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
-  // Close menu on outside click
+
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e) => {
@@ -137,7 +127,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
@@ -207,29 +196,23 @@ const Navbar = () => {
 
     const overlay = document.createElement("div");
     overlay.id = "theme-transition-overlay";
-
     overlay.style.position = "fixed";
     overlay.style.borderRadius = "50%";
     overlay.style.zIndex = "9999";
     overlay.style.pointerEvents = "none";
 
     const size = 10;
-
     overlay.style.width = `${size}px`;
     overlay.style.height = `${size}px`;
-
     overlay.style.top = `${clientY - size / 2}px`;
     overlay.style.left = `${clientX - size / 2}px`;
-
     overlay.style.transformOrigin = "center center";
 
     document.body.appendChild(overlay);
 
     const maxDistX = Math.max(clientX, window.innerWidth - clientX);
     const maxDistY = Math.max(clientY, window.innerHeight - clientY);
-
     const maxRadius = Math.sqrt(maxDistX * maxDistX + maxDistY * maxDistY);
-
     const scale = (maxRadius * 2) / size;
 
     gsap.to(overlay, {
@@ -250,7 +233,6 @@ const Navbar = () => {
     });
   };
 
-  // Navigation Links configuration
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
     { name: "Tasks", path: "/tasks", icon: CheckSquare },
@@ -267,7 +249,6 @@ const Navbar = () => {
   return (
 
     <>
-      {/* logout modal here, outside of nav so that it overlays everything */}
       <LogoutModal
         isOpen={showLogoutModal}
         onConfirm={handleConfirmLogout}
@@ -279,103 +260,73 @@ const Navbar = () => {
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className={cn(
-          "fixed top-4 inset-x-0 z-50 px-3 sm:px-5 transition-all duration-500",
-          scrolled ? "translate-y-0" : "translate-y-0",
+          "fixed top-0 inset-x-0 z-50 transition-all duration-300",
+          scrolled
+            ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-sm"
+            : "bg-transparent border-b border-transparent",
         )}
       >
-        <div
-          className={cn(
-            "relative mx-auto max-w-7xl overflow-hidden rounded-full border transition-all duration-500",
-            "border-white/60 bg-white/68 shadow-[0_18px_60px_rgba(15,23,42,0.12),0_1px_0_rgba(255,255,255,0.75)_inset]",
-            "backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-slate-950/58 dark:shadow-[0_22px_70px_rgba(0,0,0,0.36),0_1px_0_rgba(255,255,255,0.08)_inset]",
-            scrolled
-              ? "max-w-6xl bg-white/78 shadow-[0_16px_55px_rgba(15,23,42,0.16),0_1px_0_rgba(255,255,255,0.86)_inset] dark:bg-slate-950/72"
-              : "max-w-7xl",
-          )}
-        >
-          <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_14%_50%,rgba(78,183,179,0.24),transparent_26%),radial-gradient(circle_at_86%_12%,rgba(59,130,246,0.16),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.52),rgba(255,255,255,0.12))] dark:bg-[radial-gradient(circle_at_14%_50%,rgba(78,183,179,0.24),transparent_28%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))]" />
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-white/80 to-transparent dark:via-white/18" />
-
-          <div className="relative flex h-[4.25rem] items-center justify-between gap-3 px-3 sm:px-4 lg:px-5">
-            {/* Logo Section with Hover Animation */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
             <Link
               to={user ? "/dashboard" : "/login"}
               className="group flex min-w-0 items-center gap-3 rounded-full pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45"
             >
               <motion.div
-                whileHover={{ rotate: -8, scale: 1.06 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#162033] via-[#256a78] to-[#76e4d0] shadow-[0_12px_30px_rgba(78,183,179,0.36)] ring-1 ring-white/50 dark:from-[#0b1020] dark:via-[#173c52] dark:to-[#4eb7b3] dark:ring-white/12"
+                whileHover={{ rotate: 180 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#3b8ea0] to-[#4eb7b3] flex items-center justify-center shadow-sm"
               >
                 <span className="absolute inset-1 rounded-full bg-white/12 blur-[1px]" />
                 <span className="relative text-white font-black text-xl leading-none tracking-tighter">
                   D
                 </span>
               </motion.div>
-              <span className="min-w-0">
-                <span className="block text-[1.12rem] font-black leading-none tracking-normal bg-clip-text text-transparent bg-linear-to-r from-slate-950 via-[#267985] to-[#4eb7b3] dark:from-white dark:via-[#d9fffb] dark:to-[#6ee7d8] sm:text-[1.36rem]">
-                  DailyForge
-                </span>
-                <span className="mt-0.5 hidden text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-[#3b8ea0]/70 dark:text-slate-400 lg:block">
-                  Momentum OS
-                </span>
+              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#3b8ea0] to-[#4eb7b3]">
+                DailyForge
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
             {user && (
-              <div className="hidden xl:flex items-center rounded-full border border-slate-900/5 bg-white/42 p-1 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] dark:border-white/8 dark:bg-white/[0.04]">
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.path;
-                  return (
-                    <Link
-                      key={link.name}
-                      to={link.path}
-                      className={cn(
-                        "group relative flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors duration-300",
+              <div className="hidden md:flex items-center gap-2">
+                {navLinks.map((link) => (
+                  <NavLink
+                    key={link.name}
+                    to={link.path}
+                    className={({ isActive }) =>
+                      cn(
+                        "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2",
                         isActive
-                          ? "text-slate-950 dark:text-white"
-                          : "text-slate-600 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white",
-                      )}
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="desktop-active-pill"
-                          className="absolute inset-0 rounded-full border border-white/70 bg-white/78 shadow-[0_10px_28px_rgba(15,23,42,0.12),0_1px_0_rgba(255,255,255,0.88)_inset] dark:border-white/10 dark:bg-white/[0.10] dark:shadow-[0_14px_34px_rgba(0,0,0,0.28)]"
-                          transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                        />
-                      )}
-                      <link.icon
-                        size={15}
-                        className={cn(
-                          "relative transition-transform duration-300 group-hover:-translate-y-0.5",
-                          isActive ? "text-[#3b8ea0]" : "text-current",
-                        )}
-                      />
-                      <span className="relative whitespace-nowrap">{link.name}</span>
-                    </Link>
-                  );
-                })}
+                          ? "bg-slate-100 dark:bg-slate-800 text-[#3b8ea0] dark:text-white shadow-sm"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white",
+                      )
+                    }
+                  >
+                    <link.icon
+                      size={16}
+                      className={cn("transition-transform duration-200")}
+                    />
+                    {link.name}
+                  </NavLink>
+                ))}
               </div>
             )}
 
-            {/* Desktop Auth Buttons */}
-            <div className="hidden xl:flex items-center gap-2.5">
-              {/* Premium Dark Mode Toggle */}
+            <div className="hidden md:flex items-center gap-4">
               <motion.button
                 whileHover={{ scale: 1.06, rotate: 8 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleThemeToggle}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-900/8 bg-white/48 text-main shadow-[0_1px_0_rgba(255,255,255,0.75)_inset] transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/[0.10]"
+                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer flex items-center justify-center mr-1"
                 aria-label="Toggle dark mode"
               >
                 {theme === "dark" ? (
                   <Moon
                     size={18}
-                    className="text-[#3b8ea0] fill-[#3b8ea0]/10"
+                    className="text-sky-400 fill-sky-400/10"
                   />
                 ) : (
-                  <Sun size={18} className="text-yellow-400 fill-yellow-400" />
+                  <Sun size={18} className="text-amber-500 fill-amber-500/10" />
                 )}
               </motion.button>
 
@@ -383,13 +334,13 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="group relative overflow-hidden rounded-full border border-slate-900/8 bg-white/42 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/80 hover:text-slate-950 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200 dark:hover:bg-white/[0.10] dark:hover:text-white"
+                    className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
                     Login
                   </Link>
                   <Link
                     to="/signup"
-                    className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-slate-950 px-4 py-2.5 text-sm font-extrabold text-white shadow-[0_14px_34px_rgba(15,23,42,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(78,183,179,0.32)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:bg-white dark:text-slate-950"
+                    className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-lg transition-all"
                   >
                     <span className="absolute inset-0 bg-linear-to-r from-[#4eb7b3]/0 via-[#4eb7b3]/18 to-[#4eb7b3]/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     <span className="relative">Signup</span>
@@ -397,47 +348,22 @@ const Navbar = () => {
                   </Link>
                 </>
               ) : (
-                <>
-                  {/*pomodoro focus mode*/}
-
-                  <Link
-                    to="/focus-mode"
-                    className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-[#4eb7b3]/25 bg-[#4eb7b3]/12 px-4 py-2.5 text-sm font-extrabold text-[#24717a] shadow-[0_10px_28px_rgba(78,183,179,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#4eb7b3]/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:border-[#6ee7d8]/25 dark:bg-[#6ee7d8]/10 dark:text-[#b9fffa]"
-                  >
-                    <Timer size={16} className="transition-transform duration-300 group-hover:-rotate-6" />
-                    Focus Mode
-                  </Link>
-
-                  <button
-                    onClick={handleLogoutClick}
-                    className="group inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-sm font-extrabold text-white shadow-[0_14px_34px_rgba(15,23,42,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(78,183,179,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:bg-white dark:text-slate-950"
-                  >
-                    <LogOut size={16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-                    Logout
-                  </button>
-                </>
+                <button
+                  onClick={handleLogoutClick}
+                  className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-xl flex items-center gap-2 shadow-sm hover:shadow-md transition-all"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
               )}
             </div>
 
-            {/* Mobile Menu Toggle Button */}
-            <div className="xl:hidden flex items-center gap-2">
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onClick={toggleTheme}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-900/8 bg-white/48 shadow-[0_1px_0_rgba(255,255,255,0.75)_inset] transition-colors dark:border-white/10 dark:bg-white/[0.05]"
-                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {theme === "dark" ? (
-                  <Moon size={18} className="text-[#6ee7d8]" />
-                ) : (
-                  <Sun size={18} className="text-amber-400 fill-amber-400" />
-                )}
-              </motion.button>
+            <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
 
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                ref={toggleRef}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-white shadow-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:bg-white dark:text-slate-950"
+                className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none"
                 aria-label="Toggle menu"
                 aria-expanded={isOpen}
                 aria-controls="mobile-navigation-menu"
@@ -458,7 +384,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -466,8 +391,8 @@ const Navbar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="xl:hidden overflow-hidden"
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl overflow-hidden"
             >
               <div
                 ref={menuRef}
@@ -481,10 +406,10 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}
                       className={({ isActive }) =>
                         cn(
-                          "px-4 py-3 rounded-2xl text-base font-bold transition-all duration-200 flex items-center gap-3 w-full",
+                          "px-4 py-3 rounded-xl text-base font-semibold transition-colors flex items-center gap-3 w-full",
                           isActive
-                            ? "bg-white text-slate-950 shadow-md dark:bg-white/[0.10] dark:text-white"
-                            : "text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/[0.07] hover:text-slate-950 dark:hover:text-white",
+                            ? "bg-slate-100 dark:bg-slate-800 text-[#3b8ea0] dark:text-white"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
                         )
                       }
                     >
@@ -496,7 +421,7 @@ const Navbar = () => {
                 <div
                   className={cn(
                     "flex flex-col gap-2",
-                    user ? "pt-3 mt-2 border-t border-[#98e1d7]/30 dark:border-white/10" : "pt-1",
+                    user ? "pt-4 mt-2 border-t border-slate-200 dark:border-slate-800" : "pt-2",
                   )}
                 >
                   {!user ? (
@@ -504,7 +429,7 @@ const Navbar = () => {
                       <Link
                         to="/login"
                         onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-slate-700 dark:text-slate-200 font-bold hover:bg-white/70 dark:hover:bg-white/[0.08] dark:hover:text-white transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       >
                         <LogIn size={18} />
                         Login
@@ -513,30 +438,20 @@ const Navbar = () => {
                       <Link
                         to="/signup"
                         onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 font-extrabold text-white shadow-lg dark:bg-white dark:text-slate-950"
+                        className="w-full flex items-center justify-center gap-2 bg-[#3b8ea0] text-white font-semibold py-3 rounded-xl hover:bg-[#4eb7b3] transition-all"
                       >
                         <Sparkles size={18} />
                         Signup
                       </Link>
                     </>
                   ) : (
-                    <>
-                      <Link
-                        to="/focus-mode"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full flex items-center justify-center gap-2 rounded-2xl border border-[#4eb7b3]/25 bg-[#4eb7b3]/12 px-4 py-3 font-extrabold text-[#24717a] dark:text-[#b9fffa]"
-                      >
-                        <Timer size={18} />
-                        Focus Mode
-                      </Link>
-                      <button
-                        onClick={handleLogoutClick}
-                        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 font-extrabold text-white shadow-lg dark:bg-white dark:text-slate-950"
-                      >
-                        <LogOut size={18} />
-                        Logout
-                      </button>
-                    </>
+                    <button
+                      onClick={handleLogoutClick}
+                      className="w-full flex items-center justify-center gap-2 bg-[#3b8ea0] text-white font-semibold py-3 rounded-xl hover:bg-[#4eb7b3] transition-all"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
                   )}
                 </div>
               </div>

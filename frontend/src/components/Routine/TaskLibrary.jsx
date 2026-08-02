@@ -3,7 +3,6 @@ import { useDraggable } from "@dnd-kit/core";
 import { SearchX } from "lucide-react";
 import EmptyState from "../EmptyState";
 
-/* ---------------- Draggable Task Item ---------------- */
 function DraggableTask({ task }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -24,54 +23,42 @@ function DraggableTask({ task }) {
     zIndex: isDragging ? 99999 : 1,
   };
 
+  const priorityColor = {
+    High: "bg-rose-500",
+    Medium: "bg-amber-500",
+    Low: "bg-emerald-500",
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
-      className="group flex items-center gap-3 rounded-xl border border-slate-200/60 dark:border-slate-700/60
-bg-slate-50/60 dark:bg-slate-800/60 p-3
-cursor-grab active:cursor-grabbing
-hover:bg-white dark:hover:bg-slate-700
-hover:shadow-md transition duration-200 hover-lift"
+      className="group flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 p-3 cursor-grab active:cursor-grabbing hover:bg-white dark:hover:bg-slate-800 hover:shadow-xs transition duration-200"
       role="button"
       tabIndex={0}
       aria-label={`${task.title} - Drag to schedule or use arrow keys`}
     >
-      {/* Color dot */}
-      <span
-        className="h-3 w-3 rounded-full shadow-sm"
-        style={{
-          backgroundColor:
-            task.priority === "High"
-              ? "#ef4444"
-              : task.priority === "Medium"
-                ? "#f59e0b"
-                : "#10b981",
-        }}
-      />
-
-      {/* Title */}
-      <p className="flex-1 truncate text-sm font-medium text-slate-900 dark:text-slate-100">
+      <span className={`h-3 w-3 rounded-full shadow-xs shrink-0 ${priorityColor[task.priority] || "bg-slate-400"}`} />
+      <p className="flex-1 truncate text-sm font-medium text-slate-800 dark:text-slate-200">
         {task.title}
       </p>
     </div>
   );
 }
 
-/* ---------------- Empty Search Result ---------------- */
 function SearchEmptyState({ query, onClearSearch }) {
   return (
-    <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-soft bg-white/70 px-4 py-8 text-center">
-      <SearchX size={36} className="mb-3 text-muted" aria-hidden="true" />
-      <h3 className="text-sm font-semibold text-main">No matching tasks</h3>
-      <p className="mt-1 max-w-56 text-xs leading-5 text-muted">
+    <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/20 px-4 py-8 text-center">
+      <SearchX size={36} className="mb-3 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+      <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No matching tasks</h3>
+      <p className="mt-1 max-w-56 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
         No tasks match &quot;{query}&quot;. Try a different search term.
       </p>
       <button
         type="button"
-        className="btn btn-muted mt-4 text-sm"
+        className="mt-4 px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/80 transition cursor-pointer"
         onClick={onClearSearch}
       >
         Clear search
@@ -80,9 +67,7 @@ function SearchEmptyState({ query, onClearSearch }) {
   );
 }
 
-/* ---------------- Task Library ---------------- */
 export default function TaskLibrary({ tasks, onAddTask }) {
-  
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -93,21 +78,19 @@ export default function TaskLibrary({ tasks, onAddTask }) {
   const hasSearchQuery = normalizedQuery.length > 0;
 
   return (
-    <div className="card h-full flex flex-col animate-in">
-      {/* Header */}
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm h-full flex flex-col transition-colors duration-300 w-full box-border">
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-main">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Task Library
           </h2>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#d0f6e3] dark:bg-cyan-950/50 text-[#3b8ea0] dark:text-cyan-400">
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[#3b8ea0] dark:text-slate-200 border border-slate-200 dark:border-slate-700">
             {filteredTasks?.length ?? 0}
           </span>
         </div>
-        <p className="text-xs text-muted">Drag tasks into your week</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Drag tasks into your week</p>
       </div>
 
-      {/* Search */}
       <input
         type="text"
         placeholder="Search tasks..."
@@ -137,8 +120,10 @@ export default function TaskLibrary({ tasks, onAddTask }) {
         )}
       </div>
 
-      {/* Footer CTA */}
-      <button className="btn btn-primary w-full mt-4 cursor-pointer hover-lift shadow-sm" onClick={onAddTask}>
+      <button
+        className="w-full py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-xl shadow-xs transition-colors mt-4 cursor-pointer"
+        onClick={onAddTask}
+      >
         + Add Task
       </button>
     </div>

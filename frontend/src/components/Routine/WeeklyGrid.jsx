@@ -1,7 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { Save } from "lucide-react";
 
-/* ---------------- Constants ---------------- */
 const DAYS = [
   "Monday",
   "Tuesday",
@@ -12,7 +11,6 @@ const DAYS = [
   "Sunday",
 ];
 
-/* Generate hourly slots: 06:00 → 22:00 */
 const generateTimeSlots = () => {
   const slots = [];
   let hour = 6;
@@ -27,13 +25,11 @@ const TIME_SLOTS = generateTimeSlots();
 
 const normalizeDay = (day) => String(day || "").trim().toLowerCase();
 
-/* Convert HH:mm → minutes */
 const timeToMinutes = (time) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
 
-/* ---------------- Droppable Cell ---------------- */
 function DroppableCell({ day, time, tasks, onDeleteTask }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `${day}-${time}`,
@@ -46,10 +42,13 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
   return (
     <div
       ref={setNodeRef}
-      className={`h-full min-h-[3rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
+      className={`h-full min-h-[3.5rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
+      className={`h-full min-h-[3.5rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
         isOver 
-          ? "bg-cyan-500/10 dark:bg-cyan-500/20" 
-          : "bg-white/40 dark:bg-slate-800/20 hover:bg-white/60 dark:hover:bg-slate-800/30"
+          ? "bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/20" 
+          : "bg-slate-50/40 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+          ? "bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/20" 
+          : "bg-slate-50/40 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/30"
       }`}
       role="region"
       aria-label={`${day} at ${time} - Drop zone for scheduling tasks`}
@@ -57,7 +56,8 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
       {tasks.map((task) => (
         <div
           key={task.taskId}
-          className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#4eb7b3] text-white text-[10px] sm:text-xs font-medium px-2 py-1 shadow-sm hover:bg-[#3b8ea0] transition-all animate-in"
+          className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#3b8ea0] text-white text-[10px] sm:text-xs font-semibold px-2 py-1.5 shadow-xs transition-all animate-in"
+          className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#3b8ea0] text-white text-[10px] sm:text-xs font-semibold px-2 py-1.5 shadow-xs transition-all animate-in"
         >
           <span className="truncate pr-3 leading-tight">{task.title}</span>
           <button
@@ -65,10 +65,8 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
               e.stopPropagation(); // prevents drag from triggering
               onDeleteTask(task.taskId, task.day, task.startTime);
             }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full 
-             bg-red-500 text-white text-[9px] font-bold
-             flex items-center justify-center
-             shadow-sm opacity-0 group-hover/item:opacity-100 hover:bg-red-600 transition-all cursor-pointer border border-white/20"
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shadow-xs opacity-0 group-hover/item:opacity-100 hover:bg-rose-600 transition-all cursor-pointer border border-white/10"
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shadow-xs opacity-0 group-hover/item:opacity-100 hover:bg-rose-600 transition-all cursor-pointer border border-white/10"
             title="Remove scheduled task"
           >
             ×
@@ -97,73 +95,87 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
         <div className="mb-3" />
       )}
 
-      <div
-        className="grid w-full overflow-x-auto sm:overflow-visible"
-        style={{
-          gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))",
-        }}
-      >
-        {/* ===== Save Buttons Row ===== */}
-        <div /> {/* empty time column */}
-        {DAYS.map((day) => (
-          <div key={`save-${day}`} className="flex justify-center pb-2">
-            <button
-              onClick={() => onSaveDay(day)}
-              title={`Save ${day} Routine`}
-              className="flex items-center justify-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 px-2.5 py-1 text-[9px] sm:text-xs font-semibold cursor-pointer hover:bg-cyan-100 dark:hover:bg-cyan-900/50 hover:shadow-sm transition-all duration-200 hover-lift"
-            >
-              <Save size={10} className="sm:w-3 sm:h-3" />
-              <span className="hidden sm:inline">Save</span>
-            </button>
-          </div>
-        ))}
-        {/* ===== Day Headers ===== */}
-        <div className="border-b border-soft/30" />
-        {DAYS.map((day) => (
-          <div
-            key={day}
-            className="text-xs sm:text-sm font-semibold text-main text-center pb-2 border-b border-soft/30 mb-2"
-          >
-            {/* Mobile short names */}
-            <span className="sm:hidden">
-              {day.slice(0, 3)}
-            </span>
-            {/* Desktop full names */}
-            <span className="hidden sm:inline">
-              {day}
-            </span>
-          </div>
-        ))}
-        {/* ===== Time Rows ===== */}
-        {TIME_SLOTS.map((time) => (
-          <div key={time} className="contents">
-            {/* Time label */}
-            <div className="flex items-start justify-end pt-2 pr-2.5 text-[10px] sm:text-xs text-muted font-medium">
-              {time}
-            </div>
-
-            {/* Cells */}
-            {DAYS.map((day, dayIndex) => (
-              <div
-                key={`${day}-${time}`}
-                className={`min-w-0 border-b border-soft/20 border-r border-soft/20 ${
-                  dayIndex === 0 ? "border-l border-soft/20" : ""
-                }`}
+      <div className="overflow-x-auto scrollbar-thin">
+        <div
+          className="grid min-w-[800px]"
+          style={{
+            gridTemplateColumns: "60px repeat(7, minmax(0, 1fr))",
+          }}
+        >
+          <div />
+          {DAYS.map((day) => (
+            <div key={`save-${day}`} className="flex justify-center pb-4 px-1">
+              <button
+                onClick={() => onSaveDay(day)}
+                title={`Save ${day} Routine`}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 text-[10px] sm:text-xs font-bold transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-[#3b8ea0] dark:hover:border-[#3b8ea0] hover:text-[#3b8ea0] dark:hover:text-white"
               >
-                <DroppableCell
-                  day={day}
-                  time={time}
-                  tasks={scheduledTasks.filter(
-                    (t) =>
-                      normalizeDay(t.day) === normalizeDay(day) &&
-                      t.startTime === timeToMinutes(time)
-                  )}
-                  onDeleteTask={onDeleteTask}
-                />
+                <Save size={12} />
+                <span>Save</span>
+              </button>
+            </div>
+          ))}
+
+          <div className="border-b border-slate-200 dark:border-slate-800" />
+          {DAYS.map((day) => (
+            <div
+              key={day}
+              className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white text-center pb-3 border-b border-slate-200 dark:border-slate-800"
+            >
+              <span>{day}</span>
+            </div>
+          ))}
+
+          {TIME_SLOTS.map((time) => (
+            <div key={time} className="contents">
+              <div className="flex items-start justify-end h-full pt-3.5 pr-3 text-[11px] sm:text-xs text-slate-400 dark:text-slate-500 font-bold tracking-wider select-none box-border">
+                {time}
               </div>
-            ))}
-          </div>
-        ))}
+
+              {DAYS.map((day, dayIndex) => (
+                <div
+                  key={`${day}-${time}`}
+                  className={`min-w-0 border-b border-slate-100 dark:border-slate-800/60 border-r border-slate-100 dark:border-slate-800/60 ${
+                    dayIndex === 0 ? "border-l border-slate-100 dark:border-slate-800/60" : ""
+                  }`}
+                >
+                  <DroppableCell
+                    day={day}
+                    time={time}
+                    tasks={scheduledTasks.filter(
+                      (t) =>
+                        normalizeDay(t.day) === normalizeDay(day) &&
+                        t.startTime === timeToMinutes(time)
+                    )}
+                    onDeleteTask={onDeleteTask}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+              {DAYS.map((day, dayIndex) => (
+                <div
+                  key={`${day}-${time}`}
+                  className={`min-w-0 border-b border-slate-100 dark:border-slate-800/60 border-r border-slate-100 dark:border-slate-800/60 ${
+                    dayIndex === 0 ? "border-l border-slate-100 dark:border-slate-800/60" : ""
+                  }`}
+                >
+                  <DroppableCell
+                    day={day}
+                    time={time}
+                    tasks={scheduledTasks.filter(
+                      (t) =>
+                        normalizeDay(t.day) === normalizeDay(day) &&
+                        t.startTime === timeToMinutes(time)
+                    )}
+                    onDeleteTask={onDeleteTask}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

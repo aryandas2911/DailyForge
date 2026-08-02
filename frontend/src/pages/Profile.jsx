@@ -1,47 +1,12 @@
-import { useState, useRef, useEffect, useCallback, useContext } from "react";
-import { Eye, EyeOff, Upload } from "lucide-react";
-import axios from "../api/axios";
-import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
-import { AuthContext } from '../context/AuthContext';
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { Upload } from "lucide-react";
+import api from "../api/axios";
 
-// toast popup component - shows at bottom right
-function Toast({ message, type }) {
-  if (!message) return null;
-  const base =
-    "fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300";
-  const color = type === "success" ? "bg-green-500" : "bg-red-500";
-  return <div className={`${base} ${color}`}>{message}</div>;
-}
+const Profile = () => {
+  const { user, setUser } = useContext(AuthContext);
 
-function startAutoHide(setShow, timerRef) {
-  clearTimeout(timerRef.current);
-  timerRef.current = setTimeout(() => setShow(false), 5000);
-}
-
-function handleToggle(e, show, setShow, timerRef) {
-  e.preventDefault();
-  const next = !show;
-  setShow(next);
-  if (next) startAutoHide(setShow, timerRef);
-  else clearTimeout(timerRef.current);
-}
-
-function EyeButton({ show, setShow, timerRef }) {
-  return (
-    <button
-      type="button"
-      tabIndex={-1}
-      onMouseDown={(e) => handleToggle(e, show, setShow, timerRef)}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-main transition-colors"
-      aria-label={show ? "Hide password" : "Show password"}
-    >
-      {show ? <EyeOff size={17} /> : <Eye size={17} />}
-    </button>
-  );
-}
-
-// component for the change password card
-function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
+  const [name, setName] = useState(user?.name || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -52,40 +17,6 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const [confirmTouched, setConfirmTouched] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
-  const getPasswordStrength = (password) => {
-    let score = 0;
-
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-
-    if (score <= 2) {
-      return {
-        text: "Weak",
-        width: "w-1/3",
-        color: "bg-red-500",
-        textColor: "text-red-500",
-      };
-    }
-
-    if (score <= 4) {
-      return {
-        text: "Medium",
-        width: "w-2/3",
-        color: "bg-yellow-500",
-        textColor: "text-yellow-500",
-      };
-    }
-
-    return {
-      text: "Strong",
-      width: "w-full",
-      color: "bg-green-500",
-      textColor: "text-green-500",
-    };
-  };
 
   const timerCurrent = useRef(null);
   const timerNew = useRef(null);
@@ -109,7 +40,6 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
 
   const passwordsMatch = newPassword === confirmPassword;
   const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
-  const passwordStrength = getPasswordStrength(newPassword);
 
   function handleSubmit() {
     setSubmitAttempted(true);
@@ -122,6 +52,67 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
       return;
     }
 
+  const handleThemeReset = async () => {
+    try {
+      const res = await api.put("/auth/update-profile", {
+        primaryColor: "#3b8ea0",
+      });
+
+      setUser(res.data.user);
+      SetPrimaryColor("#3b8ea0");
+      Alert("Theme reset successfully");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to reset theme");
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-10 flex flex-col gap-8 shadow-sm animate-in">
+        
+        {/* Profile Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800/60等">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 min-w-0">
+            <div className="relative group shrink-0">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-tr from-[#3b8ea0] to-[#4eb7b3] flex items-center justify-center text-white text-3xl font-black shadow-md transition duration-300">
+                {user?.photo || profileImage ? (
+                  <img
+                    src={profileImage || user?.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
+              </div>
+              <label className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 p-1.5 rounded-xl shadow-md cursor-pointer hover:text-[#3b8ea0] dark:hover:text-white transition duration-150">
+                <Upload size={14} strokeWidth={2.5} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const maxAllowedSize = 3 * 1024 * 1024;
+                    if (file.size > maxAllowedSize) {
+                      alert("File is too large! Please choose an image under 3MB.");
+                      return;
+                    }
+                    const formData = new FormData();
+                    formData.append("profileImage", file);
+
+                    try {
+                      const response = await api.post(
+                        "/auth/upload-profile",
+                        formData,
+                        {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                          },
+                        },
+                      );
     onUpdatePassword({ currentPassword, newPassword });
   }
 
@@ -133,7 +124,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
   return (
     <div className="surface-bg rounded-2xl border border-soft p-7 flex flex-col gap-1">
       <h2 className="text-main text-lg font-bold mb-1">Change Password</h2>
-      <p className="text-muted text-sm mb-5 dark:text-slate-300">Update your password to keep your account secure</p>
+      <p className="text-muted text-sm mb-5">Update your password to keep your account secure</p>
 
       <label className="text-main text-sm font-medium mb-1 block">Current Password</label>
       <div className="relative mb-1">
@@ -143,12 +134,11 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => handleCurrentPasswordChange(e.target.value)}
           onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
           placeholder="Enter current password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
             ${apiError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
       </div>
-
 
       {apiError && (
         <p className="text-red-500 text-xs mb-2">{apiError}</p>
@@ -162,35 +152,10 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
           onChange={(e) => setNewPassword(e.target.value)}
           onBlur={() => handleBlur(setShowNew, timerNew)}
           placeholder="Enter new password"
-          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400"
+          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent"
         />
         <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
       </div>
-      {newPassword && (
-        <div className="mt-2">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs text-muted">
-              Password Strength
-            </span>
-
-            <span
-              className={`text-xs font-semibold ${passwordStrength.textColor}`}
-            >
-              {passwordStrength.text}
-            </span>
-          </div>
-
-          <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${passwordStrength.width} ${passwordStrength.color}`}
-            />
-          </div>
-          <p className="text-xs text-muted mt-2">
-            Use at least 8 characters with uppercase, lowercase, numbers, and special characters.
-          </p>
-        </div>
-      )}
-
 
       <label className="text-main text-sm font-medium mb-1 mt-3 block">Confirm New Password</label>
       <div className="relative">
@@ -203,7 +168,7 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
             handleBlur(setShowConfirm, timerConfirm);
           }}
           placeholder="Re-enter new password"
-          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent dark:placeholder-slate-400
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
             ${showMatchError ? "border-red-500" : "border-soft"}`}
         />
         <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
@@ -242,151 +207,287 @@ export default function Profile() {
   // states
   const [name, setName] = useState(user?.name || '');
   const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
-  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
+  const [profileImage, setProfileImage] = useState("");
 
-  // password states
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordResetKey, setPasswordResetKey] = useState(0);
+  const handleNameUpdate = async (e) => {
+    e.preventDefault();
 
-  async function handleNameUpdate(e) {
-    if (e) e.preventDefault();
     try {
-      const res = await axios.put("/auth/update-profile", { name });
+      const res = await api.put("/auth/update-profile", {
+        name,
+      });
+
       setUser(res.data.user);
-      showToast(res.data.message || "Name updated successfully!", "success");
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed To Update Name", "error");
+      alert(res.data.message);
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update name");
     }
   }
 
-  async function handleThemeSave(e) {
-    if (e) e.preventDefault();
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+
     try {
-      const res = await axios.put("/auth/update-profile", { primaryColor });
-      setUser(res.data.user);
-      showToast("Theme Updated Successfully", "success");
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed To Update Theme", "error");
+      const res = await api.put("/auth/update-profile", {
+        currentPassword,
+        newPassword,
+      });
+
+      alert(res.data.message);
+
+      setCurrentPassword("");
+      NewPassword("");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update password");
     }
   }
 
-  async function handleThemeReset(e) {
-    if (e) e.preventDefault();
+  const handleThemeUpdate = async (e) => {
+    e.preventDefault();
+
     try {
       const res = await axios.put("/auth/update-profile", { primaryColor: '#4eb7b3' });
       setUser(res.data.user);
-      setPrimaryColor('#4eb7b3');
-      showToast("Theme Reset Successfully", "success");
-    } catch (err) {
-      showToast(err.response?.data?.message || "Failed to reset theme", "error");
+      Alert("Theme updated successfully");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update theme");
     }
-  }
+  };
 
-  async function handlePasswordUpdate({ currentPassword, newPassword }) {
-    setPasswordError("");
+  const handleThemeReset = async () => {
     try {
-      await axios.put("/auth/update-profile", { currentPassword, newPassword });
-      showToast("Password updated successfully!", "success");
-      setPasswordResetKey((k) => k + 1);
-    } catch (err) {
-      const msg = err.response?.data?.message || "Current Password Is Incorrect.";
-      setPasswordError(msg);
-      showToast(msg, "error");
+      const res = await api.put("/auth/update-profile", {
+        primaryColor: "#3b8ea0",
+      });
+
+      setUser(res.data.user);
+      SetPrimaryColor("#3b8ea0");
+      Alert("Theme reset successfully");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to reset theme");
     }
   }
 
   return (
-    <div className="min-h-screen page-bg px-6 py-10">
-      <Toast message={toast.message} type={toast.type} />
-
-      {/* Merged Header: Avatar Upload (main) + Layout (feat) */}
-      <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
-        <div className="flex items-center gap-5">
-          <div className="flex flex-row gap-4 align-baseline">
-            <div
-              className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
-              onClick={() => setShowProfilePictureModal(true)}
-            >
-              {user?.photo ? (
-                <img
-                  src={user?.photo}
-                  alt="Profile"
-                  className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
-                />
-              ) : (
-                <span className="transition-opacity duration-300 group-hover:opacity-70">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Upload size={24} className="text-white" />
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-10 flex flex-col gap-8 shadow-sm animate-in">
+        
+        {/* Profile Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800/60等">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 min-w-0">
+            <div className="relative group shrink-0">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-tr from-[#3b8ea0] to-[#4eb7b3] flex items-center justify-center text-white text-3xl font-black shadow-md transition duration-300">
+                {user?.photo || profileImage ? (
+                  <img
+                    src={profileImage || user?.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
               </div>
+              <label className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 p-1.5 rounded-xl shadow-md cursor-pointer hover:text-[#3b8ea0] dark:hover:text-white transition duration-150">
+                <Upload size={14} strokeWidth={2.5} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const maxAllowedSize = 3 * 1024 * 1024;
+                    if (file.size > maxAllowedSize) {
+                      alert("File is too large! Please choose an image under 3MB.");
+                      return;
+                    }
+                    const formData = new FormData();
+                    formData.append("profileImage", file);
+
+                    try {
+                      const response = await api.post(
+                        "/auth/upload-profile",
+                        formData,
+                        {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                          },
+                        },
+                      );
+
+                      if (response.data?.imageUrl) {
+                        setProfileImage(response.data.imageUrl);
+                        setUser(response.data.user);
+                        alert("Profile picture updated successfully!");
+                      }
+                    } catch (error) {
+                      console.error("Upload failed:", error);
+                      alert(
+                        error.response?.data?.error || "Error uploading image",
+                      );
+                    }
+                  }}
+                />
+              </label>
+            </div>
+
+            <div className="min-w-0 space-y-1">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Profile Settings</h1>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
+                Manage your account details and security
+              </p>
             </div>
           </div>
-        </div>
 
-        <div>
-          <h1 className="text-main text-2xl font-bold">Profile Settings</h1>
-          <p className="text-muted text-sm">Manage your account details and security</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        {/* name card */}
-        <div className="surface-bg rounded-2xl border border-soft p-7">
-          <p className="text-muted text-sm mb-4 dark:text-slate-300">Change how your name appears across DailyForge</p>
-          <label className="text-main text-sm font-medium mb-1 block">Display Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent mb-4 dark:placeholder-slate-400"
-          />
-          <button
-            onClick={handleNameUpdate}
-            className="hover-lift mt-5 w-full py-2.5 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition-colors"
-          >
-            Save Name Changes
-          </button>
-        </div>
-
-        <ChangePasswordCard
-          key={passwordResetKey}
-          onUpdatePassword={handlePasswordUpdate}
-          onClearError={() => setPasswordError("")}
-          apiError={passwordError}
-        />
-
-        {/* theme card */}
-        <div className="surface-bg rounded-2xl border border-soft p-7">
-          <h2 className="text-main text-lg font-bold mb-1 dark:text-slate-200">Theme Settings</h2>
-          <p className="text-muted text-sm mb-5 dark:text-slate-400">Personalize your interface with a custom primary color</p>
-          <label className="text-main text-sm font-medium mb-2 block">Primary Color</label>
-          <div className="flex items-center gap-3 mb-5">
-            <input
-              type="color"
-              value={primaryColor}
-              onChange={(e) => setPrimaryColor(e.target.value)}
-              className="w-10 h-10 rounded-lg border border-soft cursor-pointer bg-transparent"
-            />
-            <span className="text-main text-sm font-mono">{primaryColor}</span>
+          <div className="text-center md:text-right shrink-0">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Logged in as</p>
+            <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 mt-0.5">{user?.email}</p>
           </div>
-          <div className="flex flex-col xl:flex-row gap-3">
+        </div>
+
+        {/* Dynamic Forms Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Update Name Form */}
+          <form
+            onSubmit={handleNameUpdate}
+            className="flex flex-col justify-between gap-5 bg-slate-50/50 dark:bg-slate-800/10 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">Display Information</h2>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Change how your name appears across your workspaces.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter new display name"
+                  required
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
+                />
+              </div>
+            </div>
+
             <button
-              onClick={handleThemeSave}
-              className="hover-lift flex-1 py-2.5 px-4 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold whitespace-nowrap transition-colors"
+              type="submit"
+              className="w-full py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer mt-2"
+            >
+              Save Name Changes
+            </button>
+          </form>
+
+          {/* Password Form */}
+          <form
+            onSubmit={handlePasswordUpdate}
+            className="flex flex-col justify-between gap-5 bg-slate-50/50 dark:bg-slate-800/10 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">Change Password</h2>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Update your credentials regularly to maintain robust account security.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="currentPassword" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  id="currentPassword"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  required
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="newPassword" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  required
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-bold rounded-xl shadow-xs transition-colors mt-2 cursor-pointer"
             >
               Save Theme Changes
             </button>
-            <button
-              onClick={handleThemeReset}
-              className="flex-1 py-2.5 px-4 border border-soft text-main rounded-lg text-sm font-semibold whitespace-nowrap hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              Reset to Default
-            </button>
-          </div>
+          </form>
+
+          {/* Theme Form */}
+          <form
+            onSubmit={handleThemeUpdate}
+            className="flex flex-col justify-between gap-5 bg-slate-50/50 dark:bg-slate-800/10 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-5 md:col-span-2 lg:col-span-1"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">Theme Customization</h2>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Personalize your user workspace accent colors to suit your mood.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="primaryColor" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Primary Color
+                </label>
+                <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl">
+                  <input
+                    type="color"
+                    id="primaryColor"
+                    value={primaryColor}
+                    onChange={(e) => setPrimaryColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg cursor-pointer border-0 p-0 overflow-hidden shrink-0 bg-transparent"
+                  />
+                  <span className="text-sm text-slate-600 dark:text-slate-400 font-mono font-bold uppercase">
+                    {primaryColor}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 mt-2">
+              <button
+                type="submit"
+                className="flex-1 py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Save
+              </button>
+
+              <button
+                type="button"
+                onClick={handleThemeReset}
+                className="flex-1 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                Reset Default
+              </button>
+            </div>
+          </form>
         </div>
+
 
       </div>
       <ProfilePictureUploadModal
