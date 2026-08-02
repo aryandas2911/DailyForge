@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const TaskPreview = ({ tasks, updateTask }) => {
+const TaskPreview = ({ tasks, updateTask }) => {
   const navigate = useNavigate();
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
@@ -20,9 +21,15 @@ const TaskPreview = ({ tasks, updateTask }) => {
     Low: "border-emerald-400 dark:border-emerald-500",
     Medium: "border-amber-400 dark:border-amber-500",
     High: "border-rose-500",
+    Low: "border-emerald-400 dark:border-emerald-500",
+    Medium: "border-amber-400 dark:border-amber-500",
+    High: "border-rose-500",
   };
 
   const priorityBadge = {
+    Low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+    Medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+    High: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
     Low: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
     Medium: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
     High: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
@@ -159,6 +166,7 @@ const TaskPreview = ({ tasks, updateTask }) => {
         </div>
       ) : (
         <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">
           No upcoming tasks.
         </p>
       )}
@@ -167,11 +175,16 @@ const TaskPreview = ({ tasks, updateTask }) => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 animate-in fade-in duration-200 px-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transition-all transform scale-100">
             <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 animate-in fade-in duration-200 px-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 transition-all transform scale-100">
+            <h2 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
               Complete Task
             </h2>
 
             <p className="text-sm mb-4 text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-sm mb-4 text-slate-500 dark:text-slate-400 leading-relaxed">
               How long did you actually take to complete "
+              <span className="font-semibold text-slate-800 dark:text-slate-200">{durationModalTask.title}</span>"?
               <span className="font-semibold text-slate-800 dark:text-slate-200">{durationModalTask.title}</span>"?
             </p>
             <input
@@ -183,17 +196,20 @@ const TaskPreview = ({ tasks, updateTask }) => {
               placeholder="Actual duration in minutes"
             />
             <div className="flex justify-end gap-3 mt-6">
+            <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
                 }}
                 className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleActualDurationSubmit}
+                className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
                 className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
               >
                 Mark Completed
@@ -205,5 +221,7 @@ const TaskPreview = ({ tasks, updateTask }) => {
     </div>
   );
 };
+};
 
+export default TaskPreview;
 export default TaskPreview;

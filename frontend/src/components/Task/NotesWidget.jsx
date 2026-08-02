@@ -46,21 +46,28 @@ export default function NotesWidget() {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col overflow-hidden transition-colors duration-300 w-full">
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/60">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col overflow-hidden transition-colors duration-300 w-full">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/60">
         <div className="flex items-center gap-3">
+          <StickyNote size={20} className="text-[#3b8ea0]" />
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
           <StickyNote size={20} className="text-[#3b8ea0]" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">
             Quick Notes
           </h3>
         </div>
         <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
           {completedCount}/{notes.length} done
         </span>
       </div>
 
       <div className="px-4 py-3 flex flex-col gap-1">
+      <div className="px-4 py-3 flex flex-col gap-1">
         {notes.map((note) => (
           <div
             key={note.id}
+            className="flex items-center gap-3 group relative rounded-xl px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
             className="flex items-center gap-3 group relative rounded-xl px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
           >
             <button
@@ -68,10 +75,15 @@ export default function NotesWidget() {
               className={`flex-shrink-0 transition-colors cursor-pointer ${
                 note.completed ? "text-[#3b8ea0]" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
               }`}
+              className={`flex-shrink-0 transition-colors cursor-pointer ${
+                note.completed ? "text-[#3b8ea0]" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
+              }`}
             >
               {note.completed ? (
                 <CheckCircle2 size={20} />
+                <CheckCircle2 size={20} />
               ) : (
+                <Circle size={20} strokeWidth={2} />
                 <Circle size={20} strokeWidth={2} />
               )}
             </button>
@@ -99,8 +111,10 @@ export default function NotesWidget() {
             <button
               onClick={() => removeNote(note.id)}
               className="absolute right-3 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer p-1 rounded-lg"
+              className="absolute right-3 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition cursor-pointer p-1 rounded-lg"
               aria-label="Delete note"
             >
+              <X size={16} />
               <X size={16} />
             </button>
           </div>
@@ -108,10 +122,13 @@ export default function NotesWidget() {
       </div>
 
       <div className="px-6 py-3.5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/10">
+      <div className="px-6 py-3.5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/10">
         <button
           onClick={addNote}
           className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-[#3b8ea0] dark:hover:text-white transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-[#3b8ea0] dark:hover:text-white transition-colors cursor-pointer"
         >
+          <Plus size={16} /> Add Note
           <Plus size={16} /> Add Note
         </button>
       </div>

@@ -76,6 +76,8 @@ export default function RoutineBuilder() {
 
   const openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
+  const openModal = useCallback(() => setIsOpen(true), []);
+  const closeModal = useCallback(() => setIsOpen(false), []);
 
   const handleOpenModal = useScrollThenOpen(openModal, 0);
 
@@ -120,18 +122,24 @@ export default function RoutineBuilder() {
 
   useEffect(() => {
 
-  if (!savedRoutines.length) return;
-
+    const storedRoutineIds = JSON.parse(
+      localStorage.getItem("activeRoutineIds") || "[]"
+    );
     const storedRoutineIds = JSON.parse(
       localStorage.getItem("activeRoutineIds") || "[]"
     );
 
     if (!storedRoutineIds.length) return;
+    if (!storedRoutineIds.length) return;
 
     const restoredRoutines = savedRoutines.filter(
       (routine) => storedRoutineIds.includes(routine._id)
     );
+    const restoredRoutines = savedRoutines.filter(
+      (routine) => storedRoutineIds.includes(routine._id)
+    );
 
+    setActiveRoutine(restoredRoutines);
     setActiveRoutine(restoredRoutines);
   }, [savedRoutines]);
 
@@ -260,17 +268,23 @@ export default function RoutineBuilder() {
       <div className="bg-slate-50 dark:bg-slate-950 min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-40 transition-colors duration-300 w-full box-border">
         
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in transition-colors">
+      <div className="bg-slate-50 dark:bg-slate-950 min-h-screen px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-40 transition-colors duration-300 w-full box-border">
+        
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in transition-colors">
           <div className="flex items-start gap-4">
             <button
               onClick={() => navigate("/dashboard")}
+              className="mt-1 rounded-xl p-2 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
               className="mt-1 rounded-xl p-2 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
             >
               <ArrowLeft size={16} />
             </button>
             <div>
               <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
                 Routine Builder
               </h1>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Design your week</p>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Design your week</p>
             </div>
           </div>
@@ -278,8 +292,10 @@ export default function RoutineBuilder() {
             onClick={exportToImage}
             disabled={isImageExporting}
             className="px-4 py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+            className="px-4 py-2.5 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
           >
             {isImageExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            <span>{isImageExporting ? "Exporting..." : "Export as PNG"}</span>
             <span>{isImageExporting ? "Exporting..." : "Export as PNG"}</span>
           </button>
           <div className="flex items-center gap-3">
@@ -294,12 +310,15 @@ export default function RoutineBuilder() {
 
         <div className="grid grid-cols-12 gap-6 animate-in">
           <aside className="col-span-12 md:col-span-4 lg:col-span-3">
+        <div className="grid grid-cols-12 gap-6 animate-in">
+          <aside className="col-span-12 md:col-span-4 lg:col-span-3">
             <TaskLibrary
               tasks={tasks}
               onAddTask={openModal}
             />
           </aside>
 
+          <section className="col-span-12 md:col-span-8 lg:col-span-9 w-full min-w-0">
           <section className="col-span-12 md:col-span-8 lg:col-span-9 w-full min-w-0">
             <WeeklyGrid
               scheduledTasks={scheduledTasks}
@@ -313,10 +332,13 @@ export default function RoutineBuilder() {
 
         <section className="mt-12 animate-in">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wide">
+        <section className="mt-12 animate-in">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wide">
             Saved Routines
           </h2>
 
           {loadingRoutines ? (
+            <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Loading routines…</p>
             <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Loading routines…</p>
           ) : savedRoutines.length === 0 ? (
             /*
@@ -330,6 +352,7 @@ export default function RoutineBuilder() {
               onAction={handleStartRoutine}
             />
           ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {savedRoutines.map((routine) => (
                 <RoutineCard
@@ -357,6 +380,9 @@ export default function RoutineBuilder() {
           <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 px-4 animate-in">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-md box-border transform scale-100 transition-all duration-300">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 px-4 animate-in">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl w-full max-w-md box-border transform scale-100 transition-all duration-300">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                 Save {selectedDay} Routine
               </h3>
 
@@ -379,13 +405,16 @@ export default function RoutineBuilder() {
               />
 
               <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 mt-6">
                 <button
+                  className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
                   className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
                   onClick={() => setIsSaveModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
+                  className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer disabled:opacity-50"
                   className="px-4 py-2 bg-[#3b8ea0] hover:bg-[#4eb7b3] text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer disabled:opacity-50"
                   onClick={confirmSaveRoutine}
                   disabled={!routineName.trim()}
@@ -433,9 +462,9 @@ export default function RoutineBuilder() {
           </div>
         )}
 
-        {/* Drag Overlay */}
         <DragOverlay dropAnimation={null}>
           {activeTask ? (
+            <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 shadow-2xl text-slate-800 dark:text-slate-200 text-sm font-semibold max-w-xs truncate">
             <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 shadow-2xl text-slate-800 dark:text-slate-200 text-sm font-semibold max-w-xs truncate">
               {activeTask.title}
             </div>

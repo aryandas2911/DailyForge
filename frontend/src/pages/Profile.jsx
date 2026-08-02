@@ -9,9 +9,204 @@ const Profile = () => {
   const [name, setName] = useState(user?.name || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [primaryColor, setPrimaryColor] = useState(
-    user?.primaryColor || "#3b8ea0",
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [confirmTouched, setConfirmTouched] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const timerCurrent = useRef(null);
+  const timerNew = useRef(null);
+  const timerConfirm = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      clearTimeout(timerCurrent.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      clearTimeout(timerNew.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      clearTimeout(timerConfirm.current);
+    };
+  }, []);
+
+  function handleBlur(setShow, timerRef) {
+    setShow(false);
+    clearTimeout(timerRef.current);
+  }
+
+  const passwordsMatch = newPassword === confirmPassword;
+  const showMatchError = (confirmTouched || submitAttempted) && !passwordsMatch;
+
+  function handleSubmit() {
+    setSubmitAttempted(true);
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return;
+    }
+
+    if (!passwordsMatch) {
+      return;
+    }
+
+  const handleThemeReset = async () => {
+    try {
+      const res = await api.put("/auth/update-profile", {
+        primaryColor: "#3b8ea0",
+      });
+
+      setUser(res.data.user);
+      SetPrimaryColor("#3b8ea0");
+      Alert("Theme reset successfully");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to reset theme");
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 transition-colors duration-300">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-10 flex flex-col gap-8 shadow-sm animate-in">
+        
+        {/* Profile Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800/60等">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 min-w-0">
+            <div className="relative group shrink-0">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-tr from-[#3b8ea0] to-[#4eb7b3] flex items-center justify-center text-white text-3xl font-black shadow-md transition duration-300">
+                {user?.photo || profileImage ? (
+                  <img
+                    src={profileImage || user?.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
+              </div>
+              <label className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 p-1.5 rounded-xl shadow-md cursor-pointer hover:text-[#3b8ea0] dark:hover:text-white transition duration-150">
+                <Upload size={14} strokeWidth={2.5} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const maxAllowedSize = 3 * 1024 * 1024;
+                    if (file.size > maxAllowedSize) {
+                      alert("File is too large! Please choose an image under 3MB.");
+                      return;
+                    }
+                    const formData = new FormData();
+                    formData.append("profileImage", file);
+
+                    try {
+                      const response = await api.post(
+                        "/auth/upload-profile",
+                        formData,
+                        {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                          },
+                        },
+                      );
+    onUpdatePassword({ currentPassword, newPassword });
+  }
+
+  function handleCurrentPasswordChange(val) {
+    setCurrentPassword(val);
+    if (apiError) onClearError();
+  }
+
+  return (
+    <div className="surface-bg rounded-2xl border border-soft p-7 flex flex-col gap-1">
+      <h2 className="text-main text-lg font-bold mb-1">Change Password</h2>
+      <p className="text-muted text-sm mb-5">Update your password to keep your account secure</p>
+
+      <label className="text-main text-sm font-medium mb-1 block">Current Password</label>
+      <div className="relative mb-1">
+        <input
+          type={showCurrent ? "text" : "password"}
+          value={currentPassword}
+          onChange={(e) => handleCurrentPasswordChange(e.target.value)}
+          onBlur={() => handleBlur(setShowCurrent, timerCurrent)}
+          placeholder="Enter current password"
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+            ${apiError ? "border-red-500" : "border-soft"}`}
+        />
+        <EyeButton show={showCurrent} setShow={setShowCurrent} timerRef={timerCurrent} />
+      </div>
+
+      {apiError && (
+        <p className="text-red-500 text-xs mb-2">{apiError}</p>
+      )}
+
+      <label className="text-main text-sm font-medium mb-1 mt-3 block">New Password</label>
+      <div className="relative">
+        <input
+          type={showNew ? "text" : "password"}
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          onBlur={() => handleBlur(setShowNew, timerNew)}
+          placeholder="Enter new password"
+          className="w-full pr-10 input-focus border border-soft rounded-lg px-3 py-2.5 text-sm text-main bg-transparent"
+        />
+        <EyeButton show={showNew} setShow={setShowNew} timerRef={timerNew} />
+      </div>
+
+      <label className="text-main text-sm font-medium mb-1 mt-3 block">Confirm New Password</label>
+      <div className="relative">
+        <input
+          type={showConfirm ? "text" : "password"}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          onBlur={() => {
+            setConfirmTouched(true);
+            handleBlur(setShowConfirm, timerConfirm);
+          }}
+          placeholder="Re-enter new password"
+          className={`w-full pr-10 input-focus border rounded-lg px-3 py-2.5 text-sm text-main bg-transparent
+            ${showMatchError ? "border-red-500" : "border-soft"}`}
+        />
+        <EyeButton show={showConfirm} setShow={setShowConfirm} timerRef={timerConfirm} />
+      </div>
+
+      {showMatchError && (
+        <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
+      )}
+
+      <button
+        type="button"
+        onClick={handleSubmit}
+        className="hover-lift mt-5 w-full py-2.5 bg-[#3b82f6] hover:bg-blue-800 text-white rounded-lg text-sm font-semibold transition-colors"
+      >
+        Update Password
+      </button>
+    </div>
   );
+}
+
+// main profile page
+export default function Profile() {
+  const { user, setUser } = useContext(AuthContext);
+
+  const [toast, setToast] = useState({ message: "", type: "success" });
+  const toastTimer = useRef(null);
+
+  const showToast = useCallback((message, type = "success") => {
+    clearTimeout(toastTimer.current);
+    setToast({ message, type });
+    toastTimer.current = setTimeout(() => setToast({ message: "", type: "success" }), 3000);
+  }, []);
+
+  useEffect(() => () => clearTimeout(toastTimer.current), []);
+
+  // states
+  const [name, setName] = useState(user?.name || '');
+  const [primaryColor, setPrimaryColor] = useState(user?.primaryColor || '#4eb7b3');
   const [profileImage, setProfileImage] = useState("");
 
   const handleNameUpdate = async (e) => {
@@ -301,6 +496,4 @@ const Profile = () => {
       />
     </div>
   );
-};
-
-export default Profile;
+}

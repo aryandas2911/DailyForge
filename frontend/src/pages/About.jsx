@@ -28,6 +28,10 @@ export default function About() {
         <h2 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-10 uppercase tracking-wide">
           What you can do here
         </h2>
+      <section className="max-w-6xl mx-auto">
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white text-center mb-10 uppercase tracking-wide">
+          What you can do here
+        </h2>
 
   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 

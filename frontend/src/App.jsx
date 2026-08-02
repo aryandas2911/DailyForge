@@ -26,6 +26,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 const AuthLayout = ({ children }) => (
   <div className="min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center">
+  <div className="min-h-[calc(100vh-3.75rem)] w-full flex items-center justify-center">
     {children}
   </div>
 );
@@ -104,12 +105,39 @@ const AnimatedRoutes = () => {
             <ProtectedRoutes>
               <ErrorBoundary>
                 <RoutineBuilder />
+                <RoutineBuilder />
               </ErrorBoundary>
             </ProtectedRoutes>
           }
         />
         <Route
           path="/focus-mode"
+          element={
+            <ProtectedRoutes>
+              <ErrorBoundary>
+                <Pomodoro />
+              </ErrorBoundary>
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <Profile />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoutes>
+              <Analytics />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/daily-journal"
           element={
             <ProtectedRoutes>
               <ErrorBoundary>

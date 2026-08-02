@@ -43,7 +43,10 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
     <div
       ref={setNodeRef}
       className={`h-full min-h-[3.5rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
+      className={`h-full min-h-[3.5rem] p-1.5 flex flex-col gap-1 transition duration-200 ${
         isOver 
+          ? "bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/20" 
+          : "bg-slate-50/40 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/30"
           ? "bg-[#3b8ea0]/10 dark:bg-[#3b8ea0]/20" 
           : "bg-slate-50/40 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/30"
       }`}
@@ -54,6 +57,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
         <div
           key={task.taskId}
           className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#3b8ea0] text-white text-[10px] sm:text-xs font-semibold px-2 py-1.5 shadow-xs transition-all animate-in"
+          className="group/item relative flex items-center justify-between gap-1.5 rounded-lg bg-[#3b8ea0] text-white text-[10px] sm:text-xs font-semibold px-2 py-1.5 shadow-xs transition-all animate-in"
         >
           <span className="truncate pr-3 leading-tight">{task.title}</span>
           <button
@@ -61,6 +65,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
               e.stopPropagation(); // prevents drag from triggering
               onDeleteTask(task.taskId, task.day, task.startTime);
             }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shadow-xs opacity-0 group-hover/item:opacity-100 hover:bg-rose-600 transition-all cursor-pointer border border-white/10"
             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shadow-xs opacity-0 group-hover/item:opacity-100 hover:bg-rose-600 transition-all cursor-pointer border border-white/10"
             title="Remove scheduled task"
           >
@@ -127,6 +132,28 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
                 {time}
               </div>
 
+              {DAYS.map((day, dayIndex) => (
+                <div
+                  key={`${day}-${time}`}
+                  className={`min-w-0 border-b border-slate-100 dark:border-slate-800/60 border-r border-slate-100 dark:border-slate-800/60 ${
+                    dayIndex === 0 ? "border-l border-slate-100 dark:border-slate-800/60" : ""
+                  }`}
+                >
+                  <DroppableCell
+                    day={day}
+                    time={time}
+                    tasks={scheduledTasks.filter(
+                      (t) =>
+                        normalizeDay(t.day) === normalizeDay(day) &&
+                        t.startTime === timeToMinutes(time)
+                    )}
+                    onDeleteTask={onDeleteTask}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
               {DAYS.map((day, dayIndex) => (
                 <div
                   key={`${day}-${time}`}

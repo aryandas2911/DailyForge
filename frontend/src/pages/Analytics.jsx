@@ -256,10 +256,9 @@ export default function Analytics() {
         </div>
       </header>
 
-      {/* Grid of Key Metrics */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full animate-in delay-100">
-        <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-          <div className="p-3 bg-blue-500/10 text-main rounded-xl">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-in delay-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs flex items-center gap-4 border-l-4 border-l-blue-500 transition-colors duration-300">
+          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
             <BookOpen size={24} />
           </div>
           <div>
@@ -296,9 +295,9 @@ export default function Analytics() {
             <Calendar size={24} />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">Saved Routines</p>
-            <h3 className="text-2xl font-bold text-main">{stats.summary.totalRoutines}</h3>
-            <p className="text-xs text-muted/70">{stats.summary.totalRoutineTasksCount} scheduled items</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Saved Routines</p>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{stats.summary.totalRoutines}</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">{stats.summary.totalRoutineTasksCount} scheduled items</p>
           </div>
         </div>
 
@@ -410,25 +409,21 @@ export default function Analytics() {
             </p>
           </div>
 
-                    <div
-              className={`px-4 py-2 rounded-full text-sm font-semibold w-fit
-              ${
-                stats.adaptiveAnalytics?.averageBurnoutScore >= 70
-                  ? "bg-red-500/10 text-red-500"
-                  : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
-                  ? "bg-emerald-500/10 text-emerald-500"
-                  : "bg-blue-500/10 text-blue-500 dark:text-slate-200"
-              }`}
-            >
-
-              {stats.adaptiveAnalytics?.averageBurnoutScore >= 70
-                ? "Burnout Risk"
+          <div
+            className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 ${
+              stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+                ? "bg-rose-500/10 text-rose-500"
                 : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
-                ? "Sustainable Progress"
-                : "Stable Routine"}
-
-            </div>
-
+                ? "bg-emerald-500/10 text-emerald-500"
+                : "bg-blue-500/10 text-blue-500"
+            }`}
+          >
+            {stats.adaptiveAnalytics?.averageBurnoutScore >= 70
+              ? "Burnout Risk"
+              : stats.adaptiveAnalytics?.averageConsistencyScore >= 80
+              ? "Sustainable Progress"
+              : "Stable Routine"}
+          </div>
         </div>
       </div>
 
@@ -519,10 +514,9 @@ export default function Analytics() {
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full animate-in delay-300">
-        {/* Daily Progress Bar Chart */}
-        <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft relative">
-          <h3 className="text-base font-semibold text-main mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-main" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm transition-colors duration-300">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Clock size={18} className="text-blue-500" />
             Daily Tasks Status (Last 7 Days)
           </h3>
           

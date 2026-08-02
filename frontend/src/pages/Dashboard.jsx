@@ -1,8 +1,15 @@
 import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; 
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
+import {
+  CheckCircle2,
+  Calendar,
+  RotateCw,
+  Copy,
+  ArrowRight,
+  X
+} from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -183,9 +190,6 @@ export default function Dashboard() {
 
       const duplicatedRoutine = res.data.routine || res.data.routines?.[0];
 
-      invalidate("/routines");
-
-      // Optimistic UI update
       if (duplicatedRoutine) {
         setSavedRoutines((prevRoutines) => [
           duplicatedRoutine,
@@ -210,68 +214,12 @@ export default function Dashboard() {
     <div className="min-h-screen w-full max-w-[1440px] mx-auto bg-slate-50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in transition-colors duration-300">
       <OnboardingModal />
 
-        {/* Get Started */}
-        <section className="w-full animate-in delay-75">
-    <div className="card p-6 sm:p-8 rounded-3xl border border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-sm">
-       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-         <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-2">
-                Getting Started
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-main">
-               New here? Learn DailyForge in a few quick steps.
-            </h2>
-            <p className="mt-3 text-muted leading-relaxed">
-              DailyForge helps you plan tasks, build routines, and track your progress in one place.
-              Start with one task, set its priority, and use the dashboard to stay consistent.
-           </p>
-          </div>
-
-      <button
-        onClick={() => navigate("/tasks")}
-        className="px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:opacity-90 transition"
-      >
-        Create your first task
-      </button>
-    </div>
-
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-      {[
-        { title: "Add a task", desc: "Write down what you need to do." },
-        { title: "Set priority", desc: "Mark what matters most first." },
-        { title: "Build routine", desc: "Drag tasks into your weekly flow." },
-        { title: "Track progress", desc: "See streaks and analytics over time." },
-      ].map((item) => (
-        <div
-          key={item.title}
-          className="rounded-2xl bg-white/60 dark:bg-slate-800/60 p-4 border border-white/10"
-        >
-          <h3 className="text-main font-semibold">{item.title}</h3>
-          <p className="text-sm text-muted mt-1 leading-relaxed">{item.desc}</p>
-        </div>
-      ))}
-      <h3 className="text-lg font-semibold text-main whitespace-nowrap">
-        Want to know more about DailyForge and about its features?
-        <a href="/About" className="text-primary hover:text-primary/80">
-          About us
-        </a>
-      </h3>
-    </div>
-  </div>
-</section>
-      {/* Header */}
-      <header className="animate-in flex flex-col lg:flex-row items-center p-6 shadow-md rounded-xl bg-[var(--surface)] gap-6">
+      <header className="animate-in flex flex-col lg:flex-row items-center justify-between p-6 shadow-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 gap-6">
         {moreTags ? (
-          <div className="flex align-middle">
-            <div
-              className="align-middle mb-2 max-[64] p-3 z-50
-                    bg-white dark:bg-slate-900 
-                    border border-slate-200 dark:border-cyan-500/30 
-                    rounded-lg shadow-xl text-xs"
-            >
-              {/* Header with Title and Cancel Button */}
-              <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-500 dark:text-slate-300">
+          <div className="w-full flex justify-center">
+            <div className="w-full max-w-md p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs text-xs">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <span className="font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   All Tags
                 </span>
                 <button
@@ -296,12 +244,8 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            {/* Left */}
-            <div className="flex-1">
-              <div
-                className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
-                onClick={() => setShowProfilePictureModal(true)}
-              >
+            <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 flex-1 min-w-0">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-gradient-to-tr from-[#3b8ea0] to-[#4eb7b3] flex items-center justify-center text-white text-3xl font-black shrink-0 shadow-md">
                 {user?.photo ? (
                   <img
                     src={user?.photo}
@@ -318,22 +262,22 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <LiveClock />
-              <h1 className="text-2xl font-semibold text-main leading-tight">
-                {getGreeting()}, {user?.name}
-              </h1>
-
-              <p className="text-sm italic text-primary mt-1">"{quote}"</p>
-
-              <p className="text-sm text-muted dark:text-slate-300 mt-2">
-                {new Date()
-                  .toLocaleDateString("en-US", {
-                    weekday: "long",
-                    day: "2-digit",
-                    month: "short",
-                  })
-                  .replace(",", " ·")}
-              </p>
+              <div className="min-w-0 space-y-1">
+                <LiveClock />
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white truncate">
+                  {getGreeting()}, {user?.name}
+                </h1>
+                <p className="text-sm italic font-medium text-[#3b8ea0] dark:text-[#4eb7b3] leading-relaxed">"{quote}"</p>
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wide uppercase pt-0.5">
+                  {new Date()
+                    .toLocaleDateString("en-US", {
+                      weekday: "long",
+                      day: "2-digit",
+                      month: "short",
+                    })
+                    .replace(",", " ·")}
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col items-center lg:items-end gap-3 shrink-0">
@@ -356,7 +300,20 @@ export default function Dashboard() {
                   </button>
                 )}
               </div>
-            </div>
+
+        {/* Right */}
+        <div className="flex-1 flex flex-col items-center lg:items-end gap-2">
+
+          <img
+            src={profileImage}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md cursor-pointer"
+            onClick={() => setShowProfilePreview(true)}
+          />
+
+          <LiveClock />
+
+        </div>
           </>
         )}
       </header>
@@ -639,8 +596,8 @@ export default function Dashboard() {
                 type="text"
                 value={customTag}
                 onChange={(e) => setCustomTag(e.target.value)}
-                placeholder="Create custom tag"
-                className="flex-1 px-3 py-2 rounded-lg border dark:placeholder-slate-500"
+                placeholder="Create custom tag..."
+                className="flex-1 px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-[#3b8ea0] transition-all box-border placeholder:text-slate-400"
               />
               <button
                 onClick={() => {
