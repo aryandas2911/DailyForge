@@ -23,6 +23,8 @@ const PORT = process.env.PORT;
 // Initialize express     
 const app = express();
 
+// Required for correct req.ip behind Render / reverse proxies (used by rate limiting)
+app.set('trust proxy', 1);
 
 // Build the list of allowed CORS origins from environment variables.
 // CORS_ORIGIN supports a comma-separated list for multiple origins.
