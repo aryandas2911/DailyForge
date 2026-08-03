@@ -48,6 +48,8 @@ export default function TaskItem({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => onSelect(task._id)}
+                  aria-label={`Mark '${task.title}' as ${isCompleted ? "incomplete" : "complete"}`}
+                  aria-checked={isCompleted}
                   className="w-4 h-4 cursor-pointer rounded border-gray-300 text-blue-600 dark:text-slate-100 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 accent-(--primary)"
                 />
                 <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-white/70 dark:bg-slate-800/70 text-main shadow-xs border border-soft">
