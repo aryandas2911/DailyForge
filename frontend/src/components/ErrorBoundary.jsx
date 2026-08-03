@@ -31,8 +31,8 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center text-white p-4">
-          <div className="max-w-md w-full bg-gray-800 rounded-xl shadow-2xl p-8 text-center border border-gray-700">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center text-gray-900 dark:text-white p-4">
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-700">
             <div className="flex justify-center mb-6">
               <div className="p-3 bg-red-500/10 rounded-full">
                 <svg className="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -40,13 +40,13 @@ class ErrorBoundary extends React.Component {
                 </svg>
               </div>
             </div>
-            <h1 className="text-2xl font-bold mb-3 text-gray-100">Oops! Something went wrong</h1>
-            <p className="text-gray-400 dark:text-slate-300 mb-6 text-sm leading-relaxed">
+            <h1 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">Oops! Something went wrong</h1>
+            <p className="text-gray-500 dark:text-slate-300 mb-6 text-sm leading-relaxed">
               We're sorry, but an unexpected error occurred. The application has recovered from a crash, but you might need to refresh or return to the dashboard.
             </p>
             {this.state.error && (
-              <div className="bg-gray-950 rounded-lg p-4 mb-6 text-left overflow-auto max-h-32 border border-gray-700/50 shadow-inner">
-                <p className="text-red-400/90 text-xs font-mono whitespace-pre-wrap break-words">
+              <div className="bg-gray-100 dark:bg-gray-950 rounded-lg p-4 mb-6 text-left overflow-auto max-h-32 border border-gray-200 dark:border-gray-700/50 shadow-inner">
+                <p className="text-red-500 dark:text-red-400/90 text-xs font-mono whitespace-pre-wrap break-words">
                   {this.state.error.toString()}
                 </p>
               </div>
@@ -60,7 +60,7 @@ class ErrorBoundary extends React.Component {
               </button>
               <button
                 onClick={this.handleReturnHome}
-                className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-all font-medium focus:outline-none focus:ring-2 focus:ring-gray-500/50 w-full sm:w-auto"
+                className="px-5 py-2.5 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 text-sm rounded-lg transition-all font-medium focus:outline-none focus:ring-2 focus:ring-gray-500/50 w-full sm:w-auto"
               >
                 Return Home
               </button>
