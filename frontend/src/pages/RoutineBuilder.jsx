@@ -262,8 +262,8 @@ export default function RoutineBuilder() {
         handleDragEnd(event);
       }}
     >
-      <div className="app-bg min-h-screen px-6 py-8 pb-40">
-
+      <div className="app-bg min-h-screen px-6 py-8">
+      
         {/* Header */}
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in delay-100">
           <div className="flex items-start gap-4">
