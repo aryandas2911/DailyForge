@@ -383,7 +383,16 @@ export const bulkDeleteTasks = async (req, res) => {
         message: "No task IDs provided",
       });
     }
+    const hasInvalidId = ids.some(
+      (id) => !mongoose.Types.ObjectId.isValid(id)
+    );
 
+    if (hasInvalidId) {
+      return res.status(400).json({
+       success: false,
+       message: "Invalid task ID provided",
+    });
+    }
     // delete all matching tasks belonging to this user
     await Task.deleteMany({
       _id: { $in: ids },
