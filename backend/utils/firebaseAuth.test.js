@@ -86,3 +86,72 @@ test("verifyFirebaseIdToken never allows unverified decode in production", async
   );
 });
 
+test("verifyFirebaseIdToken throws on null, undefined, and empty string token", async () => {
+  await withEnv(
+    {
+      FIREBASE_PROJECT_ID: undefined,
+      FIREBASE_AUTH_ALLOW_UNVERIFIED: undefined,
+      NODE_ENV: "test",
+    },
+    async () => {
+      await assert.rejects(
+        () => verifyFirebaseIdToken(null),
+        /Firebase ID token must be a non-empty string/
+      );
+      await assert.rejects(
+        () => verifyFirebaseIdToken(undefined),
+        /Firebase ID token must be a non-empty string/
+      );
+      await assert.rejects(
+        () => verifyFirebaseIdToken(""),
+        /Firebase ID token must be a non-empty string/
+      );
+    }
+  );
+});
+
+test("verifyFirebaseIdToken throws on expired token in unverified dev mode", async () => {
+  const expiredToken = makeFakeJwt({
+    exp: Math.floor(Date.now() / 1000) - 3600,
+    email: "expired@example.com",
+  });
+
+  await withEnv(
+    {
+      FIREBASE_PROJECT_ID: undefined,
+      FIREBASE_AUTH_ALLOW_UNVERIFIED: "true",
+      NODE_ENV: "development",
+    },
+    async () => {
+      await assert.rejects(
+        () => verifyFirebaseIdToken(expiredToken),
+        /expired/
+      );
+    }
+  );
+});
+
+test("verifyFirebaseIdToken throws when token is not a string", async () => {
+  await withEnv(
+    {
+      FIREBASE_PROJECT_ID: undefined,
+      FIREBASE_AUTH_ALLOW_UNVERIFIED: undefined,
+      NODE_ENV: "test",
+    },
+    async () => {
+      await assert.rejects(
+        () => verifyFirebaseIdToken(123),
+        /Firebase ID token must be a non-empty string/
+      );
+      await assert.rejects(
+        () => verifyFirebaseIdToken({}),
+        /Firebase ID token must be a non-empty string/
+      );
+      await assert.rejects(
+        () => verifyFirebaseIdToken([]),
+        /Firebase ID token must be a non-empty string/
+      );
+    }
+  );
+});
+
