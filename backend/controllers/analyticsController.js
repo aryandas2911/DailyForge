@@ -3,12 +3,12 @@ import Routine from "../src/models/Routine.js";
 import User from "../src/models/User.js";
 import Journal from "../src/models/Journal.js";
 
-// Helper to format Date to YYYY-MM-DD in user's timezone/local
+// Helper to format Date to YYYY-MM-DD in UTC
 const formatDateString = (date) => {
   const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
