@@ -107,3 +107,25 @@ export function extractDateFromISO(isoString) {
   if (!isoString) return "";
   return isoString.split("T")[0];
 }
+
+/**
+ * Calculates the number of calendar days between two Date objects.
+ * The result is always a non-negative integer.
+ *
+ * @param {Date} date1 - The first date.
+ * @param {Date} date2 - The second date.
+ * @returns {number} The absolute number of days between the two dates.
+ *
+ * @example
+ * getDaysBetween(new Date("2026-05-14"), new Date("2026-05-17")); // 3
+ * getDaysBetween(new Date("2026-05-17"), new Date("2026-05-14")); // 3
+ * getDaysBetween(new Date("2026-05-14"), new Date("2026-05-14")); // 0
+ */
+export function getDaysBetween(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  d1.setHours(0, 0, 0, 0);
+  d2.setHours(0, 0, 0, 0);
+  const diffMs = Math.abs(d1.getTime() - d2.getTime());
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
