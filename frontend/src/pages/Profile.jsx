@@ -4,6 +4,19 @@ import axios from "../api/axios";
 import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { AuthContext } from '../context/AuthContext';
 
+const Profile = () => {
+  // auth context
+  const { user, setUser } = useContext(AuthContext);
+  const [toast, setToast] = useState({ message: '', type: '' });
+
+const showToast = (message, type = 'success') => {
+  setToast({ message, type });
+  setTimeout(() => setToast({ message: '', type: '' }), 3000);
+};
+  // states
+  const [name, setName] = useState(user?.name || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 // toast popup component - shows at bottom right
 function Toast({ message, type }) {
   if (!message) return null;
@@ -46,6 +59,11 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+      showToast(res.data.message, 'success');
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to update name', 'error');
+    }
+  };
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -87,6 +105,19 @@ function ChangePasswordCard({ onUpdatePassword, onClearError, apiError }) {
     };
   };
 
+    try {
+      const res = await api.patch('/auth/profile', {
+        currentPassword,
+        newPassword,
+      });
+
+      showToast(res.data.message, 'success');
+
+      // clear password fields
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to update password', 'error');
   const timerCurrent = useRef(null);
   const timerNew = useRef(null);
   const timerConfirm = useRef(null);
@@ -388,6 +419,13 @@ export default function Profile() {
           </div>
         </div>
 
+        {toast.message && (
+          <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all ${
+            toast.type === 'success' ? 'bg-[#4eb7b3]' : 'bg-red-500'
+          }`}>
+            {toast.message}
+          </div>
+        )}
       </div>
       <ProfilePictureUploadModal
         isOpen={showProfilePictureModal}
