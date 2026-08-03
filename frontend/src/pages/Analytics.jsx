@@ -124,10 +124,10 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg gap-4">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg gap-4" role="status" aria-live="polite" aria-label="Loading analytics">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="text-sm text-muted font-medium animate-pulse">
-          Analyzing routines and tasks…
+          Analyzing routines and tasks...
         </p>
       </div>
     );
@@ -135,7 +135,7 @@ export default function Analytics() {
 
   if (error) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg px-4">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center app-bg px-4" role="alert" aria-live="assertive">
         <div className="card max-w-md w-full text-center space-y-4 shadow-xl border-soft bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
           <Award size={48} className="text-red-500 mx-auto" />
           <h2 className="text-xl font-bold text-main">Something went wrong</h2>
@@ -226,6 +226,8 @@ export default function Analytics() {
   return (
     <div
       id="analytics-dashboard-content"
+      role="main"
+      aria-label="Productivity Analytics"
       className="min-h-screen w-full max-w-[1440px] mx-auto app-bg px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-in"
     >
       {/* Header */}
@@ -234,6 +236,7 @@ export default function Analytics() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/dashboard")}
+              aria-label="Go back to dashboard"
               className="rounded-lg p-2 border border-soft text-muted hover:bg-[#d0f6e3]/30 dark:hover:bg-slate-800 transition cursor-pointer"
             >
               <ArrowLeft size={16} />
@@ -253,6 +256,7 @@ export default function Analytics() {
         <div id="export-buttons-area" className="flex flex-wrap gap-3 w-full md:w-auto">
           <button
             onClick={exportToCSV}
+            aria-label="Export analytics data as CSV"
             className="flex-1 md:flex-none btn btn-primary flex items-center justify-center gap-2 shadow-sm cursor-pointer"
           >
             <Download size={16} />
@@ -260,6 +264,7 @@ export default function Analytics() {
           </button>
           <button
             onClick={exportToImage}
+            aria-label="Export analytics dashboard as PNG image"
             className="flex-1 md:flex-none btn btn-primary flex items-center justify-center gap-2 shadow-sm cursor-pointer"
           >
             <Image size={16} />
@@ -269,7 +274,7 @@ export default function Analytics() {
       </header>
 
       {/* Grid of Key Metrics */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full animate-in delay-100">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 w-full animate-in delay-100" role="region" aria-label="Key metrics summary">
         <div className="card flex items-center gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md hover:scale-102 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
           <div className="p-3 bg-blue-500/10 text-main rounded-xl">
             <BookOpen size={24} />
@@ -330,7 +335,7 @@ export default function Analytics() {
       </section>
 
               {/* Adaptive Analytics Section */}
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full animate-in delay-150">
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full animate-in delay-150" role="region" aria-label="Streak and completion metrics">
 
           <div className="card bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-soft border-l-4 border-l-red-500">
             <div className="flex items-center justify-between">
@@ -491,7 +496,7 @@ export default function Analytics() {
           </div>
 
       {/* Streaks & Leaderboard Row */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full animate-in delay-200" role="region" aria-label="Completion rate charts">
         {/* Streak Tracker Card */}
         <div className="col-span-12 lg:col-span-7 card bg-gradient-to-tr from-amber-500/10 to-red-500/10 dark:from-amber-950/20 dark:to-red-950/20 border border-soft/50 relative overflow-hidden backdrop-blur-md">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
