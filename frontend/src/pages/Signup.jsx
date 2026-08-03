@@ -6,6 +6,7 @@ import { AuthContext } from "../context/AuthContext.jsx";
 import FormError from "../components/common/FormError";
 import { auth, googleProvider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { isValidEmail } from "../utils/validationUtils.js";
 
 // Google Icon
 const GoogleIcon = () => (
@@ -132,6 +133,11 @@ const passwordStrength = getPasswordStrength(password);
     if (name.trim().length < 2) {
       newErrors.name = "Name must be at least 2 characters long";
     }
+    // email validation
+    if (!isValidEmail(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
       newErrors.password = "Password: min 8 chars, 1 uppercase, 1 digit, 1 special character";
@@ -329,6 +335,9 @@ cursor-pointer
                 border-slate-200
               "
             />
+            {errors.email && (
+              <span className="text-red-500 text-xs">{errors.email}</span>
+            )}
           </div>
 
           {/* Password */}
