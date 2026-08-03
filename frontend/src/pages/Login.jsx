@@ -176,6 +176,9 @@ const Login = () => {
               id="totp"
               placeholder="123456"
               required
+              maxLength={6}
+              inputMode="numeric"
+              pattern="[0-9]{6}"
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value)}
               className="input-modern w-full px-4 py-3 rounded-2xl text-sm border-1 border-slate-200"
