@@ -32,6 +32,7 @@
 - [🏷 Issue Guidelines](#-issue-guidelines)
 - [📸 Screenshots](#-screenshots)
 - [📬 Getting Help](#-getting-help)
+- [🤝 Contributors & Thanks](#-contributors--thanks)
 - [📬 Contact & Community](#-contact--community)
 
 ---
@@ -792,6 +793,14 @@ Need help with setup or contributing?
 - Search existing GitHub issues first
 
 We welcome contributors of all experience levels 🚀
+
+---
+
+## 🤝 Contributors & Thanks
+
+Thank you to all the amazing contributors who have helped build and improve DailyForge 🚀
+
+Your ideas, fixes, feedback, and support make this project better every day. We deeply appreciate the open-source community and welcome new contributors who want to help DailyForge grow.
 
 ---
 
