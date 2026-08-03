@@ -234,6 +234,12 @@ const App = () => {
               </ProtectedRoutes>
             }
           />
+<Route
+  path="/focus-mode"
+  element={<Pomodoro />}
+/>
+          
+              <Route
           <Route
             path="/focus-mode"
             element={
