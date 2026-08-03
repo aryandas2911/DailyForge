@@ -65,6 +65,7 @@ function DroppableCell({ day, time, tasks, onDeleteTask }) {
               e.stopPropagation(); // prevents drag from triggering
               onDeleteTask(task.taskId, task.day, task.startTime);
             }}
+            aria-label={`Remove '${task.title}' from schedule`}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full 
              bg-red-500 text-white text-[9px] font-bold
              flex items-center justify-center
@@ -87,6 +88,8 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
         highlight ? "ring-2 ring-cyan-400 shadow-[0_0_0_6px_rgba(34,211,238,0.15)]" : ""
       }`}
       ref={innerRef}
+      role="region"
+      aria-label="Weekly Schedule"
     >
       <h2 className="text-lg font-semibold text-main mb-1 px-6.5 pt-3">Weekly Schedule</h2>
       {highlight ? (
@@ -109,7 +112,7 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
           <div key={`save-${day}`} className="flex justify-center pb-2">
             <button
               onClick={() => onSaveDay(day)}
-              title={`Save ${day} Routine`}
+              aria-label={`Save ${day} routine`}
               className="flex items-center justify-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-800/60 px-2.5 py-1 text-[9px] sm:text-xs font-semibold cursor-pointer hover:bg-cyan-100 dark:hover:bg-cyan-900/50 hover:shadow-sm transition-all duration-200 hover-lift"
             >
               <Save size={10} className="sm:w-3 sm:h-3" />
@@ -122,6 +125,8 @@ export default function WeeklyGrid({ scheduledTasks, onSaveDay, onDeleteTask, in
         {DAYS.map((day) => (
           <div
             key={day}
+            role="columnheader"
+            aria-label={day}
             className="text-xs sm:text-sm font-semibold text-main text-center pb-2 border-b border-soft/30 mb-2"
           >
             {/* Mobile short names */}
