@@ -17,6 +17,7 @@ import {
   Timer,
   Sparkles,
   ArrowRight,
+  Info,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
@@ -256,6 +257,7 @@ const Navbar = () => {
     { name: "Tasks", path: "/tasks", icon: CheckSquare },
     { name: "Routine Builder", path: "/routine-builder", icon: Calendar },
     { name: "Analytics", path: "/analytics", icon: TrendingUp },
+    { name: "About", path: "/about", icon: Info },
     { name: "Profile", path: "/profile", icon: User },
   ];
 
@@ -382,6 +384,13 @@ const Navbar = () => {
               {!user ? (
                 <>
                   <Link
+                    to="/about"
+                    className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-slate-900/8 bg-white/42 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/80 hover:text-slate-950 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200 dark:hover:bg-white/[0.10] dark:hover:text-white"
+                  >
+                    <Info size={16} />
+                    About
+                  </Link>
+                  <Link
                     to="/login"
                     className="group relative overflow-hidden rounded-full border border-slate-900/8 bg-white/42 px-4 py-2.5 text-sm font-bold text-slate-700 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/80 hover:text-slate-950 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4eb7b3]/45 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-200 dark:hover:bg-white/[0.10] dark:hover:text-white"
                   >
@@ -501,6 +510,14 @@ const Navbar = () => {
                 >
                   {!user ? (
                     <>
+                      <Link
+                        to="/about"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-slate-700 dark:text-slate-200 font-bold hover:bg-white/70 dark:hover:bg-white/[0.08] dark:hover:text-white transition-colors"
+                      >
+                        <Info size={18} />
+                        About
+                      </Link>
                       <Link
                         to="/login"
                         onClick={() => setIsOpen(false)}
