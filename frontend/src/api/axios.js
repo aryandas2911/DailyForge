@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // create axios instance
 const api = axios.create({
@@ -7,6 +8,22 @@ const api = axios.create({
   withCredentials: true,
   headers: {
     "X-Requested-With": "XMLHttpRequest",
+  },
+});
+
+axiosRetry(api, {
+  retries: 3,
+
+  retryDelay: (retryCount) => {
+    console.log(`Retry attempt ${retryCount}`);
+    return retryCount * 2000; // 2s, 4s, 6s
+  },
+
+  retryCondition: (error) => {
+    return (
+      axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+      (error.response && error.response.status >= 500)
+    );
   },
 });
 
