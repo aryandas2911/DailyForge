@@ -270,8 +270,9 @@ import FormError from "../common/FormError";
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Title */}
               <div>
-                <label className="text-sm font-medium text-main">Title</label>
+                <label htmlFor="task-title-input" className="text-sm font-medium text-main">Title</label>
                 <input
+                  id="task-title-input"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -282,8 +283,10 @@ import FormError from "../common/FormError";
                   placeholder="Task title"
                   maxLength={TITLE_MAX_LENGTH}
                   required
+                  aria-describedby="task-title-counter"
                 />
                 <p
+                  id="task-title-counter"
                   className={`text-sm mt-1 text-right ${
                     title.length >= TITLE_MAX_LENGTH
                       ? "text-red-500"
@@ -291,6 +294,7 @@ import FormError from "../common/FormError";
                         ? "text-yellow-500"
                         : "text-muted"
                   }`}
+                  aria-live="polite"
                 >
                   {title.length}/{TITLE_MAX_LENGTH}
                 </p>
@@ -298,10 +302,11 @@ import FormError from "../common/FormError";
 
               {/* Description */}
               <div>
-                <label className="text-sm font-medium text-main">
+                <label htmlFor="task-description-input" className="text-sm font-medium text-main">
                   Description
                 </label>
                 <textarea
+                  id="task-description-input"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   disabled={isSubmitting}
@@ -311,8 +316,10 @@ import FormError from "../common/FormError";
                   placeholder="Optional task description"
                   rows={3}
                   maxLength={DESCRIPTION_MAX_LENGTH}
+                  aria-describedby="task-description-counter"
                 />
                 <p
+                  id="task-description-counter"
                   className={`text-sm mt-1 text-right ${
                     description.length >= DESCRIPTION_MAX_LENGTH
                       ? "text-red-500"
@@ -320,6 +327,7 @@ import FormError from "../common/FormError";
                         ? "text-yellow-500"
                         : "text-muted"
                   }`}
+                  aria-live="polite"
                 >
                   {description.length}/{DESCRIPTION_MAX_LENGTH}
                 </p>
@@ -327,8 +335,8 @@ import FormError from "../common/FormError";
 
               {/* Tags (predefined + other) */}
               <div>
-                <label className="text-sm font-medium text-main">Tags</label>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <span className="text-sm font-medium text-main" id="task-tags-label">Tags</span>
+                <div className="mt-2 flex flex-wrap gap-2" role="group" aria-labelledby="task-tags-label">
                   {TAGS.map((tag) => {
                     const isSelected = tags.includes(tag);
                     return (
@@ -357,6 +365,7 @@ import FormError from "../common/FormError";
                       value={customTagInput}
                       onChange={(e) => setCustomTagInput(e.target.value)}
                       disabled={isSubmitting}
+                      aria-label="Custom tag input"
                       className="flex-1 p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-800 dark:placeholder-slate-500"
                       placeholder="Enter custom tag (e.g., 'Essay')"
                     />
@@ -401,8 +410,9 @@ import FormError from "../common/FormError";
 
               {/* Priority */}
               <div>
-                <label className="text-sm font-medium text-main">Priority</label>
+                <label htmlFor="task-priority-select" className="text-sm font-medium text-main">Priority</label>
                 <select
+                  id="task-priority-select"
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
                   disabled={isSubmitting}
@@ -421,11 +431,12 @@ import FormError from "../common/FormError";
 
               {/* Depends On */}
   <div>
-    <label className="text-sm font-medium text-main">
+    <label htmlFor="task-depends-on-select" className="text-sm font-medium text-main">
       Depends On
     </label>
 
     <select
+      id="task-depends-on-select"
       value={dependsOn}
       onChange={(e) => setDependsOn(e.target.value)}
       disabled={isSubmitting}
@@ -456,8 +467,9 @@ import FormError from "../common/FormError";
 
               {/* Due Date */}
               <div>
-                <label className="text-sm font-medium text-main">Due Date</label>
+                <label htmlFor="task-due-date-input" className="text-sm font-medium text-main">Due Date</label>
                 <input
+                  id="task-due-date-input"
                   type="date"
                   value={dueDate}
                   min={task ? undefined : todayStr}
@@ -473,8 +485,9 @@ import FormError from "../common/FormError";
 
               {/* Due Time */}
               <div>
-                <label className="text-sm font-medium text-main">Due Time</label>
+                <label htmlFor="task-due-time-input" className="text-sm font-medium text-main">Due Time</label>
                 <input
+                  id="task-due-time-input"
                   type="time"
                   value={dueTime}
                   onChange={(e) => setDueTime(e.target.value)}
@@ -520,10 +533,11 @@ import FormError from "../common/FormError";
                   <div className="space-y-3 pt-1">
                     {/* Frequency */}
                     <div>
-                      <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                      <label htmlFor="task-recurrence-frequency" className="text-xs font-medium text-muted uppercase tracking-wide">
                         Frequency
                       </label>
                       <select
+                        id="task-recurrence-frequency"
                         value={recurrenceFrequency}
                         onChange={(e) => {
                           setRecurrenceFrequency(e.target.value);
@@ -542,16 +556,18 @@ import FormError from "../common/FormError";
                     {/* Weekly — day picker */}
                     {recurrenceFrequency === "weekly" && (
                       <div>
-                        <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                        <span className="text-xs font-medium text-muted uppercase tracking-wide" id="task-recurrence-days-label">
                           Repeat on
-                        </label>
-                        <div className="mt-1 flex flex-wrap gap-1">
+                        </span>
+                        <div className="mt-1 flex flex-wrap gap-1" role="group" aria-labelledby="task-recurrence-days-label">
                           {WEEK_DAYS.map((day) => (
                             <button
                               key={day}
                               type="button"
                               onClick={() => toggleRecurrenceDay(day)}
                               disabled={isSubmitting}
+                              aria-pressed={recurrenceDays.includes(day)}
+                              aria-label={day}
                               className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                                 recurrenceDays.includes(day)
                                   ? "ring-2 ring-(--primary) bg-(--primary)/10 text-(--primary)"
@@ -568,10 +584,11 @@ import FormError from "../common/FormError";
                     {/* Monthly — day of month */}
                     {recurrenceFrequency === "monthly" && (
                       <div>
-                        <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                        <label htmlFor="task-recurrence-month-day" className="text-xs font-medium text-muted uppercase tracking-wide">
                           Day of month
                         </label>
                         <input
+                          id="task-recurrence-month-day"
                           type="number"
                           min={1}
                           max={31}
@@ -588,11 +605,12 @@ import FormError from "../common/FormError";
 
                     {/* Optional end date */}
                     <div>
-                      <label className="text-xs font-medium text-muted uppercase tracking-wide">
+                      <label htmlFor="task-recurrence-end-date" className="text-xs font-medium text-muted uppercase tracking-wide">
                         End date{" "}
                         <span className="normal-case">(optional)</span>
                       </label>
                       <input
+                        id="task-recurrence-end-date"
                         type="date"
                         value={recurrenceEndDate}
                         min={todayStr}
@@ -612,6 +630,7 @@ import FormError from "../common/FormError";
               <button
                 type="submit"
                 disabled={isSubmitting}
+                aria-label={task ? "Update task" : "Add task"}
                 className="w-full btn btn-primary py-2 mt-2 hover-lift disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isSubmitting
