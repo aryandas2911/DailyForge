@@ -1,4 +1,4 @@
-import { Check, Trash2, Pencil, Calendar, Play } from "lucide-react";
+import { Check, Trash2, Pencil, Calendar, Play, Link2 } from "lucide-react";
 import { useState } from "react";
 import TaskFormModal from "./TaskFormModal";
 import { getCategoryColor } from "../../utils/categoryUtils";
@@ -104,7 +104,7 @@ export default function TaskItem({
 
               {task.dependsOn && (
                 <div className="text-[11px] text-muted flex items-center gap-1 mt-1 bg-white/40 dark:bg-slate-800/40 px-2 py-1 rounded border border-soft/30">
-                  <span className="shrink-0 text-amber-500">🔗</span>
+                  <span className="shrink-0 text-amber-500"><Link2 size={12} /></span>
                   <span className="truncate" title={task.dependsOn.title}>
                     Depends on: {task.dependsOn.title}
                   </span>
@@ -225,8 +225,9 @@ export default function TaskItem({
               </div>
 
               {task.dependsOn && (
-  <p className="text-xs text-muted mt-1">
-    🔗 Depends on: {task.dependsOn.title}
+  <p className="text-xs text-muted mt-1 flex items-center gap-1">
+    <Link2 size={11} className="shrink-0 text-amber-500" />
+    Depends on: {task.dependsOn.title}
   </p>
 )}
 
