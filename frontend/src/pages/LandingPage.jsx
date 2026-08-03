@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Clipboard, CalendarDays, BarChart2 } from "lucide-react";
 
 const LandingPage = () => {
   return (
@@ -66,8 +67,8 @@ const LandingPage = () => {
       shadow-lg hover:shadow-2xl
     "
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-              📋
+            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center mb-6 group-hover:scale-110 transition">
+              <Clipboard size={24} className="text-[#4eb7b3]" />
             </div>
 
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-3">
@@ -95,8 +96,8 @@ const LandingPage = () => {
       shadow-lg hover:shadow-2xl
     "
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-              🗓️
+            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center mb-6 group-hover:scale-110 transition">
+              <CalendarDays size={24} className="text-[#4eb7b3]" />
             </div>
 
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-3">
@@ -124,8 +125,8 @@ const LandingPage = () => {
       shadow-lg hover:shadow-2xl
     "
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-              📊
+            <div className="w-14 h-14 rounded-2xl bg-[#d0f6e3] flex items-center justify-center mb-6 group-hover:scale-110 transition">
+              <BarChart2 size={24} className="text-[#4eb7b3]" />
             </div>
 
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-3">
