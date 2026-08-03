@@ -121,7 +121,8 @@ export default function Dashboard() {
     : 0;
 
   const upcomingTasks = tasks
-    .filter((task) => task.status !== "Completed")
+    .filter((task) => task.status !== "Completed" && task.dueDate)
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
     .slice(0, 2);
 
   // Fetch routines
