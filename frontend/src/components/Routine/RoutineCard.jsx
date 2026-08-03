@@ -284,6 +284,13 @@ export default function RoutineCard({
   }
  };
 
+  // Helper: format minutes-since-midnight as "HH:MM"
+  const formatTime = (totalMinutes) => {
+    const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+    const m = String(totalMinutes % 60).padStart(2, "0");
+    return `${h}:${m}`;
+  };
+
   return (
     <>
 {showOverlapError && (
@@ -367,17 +374,14 @@ export default function RoutineCard({
                   {tasksByDay[day]
                     .sort((a, b) => a.startTime - b.startTime)
                     .map((task) => {
-                      const hours = String(
-                        Math.floor(task.startTime / 60)
-                      ).padStart(2, "0");
-
-                      const minutes = String(
-                        task.startTime % 60
-                      ).padStart(2, "0");
+                      const startFormatted = formatTime(task.startTime);
+                      const endFormatted = formatTime(task.startTime + task.duration);
 
                       return (
                         <li key={task.taskId} className="text-xs text-muted flex items-center gap-1.5 truncate">
-                          <span className="font-semibold text-main/80 shrink-0">{hours}:{minutes}</span>
+                          <span className="font-semibold text-main/80 shrink-0">
+                            {startFormatted}–{endFormatted}
+                          </span>
                           <span className="text-main/50 shrink-0">•</span>
                           <span className="truncate">{task.title}</span>
                         </li>
