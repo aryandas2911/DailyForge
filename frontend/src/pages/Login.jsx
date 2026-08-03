@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import api from "../api/axios";
@@ -65,6 +65,7 @@ const Login = () => {
   const [forgotPasswordError, setForgotPasswordError] = useState(""); // State for errors from the ChangePasswordModal
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [tempUserId, setTempUserId] = useState(null);
+  const [slowLoad, setSlowLoad] = useState(false);
 
   // useNavigate object
   const navigate = useNavigate();
@@ -73,6 +74,15 @@ const Login = () => {
 
   // useContext for auth
   const { setUser } = useContext(AuthContext);
+// Show cold start warning if API takes more than 3 seconds
+  useEffect(() => {
+  if (!isSubmitLoading && !isGoogleLoading) {
+    setSlowLoad(false);
+    return;
+  }
+  const timer = setTimeout(() => setSlowLoad(true), 3000);
+  return () => clearTimeout(timer);
+}, [isSubmitLoading, isGoogleLoading]);
 
 
 
@@ -280,6 +290,11 @@ cursor-pointer
               Sign up
             </Link>
           </p>
+          {slowLoad && (
+            <p className="text-center text-sm text-yellow-400/80 mt-1">
+              ⏳ Waking up the server — this may take up to 60 seconds on first load...
+            </p>
+          )}
         </form>
       </div>
       {isChangePasswordModalOpen && (
