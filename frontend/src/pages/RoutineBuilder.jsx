@@ -33,7 +33,17 @@ export default function RoutineBuilder() {
       return [];
     }
   });
+  const [lastConfirmedTasks, setLastConfirmedTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("draftScheduledTasks");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [selectedDay, setSelectedDay] = useState(null);
   const [routineName, setRoutineName] = useState("");
   const [savedRoutines, setSavedRoutines] = useState([]);
@@ -46,7 +56,7 @@ export default function RoutineBuilder() {
   const [selectedTemplateDay, setSelectedTemplateDay] = useState("Monday");
   const [highlightGrid, setHighlightGrid] = useState(false);
   const gridRef = useRef(null);
- 
+
 
   const exportToImage = async () => {
     if (!gridRef.current) return;
@@ -69,6 +79,14 @@ export default function RoutineBuilder() {
   };
 
   const normalizeDay = (day) => String(day || "").trim().toLowerCase();
+
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   // Configure sensors for drag-and-drop (mouse + keyboard)
   const sensors = useSensors(
@@ -123,20 +141,20 @@ export default function RoutineBuilder() {
 
   useEffect(() => {
 
-  if (!savedRoutines.length) return;
+    if (!savedRoutines.length) return;
 
-  const storedRoutineIds = JSON.parse(
-    localStorage.getItem("activeRoutineIds") || "[]"
-  );
+    const storedRoutineIds = JSON.parse(
+      localStorage.getItem("activeRoutineIds") || "[]"
+    );
 
-  if (!storedRoutineIds.length) return;
+    if (!storedRoutineIds.length) return;
 
-  const restoredRoutines = savedRoutines.filter(
-    (routine) =>
-      storedRoutineIds.includes(routine._id)
-  );
+    const restoredRoutines = savedRoutines.filter(
+      (routine) =>
+        storedRoutineIds.includes(routine._id)
+    );
 
-  setActiveRoutine(restoredRoutines);
+    setActiveRoutine(restoredRoutines);
 
   }, [savedRoutines]);
 
@@ -182,6 +200,8 @@ export default function RoutineBuilder() {
         ]);
       }
 
+      setLastConfirmedTasks(scheduledTasks);
+
       setIsSaveModalOpen(false);
       setRoutineName("");
       setDescription("");
@@ -191,7 +211,8 @@ export default function RoutineBuilder() {
     } catch (err) {
       console.error(err);
       const errorMessage = err.response?.data?.message || "Failed to save routine";
-      alert(errorMessage);
+      setScheduledTasks(lastConfirmedTasks);
+      triggerToast(errorMessage);
     }
   };
 
@@ -223,12 +244,12 @@ export default function RoutineBuilder() {
     );
   };
   const handleAdoptTemplate = (template) => {
-    let currentHour = 9; 
+    let currentHour = 9;
     const hydratedTasks = template.tasks.map((task, index) => {
       const hour = currentHour + index;
       const formattedTime = `${hour < 10 ? '0' : ''}${hour}:00`;
       return {
-        taskId: `temp_${crypto.randomUUID()}`, 
+        taskId: `temp_${crypto.randomUUID()}`,
         title: task.title,
         day: selectedTemplateDay,
         startTime: formattedTime,
@@ -238,7 +259,7 @@ export default function RoutineBuilder() {
     setScheduledTasks((prev) => [...prev, ...hydratedTasks]);
     setIsTemplateModalOpen(false);
   };
-  
+
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -263,6 +284,19 @@ export default function RoutineBuilder() {
       }}
     >
       <div className="app-bg min-h-screen px-6 py-8 pb-40">
+        {/* Error Toast */}
+        {showToast && (
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top duration-300">
+            <div className="rounded-2xl border border-red-500/20 bg-white dark:bg-[#1e293b] shadow-2xl px-5 py-4 min-w-[320px]">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 h-3 w-3 rounded-full bg-red-500" />
+                <div>
+                  <p className="text-sm font-semibold text-main">{toastMessage}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in delay-100">
@@ -291,10 +325,10 @@ export default function RoutineBuilder() {
           </button>
           <div className="flex items-center gap-3">
             <button
-            onClick={() => setIsTemplateModalOpen(true)}
-            className="btn btn-secondary flex items-center gap-2 cursor-pointer hover-lift border border-gray-300 px-4 py-2 rounded-lg"
+              onClick={() => setIsTemplateModalOpen(true)}
+              className="btn btn-secondary flex items-center gap-2 cursor-pointer hover-lift border border-gray-300 px-4 py-2 rounded-lg"
             >
-            Start from Template
+              Start from Template
             </button>
           </div>
         </header>
@@ -324,7 +358,7 @@ export default function RoutineBuilder() {
           </section>
         </div>
 
-         {/* ================= Saved Routines ================= */}
+        {/* ================= Saved Routines ================= */}
         <section className="mt-10 animate-in delay-300">
           <h2 className="text-xl font-semibold text-main mb-4">
             Saved Routines
@@ -419,10 +453,10 @@ export default function RoutineBuilder() {
                 <h3 className="text-xl font-semibold text-main">Choose a Template</h3>
                 <button onClick={() => setIsTemplateModalOpen(false)} className="text-gray-500 hover:text-black">✕</button>
               </div>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Target Day</label>
-                <select 
+                <select
                   value={selectedTemplateDay}
                   onChange={(e) => setSelectedTemplateDay(e.target.value)}
                   className="w-full border-soft rounded-lg px-3 py-2 bg-transparent"
