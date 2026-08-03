@@ -62,3 +62,19 @@ export function isValidEmail(email) {
 export function isValidRoutineName(name) {
   return Boolean(name && name.trim());
 }
+
+/**
+ * Validates that a priority value is one of the allowed values.
+ *
+ * @param {string} priority - The priority level to validate.
+ * @returns {boolean} True if priority is 'High', 'Medium', or 'Low'; false otherwise.
+ *
+ * @example
+ * validateTaskPriority('High');   // true
+ * validateTaskPriority('Low');    // true
+ * validateTaskPriority('Urgent');  // false
+ * validateTaskPriority('');        // false
+ */
+export function validateTaskPriority(priority) {
+  return ['High', 'Medium', 'Low'].includes(priority);
+}
