@@ -74,8 +74,13 @@ import FormError from "../common/FormError";
         setDependsOn(task.dependsOn?._id || "");
         if (task?.dueDate) {
           const dt = new Date(task.dueDate);
-          const datePart = dt.toISOString().slice(0, 10);
-          const timePart = dt.toTimeString().slice(0, 5);
+          // Use local date getters to avoid UTC conversion shifting the date
+          const yyyy = dt.getFullYear();
+          const mm = String(dt.getMonth() + 1).padStart(2, "0");
+          const dd = String(dt.getDate()).padStart(2, "0");
+          const datePart = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD in local time
+          const timePart = dt.toTimeString().slice(0, 5); // HH:MM in local time
+
           setDueDate(datePart);
           setDueTime(timePart);
         }
