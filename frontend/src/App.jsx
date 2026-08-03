@@ -286,5 +286,10 @@ const App = () => {
     </KeyboardShortcutsProvider>
   );
 };
+import ProductivityAssistant from "./components/ProductivityAssistant";
+
+function App() {
+  return <ProductivityAssistant />;
+}
 
 export default App;
