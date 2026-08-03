@@ -68,7 +68,25 @@ export default function About() {
           DailyForge helps you stay focused, not overwhelmed.
         </h3>
       </section>
+      {/* Feedback Section */}
+      <section className="max-w-4xl mx-auto card p-6">
+        <h2 className="text-2xl font-bold text-main mb-4">
+          Feedback
+        </h2>
 
+        <p className="text-muted mb-4">
+          We'd love to hear your thoughts and suggestions to improve DailyForge.
+        </p>
+
+        <textarea
+          placeholder="Write your feedback here..."
+          className="w-full min-h-[140px] p-4 rounded-xl border border-gray-300 text-black outline-none"
+        ></textarea>
+
+        <button className="mt-4 px-6 py-3 rounded-xl bg-primary text-white hover:opacity-90 transition">
+          Submit Feedback
+        </button>
+      </section>
     </div>
   );
 }
