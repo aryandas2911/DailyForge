@@ -400,20 +400,23 @@ export default function Tasks() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
+              <label htmlFor="task-search-input" className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-main">Search by title</span>
                 <input
+                  id="task-search-input"
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search tasks"
+                  aria-label="Search tasks by title"
                   className="w-full rounded-lg border border-soft bg-transparent px-3 py-2 text-main placeholder:text-muted dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-(--primary)/30"
                 />
               </label>
               {/* View Toggle */}
-              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg">
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg" role="group" aria-label="View mode">
                 <button
                   onClick={() => setViewMode("list")}
+                  aria-pressed={viewMode === "list"}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "list"
                     ? "bg-white dark:bg-slate-700 shadow-sm text-main"
                     : "text-muted hover:text-main"
@@ -424,6 +427,7 @@ export default function Tasks() {
                 </button>
                 <button
                   onClick={() => setViewMode("board")}
+                  aria-pressed={viewMode === "board"}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === "board"
                     ? "bg-white dark:bg-slate-700 shadow-sm text-main"
                     : "text-muted hover:text-main"
@@ -498,7 +502,7 @@ export default function Tasks() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4 animate-in delay-200">
+          <div className="lg:col-span-2 space-y-4 animate-in delay-200" role="region" aria-label="Task list" aria-live="polite">
             {filteredTasks.length ? (
               viewMode === "list" ? (
                 filteredTasks.map((task) => (
@@ -532,12 +536,12 @@ export default function Tasks() {
                 />
               )
             ) : tasks.length > 0 ? (
-              <div className="card p-8 shadow-sm text-center space-y-3">
+              <div className="card p-8 shadow-sm text-center space-y-3" role="status" aria-label="No matching tasks">
                 <h3 className="text-lg font-semibold text-main">No matching tasks</h3>
                 <p className="text-sm text-muted">
                   Try a different search term or clear the active filters.
                 </p>
-                <button onClick={clearFilters} className="btn btn-primary px-4 py-2">
+                <button onClick={clearFilters} className="btn btn-primary px-4 py-2" aria-label="Clear all filters">
                   Clear filters
                 </button>
               </div>
@@ -552,29 +556,31 @@ export default function Tasks() {
             )}
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between gap-4 pt-2">
+              <nav className="flex items-center justify-between gap-4 pt-2" aria-label="Task list pagination">
                 <button
                   onClick={() => setPage((currentPage) => currentPage - 1)}
                   disabled={!hasPreviousPage}
+                  aria-label="Go to previous page"
                   className="btn btn-muted flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeft size={16} />
                   Previous
                 </button>
 
-                <p className="text-sm text-muted">
+                <p className="text-sm text-muted" aria-live="polite">
                   Page {page} of {totalPages}
                 </p>
 
                 <button
                   onClick={() => setPage((currentPage) => currentPage + 1)}
                   disabled={!hasNextPage}
+                  aria-label="Go to next page"
                   className="btn btn-primary flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Next
                   <ChevronRight size={16} />
                 </button>
-              </div>
+              </nav>
             )}
           </div>
 
