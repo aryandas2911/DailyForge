@@ -62,8 +62,7 @@ const useMixedTasks = (updateDbTask) => {
         try {
           localStorage.setItem("activeRoutineTasks", JSON.stringify(updated));
         } catch (error) {
-          // ignore localStorage failures
-          console.error("Failed to persist routine tasks to localStorage", error);
+          console.error("Failed to persist routine tasks to localStorage:", error);
         }
         // Dispatch a dedicated custom event so same-tab listeners can subscribe
         try {
