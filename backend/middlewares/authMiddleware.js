@@ -49,7 +49,7 @@ export const authMiddleware = (req, res, next) => {
     next();
   } catch (error) {
     // error handling
-    console.log('Token verification error', error);
+    console.error('Token verification error', error);
 
     // expired token
     if (error.name === 'TokenExpiredError') {
