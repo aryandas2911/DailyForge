@@ -30,6 +30,7 @@ export default function Dashboard() {
 
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
   const [moreTags, setmoreTags] = useState(false);
+  const [toast, setToast] = useState({ message: "", type: "error" });
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
   const [todayJournal, setTodayJournal] = useState(null);
@@ -202,7 +203,7 @@ export default function Dashboard() {
       closeDuplicateModal();
     } catch (err) {
       console.error(err);
-      alert("Failed to duplicate routine");
+      setToast({ message: "Failed to duplicate routine", type: "error" });
     } finally {
       setDuplicatingRoutineId(null);
     }
@@ -679,6 +680,16 @@ export default function Dashboard() {
         isOpen={showProfilePictureModal}
         onClose={() => setShowProfilePictureModal(false)}
       />
+
+      {toast.message && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transition-all duration-300 ${
+            toast.type === "error" ? "bg-red-500" : "bg-green-500"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
