@@ -22,6 +22,7 @@ export default function Analytics() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [exportError, setExportError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
@@ -95,6 +96,7 @@ export default function Analytics() {
 
   // Image Export Handler
   const exportToImage = async () => {
+    setExportError("");
     const element = document.getElementById("analytics-dashboard-content");
     if (!element) return;
     try {
@@ -118,7 +120,7 @@ export default function Analytics() {
       document.body.removeChild(link);
     } catch (err) {
       console.error("Failed to export image:", err);
-      alert("Failed to export dashboard as image");
+      setExportError("Failed to export dashboard as image");
     }
   };
 
@@ -266,6 +268,9 @@ export default function Analytics() {
             Export PNG
           </button>
         </div>
+        {exportError && (
+          <p className="text-sm text-red-500 w-full">{exportError}</p>
+        )}
       </header>
 
       {/* Grid of Key Metrics */}
