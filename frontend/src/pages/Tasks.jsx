@@ -69,6 +69,7 @@ export default function Tasks() {
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
+  const [durationError, setDurationError] = useState("");
   const [viewMode, setViewMode] = useState("list");
 
   const handleSelect = (id) => {
@@ -141,7 +142,7 @@ export default function Tasks() {
     const durationValue = Number(actualDuration);
 
     if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
+      setDurationError("Please enter a valid duration in minutes");
       return;
     }
 
@@ -697,16 +698,20 @@ export default function Tasks() {
               type="number"
               min="1"
               value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
+              onChange={(e) => { setActualDuration(e.target.value); setDurationError(""); }}
               className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
+            {durationError && (
+              <p className="text-sm text-red-500 mt-1">{durationError}</p>
+            )}
 
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
+                  setDurationError("");
                 }}
                 className="px-4 py-2 rounded-lg border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800"
               >
