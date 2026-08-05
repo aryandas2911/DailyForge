@@ -52,7 +52,7 @@ const useTasks = ({
           limit: data.limit || initialLimit,
         });
       } catch (error) {
-        console.log(error?.response?.data?.message || "Failed to load tasks");
+        console.error(error?.response?.data?.message || "Failed to load tasks");
         setTasks([]);
       } finally {
         setLoading(false);
@@ -76,13 +76,13 @@ const useTasks = ({
         setPage(DEFAULT_PAGE);
       }
     } catch (error) {
-      console.log("FULL ERROR:", error);
-      console.log(
+      console.error("FULL ERROR:", error);
+      console.error(
         error?.response?.data?.message ||
           error?.response?.data ||
           error.message,
       );
-      alert(error?.response?.data?.message || "Failed to create task");
+      console.error(error?.response?.data?.message || "Failed to create task");
       throw error;
     }
   };
@@ -114,7 +114,7 @@ const useTasks = ({
       invalidateTasks();
       await getTasks(page);
     } catch (error) {
-      console.log(error?.response?.data?.message || "Failed to update task");
+      console.error(error?.response?.data?.message || "Failed to update task");
       invalidateTasks();
       await getTasks(page);
     }
@@ -122,10 +122,17 @@ const useTasks = ({
 
   // delete task
   const deleteTask = async (id) => {
-    // Optimistic UI update
-    setTasks((prev) => prev.filter((t) => t._id !== id));
-    invalidateTasks();
-    await getTasks(page);
+    try {
+      await api.delete(`/tasks/${id}`);
+      setTasks((prev) => prev.filter((t) => t._id !== id));
+      invalidateTasks();
+      await getTasks(page);
+      return { success: true, message: "Task deleted successfully" };
+    } catch (error) {
+      console.error(error?.response?.data?.message || "Failed to delete task");
+      await getTasks(page);
+      return { success: false, message: error?.response?.data?.message || "Failed to delete task" };
+    }
   };
 
   // bulk delete tasks
