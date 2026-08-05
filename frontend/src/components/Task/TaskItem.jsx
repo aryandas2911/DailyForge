@@ -22,6 +22,20 @@ export default function TaskItem({
 }) {
   const isCompleted = task.status === "Completed";
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete(task._id);
+    setShowDeleteConfirm(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+  };
 
   const handleEditSubmit = (updatedTask) => {
     onUpdate(task._id, updatedTask);
@@ -175,7 +189,7 @@ export default function TaskItem({
                 </button>
 
                 <button
-                  onClick={() => onDelete(task._id)}
+                  onClick={handleDeleteClick}
                   className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer text-red-500/80 hover:text-red-600"
                   title="Delete task"
                 >
@@ -300,7 +314,7 @@ export default function TaskItem({
 
               {/* Delete Button - Fix : Ensure onDelete uses task._id*/}
               <button
-                onClick={() => onDelete(task._id)}
+                onClick={handleDeleteClick}
                 className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition cursor-pointer"
               >
                 <Trash2 size={18} className="text-red-500" />
@@ -309,6 +323,32 @@ export default function TaskItem({
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl max-w-sm w-full mx-4 animate-in">
+            <h3 className="text-lg font-bold text-main mb-2">Delete Task?</h3>
+            <p className="text-sm text-muted mb-6">
+              Are you sure you want to delete "{task.title}"? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 rounded-xl text-sm font-medium border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {isEditModalOpen && (
