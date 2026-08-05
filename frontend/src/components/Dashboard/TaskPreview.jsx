@@ -9,6 +9,7 @@ export default function TaskPreview({ tasks , updateTask}) {
   const [actualDuration, setActualDuration] = useState("");
 
   const [now, setNow] = useState(new Date());
+  const [durationError, setDurationError] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,7 +51,7 @@ export default function TaskPreview({ tasks , updateTask}) {
     const durationValue = Number(actualDuration);
 
     if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
+      setDurationError("Please enter a valid duration in minutes");
       return;
     }
 
@@ -62,6 +63,7 @@ export default function TaskPreview({ tasks , updateTask}) {
 
       setDurationModalTask(null);
       setActualDuration("");
+      setDurationError("");
     } catch (error) {
       console.error("Failed to update task:", error);
     }
@@ -180,15 +182,22 @@ export default function TaskPreview({ tasks , updateTask}) {
               type="number"
               min="1"
               value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
+              onChange={(e) => {
+                setActualDuration(e.target.value);
+                setDurationError("");
+              }}
               className="w-full p-2 border border-soft rounded-lg text-black dark:placeholder-slate-500"
               placeholder="Actual duration in minutes"
             />
+            {durationError && (
+              <p className="text-sm text-red-500 mt-1">{durationError}</p>
+            )}
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
+                  setDurationError("");
                 }}
                 className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
               >
