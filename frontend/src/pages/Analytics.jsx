@@ -24,6 +24,7 @@ export default function Analytics() {
   const [error, setError] = useState("");
   const [hoveredBar, setHoveredBar] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [imageExportError, setImageExportError] = useState("");
 
   const fetchAnalytics = async () => {
     try {
@@ -118,7 +119,7 @@ export default function Analytics() {
       document.body.removeChild(link);
     } catch (err) {
       console.error("Failed to export image:", err);
-      alert("Failed to export dashboard as image");
+      setImageExportError("Failed to export dashboard as image");
     }
   };
 
@@ -266,6 +267,9 @@ export default function Analytics() {
             Export PNG
           </button>
         </div>
+        {imageExportError && (
+          <p className="text-sm text-red-500 w-full md:w-auto">{imageExportError}</p>
+        )}
       </header>
 
       {/* Grid of Key Metrics */}
