@@ -205,6 +205,7 @@ Understanding the application flow makes it much easier for new contributors to 
 
 📊 High-Level Architecture
 
+```mermaid
 flowchart LR
     A["👤 User"] --> B["⚛️ React Frontend"]
     B --> C["🌐 Axios API Requests"]
@@ -215,6 +216,7 @@ flowchart LR
     G --> H["📤 JSON Response"]
     H --> I["🔄 React State Update"]
     I --> J["🖥️ Updated UI"]
+```
 
 ---
 
