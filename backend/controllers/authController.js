@@ -12,19 +12,20 @@ import nodemailer from "nodemailer"; // Added for email sending
 import dotenv from "dotenv";
 dotenv.config();
 
-// ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
-const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
-
-
-if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY, "hex").length !== 32) {
-  throw new Error("TWO_FACTOR_ENCRYPTION_KEY must be a 32-byte hex key");
+function getEncryptionKey() {
+  const key = process.env.TWO_FACTOR_ENCRYPTION_KEY;
+  if (!key || Buffer.from(key, "hex").length !== 32) {
+    throw new Error("TWO_FACTOR_ENCRYPTION_KEY must be a 32-byte hex key");
+  }
+  return Buffer.from(key, "hex");
 }
 
 function encrypt(text) {
+  const keyBuffer = getEncryptionKey();
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
-    Buffer.from(ENCRYPTION_KEY, "hex"),
+    keyBuffer,
     iv,
   );
   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
@@ -32,10 +33,11 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
+  const keyBuffer = getEncryptionKey();
   const [iv, encrypted] = text.split(":").map((p) => Buffer.from(p, "hex"));
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
-    Buffer.from(ENCRYPTION_KEY, "hex"),
+    keyBuffer,
     iv,
   );
   return Buffer.concat([
