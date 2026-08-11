@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import mongoose from "mongoose";
 import { getPublicRoutine } from "../controllers/routineController.js";
 import Routine from "../src/models/Routine.js";
 
@@ -56,5 +57,6 @@ test("getPublicRoutine returns response with routine property", async () => {
     assert.equal(responseData.routine.adaptiveSettings, undefined, "adaptiveSettings should be excluded");
   } finally {
     Routine.findById = originalFindById;
+    await mongoose.disconnect();
   }
 });
