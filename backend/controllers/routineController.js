@@ -472,7 +472,7 @@ export const getPublicRoutine = async (req, res) => {
     const result = { ...objectRoutine };
     delete result.userId;
     delete result.adaptiveSettings; // Exclude userId and adaptiveSettings from the response
-    return res.status(200).json({ success: true, routine: result });
+    return res.status(200).json({ success: true, result });
   } catch (error) {
     console.log("Error fetching public routine", error);
     return res

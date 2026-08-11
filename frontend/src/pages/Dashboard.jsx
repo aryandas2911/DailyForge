@@ -1,8 +1,8 @@
 import OnboardingModal from "../components/OnboardingModal";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen } from "lucide-react";
+import { AuthContext } from "../context/AuthContext"; 
+import { CheckCircle2, Calendar, Flame, ArrowRight, RotateCw, Copy, BookOpen, Upload } from "lucide-react";
 import LiveClock from "../components/Dashboard/LiveClock";
 import StatCard from "../components/Dashboard/StatCard";
 import TaskPreview from "../components/Dashboard/TaskPreview";
@@ -14,6 +14,7 @@ import { cachedGet, invalidate } from "../utils/apiCache";
 import useTasks from "../hooks/useTasks.js";
 import useMixedTasks from "../hooks/useMixedTasks.js";
 import { getGreeting } from "../utils/getGreeting";
+import ProfilePictureUploadModal from "../components/ProfilePictureUploadModal"; // Import the new modal
 import { DAYS_OF_WEEK } from "../utils/constants";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [routineToDuplicate, setRoutineToDuplicate] = useState(null);
   const [duplicateTargetDay, setDuplicateTargetDay] = useState(DAYS_OF_WEEK[0]);
 
+  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false); // State for profile picture modal
   const [moreTags, setmoreTags] = useState(false);
   const { tasks, loading: tasksLoading, updateTask: updateDbTask } = useTasks();
   const { updateTask, routineTasks } = useMixedTasks(updateDbTask);
@@ -300,26 +302,23 @@ export default function Dashboard() {
             {/* Left */}
             <div className="flex-1">
               <div
-                className="
-    w-20 h-20 
-    rounded-full 
-    overflow-hidden      
-    bg-gradient-to-tr
-    from-[#4eb7b3]
-    to-[#98e1d7]
-    flex items-center justify-center
-    text-white text-3xl font-bold
-    flex-shrink-0 "
+                className="relative w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-[#4eb7b3] to-[#98e1d7] flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 group cursor-pointer"
+                onClick={() => setShowProfilePictureModal(true)}
               >
                 {user?.photo ? (
                   <img
                     src={user?.photo}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
                   />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  <span className="transition-opacity duration-300 group-hover:opacity-70">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
                 )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/80 bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Upload size={24} className="text-white" />
+                </div>
               </div>
 
               <LiveClock />
@@ -675,6 +674,11 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <ProfilePictureUploadModal
+        isOpen={showProfilePictureModal}
+        onClose={() => setShowProfilePictureModal(false)}
+      />
     </div>
   );
 }

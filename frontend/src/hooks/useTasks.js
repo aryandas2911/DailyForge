@@ -139,9 +139,19 @@ const useTasks = ({
 
   // bulk edit tasks
   const bulkUpdate = async (ids, updates) => {
-    await Promise.all(ids.map((id) => api.put(`/tasks/${id}`, updates)));
-    invalidateTasks();
-    await getTasks(page);
+    try {
+      const batchSize = 5;
+      for (let i = 0; i < ids.length; i += batchSize) {
+        const batch = ids.slice(i, i + batchSize);
+        await Promise.allSettled(
+          batch.map((id) => api.put(`/tasks/${id}`, updates))
+        );
+      }
+    } catch (error) {
+      console.error("Bulk update encountered an error:", error);
+    } finally {
+      await getTasks(page);
+    }
   };
 
   // initial fetch

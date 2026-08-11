@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar.jsx";
+import KeyboardShortcutsProvider from "./components/KeyboardShortcutsProvider.jsx";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -170,6 +171,7 @@ const AnimatedRoutes = () => {
 
 const App = () => {
   return (
+    <KeyboardShortcutsProvider>
     <BrowserRouter>
       <Navbar />
       <main className="app-bg min-h-screen pt-24 sm:pt-28 flex flex-col text-main transition-colors duration-300">
@@ -281,6 +283,7 @@ const App = () => {
       <Footer />
       <ScrollToTop />
     </BrowserRouter>
+    </KeyboardShortcutsProvider>
   );
 };
 

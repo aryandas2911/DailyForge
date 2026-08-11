@@ -12,6 +12,7 @@ import { routineRouter } from "../routes/routineRoutes.js";
 import { analyticsRouter } from "../routes/analyticsRoutes.js";
 import { journalRouter } from "../routes/journalRoutes.js";
 import { validateEnv } from "../utils/envValidator.js";
+import connectCloudinary from "../config/cloudinary.js";
 import { rateLimit } from "express-rate-limit";
 
 // dotenv config
@@ -46,6 +47,9 @@ app.use(
 );
 // Connect to MongoDB using mongoose
 connectDB();
+
+// Connect to Cloudinary
+connectCloudinary();
 
 // Middleware for parsing cookies and request body
 
