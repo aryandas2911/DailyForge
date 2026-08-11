@@ -226,12 +226,12 @@ export default function RoutineBuilder() {
     let currentHour = 9; 
     const hydratedTasks = template.tasks.map((task, index) => {
       const hour = currentHour + index;
-      const formattedTime = `${hour < 10 ? '0' : ''}${hour}:00`;
+      const startTimeInMinutes = hour * 60;
       return {
         taskId: `temp_${crypto.randomUUID()}`, 
         title: task.title,
         day: selectedTemplateDay,
-        startTime: formattedTime,
+        startTime: startTimeInMinutes,
         duration: task.duration
       };
     });
