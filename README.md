@@ -659,7 +659,15 @@ We use labels to organize work. Here's what they mean:
 
 ## 📸 Screenshots
 
-### 🔐 Signup Page
+### 🏠 Landing Page
+
+![Landing Page](Screenshots/LandingPage.png)
+
+### 🔐 Login Page
+
+![Login Page](Screenshots/Login.png)
+
+### 📝 Signup Page
 
 ![Signup Page](Screenshots/Signup.png)
 
@@ -674,6 +682,22 @@ We use labels to organize work. Here's what they mean:
 ### 🗓️ Drag-and-Drop Routine Builder
 
 ![Routine Builder](Screenshots/Routine.png)
+
+### 📈 Analytics
+
+![Analytics](Screenshots/Analytics.png)
+
+### ⏱️ Pomodoro Timer
+
+![Pomodoro Timer](Screenshots/Pomodoro.png)
+
+### 📔 Daily Journal
+
+![Daily Journal](Screenshots/DailyJournal.png)
+
+### 👤 Profile Page
+
+![Profile](Screenshots/Profile.png)
 
 ---
 ---
