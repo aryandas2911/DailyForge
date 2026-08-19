@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
               </div>
             </div>
             <h1 className="text-2xl font-bold mb-3 text-gray-100">Oops! Something went wrong</h1>
-            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+            <p className="text-gray-400 dark:text-slate-300 mb-6 text-sm leading-relaxed">
               We're sorry, but an unexpected error occurred. The application has recovered from a crash, but you might need to refresh or return to the dashboard.
             </p>
             {this.state.error && (

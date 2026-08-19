@@ -8,17 +8,12 @@ import crypto from "crypto";
 import { generateRecurringTasks } from '../utils/generateRecurringTasks.js';
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
+import nodemailer from "nodemailer"; // Added for email sending
 import dotenv from "dotenv";
 dotenv.config();
 
 // ─── Encryption helpers for twoFactorSecret ───────────────────────────────────
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY; // 64-char hex (32 bytes)
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_API_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
 
 
 if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY, "hex").length !== 32) {
@@ -83,14 +78,14 @@ export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || name.trim().length < 2) {
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
       return res
         .status(400)
         .json({ message: "Name must be at least 2 characters long" });
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!password || !passwordRegex.test(password)) {
+    if (!password || typeof password !== "string" || !passwordRegex.test(password)) {
       return res.status(400).json({
         message:
           "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character",
@@ -188,6 +183,136 @@ export const login = async (req, res) => {
   } catch (_error) {
     console.log("Login error: ", _error);
     return res.status(500).json({ message: "Server error during login" });
+  }
+};
+
+// ─── Forgot Password Request ──────────────────────────────────────────────────
+export const forgotPasswordRequest = async (req, res) => {
+  const { email } = req.body;
+
+  // Validate Input: Basic email format validation
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    // Always send a generic success message to prevent user enumeration
+    return res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent to your inbox.' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    // Generate Token & Store Hashed Token (if user exists)
+    if (user) {
+
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = await bcrypt.hash(resetToken, 10);
+
+      // Set token and expiration on user document
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now (in milliseconds)
+      user.resetPasswordUsed = false; // Reset flag
+      await user.save();
+
+      // Send Email
+      // Configure Nodemailer transporter (ensure EMAIL_FROM and EMAIL_PASS are in your .env)
+      const emailUser = process.env.EMAIL_FROM;
+      const emailPass = process.env.EMAIL_PASS;
+
+      if (!emailUser || !emailPass) {
+        console.error("Nodemailer configuration error: EMAIL_FROM or EMAIL_PASS environment variables are not set. Please check your .env file.");
+        throw new Error("Email service not configured. Please set EMAIL_FROM and EMAIL_PASS in your .env file.");
+      }
+
+      const transporter = nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE || 'Gmail', // e.g., 'Gmail', 'SendGrid', etc.
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      });
+
+      // Construct the reset URL for the frontend
+      const resetUrl = `${
+        process.env.NODE_ENV === 'production'
+        ? process.env.CLIENT_ORIGIN
+        : process.env.FRONTEND_URL || 'http://localhost:5173'
+      }/reset-password?token=${resetToken}`;
+
+      const mailOptions = {
+        to: user.email,
+        from: process.env.EMAIL_FROM, // Sender email
+        subject: 'DailyForge Password Reset Request',
+        html: `
+          <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+          <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+          <p><a href="${resetUrl}">${resetUrl}</a></p>
+          <p>This link will expire in 1 hour.</p>
+          <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+        `,
+      };
+      await transporter.sendMail(mailOptions);
+    }
+
+    // Generic Response (always send this, regardless of whether user was found)
+    res.status(200).json({ message: 'If an account with that email exists, a password reset link has been sent to your inbox.' });
+
+  } catch (error) {
+    console.error('Forgot password request error:', error);
+    // Log the actual error but send a generic message to the client
+    res.status(500).json({ message: 'An error occurred while processing your request. Please try again later.' });
+  }
+};
+
+// ─── Reset Password ───────────────────────────────────────────────────────────
+export const resetPassword = async (req, res) => {
+  const { token, newPassword, confirmNewPassword } = req.body;
+
+  // Validate Input
+  if (!token || !newPassword || !confirmNewPassword) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    return res.status(400).json({ message: "New password and confirm password do not match." });
+  }
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+  if (!passwordRegex.test(newPassword)) {
+    return res.status(400).json({
+      message:
+        "Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character",
+    });
+  }
+
+  try {
+    const users = await User.find({
+      resetPasswordExpires: { $gt: Date.now() },
+      resetPasswordUsed: false,
+    });
+
+    let user = null;
+    for (const u of users) {
+      const isMatch = await bcrypt.compare(token, u.resetPasswordToken);
+      if (isMatch) {
+        user = u;
+        break;
+      }
+    }
+
+    if (!user) {
+      return res.status(400).json({ message: "Password reset token is invalid or has expired." });
+    }
+
+    // Update password and invalidate token
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined; // Clear the token
+    user.resetPasswordExpires = undefined; // Clear the expiration
+    user.resetPasswordUsed = true; // Mark token as used
+    await user.save();
+
+    return res.status(200).json({ message: "Password has been reset successfully. You can now log in." });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({ message: 'An error occurred while resetting your password. Please try again later.' });
   }
 };
 
@@ -394,6 +519,14 @@ export const updateProfile = async (req, res) => {
         return res
           .status(401)
           .json({ success: false, message: "Current password is incorrect" });
+      }
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+      if (!newPassword || !passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "New Password must be at least 8 characters long, include an uppercase letter, a digit, and a special character",
+        });
       }
       user.password = await bcrypt.hash(newPassword, 10);
     }
