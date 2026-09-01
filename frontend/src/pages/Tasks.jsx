@@ -31,9 +31,8 @@ function Toast({ message, type }) {
   if (!message) return null;
   return (
     <div
-      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${
-        type === "success" ? "bg-green-600" : "bg-red-600"
-      }`}
+      className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all transform z-50 ${type === "success" ? "bg-green-600" : "bg-red-600"
+        }`}
     >
       {message}
     </div>
@@ -69,6 +68,7 @@ export default function Tasks() {
   const [showBulkEdit, setShowBulkEdit] = useState(false);
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
+  const [durationError, setDurationError] = useState("");
   const [viewMode, setViewMode] = useState("list");
 
   const handleSelect = (id) => {
@@ -126,6 +126,7 @@ export default function Tasks() {
       if (task.status !== "Completed") {
         setDurationModalTask(task);
         setActualDuration("");
+        setDurationError("");
       } else {
         await updateTask(task._id, {
           status: "Due",
@@ -140,8 +141,8 @@ export default function Tasks() {
   const handleActualDurationSubmit = async () => {
     const durationValue = Number(actualDuration);
 
-    if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
+    if (!actualDuration || Number.isNaN(durationValue) || durationValue <= 0) {
+      setDurationError("Please enter a valid duration in minutes");
       return;
     }
 
@@ -153,6 +154,7 @@ export default function Tasks() {
 
       setDurationModalTask(null);
       setActualDuration("");
+      setDurationError("");
     } catch (error) {
       console.error("Failed to update task:", error);
     }
@@ -314,16 +316,16 @@ export default function Tasks() {
 
             {/* Notes Popover */}
           </div>
-{isNotesOpen && (
-  <>
-    {/* Mobile View - No Overlap */}
-    <div className="block md:hidden w-full mt-4 max-h-[50vh] overflow-y-auto notes-scroll">
-      <NotesWidget />
-    </div>
+          {isNotesOpen && (
+            <>
+              {/* Mobile View - No Overlap */}
+              <div className="block md:hidden w-full mt-4 max-h-[50vh] overflow-y-auto notes-scroll">
+                <NotesWidget />
+              </div>
 
-    {/* Desktop View - Popover */}
-    <div
-      className="
+              {/* Desktop View - Popover */}
+              <div
+                className="
         hidden md:block
         absolute top-full right-0 mt-3 z-50
         w-96
@@ -332,11 +334,11 @@ export default function Tasks() {
         border border-gray-100 dark:border-slate-800
         max-h-[70vh] overflow-y-auto notes-scroll
       "
-    >
-      <NotesWidget />
-    </div>
-  </>
-)}
+              >
+                <NotesWidget />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Bulk Edit Panel */}
@@ -697,16 +699,26 @@ export default function Tasks() {
               type="number"
               min="1"
               value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted dark:placeholder-slate-500"
+              onChange={(e) => {
+                setActualDuration(e.target.value);
+                if (durationError) setDurationError("");
+              }}
+              className={`w-full p-2 border rounded-lg bg-transparent text-main dark:bg-slate-900 dark:text-slate-100 placeholder:text-muted dark:placeholder-slate-500 ${durationError ? "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500" : "border-soft"
+                }`}
               placeholder="Actual duration in minutes"
             />
+            {durationError && (
+              <p className="mt-1 text-xs text-red-500 font-medium">
+                {durationError}
+              </p>
+            )}
 
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
+                  setDurationError("");
                 }}
                 className="px-4 py-2 rounded-lg border border-soft text-main hover:bg-gray-100 dark:hover:bg-slate-800"
               >

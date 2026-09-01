@@ -25,14 +25,14 @@ const LandingPage = () => {
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             to="/signup"
-            className="px-8 py-4 rounded-xl bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3] text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-xl bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3] text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-[#4eb7b3]/30 hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
           >
             Get Started
           </Link>
 
           <Link
             to="/login"
-            className="px-8 py-4 rounded-xl border border-[#4eb7b3]/40 hover:border-[#4eb7b3] text-[#3b8ea0] dark:text-[#98e1d7] transition-all duration-300"
+            className="inline-block px-8 py-4 rounded-xl border border-[#4eb7b3]/40 hover:border-[#4eb7b3] text-[#3b8ea0] dark:text-[#98e1d7] hover:bg-[#4eb7b3]/10 hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
           >
             Login
           </Link>
@@ -152,7 +152,7 @@ const LandingPage = () => {
 
         <Link
           to="/signup"
-          className="px-10 py-4 rounded-xl bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3] text-white font-semibold shadow-lg hover:scale-105 transition-all duration-300"
+          className="inline-block px-10 py-4 rounded-xl bg-linear-to-r from-[#3b8ea0] to-[#4eb7b3] text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-[#4eb7b3]/30 hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
         >
           Create Free Account
         </Link>
