@@ -7,6 +7,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
   const navigate = useNavigate();
   const [durationModalTask, setDurationModalTask] = useState(null);
   const [actualDuration, setActualDuration] = useState("");
+  const [durationError, setDurationError] = useState("");
 
   const priorityOrder = {
     High: 3,
@@ -47,6 +48,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
       } else {
         setDurationModalTask(task);
         setActualDuration("");
+        setDurationError("");
       }
     } catch (error) {
       console.error("Failed to update task:", error);
@@ -56,8 +58,8 @@ export default function DashboardTasks({ tasks, updateTask }) {
   const handleActualDurationSubmit = async () => {
     const durationValue = Number(actualDuration);
 
-    if (Number.isNaN(durationValue) || durationValue <= 0) {
-      alert("Please enter a valid duration in minutes");
+    if (!actualDuration || Number.isNaN(durationValue) || durationValue <= 0) {
+      setDurationError("Please enter a valid duration in minutes");
       return;
     }
 
@@ -69,6 +71,7 @@ export default function DashboardTasks({ tasks, updateTask }) {
 
       setDurationModalTask(null);
       setActualDuration("");
+      setDurationError("");
     } catch (error) {
       console.error("Failed to update task:", error);
     }
@@ -111,20 +114,18 @@ export default function DashboardTasks({ tasks, updateTask }) {
               {/* Task content */}
               <div className="flex-1 min-w-0">
                 <p
-                  className={`text-sm font-medium transition-colors break-words ${
-                    task.status === "Completed"
+                  className={`text-sm font-medium transition-colors break-words ${task.status === "Completed"
                       ? "line-through text-muted dark:text-gray-300"
                       : "text-main dark:text-white"
-                  }`}
+                    }`}
                 >
                   {task.title}
                 </p>
 
                 <div className="flex items-center gap-2 mt-1">
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                      priorityBadge[task.priority]
-                    }`}
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${priorityBadge[task.priority]
+                      }`}
                   >
                     {task.priority}
                   </span>
@@ -170,15 +171,25 @@ export default function DashboardTasks({ tasks, updateTask }) {
               type="number"
               min="1"
               value={actualDuration}
-              onChange={(e) => setActualDuration(e.target.value)}
-              className="w-full p-2 border border-soft rounded-lg text-black dark:placeholder-slate-500"
+              onChange={(e) => {
+                setActualDuration(e.target.value);
+                if (durationError) setDurationError("");
+              }}
+              className={`w-full p-2 border rounded-lg text-black dark:placeholder-slate-500 ${durationError ? "border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500" : "border-soft"
+                }`}
               placeholder="Actual duration in minutes"
             />
+            {durationError && (
+              <p className="mt-1 text-xs text-red-500 font-medium">
+                {durationError}
+              </p>
+            )}
             <div className="flex justify-end gap-3 mt-5">
               <button
                 onClick={() => {
                   setDurationModalTask(null);
                   setActualDuration("");
+                  setDurationError("");
                 }}
                 className="px-4 py-2 rounded-lg border border-soft text-black hover:bg-gray-100 transition"
               >
